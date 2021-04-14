@@ -13,6 +13,7 @@ The components installed by default are listed below and can be replaced to your
 - [metallb](https://metallb.universe.tf/)
 - [cert-manager](https://cert-manager.io/) with Cloudflare DNS challenge
 - [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
+- [homer](https://github.com/bastienwirtz/homer)
 
 ## :memo:&nbsp; Prerequisites
 
@@ -198,6 +199,16 @@ kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
 
 ## Post installation
 
+### Verify ingress
+
+If your cluster is not accessible to outside world you can update your hosts file to verify the ingress controller is working.
+
+```sh
+sudo echo "${BOOTSTRAP_INGRESS_NGINX_LB} ${BOOTSTRAP_DOMAIN} homer.${BOOTSTRAP_DOMAIN}" >> /etc/hosts
+```
+
+Head over to your browser and you _should_ be able to access `https://homer.${BOOTSTRAP_DOMAIN}`
+
 ### pre-commit
 
 It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
@@ -209,9 +220,56 @@ After pre-commit is installed run:
 pre-commit install-hooks
 ```
 
+### direnv
+
+This is a great tool to export environment variables depending on what your present working directory is, head over to their [installation guide](https://direnv.net/docs/installation.html) and don't forget to hook it into your shell!
+
+## Debugging
+
+Show the health of you kustomizations
+
+```sh
+kubectl --kubeconfig=./kubeconfig get kustomization -A
+# NAMESPACE     NAME          READY   STATUS                                                             AGE
+# flux-system   apps          True    Applied revision: main/943e4126e74b273ff603aedab89beb7e36be4998    3d19h
+# flux-system   core          True    Applied revision: main/943e4126e74b273ff603aedab89beb7e36be4998    4d6h
+# flux-system   flux-system   True    Applied revision: main/943e4126e74b273ff603aedab89beb7e36be4998    4d6h
+```
+
+Show the health of your main Flux `GitRepository`
+
+```sh
+flux get sources git
+# NAME           READY	MESSAGE                                                            REVISION                                                             	SUSPENDED
+# flux-system    True 	Fetched revision: main/943e4126e74b273ff603aedab89beb7e36be4998    main/943e4126e74b273ff603aedab89beb7e36be4998                        	False
+```
+
+Show the health of your `HelmRelease`s
+
+```sh
+flux get helmrelease -A
+# NAMESPACE   	NAME                  	READY	MESSAGE                         	REVISION	SUSPENDED
+# cert-manager	cert-manager          	True 	Release reconciliation succeeded	v1.3.0  	False
+# home        	homer                 	True 	Release reconciliation succeeded	4.2.0   	False
+# networking  	ingress-nginx       	True 	Release reconciliation succeeded	3.29.0  	False
+```
+
+Show the health of your `HelmRepository`s
+
+```sh
+flux get sources helm -A
+# NAMESPACE  	NAME                 READY	MESSAGE                                                   	REVISION                                	SUSPENDED
+# flux-system	bitnami-charts       True 	Fetched revision: 0ec3a3335ff991c45735866feb1c0830c4ed85cf	0ec3a3335ff991c45735866feb1c0830c4ed85cf	False
+# flux-system	ingress-nginx-charts True 	Fetched revision: 45669a3117fc93acc09a00e9fb9b4445e8990722	45669a3117fc93acc09a00e9fb9b4445e8990722	False
+# flux-system	jetstack-charts      True 	Fetched revision: 7bad937cc82a012c9ee7d7a472d7bd66b48dc471	7bad937cc82a012c9ee7d7a472d7bd66b48dc471	False
+# flux-system	k8s-at-home-charts   True 	Fetched revision: 1b24af9c5a1e3da91618d597f58f46a57c70dc13	1b24af9c5a1e3da91618d597f58f46a57c70dc13	False
+```
+
+Flux has a wide range of CLI options available be sure to run `flux --help` to view more!
+
 ## What's next?
 
-The world is your pod, try installing a application!
+The world is your cluster, try installing another application!
 
 ## :handshake:&nbsp; Thanks
 
