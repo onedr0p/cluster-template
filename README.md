@@ -49,10 +49,10 @@ Key-Length: 4096
 Subkey-Type: 1
 Subkey-Length: 4096
 Expire-Date: 0
-Name-Real: ${PERONAL_KEY_NAME}
+Name-Real: ${PERSONAL_KEY_NAME}
 EOF
 
-gpg --list-secret-keys "${PERONAL_KEY_NAME}"
+gpg --list-secret-keys "${PERSONAL_KEY_NAME}"
 # pub   rsa4096 2021-03-11 [SC]
 #       772154FFF783DE317KLCA0EC77149AC618D75581
 # uid           [ultimate] k8s@home (Macbook) <k8s-at-home@gmail.com>
