@@ -234,6 +234,17 @@ gpg --delete-secret-keys "${FLUX_KEY_FP}"
 
 ## Debugging
 
+Manually sync Flux with your Git repository
+
+```sh
+flux --kubeconfig=./kubeconfig reconcile source git flux-system
+# ► annotating GitRepository flux-system in flux-system namespace
+# ✔ GitRepository annotated
+# ◎ waiting for GitRepository reconciliation
+# ✔ GitRepository reconciliation completed
+# ✔ fetched revision main/943e4126e74b273ff603aedab89beb7e36be4998
+```
+
 Show the health of you kustomizations
 
 ```sh
