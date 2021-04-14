@@ -19,16 +19,17 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 
 ### :wrench:&nbsp; Tools
 
-| Tool                                                               | Purpose                                                                                                                  | Required |
-|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|:--------:|
-| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                                                                        |    ✅     |
-| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository                                                      |    ✅     |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration                                                                 |    ✅     |
-| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                                                                          |    ✅     |
-| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                                                                             |    ✅     |
-| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                                                                         |    ✅     |
-| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                                                                      |    ❌     |
-| [pre-commit](https://github.com/pre-commit/pre-commit)             | Keeps formatting consistency across your files and ensures you **do not commit un-encrypted secrets** to your repository |    ❌     |
+| Tool                                                                                                                        | Purpose                                                                                                                  | Minimum version | Required |
+|-----------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|
+| [k3sup](https://github.com/alexellis/k3sup) [[+](https://duckduckgo.com/?q=how+to+install+k3sup)]                           | Tool to install k3s on your nodes                                                                                        |    `0.10.2`     |    ✅     |
+| [kubectl](https://kubernetes.io/docs/tasks/tools/) [[+](https://duckduckgo.com/?q=how+to+install+kubectl)]                  | Allows you to run commands against Kubernetes clusters                                                                   |    `1.21.0`     |    ✅     |
+| [flux](https://toolkit.fluxcd.io/) [[+](https://duckduckgo.com/?q=how+to+install+flux2+cli)]                                | Operator that manages your k8s cluster based on your Git repository                                                      |    `0.12.3`     |    ✅     |
+| [SOPS](https://github.com/mozilla/sops) [[+](https://duckduckgo.com/?q=how+to+install+sops)]                                | Encrypts k8s secrets with GnuPG                                                                                          |     `3.7.1`     |    ✅     |
+| [GnuPG](https://gnupg.org/) [[+](https://duckduckgo.com/?q=how+to+install+gnupg)]                                           | Encrypts and signs your data                                                                                             |    `2.2.27`     |    ✅     |
+| [pinentry](https://gnupg.org/related_software/pinentry/index.html) [[+](https://duckduckgo.com/?q=how+to+install+pinentry)] | Allows GnuPG to read passphrases and PIN numbers                                                                         |     `1.1.1`     |    ✅     |
+| [direnv](https://github.com/direnv/direnv) [[+](https://duckduckgo.com/?q=how+to+install+direnv)]                           | Exports env vars based on present working directory                                                                      |    `2.28.0`     |    ❌     |
+| [pre-commit](https://github.com/pre-commit/pre-commit) [[+](https://duckduckgo.com/?q=how+to+install+pre-commit)]           | Keeps formatting consistency across your files and ensures you **do not commit un-encrypted secrets** to your repository |    `2.12.0`     |    ❌     |
+| [kustomize](https://kustomize.io/) [[+](https://duckduckgo.com/?q=how+to+install+kustomize)]                                | Template-free way to customize application configuration                                                                 |     `4.1.0`     |    ❌     |
 
 ## :rocket:&nbsp; Installation
 
