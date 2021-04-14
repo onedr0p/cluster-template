@@ -1,0 +1,80 @@
+{
+  "enabled": true,
+  "semanticCommits": "enabled",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dashboard",
+  "suppressNotifications": ["prIgnoreNotification"],
+  "rebaseWhen": "conflicted",
+  "kubernetes": {
+    "fileMatch": ["cluster/.+\\.yaml$"],
+    "ignorePaths": [
+      "cluster/base/"
+    ]
+  },
+  "helm-values": {
+    "fileMatch": ["cluster/.+helm-release\\.yaml$"]
+  },
+  "regexManagers": [
+    // regexManager to read and process HelmReleases and CRDs
+    {
+      "fileMatch": [
+        "cluster/.+helm-release\\.yaml$",
+        "cluster/.+crd\\.yaml$"
+      ],
+      "matchStrings": [
+        // helm releases
+        "registryUrl=(?<registryUrl>.*?)\n *chart: (?<depName>.*?)\n *version: (?<currentValue>.*)\n",
+        // cert-manager crd
+        "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n.*\\/(?<currentValue>.*?)\\/"
+      ],
+      "datasourceTemplate": "helm"
+    },
+  ],
+  "packageRules": [
+    // setup datasources
+    {
+      "matchDatasources": ["helm"],
+      "separateMinorPatch": true
+    },
+    // global docker datasource settings
+    {
+      "matchDatasources": ["docker"],
+      "enabled": true,
+      "commitMessageTopic": "container image {{depName}}",
+      "commitMessageExtra": "to {{#if isSingleVersion}}v{{{newVersion}}}{{else}}{{{newValue}}}{{/if}}",
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "separateMinorPatch": true
+    },
+    // add labels according to package and update types
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["major"],
+      "labels": ["renovate/image", "dep/major"]
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor"],
+      "labels": ["renovate/image", "dep/minor"]
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["patch"],
+      "labels": ["renovate/image", "dep/patch"]
+    },
+    {
+      "matchDatasources": ["helm"],
+      "matchUpdateTypes": ["major"],
+      "labels": ["renovate/helm", "dep/major"]
+    },
+    {
+      "matchDatasources": ["helm"],
+      "matchUpdateTypes": ["minor"],
+      "labels": ["renovate/helm", "dep/minor"]
+    },
+    {
+      "matchDatasources": ["helm"],
+      "matchUpdateTypes": ["patch"],
+      "labels": ["renovate/helm", "dep/patch"]
+    }
+  ]
+}
