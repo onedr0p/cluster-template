@@ -161,7 +161,7 @@ sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
 sops --encrypt --in-place ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 ```
 
-Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your yaml manifests.
+Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
 6. **Verify** all the above files are **encrypted** with SOPS
 
