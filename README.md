@@ -183,6 +183,11 @@ kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
 
 ### pre-commit
 
+It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
+One of the hooks will check to make sure you are not by accident commiting your SOPS secrets un-encrypted.
+
+After pre-commit is installed run:
+
 ```sh
 pre-commit install-hooks
 ```
