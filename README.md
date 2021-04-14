@@ -120,7 +120,7 @@ kubectl --kubeconfig=./kubeconfig get nodes
 
 ### GitOps with Flux
 
-1. Pre-create the namespace
+1. Pre-create the `flux-system` namespace
    
 ```sh
 kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
