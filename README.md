@@ -19,16 +19,16 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 
 ### :wrench:&nbsp; Tools
 
-| Tool                                                               | Purpose                                                                                                              | Required |
-|--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|:--------:|
-| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                                                                    |    ✅     |
-| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository                                                  |    ✅     |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration                                                             |    ✅     |
-| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                                                                      |    ✅     |
-| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                                                                         |    ✅     |
-| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                                                                     |    ✅     |
-| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                                                                  |    ❌     |
-| [pre-commit](https://github.com/pre-commit/pre-commit)             | Keeps formatting consistency across your files and ensures you do not commit un-encrypted secrets to your repository |    ❌     |
+| Tool                                                               | Purpose                                                                                                                  | Required |
+|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|:--------:|
+| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                                                                        |    ✅     |
+| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository                                                      |    ✅     |
+| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration                                                                 |    ✅     |
+| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                                                                          |    ✅     |
+| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                                                                             |    ✅     |
+| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                                                                         |    ✅     |
+| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                                                                      |    ❌     |
+| [pre-commit](https://github.com/pre-commit/pre-commit)             | Keeps formatting consistency across your files and ensures you **do not commit un-encrypted secrets** to your repository |    ❌     |
 
 ## :rocket:&nbsp; Installation
 
