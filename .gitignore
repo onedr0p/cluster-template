@@ -1,0 +1,9 @@
+# Editors
+.vscode/
+# Trash
+.DS_Store
+Thumbs.db
+# k8s
+kubeconfig
+# sops
+.decrypted~*.yaml
