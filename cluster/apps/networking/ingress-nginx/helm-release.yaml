@@ -22,11 +22,8 @@ spec:
       replicaCount: 1
       service:
         type: LoadBalancer
-        externalIPs:
-        - "${INGRESS_NGINX_LB}"
+        loadBalancerIP: "${INGRESS_NGINX_LB}"
         externalTrafficPolicy: Local
-      publishService:
-        enabled: true
       config:
         ssl-protocols: "TLSv1.3 TLSv1.2"
         proxy-body-size: "100m"
