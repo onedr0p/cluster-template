@@ -2,7 +2,9 @@
 
 Template for creating a [k3s](https://k3s.io/) cluster with [k3sup](https://github.com/alexellis/k3sup).
 
-Using this template you will be able to bootstrap the nodes you want with the following components:
+The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/).
+
+The components installed by default are listed below and can be replaced to your liking. They are only included to get a minimum viable cluster up and running.
 
 - [k3s](https://k3s.io/)
 - [flannel](https://github.com/flannel-io/flannel)
@@ -10,6 +12,7 @@ Using this template you will be able to bootstrap the nodes you want with the fo
 - [flux](https://toolkit.fluxcd.io/)
 - [metallb](https://metallb.universe.tf/)
 - [cert-manager](https://cert-manager.io/) with Cloudflare DNS challenge
+- [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
 
 ## :memo:&nbsp; Prerequisites
 
@@ -31,11 +34,19 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 | [pre-commit](https://github.com/pre-commit/pre-commit) [[+](https://duckduckgo.com/?q=how+to+install+pre-commit)]           | Keeps formatting consistency across your files and ensures you **do not commit un-encrypted secrets** to your repository |    `2.12.0`     |    ❌     |
 | [kustomize](https://kustomize.io/) [[+](https://duckduckgo.com/?q=how+to+install+kustomize)]                                | Template-free way to customize application configuration                                                                 |     `4.1.0`     |    ❌     |
 
-## :rocket:&nbsp; Installation
+## :rocket:&nbsp; Pre-installation
+
+It's very important and I cannot stress enough, make sure you are not pushing your secrets un-encrypted to a public Git repo.
+
+I would start off **by making your repository private** until you are certain there are no leaks before showing it off to the world.
+
+## :rocket:&nbsp; Lets go!
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
 
 ### :key:&nbsp; Setting up GnuPG keys
+
+Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
 
 1. Create a Personal GPG Key, password protected, and export the fingerprint
 
@@ -88,6 +99,8 @@ export FLUX_KEY_FP=AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 
 ### :sailboat:&nbsp; Installing k3s with k3sup
 
+Here we will be install [k3s](https://k3s.io/) with [k3sup](https://github.com/alexellis/k3sup).
+
 1. Ensure you are able to SSH into you nodes with using your private ssh key. This is how k3sup is able to connect to your remote node.
 
 2. Install the master node
@@ -121,8 +134,10 @@ kubectl --kubeconfig=./kubeconfig get nodes
 
 ### GitOps with Flux
 
+Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
+
 1. Pre-create the `flux-system` namespace
-   
+
 ```sh
 kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
 ```
@@ -144,6 +159,7 @@ export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
 export BOOTSTRAP_DOMAIN="k8s-at-home.com"
 export BOOTSTRAP_DOMAIN_CERT="k8s-at-home"
 export BOOTSTRAP_CLOUDFLARE_TOKEN="dsKq41iLAbXE37GV"
+export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
 
 envsubst < ./.sops.yaml
 envsubst < ./cluster/cluster-secrets.yaml
@@ -195,7 +211,7 @@ pre-commit install-hooks
 
 ## What's next?
 
-The world is your oyster, try installing a ingress controller!
+The world is your pod, try installing a application!
 
 ## :handshake:&nbsp; Thanks
 
