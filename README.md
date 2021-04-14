@@ -40,7 +40,7 @@ Very first step will be to create a new repository by clicking the **Use this te
 
 ```sh
 export GPG_TTY=$(tty)
-export PERONAL_KEY_NAME="First name Last name (location) <email>"
+export PERSONAL_KEY_NAME="First name Last name (location) <email>"
 
 gpg --batch --full-generate-key <<EOF
 Key-Type: 1
@@ -109,7 +109,7 @@ k3sup join \
     --user=k8s-at-home
 ```
 
-4. Verify nodes are online
+4. Verify the nodes are online
    
 ```sh
 kubectl --kubeconfig=./kubeconfig get nodes
