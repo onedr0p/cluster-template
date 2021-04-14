@@ -1,8 +1,8 @@
-# cluster-k3s
+# Template for deploying k3s and Flux backed by SOPS secrets
 
-Template for creating a [k3s](https://k3s.io/) cluster with [k3sup](https://github.com/alexellis/k3sup), [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://github.com/mozilla/sops)
+Template for creating a [k3s](https://k3s.io/) cluster with [k3sup](https://github.com/alexellis/k3sup).
 
-This template will bootstrap the nodes you want with the following components:
+Using this template you will be able to bootstrap the nodes you want with the following components:
 
 - [k3s](https://k3s.io/)
 - [flannel](https://github.com/flannel-io/flannel)
@@ -15,7 +15,7 @@ This template will bootstrap the nodes you want with the following components:
 
 ### :computer:&nbsp; Nodes
 
-Bare metal or VMs with a modern operating system like Ubuntu, Debian or CentOS.
+Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS.
 
 ### :wrench:&nbsp; Tools
 
@@ -184,6 +184,10 @@ kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
 ```sh
 pre-commit install-hooks
 ```
+
+## What's next?
+
+The world is your oyster, try installing a ingress controller!
 
 ## :handshake:&nbsp; Thanks
 
