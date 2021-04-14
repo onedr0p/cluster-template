@@ -232,6 +232,11 @@ Since there is a GPG key specifically for Flux you can remove the secret key fro
 gpg --delete-secret-keys "${FLUX_KEY_FP}"
 ```
 
+### VSCode SOPS extension
+
+[Here](https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops)'s a neat little plugin for those using VSCode.
+It will automatically decrypt you SOPS secrets when you click on the file in the editor and encrypt them when you save the file.
+
 ## Debugging
 
 Manually sync Flux with your Git repository
