@@ -14,10 +14,9 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+    - name: yamllint
+      uses: reviewdog/action-yamllint@v1
       with:
-        fetch-depth: 1
-    - name: Lint YAML
-      uses: ibiqlik/action-yamllint@v3
-      with:
-        file_or_dir: "./cluster"
-        config_file: "./.github/yamllint.config.yaml"
+        github_token: ${{ secrets.github_token }}
+        reporter: github-pr-review
+        yamllint_flags: '-c .github/yamllint.config.yaml ./cluster/'
