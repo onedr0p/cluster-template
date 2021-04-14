@@ -239,7 +239,7 @@ kubectl --kubeconfig=./kubeconfig get kustomization -A
 Show the health of your main Flux `GitRepository`
 
 ```sh
-flux get sources git
+flux --kubeconfig=./kubeconfig get sources git
 # NAME           READY	MESSAGE                                                            REVISION                                                             	SUSPENDED
 # flux-system    True 	Fetched revision: main/943e4126e74b273ff603aedab89beb7e36be4998    main/943e4126e74b273ff603aedab89beb7e36be4998                        	False
 ```
@@ -247,7 +247,7 @@ flux get sources git
 Show the health of your `HelmRelease`s
 
 ```sh
-flux get helmrelease -A
+flux --kubeconfig=./kubeconfig get helmrelease -A
 # NAMESPACE   	NAME                  	READY	MESSAGE                         	REVISION	SUSPENDED
 # cert-manager	cert-manager          	True 	Release reconciliation succeeded	v1.3.0  	False
 # home        	homer                 	True 	Release reconciliation succeeded	4.2.0   	False
@@ -257,7 +257,7 @@ flux get helmrelease -A
 Show the health of your `HelmRepository`s
 
 ```sh
-flux get sources helm -A
+flux --kubeconfig=./kubeconfig get sources helm -A
 # NAMESPACE  	NAME                 READY	MESSAGE                                                   	REVISION                                	SUSPENDED
 # flux-system	bitnami-charts       True 	Fetched revision: 0ec3a3335ff991c45735866feb1c0830c4ed85cf	0ec3a3335ff991c45735866feb1c0830c4ed85cf	False
 # flux-system	ingress-nginx-charts True 	Fetched revision: 45669a3117fc93acc09a00e9fb9b4445e8990722	45669a3117fc93acc09a00e9fb9b4445e8990722	False
