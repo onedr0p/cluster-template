@@ -5,5 +5,5 @@
 Thumbs.db
 # k8s
 kubeconfig
-# sops
+# vscode-sops
 .decrypted~*.yaml
