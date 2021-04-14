@@ -1,13 +1,15 @@
 # cluster-k3s
 
-Template for creating a k3s cluster with [k3sup](https://github.com/alexellis/k3sup), [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://github.com/mozilla/sops)
+Template for creating a [k3s](https://k3s.io/) cluster with [k3sup](https://github.com/alexellis/k3sup), [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://github.com/mozilla/sops)
 
-This template will bootstrap the nodes you want with the following components
+This template will bootstrap the nodes you want with the following components:
 
-- k3s
-- flux
-- metallb
-- flannel
+- [k3s](https://k3s.io/)
+- [flannel](https://github.com/flannel-io/flannel)
+- [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
+- [flux](https://toolkit.fluxcd.io/)
+- [metallb](https://metallb.universe.tf/)
+- [cert-manager](https://cert-manager.io/) with Cloudflare DNS challenge
 
 ## :memo:&nbsp; Prerequisites
 
@@ -112,8 +114,8 @@ k3sup join \
 ```sh
 kubectl --kubeconfig=./kubeconfig get nodes
 # NAME           STATUS   ROLES                       AGE     VERSION
-# k8s-master-a   Ready    control-plane,master      4d14h   v1.20.5+k3s1
-# k8s-worker-a   Ready    worker                    4d14h   v1.20.5+k3s1
+# k8s-master-a   Ready    control-plane,master      4d20h   v1.20.5+k3s1
+# k8s-worker-a   Ready    worker                    4d20h   v1.20.5+k3s1
 ```
 
 ### GitOps with Flux
@@ -137,21 +139,25 @@ kubectl --kubeconfig=./kubeconfig create secret generic sops-gpg \
 
 ```sh
 export BOOTSTRAP_GITHUB_REPOSITORY="k8s-at-home/home-cluster"
-export BOOTSTRAP_DOMAIN="k8s-at-home.com"
 export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
+export BOOTSTRAP_DOMAIN="k8s-at-home.com"
+export BOOTSTRAP_CLOUDFLARE_TOKEN="dsKq41iLAbXE37GV"
 
 envsubst < ./.sops.yaml
 envsubst < ./cluster/cluster-secrets.yaml
 envsubst < ./cluster/cluster-settings.yaml
 envsubst < ./cluster/base/flux-system/gotk-sync.yaml
+envsubst < ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 ```
 
 4. **Verify** all the above files have the correct information present
 
-5. Encrypt `cluster-settings.yaml` with SOPS
+5. Encrypt `cluster-settings.yaml` and `secret.enc.yaml` with SOPS
 
 ```sh
+export GPG_TTY=$(tty)
 sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
+sops --encrypt --in-place ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 ```
 
 6. **Verify** this file **is encrypted** with SOPS
@@ -180,4 +186,4 @@ pre-commit install-hooks
 
 ## :handshake:&nbsp; Thanks
 
-A lot of inspiration for my cluster came from the people that have shared their clusters over at [awesome-home-kubernetes](https://github.com/k8s-at-home/awesome-home-kubernetes)
+Big shout out to all the authors and contributors to the projects that we are using in this repository.
