@@ -153,13 +153,15 @@ envsubst < ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 
 4. **Verify** all the above files have the correct information present
 
-5. Encrypt `cluster-settings.yaml` and `secret.enc.yaml` with SOPS
+5. Encrypt `cluster/cluster-secrets.yaml` and `cert-manager/secret.enc.yaml` with SOPS
 
 ```sh
 export GPG_TTY=$(tty)
 sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
 sops --encrypt --in-place ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 ```
+
+Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your yaml manifests.
 
 6. **Verify** all the above files are **encrypted** with SOPS
 
