@@ -224,6 +224,14 @@ pre-commit install-hooks
 
 This is a great tool to export environment variables depending on what your present working directory is, head over to their [installation guide](https://direnv.net/docs/installation.html) and don't forget to hook it into your shell!
 
+### Delete Flux GPG key
+
+Since there is a GPG key specifically for Flux you can remove the secret key from your personal machine.
+
+```sh
+gpg --delete-secret-keys "${FLUX_KEY_FP}"
+```
+
 ## Debugging
 
 Show the health of you kustomizations
