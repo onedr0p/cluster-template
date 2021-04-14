@@ -161,7 +161,7 @@ sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
 sops --encrypt --in-place ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 ```
 
-6. **Verify** this file **is encrypted** with SOPS
+6. **Verify** all the above files are **encrypted** with SOPS
 
 7. Push you changes to git
 
