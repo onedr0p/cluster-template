@@ -135,12 +135,13 @@ kubectl --kubeconfig=./kubeconfig create secret generic sops-gpg \
     --from-file=sops.asc=/dev/stdin
 ```
 
-3. Update files using `envsubst` or by updating them manually
+3. Update files using `envsubst` or by updating the files listed below manually
 
 ```sh
 export BOOTSTRAP_GITHUB_REPOSITORY="k8s-at-home/home-cluster"
 export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
 export BOOTSTRAP_DOMAIN="k8s-at-home.com"
+export BOOTSTRAP_DOMAIN_CERT="k8s-at-home"
 export BOOTSTRAP_CLOUDFLARE_TOKEN="dsKq41iLAbXE37GV"
 
 envsubst < ./.sops.yaml
