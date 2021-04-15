@@ -162,11 +162,11 @@ export BOOTSTRAP_DOMAIN_CERT="k8s-at-home"
 export BOOTSTRAP_CLOUDFLARE_TOKEN="dsKq41iLAbXE37GV"
 export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
 
-envsubst < ./.sops.yaml
-envsubst < ./cluster/cluster-secrets.yaml
-envsubst < ./cluster/cluster-settings.yaml
-envsubst < ./cluster/base/flux-system/gotk-sync.yaml
-envsubst < ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
+envsubst < ./tmpl/.sops.yaml > ./.sops.yaml
+envsubst < ./tmpl/cluster-secrets.yaml > ./cluster/cluster-secrets.yaml
+envsubst < ./tmpl/cluster-settings.yaml > ./cluster/cluster-settings.yaml
+envsubst < ./tmpl/gotk-sync.yaml > ./cluster/base/flux-system/gotk-sync.yaml
+envsubst < ./tmpl/secret.enc.yaml > ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 ```
 
 4. **Verify** all the above files have the correct information present
