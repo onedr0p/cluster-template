@@ -34,7 +34,7 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 | [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |    `2.28.0`     |    ❌     |
 | [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks during `git commit`                                     |    `2.12.0`     |    ❌     |
 | [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |     `4.1.0`     |    ❌     |
-| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                             |     `3.5.4`     |    ❌     |
+| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |     `3.5.4`     |    ❌     |
 
 ## :warning:&nbsp; Pre-installation
 
