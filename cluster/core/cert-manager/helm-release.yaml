@@ -5,7 +5,6 @@ metadata:
   name: cert-manager
   namespace: cert-manager
 spec:
-  interval: 5m
   chart:
     spec:
       # renovate: registryUrl=https://charts.jetstack.io/
@@ -15,7 +14,6 @@ spec:
         kind: HelmRepository
         name: jetstack-charts
         namespace: flux-system
-      interval: 5m
   values:
     installCRDs: false
     webhook:
@@ -34,4 +32,3 @@ spec:
       enabled: false
       servicemonitor:
         enabled: false
-        prometheusInstance: monitoring

@@ -165,7 +165,7 @@ envsubst < ./.sops.yaml
 envsubst < ./cluster/cluster-secrets.yaml
 envsubst < ./cluster/cluster-settings.yaml
 envsubst < ./cluster/base/flux-system/gotk-sync.yaml
-envsubst < ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
+envsubst < ./cluster/core/cert-manager/secret.enc.yaml
 ```
 
 4. **Verify** all the above files have the correct information present
