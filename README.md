@@ -35,7 +35,7 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 | [pre-commit](https://github.com/pre-commit/pre-commit)             | Keeps formatting consistency across your files and ensures you **do not commit un-encrypted secrets** to your repository |    `2.12.0`     |    ❌     |
 | [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration                                                                 |     `4.1.0`     |    ❌     |
 
-## :rocket:&nbsp; Pre-installation
+## :warning:&nbsp; Pre-installation
 
 It's very important and I cannot stress enough, make sure you are not pushing your secrets un-encrypted to a public Git repo.
 
@@ -45,7 +45,7 @@ I would start off **by making your repository private** until you are certain th
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
 
-### :key:&nbsp; Setting up GnuPG keys
+### :closed_lock_with_key:&nbsp; Setting up GnuPG keys
 
 Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
 
@@ -133,7 +133,7 @@ kubectl --kubeconfig=./kubeconfig get nodes
 # k8s-worker-a   Ready    worker                    4d20h   v1.20.5+k3s1
 ```
 
-### GitOps with Flux
+### :small_blue_diamond:&nbsp; GitOps with Flux
 
 Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
 
@@ -197,7 +197,7 @@ git push
 kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
 ```
 
-## Post installation
+## :mega:&nbsp; Post installation
 
 ### Verify ingress
 
@@ -237,7 +237,7 @@ gpg --delete-secret-keys "${FLUX_KEY_FP}"
 [Here](https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops)'s a neat little plugin for those using VSCode.
 It will automatically decrypt you SOPS secrets when you click on the file in the editor and encrypt them when you save the file.
 
-## Debugging
+## :point_right:&nbsp; Debugging
 
 Manually sync Flux with your Git repository
 
@@ -264,8 +264,8 @@ Show the health of your main Flux `GitRepository`
 
 ```sh
 flux --kubeconfig=./kubeconfig get sources git
-# NAME           READY	MESSAGE                                                            REVISION                                                             	SUSPENDED
-# flux-system    True 	Fetched revision: main/943e4126e74b273ff603aedab89beb7e36be4998    main/943e4126e74b273ff603aedab89beb7e36be4998                        	False
+# NAME           READY	MESSAGE                                                            REVISION                                         SUSPENDED
+# flux-system    True 	Fetched revision: main/943e4126e74b273ff603aedab89beb7e36be4998    main/943e4126e74b273ff603aedab89beb7e36be4998    False
 ```
 
 Show the health of your `HelmRelease`s
@@ -291,7 +291,7 @@ flux --kubeconfig=./kubeconfig get sources helm -A
 
 Flux has a wide range of CLI options available be sure to run `flux --help` to view more!
 
-## What's next?
+## :grey_question:&nbsp; What's next?
 
 The world is your cluster, try installing another application!
 
