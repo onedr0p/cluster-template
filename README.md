@@ -172,11 +172,11 @@ export BOOTSTRAP_DOMAIN_CERT="k8s-at-home"
 export BOOTSTRAP_CLOUDFLARE_TOKEN="dsKq41iLAbXE37GV"
 export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
 
-envsubst < ./.sops.yaml
-envsubst < ./cluster/cluster-secrets.yaml
-envsubst < ./cluster/cluster-settings.yaml
-envsubst < ./cluster/base/flux-system/gotk-sync.yaml
-envsubst < ./cluster/core/cert-manager/secret.enc.yaml
+envsubst < ./.sops.yaml > ./.sops.yaml.tmp && mv ./.sops.yaml.tmp ./.sops.yaml
+envsubst < ./cluster/cluster-secrets.yaml > ./cluster/cluster-secrets.yaml.tmp && mv ./cluster/cluster-secrets.yaml.tmp ./cluster/cluster-secrets.yaml
+envsubst < ./cluster/cluster-settings.yaml > ./cluster/cluster-settings.yaml.tmp && mv ./cluster/cluster-settings.yaml.tmp ./cluster/cluster-settings.yaml
+envsubst < ./cluster/base/flux-system/gotk-sync.yaml > ./cluster/base/flux-system/gotk-sync.yaml.tmp && mv ./cluster/base/flux-system/gotk-sync.yaml.tmp ./cluster/base/flux-system/gotk-sync.yaml
+envsubst < ./cluster/core/cert-manager/secret.enc.yaml > ./cluster/core/cert-manager/secret.enc.yaml.tmp && mv ./cluster/core/cert-manager/secret.enc.yaml.tmp ./cluster/core/cert-manager/secret.enc.yaml
 ```
 
 4. **Verify** all the above files have the correct information present
