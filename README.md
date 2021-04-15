@@ -175,7 +175,7 @@ envsubst < ./cluster/core/cert-manager/secret.enc.yaml
 ```sh
 export GPG_TTY=$(tty)
 sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
-sops --encrypt --in-place ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
+sops --encrypt --in-place ./cluster/core/cert-manager/secret.enc.yaml
 ```
 
 Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
