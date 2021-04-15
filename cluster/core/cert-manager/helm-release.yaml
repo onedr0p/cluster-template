@@ -15,7 +15,6 @@ spec:
         kind: HelmRepository
         name: jetstack-charts
         namespace: flux-system
-      interval: 5m
   values:
     installCRDs: false
     webhook:
@@ -30,8 +29,3 @@ spec:
       nameservers:
       - "1.1.1.1"
       - "8.8.8.8"
-    prometheus:
-      enabled: false
-      servicemonitor:
-        enabled: false
-        prometheusInstance: monitoring

@@ -23,29 +23,39 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 
 ### :wrench:&nbsp; Tools
 
-| Tool                                                               | Purpose                                                                                                                  | Minimum version | Required |
-|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|:---------------:|:--------:|
-| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                                                                        |    `0.10.2`     |    ✅     |
-| [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters                                                                   |    `1.21.0`     |    ✅     |
-| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository                                                      |    `0.12.3`     |    ✅     |
-| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                                                                          |     `3.7.1`     |    ✅     |
-| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                                                                             |    `2.2.27`     |    ✅     |
-| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                                                                         |     `1.1.1`     |    ✅     |
-| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                                                                      |    `2.28.0`     |    ❌     |
-| [pre-commit](https://github.com/pre-commit/pre-commit)             | Keeps formatting consistency across your files and ensures you **do not commit un-encrypted secrets** to your repository |    `2.12.0`     |    ❌     |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration                                                                 |     `4.1.0`     |    ❌     |
+| Tool                                                               | Purpose                                                             | Minimum version | Required |
+|--------------------------------------------------------------------|---------------------------------------------------------------------|:---------------:|:--------:|
+| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                   |    `0.10.2`     |    ✅     |
+| [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |    `1.21.0`     |    ✅     |
+| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |    `0.12.3`     |    ✅     |
+| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |     `3.7.1`     |    ✅     |
+| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |    `2.2.27`     |    ✅     |
+| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |     `1.1.1`     |    ✅     |
+| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |    `2.28.0`     |    ❌     |
+| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks during `git commit`                                     |    `2.12.0`     |    ❌     |
+| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |     `4.1.0`     |    ❌     |
+| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |     `3.5.4`     |    ❌     |
 
-## :rocket:&nbsp; Pre-installation
+## :warning:&nbsp; Pre-installation
 
 It's very important and I cannot stress enough, make sure you are not pushing your secrets un-encrypted to a public Git repo.
 
-I would start off **by making your repository private** until you are certain there are no leaks before showing it off to the world.
+### pre-commit
+
+It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
+[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident commiting your secrets un-encrypted.
+
+After pre-commit is installed on your machine run:
+
+```sh
+pre-commit install-hooks
+```
 
 ## :rocket:&nbsp; Lets go!
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
 
-### :key:&nbsp; Setting up GnuPG keys
+### :closed_lock_with_key:&nbsp; Setting up GnuPG keys
 
 Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
 
@@ -86,7 +96,7 @@ Key-Length: 4096
 Subkey-Type: 1
 Subkey-Length: 4096
 Expire-Date: 0
-Name-Real: ${KEY_NAME}
+Name-Real: ${FLUX_KEY_NAME}
 EOF
 
 gpg --list-secret-keys "${FLUX_KEY_NAME}"
@@ -133,7 +143,7 @@ kubectl --kubeconfig=./kubeconfig get nodes
 # k8s-worker-a   Ready    worker                    4d20h   v1.20.5+k3s1
 ```
 
-### GitOps with Flux
+### :small_blue_diamond:&nbsp; GitOps with Flux
 
 Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
 
@@ -176,7 +186,7 @@ envsubst < ./tmpl/secret.enc.yaml > ./cluster/core/infrastructure/cert-manager/s
 ```sh
 export GPG_TTY=$(tty)
 sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
-sops --encrypt --in-place ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
+sops --encrypt --in-place ./cluster/core/cert-manager/secret.enc.yaml
 ```
 
 Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
@@ -197,7 +207,7 @@ git push
 kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
 ```
 
-## Post installation
+## :mega:&nbsp; Post installation
 
 ### Verify ingress
 
@@ -208,17 +218,6 @@ sudo echo "${BOOTSTRAP_INGRESS_NGINX_LB} ${BOOTSTRAP_DOMAIN} homer.${BOOTSTRAP_D
 ```
 
 Head over to your browser and you _should_ be able to access `https://homer.${BOOTSTRAP_DOMAIN}`
-
-### pre-commit
-
-It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
-[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident commiting your SOPS secrets un-encrypted.
-
-After pre-commit is installed run:
-
-```sh
-pre-commit install-hooks
-```
 
 ### direnv
 
@@ -237,7 +236,7 @@ gpg --delete-secret-keys "${FLUX_KEY_FP}"
 [Here](https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops)'s a neat little plugin for those using VSCode.
 It will automatically decrypt you SOPS secrets when you click on the file in the editor and encrypt them when you save the file.
 
-## Debugging
+## :point_right:&nbsp; Debugging
 
 Manually sync Flux with your Git repository
 
@@ -264,8 +263,8 @@ Show the health of your main Flux `GitRepository`
 
 ```sh
 flux --kubeconfig=./kubeconfig get sources git
-# NAME           READY	MESSAGE                                                            REVISION                                                             	SUSPENDED
-# flux-system    True 	Fetched revision: main/943e4126e74b273ff603aedab89beb7e36be4998    main/943e4126e74b273ff603aedab89beb7e36be4998                        	False
+# NAME           READY	MESSAGE                                                            REVISION                                         SUSPENDED
+# flux-system    True 	Fetched revision: main/943e4126e74b273ff603aedab89beb7e36be4998    main/943e4126e74b273ff603aedab89beb7e36be4998    False
 ```
 
 Show the health of your `HelmRelease`s
@@ -291,9 +290,9 @@ flux --kubeconfig=./kubeconfig get sources helm -A
 
 Flux has a wide range of CLI options available be sure to run `flux --help` to view more!
 
-## What's next?
+## :grey_question:&nbsp; What's next
 
-The world is your cluster, try installing another application!
+The world is your cluster, try installing another application or if you have a NAS and want storage back by that check out [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs) or [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
 
 ## :handshake:&nbsp; Thanks
 
