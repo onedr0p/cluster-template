@@ -40,6 +40,17 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 
 It's very important and I cannot stress enough, make sure you are not pushing your secrets un-encrypted to a public Git repo.
 
+### pre-commit
+
+It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
+[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident commiting your secrets un-encrypted.
+
+After pre-commit is installed on your machine run:
+
+```sh
+pre-commit install-hooks
+```
+
 ## :rocket:&nbsp; Lets go!
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
@@ -207,17 +218,6 @@ sudo echo "${BOOTSTRAP_INGRESS_NGINX_LB} ${BOOTSTRAP_DOMAIN} homer.${BOOTSTRAP_D
 ```
 
 Head over to your browser and you _should_ be able to access `https://homer.${BOOTSTRAP_DOMAIN}`
-
-### pre-commit
-
-It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
-[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident commiting your SOPS secrets un-encrypted.
-
-After pre-commit is installed run:
-
-```sh
-pre-commit install-hooks
-```
 
 ### direnv
 
