@@ -219,6 +219,17 @@ kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
 
 ## :mega:&nbsp; Post installation
 
+### Verify Flux
+
+```sh
+kubectl --kubeconfig=./kubeconfig get pods -n flux-system
+# NAME                                       READY   STATUS    RESTARTS   AGE
+# helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
+# kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
+# notification-controller-7c46575844-k4bvr   1/1     Running   0          1h
+# source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
+```
+
 ### Verify ingress
 
 If your cluster is not accessible to outside world you can update your hosts file to verify the ingress controller is working.
@@ -232,6 +243,8 @@ Head over to your browser and you _should_ be able to access `https://homer.${BO
 ### direnv
 
 This is a great tool to export environment variables depending on what your present working directory is, head over to their [installation guide](https://direnv.net/docs/installation.html) and don't forget to hook it into your shell!
+
+When this is done you no longer have to use `--kubeconfig=./kubeconfig` in your `kubectl` or `flux` commands.
 
 ### Delete Flux GPG key
 
