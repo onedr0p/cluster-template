@@ -147,13 +147,22 @@ kubectl --kubeconfig=./kubeconfig get nodes
 
 Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
 
-1. Pre-create the `flux-system` namespace
+1. Verify Flux can be installed
+
+```sh
+flux check --pre
+# ► checking prerequisites
+# ✗ kubectl version v0.0.0-master+faecb196815 < >=1.18.0-0
+# ✔ Kubernetes 1.20.5+k3s1 >=1.16.0-0
+```
+
+2. Pre-create the `flux-system` namespace
 
 ```sh
 kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-1. Add the Flux GPG key in-order for Flux to decrypt SOPS secrets
+3. Add the Flux GPG key in-order for Flux to decrypt SOPS secrets
 
 ```sh
 gpg --export-secret-keys --armor "${FLUX_KEY_FP}" |
@@ -162,7 +171,7 @@ kubectl --kubeconfig=./kubeconfig create secret generic sops-gpg \
     --from-file=sops.asc=/dev/stdin
 ```
 
-3. Update files using `envsubst` or by updating the files listed below manually
+4. Update files using `envsubst` or by updating the files listed below manually
 
 ```sh
 export BOOTSTRAP_GITHUB_REPOSITORY="k8s-at-home/home-cluster"
@@ -179,9 +188,9 @@ envsubst < ./tmpl/gotk-sync.yaml > ./cluster/base/flux-system/gotk-sync.yaml
 envsubst < ./tmpl/secret.enc.yaml > ./cluster/core/infrastructure/cert-manager/secret.enc.yaml
 ```
 
-4. **Verify** all the above files have the correct information present
+5. **Verify** all the above files have the correct information present
 
-5. Encrypt `cluster/cluster-secrets.yaml` and `cert-manager/secret.enc.yaml` with SOPS
+6. Encrypt `cluster/cluster-secrets.yaml` and `cert-manager/secret.enc.yaml` with SOPS
 
 ```sh
 export GPG_TTY=$(tty)
@@ -191,9 +200,9 @@ sops --encrypt --in-place ./cluster/core/cert-manager/secret.enc.yaml
 
 Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
-6. **Verify** all the above files are **encrypted** with SOPS
+7. **Verify** all the above files are **encrypted** with SOPS
 
-7. Push you changes to git
+8. Push you changes to git
 
 ```sh
 git add -A
@@ -201,7 +210,7 @@ git commit -m "initial commit"
 git push
 ```
 
-8. Install Flux
+9. Install Flux
 
 ```sh
 kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
