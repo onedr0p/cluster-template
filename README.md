@@ -86,7 +86,7 @@ Key-Length: 4096
 Subkey-Type: 1
 Subkey-Length: 4096
 Expire-Date: 0
-Name-Real: ${KEY_NAME}
+Name-Real: ${FLUX_KEY_NAME}
 EOF
 
 gpg --list-secret-keys "${FLUX_KEY_NAME}"
