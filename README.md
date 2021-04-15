@@ -290,9 +290,9 @@ flux --kubeconfig=./kubeconfig get sources helm -A
 
 Flux has a wide range of CLI options available be sure to run `flux --help` to view more!
 
-## :grey_question:&nbsp; What's next?
+## :grey_question:&nbsp; What's next
 
-The world is your cluster, try installing another application!
+The world is your cluster, try installing another application or if you have a NAS and want storage back by that check out [democratic-csi](https://github.com/democratic-csi/democratic-csi) or [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
 
 ## :handshake:&nbsp; Thanks
 
