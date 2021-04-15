@@ -40,8 +40,6 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 
 It's very important and I cannot stress enough, make sure you are not pushing your secrets un-encrypted to a public Git repo.
 
-I would start off **by making your repository private** until you are certain there are no leaks before showing it off to the world.
-
 ## :rocket:&nbsp; Lets go!
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
