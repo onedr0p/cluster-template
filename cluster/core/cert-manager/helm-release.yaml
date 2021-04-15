@@ -5,6 +5,7 @@ metadata:
   name: cert-manager
   namespace: cert-manager
 spec:
+  interval: 5m
   chart:
     spec:
       # renovate: registryUrl=https://charts.jetstack.io/
