@@ -4,3 +4,4 @@ resources:
 - crds
 - infrastructure
 - namespaces
+- operators
