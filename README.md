@@ -21,7 +21,7 @@ The components installed by default are listed below and can be replaced to your
 - [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#rocket-lets-go)
 - [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#mega-post-installation)
 - [Debugging](https://github.com/k8s-at-home/template-cluster-k3s#point_right-debugging)
-- [Automation](https://github.com/k8s-at-home/template-cluster-k3s#rebot-automation)
+- [Automation](https://github.com/k8s-at-home/template-cluster-k3s#robot-automation)
 - [What's next](https://github.com/k8s-at-home/template-cluster-k3s#grey_question-whats-next)
 - [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#handshake-thanks)
 
