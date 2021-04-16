@@ -23,6 +23,8 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 
 ### :wrench:&nbsp; Tools
 
+:round_pushpin: You need to install the required tools listed below on your workstation.
+
 | Tool                                                               | Purpose                                                             | Minimum version | Required |
 |--------------------------------------------------------------------|---------------------------------------------------------------------|:---------------:|:--------:|
 | [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                   |    `0.10.2`     |    ✅     |
