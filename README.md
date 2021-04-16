@@ -156,9 +156,10 @@ kubectl --kubeconfig=./kubeconfig get nodes
 5. Under `Permissions` give read access to `Zone` : `Zone` and `Zone` : `DNS`
 6. Under `Zone Resources` set it to `Include` : `All Zones`
 7. Click `Continue to summary` and then `Create Token`
-8. Export this token to an environment variable on your system to be used in the following steps
+8. Export this token and your Cloudflare email address to an environment variable on your system to be used in the following steps
 
 ```sh
+export BOOTSTRAP_CLOUDFLARE_EMAIL="k8s-at-home@gmail.com"
 export BOOTSTRAP_CLOUDFLARE_TOKEN="kpG6iyg3FS_du_8KRShdFuwfbwu3zMltbvmJV6cD"
 ```
 
@@ -198,7 +199,6 @@ export BOOTSTRAP_GITHUB_REPOSITORY="https://github.com/k8s-at-home/home-cluster"
 export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
 export BOOTSTRAP_DOMAIN="k8s-at-home.com"
 export BOOTSTRAP_DOMAIN_CERT="k8s-at-home"
-export BOOTSTRAP_CLOUDFLARE_EMAIL="k8s-at-home@gmail.com"
 export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
 
 envsubst < ./tmpl/.sops.yaml > ./.sops.yaml
