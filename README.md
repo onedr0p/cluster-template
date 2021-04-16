@@ -23,7 +23,7 @@ Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS
 
 ### :wrench:&nbsp; Tools
 
-:round_pushpin: You need to install the required tools listed below on your workstation.
+:round_pushpin: You need to install the required CLI tools listed below on your workstation.
 
 | Tool                                                               | Purpose                                                             | Minimum version | Required |
 |--------------------------------------------------------------------|---------------------------------------------------------------------|:---------------:|:--------:|
