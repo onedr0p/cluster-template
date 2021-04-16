@@ -245,15 +245,43 @@ git push
 
 ```sh
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
+# namespace/flux-system configured
+# customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/buckets.source.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/gitrepositories.source.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/helmcharts.source.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/helmreleases.helm.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/helmrepositories.source.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/kustomizations.kustomize.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/providers.notification.toolkit.fluxcd.io created
+# customresourcedefinition.apiextensions.k8s.io/receivers.notification.toolkit.fluxcd.io created
+# serviceaccount/helm-controller created
+# serviceaccount/kustomize-controller created
+# serviceaccount/notification-controller created
+# serviceaccount/source-controller created
+# clusterrole.rbac.authorization.k8s.io/crd-controller-flux-system created
+# clusterrolebinding.rbac.authorization.k8s.io/cluster-reconciler-flux-system created
+# clusterrolebinding.rbac.authorization.k8s.io/crd-controller-flux-system created
+# service/notification-controller created
+# service/source-controller created
+# service/webhook-receiver created
+# deployment.apps/helm-controller created
+# deployment.apps/kustomize-controller created
+# deployment.apps/notification-controller created
+# deployment.apps/source-controller created
+# unable to recognize "./cluster/base/flux-system": no matches for kind "Kustomization" in version "kustomize.toolkit.fluxcd.io/v1beta1"
+# unable to recognize "./cluster/base/flux-system": no matches for kind "GitRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 ```
 
-10. Install flux again
+Due to race conditions with the Flux CRDs you will have to run the command one more time. There should be no errors on this second run.
 
 ```sh
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 ```
-
-:round_pushpin: Don't be concerned with any errors that may be outputted to your console, Flux should have eventual consistency soon.
 
 ## :mega:&nbsp; Post installation
 
