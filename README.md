@@ -359,6 +359,8 @@ There's a couple Github workflows included in this repository that will help aut
 
 The world is your cluster, try installing another application or if you have a NAS and want storage back by that check out the helm charts for [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs) or [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
 
+If you plan on exposing your ingress to the world from your home. Checkout [our guide](https://docs.k8s-at-home.com/guides/dyndns/) to run a k8s `CronJob` to update DDNS.
+
 ## :handshake:&nbsp; Thanks
 
 Big shout out to all the authors and contributors to the projects that we are using in this repository.
