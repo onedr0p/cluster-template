@@ -57,6 +57,8 @@ pre-commit install-hooks
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
 
+:round_pushpin: In these instructions you will be exporting several environment variables to your current shell env. Make sure you stay with in your current shell to not lose any exported variables.
+
 ### :closed_lock_with_key:&nbsp; Setting up GnuPG keys
 
 :round_pushpin: Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
