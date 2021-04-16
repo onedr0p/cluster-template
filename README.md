@@ -143,6 +143,23 @@ kubectl --kubeconfig=./kubeconfig get nodes
 # k8s-worker-a   Ready    worker                    4d20h   v1.20.5+k3s1
 ```
 
+### :cloud:&nbsp; Cloudflare API Token
+
+In order to use cert-manager with the Cloudflare DNS challenge you will need to create a API token.
+
+1. Head over to Cloudflare and create a API token by going [here](https://dash.cloudflare.com/profile/api-tokens).
+2. Click the blue `Create Token` button
+3. Scroll down and create a Custom Token by choosing `Get started`
+4. Give your token a name like `cert-manager`
+5. Under `Permissions` give read access to `Zone` : `Zone` and `Zone` : `DNS`
+6. Under `Zone Resources` set it to `Include` : `All Zones`
+7. Click `Continue to summary` and then `Create Token`
+8. Export this token to an environment variable on your system to be used in the following steps
+
+```sh
+export BOOTSTRAP_CLOUDFLARE_TOKEN="kpG6iyg3FS_du_8KRShdFuwfbwu3zMltbvmJV6cD"
+```
+
 ### :small_blue_diamond:&nbsp; GitOps with Flux
 
 Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
@@ -152,8 +169,9 @@ Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick b
 ```sh
 flux check --pre
 # ► checking prerequisites
-# ✗ kubectl version v0.0.0-master+faecb196815 < >=1.18.0-0
+# ✔ kubectl 1.21.0 >=1.18.0-0
 # ✔ Kubernetes 1.20.5+k3s1 >=1.16.0-0
+# ✔ prerequisites checks passed
 ```
 
 2. Pre-create the `flux-system` namespace
@@ -174,12 +192,11 @@ kubectl --kubeconfig=./kubeconfig create secret generic sops-gpg \
 4. Update files using `envsubst` or by updating the files listed below manually
 
 ```sh
-export BOOTSTRAP_GITHUB_REPOSITORY="k8s-at-home/home-cluster"
+export BOOTSTRAP_GITHUB_REPOSITORY="https://github.com/k8s-at-home/home-cluster"
 export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
 export BOOTSTRAP_DOMAIN="k8s-at-home.com"
 export BOOTSTRAP_DOMAIN_CERT="k8s-at-home"
 export BOOTSTRAP_CLOUDFLARE_EMAIL="k8s-at-home@gmail.com"
-export BOOTSTRAP_CLOUDFLARE_TOKEN="dsKq41iLAbXE37GV"
 export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
 
 envsubst < ./tmpl/.sops.yaml > ./.sops.yaml
