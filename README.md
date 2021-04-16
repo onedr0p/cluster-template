@@ -214,7 +214,7 @@ git push
 9. Install Flux
 
 ```sh
-kubectl --kubeconfig=./kubeconfig --kustomize=./cluster/base/flux-system
+kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 ```
 
 ## :mega:&nbsp; Post installation
