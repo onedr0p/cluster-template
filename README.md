@@ -4,9 +4,8 @@ Template for creating a [k3s](https://k3s.io/) cluster with [k3sup](https://gith
 
 The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/).
 
-The components installed by default are listed below and can be replaced to your liking. They are only included to get a minimum viable cluster up and running.
+The following components are installed in your [k3s](https://k3s.io/) cluster by default. They are only included to get a minimum viable cluster up and running and you can be free to add / remove components to your liking.
 
-- [k3s](https://k3s.io/)
 - [flannel](https://github.com/flannel-io/flannel)
 - [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
 - [flux](https://toolkit.fluxcd.io/)
