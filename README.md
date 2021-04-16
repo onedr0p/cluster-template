@@ -181,7 +181,7 @@ export BOOTSTRAP_CLOUDFLARE_TOKEN="kpG6iyg3FS_du_8KRShdFuwfbwu3zMltbvmJV6cD"
 1. Verify Flux can be installed
 
 ```sh
-flux check --pre
+flux --kubeconfig=./kubeconfig check --pre
 # ► checking prerequisites
 # ✔ kubectl 1.21.0 >=1.18.0-0
 # ✔ Kubernetes 1.20.5+k3s1 >=1.16.0-0
@@ -191,7 +191,7 @@ flux check --pre
 2. Pre-create the `flux-system` namespace
 
 ```sh
-kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
+kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig=./kubeconfig apply -f -
 ```
 
 3. Add the Flux GPG key in-order for Flux to decrypt SOPS secrets
