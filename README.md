@@ -277,7 +277,7 @@ kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 ```
 
-Due to race conditions with the Flux CRDs you will have to run the command one more time. There should be no errors on this second run.
+:round_pushpin: Due to race conditions with the Flux CRDs you will have to run the command one more time. There should be no errors on this second run.
 
 ```sh
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
