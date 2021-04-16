@@ -301,7 +301,7 @@ kubectl --kubeconfig=./kubeconfig get pods -n flux-system
 If your cluster is not accessible to outside world you can update your hosts file to verify the ingress controller is working.
 
 ```sh
-sudo echo "${BOOTSTRAP_INGRESS_NGINX_LB} ${BOOTSTRAP_DOMAIN} homer.${BOOTSTRAP_DOMAIN}" >> /etc/hosts
+echo "${BOOTSTRAP_INGRESS_NGINX_LB} ${BOOTSTRAP_DOMAIN} homer.${BOOTSTRAP_DOMAIN}" | sudo tee -a /etc/hosts
 ```
 
 Head over to your browser and you _should_ be able to access `https://homer.${BOOTSTRAP_DOMAIN}`
