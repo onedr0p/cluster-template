@@ -15,6 +15,16 @@ The components installed by default are listed below and can be replaced to your
 - [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
 - [homer](https://github.com/bastienwirtz/homer)
 
+## Overview
+
+- [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#memo-prerequisites)
+- [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#rocket-lets-go)
+- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#mega-post-installation)
+- [Debugging](https://github.com/k8s-at-home/template-cluster-k3s#point_right-debugging)
+- [Automation](https://github.com/k8s-at-home/template-cluster-k3s#rebot-automation)
+- [What's next](https://github.com/k8s-at-home/template-cluster-k3s#grey_question-whats-next)
+- [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#handshake-thanks)
+
 ## :memo:&nbsp; Prerequisites
 
 ### :computer:&nbsp; Nodes
@@ -335,6 +345,15 @@ flux --kubeconfig=./kubeconfig get sources helm -A
 ```
 
 Flux has a wide range of CLI options available be sure to run `flux --help` to view more!
+
+## :robot:&nbsp; Automation
+
+[Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) is a very useful tool that when configured will start to create PRs in your Github repository when Docker images, Helm charts or anything else that can be tracked has a newer version. The configuration for renovate is located [here](./.github/renovate.json5).
+
+There's a couple Github workflows included in this repository that will help automate some processes.
+
+- [Flux upgrade schedule](./.github/workflows/flux-schedule.yaml) - workflow to upgrade Flux.
+- [Renovate schedule](./.github/workflows/renovate-schedule.yaml) - workflow to annotate `HelmRelease`'s which allows [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) to track Helm chart versions.
 
 ## :grey_question:&nbsp; What's next
 
