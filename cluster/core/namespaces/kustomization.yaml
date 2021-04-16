@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - cert-manager.yaml
 - metallb-system.yaml
+- networking.yaml
