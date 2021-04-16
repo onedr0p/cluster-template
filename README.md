@@ -57,7 +57,7 @@ Very first step will be to create a new repository by clicking the **Use this te
 
 ### :closed_lock_with_key:&nbsp; Setting up GnuPG keys
 
-Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
+:round_pushpin: Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
 
 1. Create a Personal GPG Key, password protected, and export the fingerprint
 
@@ -110,7 +110,7 @@ export FLUX_KEY_FP=AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 
 ### :sailboat:&nbsp; Installing k3s with k3sup
 
-Here we will be install [k3s](https://k3s.io/) with [k3sup](https://github.com/alexellis/k3sup).
+:round_pushpin: Here we will be install [k3s](https://k3s.io/) with [k3sup](https://github.com/alexellis/k3sup).
 
 1. Ensure you are able to SSH into you nodes with using your private ssh key. This is how k3sup is able to connect to your remote node.
 
@@ -145,7 +145,7 @@ kubectl --kubeconfig=./kubeconfig get nodes
 
 ### :cloud:&nbsp; Cloudflare API Token
 
-In order to use cert-manager with the Cloudflare DNS challenge you will need to create a API token.
+:round_pushpin: In order to use cert-manager with the Cloudflare DNS challenge you will need to create a API token.
 
 1. Head over to Cloudflare and create a API token by going [here](https://dash.cloudflare.com/profile/api-tokens).
 2. Click the blue `Create Token` button
@@ -162,7 +162,7 @@ export BOOTSTRAP_CLOUDFLARE_TOKEN="kpG6iyg3FS_du_8KRShdFuwfbwu3zMltbvmJV6cD"
 
 ### :small_blue_diamond:&nbsp; GitOps with Flux
 
-Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
+:round_pushpin: Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
 
 1. Verify Flux can be installed
 
@@ -216,7 +216,7 @@ sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
 sops --encrypt --in-place ./cluster/core/cert-manager/secret.enc.yaml
 ```
 
-Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
+:round_pushpin: Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
 7. **Verify** all the above files are **encrypted** with SOPS
 
@@ -233,6 +233,8 @@ git push
 ```sh
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 ```
+
+:round_pushpin: Don't be concerned with any errors that may be outputted to your console, Flux should have eventual consistency soon.
 
 ## :mega:&nbsp; Post installation
 
