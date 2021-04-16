@@ -247,6 +247,12 @@ git push
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 ```
 
+10. Install flux again
+
+```sh
+kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
+```
+
 :round_pushpin: Don't be concerned with any errors that may be outputted to your console, Flux should have eventual consistency soon.
 
 ## :mega:&nbsp; Post installation
