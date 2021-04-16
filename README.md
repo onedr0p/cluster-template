@@ -338,7 +338,7 @@ Flux has a wide range of CLI options available be sure to run `flux --help` to v
 
 ## :grey_question:&nbsp; What's next
 
-The world is your cluster, try installing another application or if you have a NAS and want storage back by that check out [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs) or [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
+The world is your cluster, try installing another application or if you have a NAS and want storage back by that check out the helm charts for [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs) or [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
 
 ## :handshake:&nbsp; Thanks
 
