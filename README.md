@@ -251,6 +251,8 @@ git push
 
 10. Install Flux
 
+:round_pushpin: Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
+
 ```sh
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 # namespace/flux-system configured
@@ -284,8 +286,6 @@ kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 ```
-
-:round_pushpin: Due to race conditions with the Flux CRDs you will have to run the command one more time. There should be no errors on this second run.
 
 :tada: **Congratulations** you have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
