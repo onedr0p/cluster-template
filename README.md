@@ -1,8 +1,19 @@
 # Template for deploying k3s and Flux backed by SOPS secrets
 
-Template for creating a [k3s](https://k3s.io/) cluster with [k3sup](https://github.com/alexellis/k3sup).
+Template for creating a [k3s](https://k3s.io/) cluster with [k3sup](https://github.com/alexellis/k3sup) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
 
-The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). With the [Flux SOPS integration](https://toolkit.fluxcd.io/guides/mozilla-sops/) you'll be able to commit encrypted secrets to your public repo.
+The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). With the [Flux SOPS integration](https://toolkit.fluxcd.io/guides/mozilla-sops/) you'll be able to commit GPG encrypted secrets to your public repo.
+
+## Overview
+
+- [Introduction](https://github.com/k8s-at-home/template-cluster-k3s#wave-introduction)
+- [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#memo-prerequisites)
+- [Pre Installation](https://github.com/k8s-at-home/template-cluster-k3s#warning-pre-installation)
+- [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#rocket-lets-go)
+- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#mega-post-installation)
+- [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#handshake-thanks)
+
+## :wave:&nbsp; Introduction
 
 The following components are installed in your [k3s](https://k3s.io/) cluster by default. They are only included to get a minimum viable cluster up and running. You are free to add / remove components to your liking but anything outside the scope of the below components are not supported by this template.
 
@@ -13,22 +24,13 @@ The following components are installed in your [k3s](https://k3s.io/) cluster by
 - [cert-manager](https://cert-manager.io/) with Cloudflare DNS challenge
 - [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
 - [homer](https://github.com/bastienwirtz/homer)
-
-## Overview
-
-- [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#memo-prerequisites)
-- [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#rocket-lets-go)
-- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#mega-post-installation)
-- [Debugging](https://github.com/k8s-at-home/template-cluster-k3s#point_right-debugging)
-- [Automation](https://github.com/k8s-at-home/template-cluster-k3s#robot-automation)
-- [What's next](https://github.com/k8s-at-home/template-cluster-k3s#grey_question-whats-next)
-- [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#handshake-thanks)
+- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller)
 
 ## :memo:&nbsp; Prerequisites
 
 ### :computer:&nbsp; Nodes
 
-Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS.
+Already provisioned Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS.
 
 ### :wrench:&nbsp; Tools
 
@@ -123,7 +125,7 @@ export FLUX_KEY_FP=AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 
 ### :sailboat:&nbsp; Installing k3s with k3sup
 
-:round_pushpin: Here we will be install [k3s](https://k3s.io/) with [k3sup](https://github.com/alexellis/k3sup).
+:round_pushpin: Here we will be install [k3s](https://k3s.io/) with [k3sup](https://github.com/alexellis/k3sup). After completion, k3sup will drop a `kubeconfig` in your present working directory for use with interacting with your cluster with `kubectl`.
 
 1. Ensure you are able to SSH into you nodes with using your private ssh key. This is how k3sup is able to connect to your remote node.
 
@@ -137,7 +139,7 @@ k3sup install \
     --k3s-extra-args="--disable servicelb --disable traefik"
 ```
 
-3. Join a worker node(s) (optional)
+3. Join worker nodes (optional)
 
 ```sh
 k3sup join \
@@ -158,9 +160,11 @@ kubectl --kubeconfig=./kubeconfig get nodes
 
 ### :cloud:&nbsp; Cloudflare API Token
 
-:round_pushpin: In order to use cert-manager with the Cloudflare DNS challenge you will need to create a API token.
+:round_pushpin: You may skip this step, **however** make sure to `export` dummy data **on item 8** in the below list.
 
-You may skip this step, **however** make sure to `export` dummy data **on item 8** in the below list. Be aware you **will not** have a valid SSL cert until cert-manager is configured correctly..
+...Be aware you **will not** have a valid SSL cert until cert-manager is configured correctly
+
+In order to use cert-manager with the Cloudflare DNS challenge you will need to create a API token.
 
 1. Head over to Cloudflare and create a API token by going [here](https://dash.cloudflare.com/profile/api-tokens).
 2. Click the blue `Create Token` button
@@ -288,9 +292,7 @@ kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 
 :round_pushpin: Due to race conditions with the Flux CRDs you will have to run the command one more time. There should be no errors on this second run.
 
-```sh
-kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
-```
+:tada: **Congratulations** you have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
 ## :mega:&nbsp; Post installation
 
@@ -334,7 +336,7 @@ gpg --delete-secret-keys "${FLUX_KEY_FP}"
 [Here](https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops)'s a neat little plugin for those using VSCode.
 It will automatically decrypt you SOPS secrets when you click on the file in the editor and encrypt them when you save the file.
 
-## :point_right:&nbsp; Debugging
+### :point_right:&nbsp; Debugging
 
 Manually sync Flux with your Git repository
 
@@ -388,11 +390,13 @@ flux --kubeconfig=./kubeconfig get sources helm -A
 
 Flux has a wide range of CLI options available be sure to run `flux --help` to view more!
 
-## :robot:&nbsp; Automation
+### :robot:&nbsp; Automation
 
-[Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) is a very useful tool that when configured will start to create PRs in your Github repository when Docker images, Helm charts or anything else that can be tracked has a newer version. The configuration for renovate is located [here](./.github/renovate.json5).
+- [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) is a very useful tool that when configured will start to create PRs in your Github repository when Docker images, Helm charts or anything else that can be tracked has a newer version. The configuration for renovate is located [here](./.github/renovate.json5).
 
-There's a couple Github workflows included in this repository that will help automate some processes.
+- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) will watch for new k3s releases and upgrade your nodes when new releases are found.
+
+There's also a couple Github workflows included in this repository that will help automate some processes.
 
 - [Flux upgrade schedule](./.github/workflows/flux-schedule.yaml) - workflow to upgrade Flux.
 - [Renovate schedule](./.github/workflows/renovate-schedule.yaml) - workflow to annotate `HelmRelease`'s which allows [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) to track Helm chart versions.
@@ -401,7 +405,7 @@ There's a couple Github workflows included in this repository that will help aut
 
 The world is your cluster, try installing another application or if you have a NAS and want storage back by that check out the helm charts for [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs) or [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
 
-If you plan on exposing your ingress to the world from your home. Checkout [our guide](https://docs.k8s-at-home.com/guides/dyndns/) to run a k8s `CronJob` to update DDNS.
+If you plan on exposing your ingress to the world from your home. Checkout [our rough guide](https://docs.k8s-at-home.com/guides/dyndns/) to run a k8s `CronJob` to update DDNS.
 
 ## :handshake:&nbsp; Thanks
 
