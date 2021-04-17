@@ -316,20 +316,12 @@ Head over to your browser and you _should_ be able to access `https://homer.${BO
 
 This is a great tool to export environment variables depending on what your present working directory is, head over to their [installation guide](https://direnv.net/docs/installation.html) and don't forget to hook it into your shell!
 
-When this is done you no longer have to use `--kubeconfig=./kubeconfig` in your `kubectl` or `flux` commands.
-
-### Delete Flux GPG key
-
-Since there is a GPG key specifically for Flux you can remove the secret key from your personal machine.
-
-```sh
-gpg --delete-secret-keys "${FLUX_KEY_FP}"
-```
+When this is done you no longer have to use `--kubeconfig=./kubeconfig` in your `kubectl`, `flux` or `helm` commands.
 
 ### VSCode SOPS extension
 
-[Here](https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops)'s a neat little plugin for those using VSCode.
-It will automatically decrypt you SOPS secrets when you click on the file in the editor and encrypt them when you save the file.
+[VSCode SOPS](https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops) is a neat little plugin for those using VSCode.
+It will automatically decrypt you SOPS secrets when you click on the file in the editor and encrypt them when you save  and exit the file.
 
 ### :point_right:&nbsp; Debugging
 
