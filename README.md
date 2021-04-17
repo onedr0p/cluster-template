@@ -8,7 +8,6 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 
 - [Introduction](https://github.com/k8s-at-home/template-cluster-k3s#wave-introduction)
 - [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#memo-prerequisites)
-- [Pre Installation](https://github.com/k8s-at-home/template-cluster-k3s#warning-pre-installation)
 - [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#rocket-lets-go)
 - [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#mega-post-installation)
 - [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#handshake-thanks)
@@ -49,11 +48,7 @@ Already provisioned Bare metal or VMs with any modern operating system like Ubun
 | [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |     `4.1.0`     |    ❌     |
 | [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |     `3.5.4`     |    ❌     |
 
-## :warning:&nbsp; Pre-installation
-
-It's very important and I cannot stress enough, make sure you are not pushing your secrets un-encrypted to a public Git repo.
-
-### pre-commit
+### :warning:&nbsp; pre-commit
 
 It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
 [sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident commiting your secrets un-encrypted.
