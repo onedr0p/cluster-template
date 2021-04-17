@@ -160,6 +160,8 @@ kubectl --kubeconfig=./kubeconfig get nodes
 
 :round_pushpin: In order to use cert-manager with the Cloudflare DNS challenge you will need to create a API token.
 
+If you wish to skip this step you may, just make sure to export dummy data on item 8 in the below list. Be aware you **will not** have a valid SSL cert until cert-manager is configured correctly.
+
 1. Head over to Cloudflare and create a API token by going [here](https://dash.cloudflare.com/profile/api-tokens).
 2. Click the blue `Create Token` button
 3. Scroll down and create a Custom Token by choosing `Get started`
