@@ -32,7 +32,7 @@ spec:
         serviceMonitor:
           enabled: false
       extraArgs:
-        default-ssl-certificate: "networking/${SECRET_DOMAIN_CERT}-tls"
+        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-tls"
       resources:
         requests:
           memory: 100Mi

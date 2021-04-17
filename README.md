@@ -203,15 +203,22 @@ kubectl --kubeconfig=./kubeconfig create secret generic sops-gpg \
     --from-file=sops.asc=/dev/stdin
 ```
 
-4. Update files using `envsubst` or by updating the files listed below manually
+4. Export more environment variables for application configuration
 
 ```sh
+# The repo you created from this template
 export BOOTSTRAP_GITHUB_REPOSITORY="https://github.com/k8s-at-home/home-cluster"
-export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
+# Choose one of your domains or use a made up one
 export BOOTSTRAP_DOMAIN="k8s-at-home.com"
-export BOOTSTRAP_DOMAIN_CERT="k8s-at-home"
+# Pick a range of unused IPs that are on the same network as your nodes
+export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
+# The load balancer IP for ingress-nginx, choose from one of the available IPs above
 export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
+```
 
+5. Create required files based on ALL exported environment variables.
+
+```sh
 envsubst < ./tmpl/.sops.yaml > ./.sops.yaml
 envsubst < ./tmpl/cluster-secrets.yaml > ./cluster/base/cluster-secrets.yaml
 envsubst < ./tmpl/cluster-settings.yaml > ./cluster/base/cluster-settings.yaml
@@ -219,9 +226,9 @@ envsubst < ./tmpl/gotk-sync.yaml > ./cluster/base/flux-system/gotk-sync.yaml
 envsubst < ./tmpl/secret.enc.yaml > ./cluster/core/cert-manager/secret.enc.yaml
 ```
 
-5. **Verify** all the above files have the correct information present
+6. **Verify** all the above files have the correct information present
 
-6. Encrypt `cluster/cluster-secrets.yaml` and `cert-manager/secret.enc.yaml` with SOPS
+7. Encrypt `cluster/cluster-secrets.yaml` and `cert-manager/secret.enc.yaml` with SOPS
 
 ```sh
 export GPG_TTY=$(tty)
@@ -231,9 +238,9 @@ sops --encrypt --in-place ./cluster/core/cert-manager/secret.enc.yaml
 
 :round_pushpin: Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
-7. **Verify** all the above files are **encrypted** with SOPS
+8. **Verify** all the above files are **encrypted** with SOPS
 
-8. Push you changes to git
+9. Push you changes to git
 
 ```sh
 git add -A
@@ -241,7 +248,7 @@ git commit -m "initial commit"
 git push
 ```
 
-9. Install Flux
+10. Install Flux
 
 ```sh
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
