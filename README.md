@@ -16,6 +16,8 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 
 The following components are installed in your [k3s](https://k3s.io/) cluster by default. They are only included to get a minimum viable cluster up and running. You are free to add / remove components to your liking but anything outside the scope of the below components are not supported by this template.
 
+Feel free to read up on any of these technologies before you get started to be more familiar with them.
+
 - [flannel](https://github.com/flannel-io/flannel)
 - [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
 - [flux](https://toolkit.fluxcd.io/)
