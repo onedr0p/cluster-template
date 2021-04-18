@@ -8,6 +8,7 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 
 - [Introduction](https://github.com/k8s-at-home/template-cluster-k3s#wave-introduction)
 - [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#memo-prerequisites)
+- [Repository structure](https://github.com/k8s-at-home/template-cluster-k3s#open_file_folder-repository-structure)
 - [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#rocket-lets-go)
 - [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#mega-post-installation)
 - [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#handshake-thanks)
@@ -59,6 +60,32 @@ After pre-commit is installed on your machine run:
 
 ```sh
 pre-commit install-hooks
+```
+
+## :open_file_folder:&nbsp; Repository structure
+
+The Git repository contains the following directories under `cluster` and are ordered below by how Flux will apply them.
+
+- **base** directory is the entrypoint to Flux
+- **crds** directory contains custom resource definitions (CRDs) that need to exist globally in your cluster before anything else exists
+- **core** directory are important infrastructure applications (grouped by namespace) that should never be pruned by Flux
+- **apps** directory is where your common applications (grouped by namespace) could be placed, Flux will prune resources here if they are not tracked by Git anymore
+
+```
+cluster
+├── apps
+│   ├── default
+│   ├── networking
+│   └── system-upgrade
+├── base
+│   └── flux-system
+├── core
+│   ├── cert-manager
+│   ├── metallb-system
+│   ├── namespaces
+│   └── system-upgrade
+└── crds
+    └── cert-manager
 ```
 
 ## :rocket:&nbsp; Lets go!
