@@ -372,6 +372,7 @@ kubectl --kubeconfig=./kubeconfig get kustomization -A
 # NAMESPACE     NAME          READY   STATUS                                                             AGE
 # flux-system   apps          True    Applied revision: main/943e4126e74b273ff603aedab89beb7e36be4998    3d19h
 # flux-system   core          True    Applied revision: main/943e4126e74b273ff603aedab89beb7e36be4998    4d6h
+# flux-system   crds          True    Applied revision: main/943e4126e74b273ff603aedab89beb7e36be4998    4d6h
 # flux-system   flux-system   True    Applied revision: main/943e4126e74b273ff603aedab89beb7e36be4998    4d6h
 ```
 
@@ -387,10 +388,10 @@ Show the health of your `HelmRelease`s
 
 ```sh
 flux --kubeconfig=./kubeconfig get helmrelease -A
-# NAMESPACE   	NAME                  	READY	MESSAGE                         	REVISION	SUSPENDED
-# cert-manager	cert-manager          	True 	Release reconciliation succeeded	v1.3.0  	False
-# home        	homer                 	True 	Release reconciliation succeeded	4.2.0   	False
-# networking  	ingress-nginx       	True 	Release reconciliation succeeded	3.29.0  	False
+# NAMESPACE   	    NAME                  	READY	MESSAGE                         	REVISION	SUSPENDED
+# cert-manager	    cert-manager          	True 	Release reconciliation succeeded	v1.3.0  	False
+# default        	homer                 	True 	Release reconciliation succeeded	4.2.0   	False
+# networking  	    ingress-nginx       	True 	Release reconciliation succeeded	3.29.0  	False
 ```
 
 Show the health of your `HelmRepository`s
