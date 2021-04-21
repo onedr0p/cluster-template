@@ -100,7 +100,7 @@ Very first step will be to create a new repository by clicking the **Use this te
 
 :round_pushpin: Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
 
-1. Create a Personal GPG Key, password protected, and export the fingerprint
+1. Create a Personal GPG Key, password protected, and export the fingerprint. It's **strongly encouraged** to back up this key somewhere safe so you don't lose it.
 
 ```sh
 export GPG_TTY=$(tty)
