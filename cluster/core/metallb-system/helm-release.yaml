@@ -23,7 +23,7 @@ spec:
     speaker:
       image:
         repository: metallb/speaker
-        tag: v0.9.6
+        tag: v0.10.0
     configInline:
       address-pools:
       - name: default
