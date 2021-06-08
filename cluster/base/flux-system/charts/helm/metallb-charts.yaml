@@ -7,4 +7,4 @@ metadata:
 spec:
   interval: 30m
   url: https://metallb.github.io/metallb
-  timout: 2m
+  timeout: 2m
