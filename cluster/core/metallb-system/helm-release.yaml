@@ -8,22 +8,14 @@ spec:
   interval: 5m
   chart:
     spec:
-      # renovate: registryUrl=https://charts.bitnami.com/bitnami
+      # renovate: registryUrl=https://metallb.github.io/metallb
       chart: metallb
-      version: 2.3.7
+      version: 0.10.0
       sourceRef:
         kind: HelmRepository
-        name: bitnami-charts
+        name: metallb-charts
         namespace: flux-system
   values:
-    controller:
-      image:
-        repository: metallb/controller
-        tag: v0.9.6
-    speaker:
-      image:
-        repository: metallb/speaker
-        tag: v0.9.6
     configInline:
       address-pools:
       - name: default
