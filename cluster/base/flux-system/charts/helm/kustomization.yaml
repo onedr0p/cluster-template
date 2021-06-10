@@ -5,3 +5,4 @@ resources:
 - ingress-nginx-charts.yaml
 - jetstack-charts.yaml
 - k8s-at-home-charts.yaml
+- metallb-charts.yaml
