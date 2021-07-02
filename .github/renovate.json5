@@ -5,14 +5,18 @@
   "dependencyDashboardTitle": "Renovate Dashboard",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
-  "kubernetes": {
-    "fileMatch": ["cluster/.+\\.yaml$"],
-    "ignorePaths": [
-      "cluster/base/"
+  "helm-values": {
+    "fileMatch": [
+      "cluster/.+/helm-release\\.yaml$"
     ]
   },
-  "helm-values": {
-    "fileMatch": ["cluster/.+helm-release\\.yaml$"]
+  "kubernetes": {
+    "fileMatch": [
+      "cluster/.+\\.yaml$"
+    ],
+    "ignorePaths": [
+      "cluster/base/"
+    ],
   },
   "regexManagers": [
     // regexManager to read and process HelmReleases and CRDs
@@ -33,6 +37,8 @@
     // setup datasources
     {
       "matchDatasources": ["helm"],
+      "separateMinorPatch": true,
+      "ignoreDeprecated": true
     },
     // global docker datasource settings
     {
