@@ -196,7 +196,7 @@ In order to use cert-manager with the Cloudflare DNS challenge you will need to 
 2. Click the blue `Create Token` button
 3. Scroll down and create a Custom Token by choosing `Get started`
 4. Give your token a name like `cert-manager`
-5. Under `Permissions` give read access to `Zone` : `Zone` and `Zone` : `DNS`
+5. Under `Permissions` give **read** access to `Zone` : `Zone` and **write** access to `Zone` : `DNS`
 6. Under `Zone Resources` set it to `Include` : `All Zones`
 7. Click `Continue to summary` and then `Create Token`
 8. Export this token and your Cloudflare email address to an environment variable on your system to be used in the following steps
