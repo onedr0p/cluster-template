@@ -1,2 +1,1 @@
-secret.enc.yaml diff=sopsdiffer
-cluster-secrets.yaml diff=sopsdiffer
+*.sops.* diff=sopsdiffer
