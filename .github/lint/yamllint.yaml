@@ -1,5 +1,5 @@
 ignore: |
-  *.sops.yml
+  *.sops.yaml
   gotk-components.yaml
 extends: default
 rules:

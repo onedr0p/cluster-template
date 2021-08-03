@@ -1,2 +1,2 @@
-*.sops.yml
+*.sops.yaml
 gotk-components.yaml
