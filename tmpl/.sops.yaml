@@ -1,6 +1,6 @@
 ---
 creation_rules:
-- encrypted_regex: '^(data|stringData)$'
-  pgp: >-
-    ${FLUX_KEY_FP},
-    ${PERSONAL_KEY_FP}
+  - encrypted_regex: "^(data|stringData)$"
+    pgp: >-
+      ${FLUX_KEY_FP},
+      ${PERSONAL_KEY_FP}

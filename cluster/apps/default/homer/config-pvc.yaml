@@ -5,7 +5,7 @@ metadata:
   name: homer-config
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   storageClassName: local-path
   resources:
     requests:
