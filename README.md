@@ -51,6 +51,7 @@ Already provisioned Bare metal or VMs with any modern operating system like Ubun
 | [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |     `4.1.0`     |    ❌     |
 | [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |     `3.5.4`     |    ❌     |
 | [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |     `3.7.0`     |    ❌     |
+| [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |     `2.3.2`     |    ❌     |
 
 ### :warning:&nbsp; pre-commit
 
