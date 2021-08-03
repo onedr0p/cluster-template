@@ -50,6 +50,8 @@ Already provisioned Bare metal or VMs with any modern operating system like Ubun
 | [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks during `git commit`                                     |    `2.12.0`     |    ❌     |
 | [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |     `4.1.0`     |    ❌     |
 | [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |     `3.5.4`     |    ❌     |
+| [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |     `3.7.0`     |    ❌     |
+| [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |     `2.3.2`     |    ❌     |
 
 ### :warning:&nbsp; pre-commit
 
@@ -252,23 +254,23 @@ export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
 
 ```sh
 envsubst < ./tmpl/.sops.yaml > ./.sops.yaml
-envsubst < ./tmpl/cluster-secrets.yaml > ./cluster/base/cluster-secrets.yaml
+envsubst < ./tmpl/cluster-secrets.sops.yaml > ./cluster/base/cluster-secrets.sops.yaml
 envsubst < ./tmpl/cluster-settings.yaml > ./cluster/base/cluster-settings.yaml
 envsubst < ./tmpl/gotk-sync.yaml > ./cluster/base/flux-system/gotk-sync.yaml
-envsubst < ./tmpl/secret.enc.yaml > ./cluster/core/cert-manager/secret.enc.yaml
+envsubst < ./tmpl/secret.sops.yaml > ./cluster/core/cert-manager/secret.sops.yaml
 ```
 
 6. **Verify** all the above files have the correct information present
 
-7. Encrypt `cluster/cluster-secrets.yaml` and `cert-manager/secret.enc.yaml` with SOPS
+7. Encrypt `cluster/cluster-secrets.sops.yaml` and `cert-manager/secret.sops.yaml` with SOPS
 
 ```sh
 export GPG_TTY=$(tty)
-sops --encrypt --in-place ./cluster/base/cluster-secrets.yaml
-sops --encrypt --in-place ./cluster/core/cert-manager/secret.enc.yaml
+sops --encrypt --in-place ./cluster/base/cluster-secrets.sops.yaml
+sops --encrypt --in-place ./cluster/core/cert-manager/secret.sops.yaml
 ```
 
-:round_pushpin: Variables defined in `cluster-secrets.yaml` and `cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
+:round_pushpin: Variables defined in `cluster-secrets.sops.yaml` and `cluster-settings.sops.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
 8. **Verify** all the above files are **encrypted** with SOPS
 

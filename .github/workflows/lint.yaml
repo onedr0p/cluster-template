@@ -1,19 +1,32 @@
 ---
-
 name: Lint
 
 on: # yamllint disable-line rule:truthy
-  workflow_dispatch:
   pull_request:
 
 jobs:
-  yaml:
+  yamllint:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - name: yamllint
-      uses: reviewdog/action-yamllint@v1
-      with:
-        github_token: ${{ secrets.github_token }}
-        reporter: github-pr-review
-        yamllint_flags: '-c .github/yamllint.config.yaml ./cluster/'
+      - uses: actions/checkout@v2
+      - name: yamllint
+        uses: reviewdog/action-yamllint@v1
+        with:
+          yamllint_flags: "-c .github/lint/.yamllint.yaml ./cluster"
+  shellcheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: shellcheck
+        uses: reviewdog/action-shellcheck@v1
+        with:
+          path: "./hack"
+          level: "error"
+  markdownlint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: markdownlint
+        uses: reviewdog/action-markdownlint@v0.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
