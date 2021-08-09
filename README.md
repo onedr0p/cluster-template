@@ -164,7 +164,7 @@ k3sup install \
     --host=169.254.1.1 \
     --user=k8s-at-home \
     --k3s-version=v1.20.5+k3s1 \
-    --k3s-extra-args="--disable servicelb --disable traefik"
+    --k3s-extra-args="--disable servicelb --disable traefik --disable metrics-server"
 ```
 
 3. Join worker nodes (optional)
