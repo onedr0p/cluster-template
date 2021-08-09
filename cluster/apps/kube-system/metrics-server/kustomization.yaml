@@ -18,11 +18,11 @@ patchesStrategicMerge:
       template:
         spec:
           containers:
-          - name: metrics-server
-            args:
-            - --cert-dir=/tmp
-            - --secure-port=443
-            - --kubelet-use-node-status-port
-            - --metric-resolution=15s
-            - --kubelet-insecure-tls
-            - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+            - name: metrics-server
+              args:
+                - --cert-dir=/tmp
+                - --secure-port=443
+                - --kubelet-use-node-status-port
+                - --metric-resolution=15s
+                - --kubelet-insecure-tls
+                - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
