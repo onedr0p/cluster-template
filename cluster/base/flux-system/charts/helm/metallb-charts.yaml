@@ -5,6 +5,6 @@ metadata:
   name: metallb-charts
   namespace: flux-system
 spec:
-  interval: 30m
+  interval: 1h
   url: https://metallb.github.io/metallb
-  timeout: 2m
+  timeout: 3m
