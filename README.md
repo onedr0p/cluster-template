@@ -19,14 +19,14 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 
 Feel free to read up on any of these technologies before you get started to be more familiar with them.
 
-- [flannel](https://github.com/flannel-io/flannel)
-- [local-path-provisioner](https://github.com/rancher/local-path-provisioner)
-- [flux](https://toolkit.fluxcd.io/)
-- [metallb](https://metallb.universe.tf/)
-- [cert-manager](https://cert-manager.io/) with Cloudflare DNS challenge
-- [ingress-nginx](https://kubernetes.github.io/ingress-nginx/)
-- [homer](https://github.com/bastienwirtz/homer)
-- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller)
+- [flannel](https://github.com/flannel-io/flannel) - default CNI provided by k3s
+- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - default storage class provided by k3s
+- [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
+- [metallb](https://metallb.universe.tf/) - bare metal load balancer
+- [cert-manager](https://cert-manager.io/) - SSL certificates - with Cloudflare DNS challenge
+- [ingress-nginx](https://kubernetes.github.io/ingress-nginx/) - ingress controller
+- [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
+- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - upgrade k3s
 
 ## :memo:&nbsp; Prerequisites
 
@@ -34,24 +34,43 @@ Feel free to read up on any of these technologies before you get started to be m
 
 Already provisioned Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS.
 
+If coming from a fresh install of Linux make sure you do the following steps.
+
+- Enable packet forwarding on the hosts and increase max_user_watches
+
+```sh
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward=1
+fs.inotify.max_user_watches=65536
+EOF
+sysctl --system
+```
+
+- Configure DNS on your nodes to use an upstream provider (e.g. `1.1.1.1`, `9.9.9.9`), or your router's IP if you have DNS configured there and it's not pointing to a local Ad-blocker DNS. Ad-blockers should only be used on devices with a web browser.
+
+- Remove any search domains from your hosts `/etc/resolv.conf`. Search domains have an issue with alpine based containers and DNS might not resolve in them.
+
+- Disable swap
+
 ### :wrench:&nbsp; Tools
 
-:round_pushpin: You need to install the required CLI tools listed below on your workstation.
+:round_pushpin: You should install the below CLI tools on your workstation. Make sure you pull in the latest versions.
 
-| Tool                                                               | Purpose                                                             | Minimum version | Required |
-|--------------------------------------------------------------------|---------------------------------------------------------------------|:---------------:|:--------:|
-| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                   |    `0.10.2`     |    ✅     |
-| [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |    `1.21.0`     |    ✅     |
-| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |    `0.12.3`     |    ✅     |
-| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |     `3.7.1`     |    ✅     |
-| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |    `2.2.27`     |    ✅     |
-| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |     `1.1.1`     |    ✅     |
-| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |    `2.28.0`     |    ❌     |
-| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks during `git commit`                                     |    `2.12.0`     |    ❌     |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |     `4.1.0`     |    ❌     |
-| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |     `3.5.4`     |    ❌     |
-| [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |     `3.7.0`     |    ❌     |
-| [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |     `2.3.2`     |    ❌     |
+| Tool                                                               | Purpose                                                             |
+|--------------------------------------------------------------------|---------------------------------------------------------------------|
+| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                   |
+| [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |
+| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |
+| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
+| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
+| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |
+| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |
+| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks during `git commit`                                     |
+| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
+| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
+| [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |
+| [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |
 
 ### :warning:&nbsp; pre-commit
 
@@ -163,7 +182,7 @@ export FLUX_KEY_FP=AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 k3sup install \
     --host=169.254.1.1 \
     --user=k8s-at-home \
-    --k3s-version=v1.20.5+k3s1 \
+    --k3s-version=v1.21.4+k3s1 \
     --k3s-extra-args="--disable servicelb --disable traefik --disable metrics-server"
 ```
 
@@ -173,7 +192,7 @@ k3sup install \
 k3sup join \
     --host=169.254.1.2 \
     --server-host=169.254.1.1 \
-    --k3s-version=v1.20.5+k3s1 \
+    --k3s-version=v1.21.4+k3s1 \
     --user=k8s-at-home
 ```
 
@@ -182,17 +201,17 @@ k3sup join \
 ```sh
 kubectl --kubeconfig=./kubeconfig get nodes
 # NAME           STATUS   ROLES                       AGE     VERSION
-# k8s-master-a   Ready    control-plane,master      4d20h   v1.20.5+k3s1
-# k8s-worker-a   Ready    worker                    4d20h   v1.20.5+k3s1
+# k8s-master-a   Ready    control-plane,master      4d20h   v1.21.4+k3s1
+# k8s-worker-a   Ready    worker                    4d20h   v1.21.4+k3s1
 ```
 
 ### :cloud:&nbsp; Cloudflare API Token
 
 :round_pushpin: You may skip this step, **however** make sure to `export` dummy data **on item 8** in the below list.
 
-...Be aware you **will not** have a valid SSL cert until cert-manager is configured correctly
+...Be aware you **will not** have a valid SSL cert until `cert-manager` is configured correctly
 
-In order to use cert-manager with the Cloudflare DNS challenge you will need to create a API token.
+In order to use `cert-manager` with the Cloudflare DNS challenge you will need to create a API token.
 
 1. Head over to Cloudflare and create a API token by going [here](https://dash.cloudflare.com/profile/api-tokens).
 2. Click the blue `Create Token` button
@@ -217,8 +236,8 @@ export BOOTSTRAP_CLOUDFLARE_TOKEN="kpG6iyg3FS_du_8KRShdFuwfbwu3zMltbvmJV6cD"
 ```sh
 flux --kubeconfig=./kubeconfig check --pre
 # ► checking prerequisites
-# ✔ kubectl 1.21.0 >=1.18.0-0
-# ✔ Kubernetes 1.20.5+k3s1 >=1.16.0-0
+# ✔ kubectl 1.21.4 >=1.18.0-0
+# ✔ Kubernetes 1.21.4+k3s1 >=1.16.0-0
 # ✔ prerequisites checks passed
 ```
 
@@ -290,28 +309,7 @@ git push
 kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 # namespace/flux-system configured
 # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/buckets.source.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/gitrepositories.source.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/helmcharts.source.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/helmreleases.helm.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/helmrepositories.source.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/kustomizations.kustomize.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/providers.notification.toolkit.fluxcd.io created
-# customresourcedefinition.apiextensions.k8s.io/receivers.notification.toolkit.fluxcd.io created
-# serviceaccount/helm-controller created
-# serviceaccount/kustomize-controller created
-# serviceaccount/notification-controller created
-# serviceaccount/source-controller created
-# clusterrole.rbac.authorization.k8s.io/crd-controller-flux-system created
-# clusterrolebinding.rbac.authorization.k8s.io/cluster-reconciler-flux-system created
-# clusterrolebinding.rbac.authorization.k8s.io/crd-controller-flux-system created
-# service/notification-controller created
-# service/source-controller created
-# service/webhook-receiver created
-# deployment.apps/helm-controller created
-# deployment.apps/kustomize-controller created
-# deployment.apps/notification-controller created
-# deployment.apps/source-controller created
+# ...
 # unable to recognize "./cluster/base/flux-system": no matches for kind "Kustomization" in version "kustomize.toolkit.fluxcd.io/v1beta1"
 # unable to recognize "./cluster/base/flux-system": no matches for kind "GitRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
@@ -393,9 +391,9 @@ Show the health of your `HelmRelease`s
 ```sh
 flux --kubeconfig=./kubeconfig get helmrelease -A
 # NAMESPACE   	    NAME                  	READY	MESSAGE                         	REVISION	SUSPENDED
-# cert-manager	    cert-manager          	True 	Release reconciliation succeeded	v1.3.0  	False
-# default        	homer                 	True 	Release reconciliation succeeded	4.2.0   	False
-# networking  	    ingress-nginx       	True 	Release reconciliation succeeded	3.29.0  	False
+# cert-manager	    cert-manager          	True 	Release reconciliation succeeded	v1.5.2  	False
+# default        	hajimari                True 	Release reconciliation succeeded	1.1.1   	False
+# networking  	    ingress-nginx       	True 	Release reconciliation succeeded	3.30.0  	False
 ```
 
 Show the health of your `HelmRepository`s
@@ -404,6 +402,7 @@ Show the health of your `HelmRepository`s
 flux --kubeconfig=./kubeconfig get sources helm -A
 # NAMESPACE  	NAME                 READY	MESSAGE                                                   	REVISION                                	SUSPENDED
 # flux-system	bitnami-charts       True 	Fetched revision: 0ec3a3335ff991c45735866feb1c0830c4ed85cf	0ec3a3335ff991c45735866feb1c0830c4ed85cf	False
+# flux-system	hajimari-charts      True 	Fetched revision: 1b24af9c5a1e3da91618d597f58f46a57c70dc13	1b24af9c5a1e3da91618d597f58f46a57c70dc13	False
 # flux-system	ingress-nginx-charts True 	Fetched revision: 45669a3117fc93acc09a00e9fb9b4445e8990722	45669a3117fc93acc09a00e9fb9b4445e8990722	False
 # flux-system	jetstack-charts      True 	Fetched revision: 7bad937cc82a012c9ee7d7a472d7bd66b48dc471	7bad937cc82a012c9ee7d7a472d7bd66b48dc471	False
 # flux-system	k8s-at-home-charts   True 	Fetched revision: 1b24af9c5a1e3da91618d597f58f46a57c70dc13	1b24af9c5a1e3da91618d597f58f46a57c70dc13	False
