@@ -36,6 +36,8 @@ Already provisioned Bare metal or VMs with any modern operating system like Ubun
 
 If coming from a fresh install of Linux make sure you do the following steps.
 
+- Copy over your SSH keys to all the hosts
+
 - Enable packet forwarding on the hosts and increase max_user_watches
 
 ```sh
