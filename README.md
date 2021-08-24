@@ -66,7 +66,7 @@ sysctl --system
 | [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
 | [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |
 | [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |
-| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks during `git commit`                                     |
+| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks pre `git commit`                                     |
 | [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
 | [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
 | [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |
