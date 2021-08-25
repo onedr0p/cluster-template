@@ -98,8 +98,8 @@ spec:
     ingress:
       main:
         enabled: true
+        ingressClassName: nginx
         annotations:
-          kubernetes.io/ingress.class: "nginx"
           hajimari.io/enable: "true"
           hajimari.io/icon: "weather-sunset"
         hosts:
