@@ -19,16 +19,34 @@
     ],
   },
   "regexManagers": [
-    // regexManager to read and process HelmReleases and CRDs
+    // regexManager to read and process HelmRelease files
     {
       "fileMatch": [
         "cluster/.+\\.yaml$"
       ],
       "matchStrings": [
         // helm releases
-        "registryUrl=(?<registryUrl>.*?)\n *chart: (?<depName>.*?)\n *version: (?<currentValue>.*)\n",
-        // cert-manager crd
+        "registryUrl=(?<registryUrl>.*?)\n *chart: (?<depName>.*?)\n *version: (?<currentValue>.*)\n"
+      ],
+      "datasourceTemplate": "helm"
+    },
+    // regexManager to read and process cert-manager CRD's
+    {
+      "fileMatch": [
+        "cluster/crds/cert-manager/.+\\.yaml$"
+      ],
+      "matchStrings": [
         "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n.*\\/(?<currentValue>.*?)\\/"
+      ],
+      "datasourceTemplate": "helm"
+    },
+    // regexManager to read and process Traefik CRD's
+    {
+      "fileMatch": [
+        "cluster/crds/traefik/.+\\.yaml$"
+      ],
+      "matchStrings": [
+        "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n *tag: v(?<currentValue>.*)\n"
       ],
       "datasourceTemplate": "helm"
     },

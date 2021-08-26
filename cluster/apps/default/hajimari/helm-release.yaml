@@ -25,6 +25,7 @@ spec:
       namespaceSelector:
         matchNames:
           - default
+          - networking
       name: "you"
       customApps:
         - name: Some External Cluster Service
@@ -98,8 +99,9 @@ spec:
     ingress:
       main:
         enabled: true
-        ingressClassName: nginx
+        ingressClassName: "traefik"
         annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           hajimari.io/enable: "true"
           hajimari.io/icon: "weather-sunset"
         hosts:

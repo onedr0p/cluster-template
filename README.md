@@ -24,7 +24,7 @@ Feel free to read up on any of these technologies before you get started to be m
 - [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
 - [metallb](https://metallb.universe.tf/) - bare metal load balancer
 - [cert-manager](https://cert-manager.io/) - SSL certificates - with Cloudflare DNS challenge
-- [ingress-nginx](https://kubernetes.github.io/ingress-nginx/) - ingress controller
+- [traefik](https://traefik.io) - ingress controller
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - upgrade k3s
 
@@ -267,8 +267,8 @@ export BOOTSTRAP_GITHUB_REPOSITORY="https://github.com/k8s-at-home/home-cluster"
 export BOOTSTRAP_DOMAIN="k8s-at-home.com"
 # Pick a range of unused IPs that are on the same network as your nodes
 export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
-# The load balancer IP for ingress-nginx, choose from one of the available IPs above
-export BOOTSTRAP_INGRESS_NGINX_LB="169.254.1.10"
+# The load balancer IP for traefik, choose from one of the available IPs above
+export BOOTSTRAP_SVC_TRAEFIK_ADDR="169.254.1.10"
 ```
 
 5. Create required files based on ALL exported environment variables.
@@ -340,10 +340,10 @@ kubectl --kubeconfig=./kubeconfig get pods -n flux-system
 If your cluster is not accessible to outside world you can update your hosts file to verify the ingress controller is working.
 
 ```sh
-echo "${BOOTSTRAP_INGRESS_NGINX_LB} ${BOOTSTRAP_DOMAIN} homer.${BOOTSTRAP_DOMAIN}" | sudo tee -a /etc/hosts
+echo "${BOOTSTRAP_SVC_TRAEFIK_ADDR} ${BOOTSTRAP_DOMAIN} hajimari.${BOOTSTRAP_DOMAIN}" | sudo tee -a /etc/hosts
 ```
 
-Head over to your browser and you _should_ be able to access `https://homer.${BOOTSTRAP_DOMAIN}`
+Head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_DOMAIN}`
 
 ### direnv
 
