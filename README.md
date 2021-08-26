@@ -180,6 +180,8 @@ export FLUX_KEY_FP=AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 
 2. Install the master node
 
+_We will be installing metallb instead of servicelb, traefik and metrics-server will be installed with Flux._
+
 ```sh
 k3sup install \
     --host=169.254.1.1 \
