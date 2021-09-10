@@ -1,0 +1,22 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: metrics-server
+  namespace: kube-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://kubernetes-sigs.github.io/metrics-server/
+      chart: metrics-server
+      version: 3.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: metrics-server-charts
+        namespace: flux-system
+      interval: 5m
+  values:
+    args:
+      - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      - --metric-resolution=15s
