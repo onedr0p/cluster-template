@@ -27,6 +27,7 @@ Feel free to read up on any of these technologies before you get started to be m
 - [traefik](https://traefik.io) - ingress controller
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - upgrade k3s
+- [reloader](https://github.com/stakater/Reloader) - restart pod when configmap or secret changes
 
 ## :memo:&nbsp; Prerequisites
 
