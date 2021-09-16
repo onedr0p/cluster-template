@@ -179,7 +179,7 @@ export FLUX_KEY_FP=AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 
 1. Ensure you are able to SSH into you nodes with using your private ssh key. This is how k3sup is able to connect to your remote node.
 
-2. Install the master node
+2. Install the master node(s)
 
 _We will be installing metallb instead of servicelb, traefik and metrics-server will be installed with Flux._
 
@@ -341,6 +341,8 @@ kubectl --kubeconfig=./kubeconfig get pods -n flux-system
 ### Verify ingress
 
 If your cluster is not accessible to outside world you can update your hosts file to verify the ingress controller is working.
+
+This will only be temporary and you should set up DNS to handle these records either manually or automated with [external-dns](https://github.com/kubernetes-sigs/external-dns).
 
 ```sh
 echo "${BOOTSTRAP_SVC_TRAEFIK_ADDR} ${BOOTSTRAP_DOMAIN} hajimari.${BOOTSTRAP_DOMAIN}" | sudo tee -a /etc/hosts
