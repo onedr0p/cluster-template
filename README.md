@@ -269,6 +269,7 @@ export BOOTSTRAP_GITHUB_REPOSITORY="https://github.com/k8s-at-home/home-cluster"
 # Choose one of your domains or use a made up one
 export BOOTSTRAP_DOMAIN="k8s-at-home.com"
 # Pick a range of unused IPs that are on the same network as your nodes
+# You don't need many IPs, just choose 10 to start with
 export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
 # The load balancer IP for traefik, choose from one of the available IPs above
 export BOOTSTRAP_SVC_TRAEFIK_ADDR="169.254.1.10"
