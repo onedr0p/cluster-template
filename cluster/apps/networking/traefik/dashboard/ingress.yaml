@@ -1,4 +1,3 @@
-  
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -6,11 +5,13 @@ metadata:
   name: traefik-dashboard
   namespace: networking
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    hajimari.io/appName: "traefik"
     hajimari.io/enable: "true"
     hajimari.io/icon: "web"
-    hajimari.io/appName: "traefik"
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
 spec:
+  ingressClassName: "traefik"
   tls:
     - hosts:
         - "traefik.${SECRET_DOMAIN}"
