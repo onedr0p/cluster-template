@@ -299,7 +299,9 @@ sops --encrypt --in-place ./cluster/core/cert-manager/secret.sops.yaml
 
 8. **Verify** all the above files are **encrypted** with SOPS
 
-9. Push you changes to git
+9. If you verified all the secrets are encrypted, you can delete the `tmpl` directory now
+
+10. Push you changes to git
 
 ```sh
 git add -A
@@ -307,7 +309,7 @@ git commit -m "initial commit"
 git push
 ```
 
-10. Install Flux
+11. Install Flux
 
 :round_pushpin: Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
 
