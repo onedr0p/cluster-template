@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
-# set -o nounset
 set -o pipefail
 
-export PROJECT_DIR=$(git rev-parse --show-toplevel)
+export PROJECT_DIR
+PROJECT_DIR=$(git rev-parse --show-toplevel)
 
 source "${PROJECT_DIR}/.config.env"
 
@@ -29,6 +29,20 @@ main() {
         verify_gpg_fp
         verify_git_repository
         verify_cloudflare
+    else
+        envsubst < "${PROJECT_DIR}/tmpl/.sops.yaml" > ./.sops.yaml
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" > ./cluster/base/cluster-secrets.sops.yaml
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-settings.yaml" > ./cluster/base/cluster-settings.yaml
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/gotk-sync.yaml" > ./cluster/base/flux-system/gotk-sync.yaml
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" > ./cluster/core/cert-manager/secret.sops.yaml
+        sop --encrypt --in-place "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
+        sop --encrypt --in-place "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/hosts.yml" > ./provision/ansible/inventory/hosts.yml
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" > ./provision/ansible/inventory/group_vars/kubernetes/kube-vip.yml
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-0.sops.yml" > ./provision/ansible/inventory/host_vars/k8s-0.sops.yml
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-1.sops.yml" > ./provision/ansible/inventory/host_vars/k8s-1.sops.yml
+        sop --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-0.sops.yml"
+        sop --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-1.sops.yml"
     fi
 }
 
@@ -174,36 +188,3 @@ verify_cloudflare() {
 }
 
 main "$@"
-
-# #
-# # Modify cluster files
-# #
-
-# envsubst < "${PROJECT_DIR}/tmpl/.sops.yaml" > ./.sops.yaml
-# envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" > ./cluster/base/cluster-secrets.sops.yaml
-# envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-settings.yaml" > ./cluster/base/cluster-settings.yaml
-# envsubst < "${PROJECT_DIR}/tmpl/cluster/gotk-sync.yaml" > ./cluster/base/flux-system/gotk-sync.yaml
-# envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" > ./cluster/core/cert-manager/secret.sops.yaml
-
-# #
-# # Encrypt cluster files
-# #
-
-# sop --encrypt --in-place "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
-# sop --encrypt --in-place "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
-
-# #
-# # Modify ansible files
-# #
-
-# envsubst < "${PROJECT_DIR}/tmpl/ansible/hosts.yml" > ./provision/ansible/inventory/hosts.yml
-# envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" > ./provision/ansible/inventory/group_vars/kubernetes/kube-vip.yml
-# envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-0.sops.yml" > ./provision/ansible/inventory/host_vars/k8s-0.sops.yml
-# envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-1.sops.yml" > ./provision/ansible/inventory/host_vars/k8s-1.sops.yml
-
-# #
-# # Encrypt cluster files
-# #
-
-# sop --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-0.sops.yml"
-# sop --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-1.sops.yml"
