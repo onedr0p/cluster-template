@@ -32,18 +32,23 @@ main() {
         verify_cloudflare
     else
         envsubst < "${PROJECT_DIR}/tmpl/.sops.yaml" > "${PROJECT_DIR}/.sops.yaml"
-        # envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" > "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
-        # envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-settings.yaml" > "${PROJECT_DIR}/cluster/base/cluster-settings.yaml"
-        # envsubst < "${PROJECT_DIR}/tmpl/cluster/gotk-sync.yaml" > "${PROJECT_DIR}/cluster/base/flux-system/gotk-sync.yaml"
-        # envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" > "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
-        # sops --encrypt --in-place "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
-        # sops --encrypt --in-place "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
-        # envsubst < "${PROJECT_DIR}/tmpl/ansible/hosts.yml" > "${PROJECT_DIR}/provision/ansible/inventory/hosts.yml"
-        # envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" > "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
-        # envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-0.sops.yml" > "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-0.sops.yml"
-        # envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-1.sops.yml" > "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-1.sops.yml"
-        # sops --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-0.sops.yml"
-        # sops --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-1.sops.yml"
+        # cluster
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" > "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-settings.yaml" > "${PROJECT_DIR}/cluster/base/cluster-settings.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/gotk-sync.yaml" > "${PROJECT_DIR}/cluster/base/flux-system/gotk-sync.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" > "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
+        # ansible
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/hosts.yml" > "${PROJECT_DIR}/provision/ansible/inventory/hosts.yml"
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" > "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-0.sops.yml" > "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-0.sops.yml"
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/k8s-1.sops.yml" > "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-1.sops.yml"
+        sops --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-0.sops.yml"
+        sops --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-1.sops.yml"
+        # terraform
+        envsubst < "${PROJECT_DIR}/tmpl/terraform/secret.sops.yaml" > "${PROJECT_DIR}/provision/terraform/cloudflare/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/provision/terraform/cloudflare/secret.sops.yaml"
     fi
 }
 
