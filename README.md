@@ -31,7 +31,7 @@ Feel free to read up on any of these technologies before you get started to be m
 
 ## :memo:&nbsp; Prerequisites
 
-### :computer:&nbsp; Main
+### :computer:&nbsp; Systems
 
 - Two nodes with a fresh install of [Ubuntu Server 20.04](https://ubuntu.com/download/server). These nodes can be bare metal or VMs.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
@@ -151,7 +151,7 @@ gpg --list-secret-keys "${FLUX_KEY_NAME}"
 # sub   rsa4096 2021-03-11 [E]
 ```
 
-1. You will need the Fingerprints in the configuration section below. For example, in the above steps you will need `772154FFF783DE317KLCA0EC77149AC618D75581` and `AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D`
+3. You will need the Fingerprints in the configuration section below. For example, in the above steps you will need `772154FFF783DE317KLCA0EC77149AC618D75581` and `AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D`
 
 ### :cloud:&nbsp; Cloudflare API Key
 
@@ -268,6 +268,8 @@ kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 ```
+
+### :cloud:&nbsp; Configure Cloudflare DNS with Terraform
 
 :tada: **Congratulations** you have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
