@@ -1,0 +1,22 @@
+---
+version: "3"
+
+tasks:
+
+  init:cloudflare:
+    desc: Initialize terraform
+    dir: provision/terraform/cloudflare
+    cmds:
+      - "terraform init"
+
+  plan:cloudflare:
+    desc: Prepare all the k8s nodes for running k3s
+    dir: provision/terraform/cloudflare
+    cmds:
+      - "terraform plan"
+
+  apply:cloudflare:
+    desc: Prepare all the k8s nodes for running k3s
+    dir: provision/terraform/cloudflare
+    cmds:
+      - "terraform apply"
