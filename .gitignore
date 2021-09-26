@@ -7,3 +7,4 @@ Thumbs.db
 kubeconfig
 # vscode-sops
 .decrypted~*.yaml
+.config.env

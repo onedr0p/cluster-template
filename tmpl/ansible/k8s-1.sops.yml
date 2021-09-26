@@ -1,0 +1,3 @@
+kind: Secret
+ansible_user: ${BOOTSTRAP_ANSIBLE_SSH_USERNAME}
+ansible_become_pass: ${BOOTSTRAP_ANSIBLE_SSH_PASSWORD}

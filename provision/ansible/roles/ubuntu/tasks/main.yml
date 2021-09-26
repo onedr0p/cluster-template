@@ -1,0 +1,24 @@
+---
+- include: locale.yml
+  tags:
+    - locale
+
+- include: packages.yml
+  tags:
+    - packages
+
+- include: network.yml
+  tags:
+    - network
+
+- include: filesystem.yml
+  tags:
+    - filesystem
+
+- include: unattended-upgrades.yml
+  tags:
+    - unattended-upgrades
+
+- include: user.yml
+  tags:
+    - user

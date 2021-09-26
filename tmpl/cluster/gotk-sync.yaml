@@ -8,7 +8,7 @@ spec:
   interval: 1m0s
   ref:
     branch: main
-  url: ${BOOTSTRAP_GITHUB_REPOSITORY}
+  url: ${BOOTSTRAP_GIT_REPOSITORY}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization

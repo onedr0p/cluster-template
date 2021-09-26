@@ -1,0 +1,32 @@
+---
+#
+# Below vars are for the xanmanning.k3s role
+# ...see https://github.com/PyratLabs/ansible-role-k3s
+#
+
+# (string) Use a specific version of k3s
+k3s_release_version: "v1.21.5+k3s1"
+
+# (bool) Install using hard links rather than symbolic links.
+k3s_install_hard_links: true
+
+# (bool) Escalate user privileges for all tasks
+k3s_become_for_all: true
+
+# (bool) Enable debug logging on the k3s service
+k3s_debug: false
+
+# (bool) Enable etcd embedded datastore
+k3s_etcd_datastore: true
+
+# (bool) Allow the use of unsupported configurations in k3s
+k3s_use_unsupported_config: false
+
+# (string) Control Plane registration address
+k3s_registration_address: "{{ kubevip_address }}"
+
+# (list) A flat list of templates to deploy on the primary control plane
+# /var/lib/rancher/k3s/server/manifests
+k3s_server_manifests_templates:
+  - "kube-vip/kube-vip-rbac.yaml.j2"
+  - "kube-vip/kube-vip-daemonset.yaml.j2"
