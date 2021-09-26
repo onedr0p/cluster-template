@@ -3,8 +3,11 @@
 set -o errexit
 set -o pipefail
 
-export PROJECT_DIR
-PROJECT_DIR=$(git rev-parse --show-toplevel)
+# shellcheck disable=SC2155
+export PROJECT_DIR=$(git rev-parse --show-toplevel)
+
+# shellcheck disable=SC2155
+export GPG_TTY=$(tty)
 
 # shellcheck disable=SC1091
 source "${PROJECT_DIR}/.config.env"
@@ -129,9 +132,7 @@ verify_binaries() {
     _has_binary "git"
     _has_binary "ipcalc"
     _has_binary "jq"
-    _has_binary "kubectl"
     _has_binary "sops"
-    _has_binary "task"
     _has_binary "terraform"
 }
 

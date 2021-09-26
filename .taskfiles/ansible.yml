@@ -10,6 +10,18 @@ vars:
 
 tasks:
 
+  deps:
+    desc: Upgrade Ansible galaxy deps
+    dir: provision/ansible
+    cmds:
+      - "ansible-galaxy install -r requirements.yml --force"
+
+  list:
+    desc: List all the hosts
+    dir: provision/ansible
+    cmds:
+      - "ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml --list-hosts"
+
   playbook:ubuntu-prepare:
     desc: Prepare all the k8s nodes for running k3s
     dir: provision/ansible
@@ -34,37 +46,25 @@ tasks:
     cmds:
       - "ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/kubernetes/k3s-nuke.yml"
 
-  deps:
-    desc: Upgrade Ansible galaxy deps
-    dir: provision/ansible
-    cmds:
-      - "ansible-galaxy install -r requirements.yml --force"
-
-  list:
-    desc: List all the hosts
-    dir: provision/ansible
-    cmds:
-      - "ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml --list-hosts"
-
-  ping:
+  adhoc:ping:
     desc: Ping all the hosts
     dir: provision/ansible
     cmds:
       - "ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml --one-line -m 'ping'"
 
-  uptime:
+  adhoc:uptime:
     desc: Uptime of all the hosts
     dir: provision/ansible
     cmds:
       - ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml --one-line -a 'uptime'
 
-  reboot:
+  adhoc:reboot:
     desc: Reboot all the k8s nodes
     dir: provision/ansible
     cmds:
       - "ansible kubernetes -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml -a '/usr/bin/systemctl reboot' --become"
 
-  poweroff:
+  adhoc:poweroff:
     desc: Shutdown all the k8s nodes
     dir: provision/ansible
     cmds:
