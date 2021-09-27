@@ -223,12 +223,11 @@ verify_ansible_hosts() {
         _has_envar "${node_password}"
         _has_envar "${node_control}"
 
-        test="$(ssh -q -o BatchMode=yes -o ConnectTimeout=5 "${!node_username}"@"${!var}" echo ok 2>&1)"
-        if [[ "${test}" != "ok" ]]; then
+        if ssh -q -o BatchMode=yes -o ConnectTimeout=5 "${!node_username}"@"${!var}" "true"; then
+            _log "INFO" "Successfully SSH'ed into host '${!var}' with username '${!node_username}'"
+        else
             _log "ERROR" "Unable to SSH into host '${!var}' with username '${!node_username}'"
             exit 1
-        else
-            _log "INFO" "Successfully SSH'ed into host '${!var}' with username '${!node_username}'"
         fi
     done
 }
