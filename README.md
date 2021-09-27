@@ -100,7 +100,7 @@ Very first step will be to create a new repository by clicking the **Use this te
 
 Clone the repo to you local workstation and `cd` into it.
 
-:round_pushpin: **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes. 
+:round_pushpin: **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
 ### :closed_lock_with_key:&nbsp; Setting up GnuPG keys
 
@@ -153,7 +153,7 @@ gpg --list-secret-keys "${FLUX_KEY_NAME}"
 
 3. You will need the Fingerprints in the configuration section below. For example, in the above steps you will need `772154FFF783DE317KLCA0EC77149AC618D75581` and `AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D`
 
-### :cloud:&nbsp; Cloudflare API Key
+### :cloud:&nbsp; Global Cloudflare API Key
 
 In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge you will need to create a API key.
 
@@ -269,13 +269,7 @@ kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 ```
 
-### :cloud:&nbsp; Configure Cloudflare DNS with Terraform
-
-:tada: **Congratulations** you have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
-
-## :mega:&nbsp; Post installation
-
-### Verify Flux
+8. Verify Flux components are running in the cluster
 
 ```sh
 kubectl --kubeconfig=./kubeconfig get pods -n flux-system
@@ -286,17 +280,21 @@ kubectl --kubeconfig=./kubeconfig get pods -n flux-system
 # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
 ```
 
-### Verify ingress
+:tada: **Congratulations** you have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
-If your cluster is not accessible to outside world you can update your hosts file to verify the ingress controller is working.
+### :cloud:&nbsp; Configure Cloudflare DNS with Terraform
 
-This will only be temporary and you should set up DNS to handle these records either manually or automated with [external-dns](https://github.com/kubernetes-sigs/external-dns).
+:round_pushpin: Review the Terraform scripts under `./terraform/cloudflare/` and make sure you understand what it's doing (no really review it). If your domain already has existing DNS records be sure to export those DNS settings before you continue. Ideally you can update the terraform script to manage DNS for all records if you so choose to.
 
-```sh
-echo "${BOOTSTRAP_SVC_TRAEFIK_ADDR} ${BOOTSTRAP_DOMAIN} hajimari.${BOOTSTRAP_DOMAIN}" | sudo tee -a /etc/hosts
-```
+1. Pull in the Terraform deps by running `task terraform:init`
 
-Head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_DOMAIN}`
+2. Review the changes Terraform will make to your Cloudflare domain by running `task terraform:plan`
+
+3. Finally have Terraform execute the task by running `task terraform:apply`
+
+If Terraform was ran successfully head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}`
+
+## :mega:&nbsp; Post installation
 
 ### direnv
 
