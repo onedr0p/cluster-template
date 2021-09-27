@@ -1,6 +1,11 @@
 ---
 creation_rules:
-  - encrypted_regex: "^(data|stringData)$"
+  - path_regex: provision/.*\.sops\.ya?ml
+    unencrypted_regex: "^(kind)$"
     pgp: >-
-      ${FLUX_KEY_FP},
-      ${PERSONAL_KEY_FP}
+      ${BOOTSTRAP_PERSONAL_KEY_FP}
+  - path_regex: cluster/.*\.ya?ml
+    encrypted_regex: "^(data|stringData)$"
+    pgp: >-
+      ${BOOTSTRAP_FLUX_KEY_FP},
+      ${BOOTSTRAP_PERSONAL_KEY_FP}

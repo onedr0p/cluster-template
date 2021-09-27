@@ -1,8 +1,8 @@
 # Template for deploying k3s backed by Flux
 
-Highly opinionated template for deploying a single [k3s](https://k3s.io/) cluster with [k3sup](https://github.com/alexellis/k3sup) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
+Highly opinionated template for deploying a single [k3s](https://k3s.io) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
 
-The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Flux SOPS integration](https://toolkit.fluxcd.io/guides/mozilla-sops/) you'll be able to commit GPG encrypted secrets to your public repo.
+The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit GPG encrypted secrets to your public repo.
 
 ## Overview
 
@@ -31,30 +31,11 @@ Feel free to read up on any of these technologies before you get started to be m
 
 ## :memo:&nbsp; Prerequisites
 
-### :computer:&nbsp; Nodes
+### :computer:&nbsp; Systems
 
-Already provisioned Bare metal or VMs with any modern operating system like Ubuntu, Debian or CentOS.
-
-If coming from a fresh install of Linux make sure you do the following steps.
-
-- Copy over your SSH keys to all the hosts
-
-- Enable packet forwarding on the hosts and increase max_user_watches
-
-```sh
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-iptables = 1
-net.ipv4.ip_forward=1
-fs.inotify.max_user_watches=65536
-EOF
-sysctl --system
-```
-
-- Configure DNS on your nodes to use an upstream provider (e.g. `1.1.1.1`, `9.9.9.9`), or your router's IP if you have DNS configured there and it's not pointing to a local Ad-blocker DNS. Ad-blockers should only be used on devices with a web browser.
-
-- Set a static IP on the nodes OS itself and **NOT** by using DHCP. Using DHCP to assign IPs injects a search domain into your nodes `/etc/resolv.conf` and this could potentially break DNS in containers.
-
-- Disable swap
+- Two nodes with a fresh install of [Ubuntu Server 20.04](https://ubuntu.com/download/server). These nodes can be bare metal or VMs.
+- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
+- Some experience in debugging problems and a positive attitude ;)
 
 ### :wrench:&nbsp; Tools
 
@@ -62,18 +43,19 @@ sysctl --system
 
 | Tool                                                               | Purpose                                                             |
 |--------------------------------------------------------------------|---------------------------------------------------------------------|
-| [k3sup](https://github.com/alexellis/k3sup)                        | Tool to install k3s on your nodes                                   |
-| [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |
-| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |
-| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
-| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
-| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |
+| [ansible](https://www.ansible.com)                                 | Preparing Ubuntu for Kubernetes and installing k3s                  |
 | [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |
-| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks pre `git commit`                                     |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
-| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
+| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |
+| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
 | [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |
+| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
+| [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |
+| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
+| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |
+| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks pre `git commit`                                        |
 | [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |
+| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
+| [terraform](https://www.terraform.io)                              | Prepare a Cloudflare domain to be used with the cluster             |
 
 ### :warning:&nbsp; pre-commit
 
@@ -116,9 +98,9 @@ cluster
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
 
-:round_pushpin: In these instructions you will be exporting several environment variables to your current shell env. Make sure you stay with in your current shell to not lose any exported variables.
+Clone the repo to you local workstation and `cd` into it.
 
-:round_pushpin: **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes. 
+:round_pushpin: **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
 ### :closed_lock_with_key:&nbsp; Setting up GnuPG keys
 
@@ -144,8 +126,6 @@ gpg --list-secret-keys "${PERSONAL_KEY_NAME}"
 #       772154FFF783DE317KLCA0EC77149AC618D75581
 # uid           [ultimate] k8s@home (Macbook) <k8s-at-home@gmail.com>
 # sub   rsa4096 2021-03-11 [E]
-
-export PERSONAL_KEY_FP=772154FFF783DE317KLCA0EC77149AC618D75581
 ```
 
 2. Create a Flux GPG Key and export the fingerprint
@@ -169,67 +149,63 @@ gpg --list-secret-keys "${FLUX_KEY_NAME}"
 #       AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 # uid           [ultimate] Home cluster (Flux) <k8s-at-home@gmail.com>
 # sub   rsa4096 2021-03-11 [E]
-
-export FLUX_KEY_FP=AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
 ```
 
-### :sailboat:&nbsp; Installing k3s with k3sup
+3. You will need the Fingerprints in the configuration section below. For example, in the above steps you will need `772154FFF783DE317KLCA0EC77149AC618D75581` and `AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D`
 
-:round_pushpin: Here we will be install [k3s](https://k3s.io/) with [k3sup](https://github.com/alexellis/k3sup). After completion, k3sup will drop a `kubeconfig` in your present working directory for use with interacting with your cluster with `kubectl`.
+### :cloud:&nbsp; Global Cloudflare API Key
 
-1. Ensure you are able to SSH into you nodes with using your private ssh key. This is how k3sup is able to connect to your remote node.
+In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge you will need to create a API key.
 
-2. Install the master node(s)
+1. Head over to Cloudflare and create a API key by going [here](https://dash.cloudflare.com/profile/api-tokens).
 
-_We will be installing metallb instead of servicelb, traefik and metrics-server will be installed with Flux._
+2. Under the `API Keys` section, create a global API Key.
 
-```sh
-k3sup install \
-    --host=169.254.1.1 \
-    --user=k8s-at-home \
-    --k3s-version=v1.21.4+k3s1 \
-    --k3s-extra-args="--disable servicelb --disable traefik --disable metrics-server"
-```
+3. Use the API Key in the configuration section below.
 
-3. Join worker nodes (optional)
+### :page_facing_up:&nbsp; Configuration
 
-```sh
-k3sup join \
-    --host=169.254.1.2 \
-    --server-host=169.254.1.1 \
-    --k3s-version=v1.21.4+k3s1 \
-    --user=k8s-at-home
-```
+:round_pushpin: The `.config.env` file contains necessary configuration files that are needed by Ansible, Terraform and Flux.
 
-4. Verify the nodes are online
+1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables. **All are required** and read the comments they will explain further what is required.
+
+2. Once that is done, verify the configuration is correct by running `./configure.sh --verify`
+
+3. If you do not encounter any errors run `./configure.sh` to start having the script wire up the templated files and place them where they need to be.
+
+### :zap:&nbsp; Preparing Ubuntu with Ansible
+
+:round_pushpin: Here we will be install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `/tmp/kubeconfig` for use with interacting with your cluster with `kubectl`. This file should be manually copied to the root of your repository.
+
+1. Ensure you are able to SSH into you nodes from your workstation with using your private ssh key. This is how Ansible is able to connect to your remote nodes.
+
+2. Verify Ansible can view your config by running `task ansible:list`
+
+3. Verify Ansible can ping your nodes by running `task ansible:ping`
+
+4. Finally, run the Ubuntu Prepare playbook by running `task ansible:playbook:ubuntu-prepare`
+
+5. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
+
+### :sailboat:&nbsp; Installing k3s with Ansible
+
+1. Verify Ansible can view your config by running `task ansible:list`
+
+2. Verify Ansible can ping your nodes by running `task ansible:ping`
+
+3. Run the k3s install playbook by running `task ansible:playbook:k3s-install`
+
+4. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
+
+5. Copy the `kubeconfig` file from `/tmp` to your repository.
+
+6. Verify the nodes are online
    
 ```sh
 kubectl --kubeconfig=./kubeconfig get nodes
 # NAME           STATUS   ROLES                       AGE     VERSION
-# k8s-master-a   Ready    control-plane,master      4d20h   v1.21.4+k3s1
-# k8s-worker-a   Ready    worker                    4d20h   v1.21.4+k3s1
-```
-
-### :cloud:&nbsp; Cloudflare API Token
-
-:round_pushpin: You may skip this step, **however** make sure to `export` dummy data **on item 8** in the below list.
-
-...Be aware you **will not** have a valid SSL cert until `cert-manager` is configured correctly
-
-In order to use `cert-manager` with the Cloudflare DNS challenge you will need to create a API token.
-
-1. Head over to Cloudflare and create a API token by going [here](https://dash.cloudflare.com/profile/api-tokens).
-2. Click the blue `Create Token` button
-3. Scroll down and create a Custom Token by choosing `Get started`
-4. Give your token a name like `cert-manager`
-5. Under `Permissions` give **read** access to `Zone` : `Zone` and **write** access to `Zone` : `DNS`
-6. Under `Zone Resources` set it to `Include` : `All Zones`
-7. Click `Continue to summary` and then `Create Token`
-8. Export this token and your Cloudflare email address to an environment variable on your system to be used in the following steps
-
-```sh
-export BOOTSTRAP_CLOUDFLARE_EMAIL="k8s-at-home@gmail.com"
-export BOOTSTRAP_CLOUDFLARE_TOKEN="kpG6iyg3FS_du_8KRShdFuwfbwu3zMltbvmJV6cD"
+# k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
+# k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
 ```
 
 ### :small_blue_diamond:&nbsp; GitOps with Flux
@@ -241,8 +217,8 @@ export BOOTSTRAP_CLOUDFLARE_TOKEN="kpG6iyg3FS_du_8KRShdFuwfbwu3zMltbvmJV6cD"
 ```sh
 flux --kubeconfig=./kubeconfig check --pre
 # ► checking prerequisites
-# ✔ kubectl 1.21.4 >=1.18.0-0
-# ✔ Kubernetes 1.21.4+k3s1 >=1.16.0-0
+# ✔ kubectl 1.21.5 >=1.18.0-0
+# ✔ Kubernetes 1.21.5+k3s1 >=1.16.0-0
 # ✔ prerequisites checks passed
 ```
 
@@ -255,53 +231,20 @@ kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client 
 3. Add the Flux GPG key in-order for Flux to decrypt SOPS secrets
 
 ```sh
-gpg --export-secret-keys --armor "${FLUX_KEY_FP}" |
+source .config.env
+gpg --export-secret-keys --armor "${BOOTSTRAP_FLUX_KEY_FP}" |
 kubectl --kubeconfig=./kubeconfig create secret generic sops-gpg \
     --namespace=flux-system \
     --from-file=sops.asc=/dev/stdin
 ```
 
-4. Export more environment variables for application configuration
+:round_pushpin: Variables defined in `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/base/cluster-settings.sops.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
-```sh
-# The repo you created from this template
-export BOOTSTRAP_GITHUB_REPOSITORY="https://github.com/k8s-at-home/home-cluster"
-# Choose one of your domains or use a made up one
-export BOOTSTRAP_DOMAIN="k8s-at-home.com"
-# Pick a range of unused IPs that are on the same network as your nodes
-# You don't need many IPs, just choose 10 to start with
-export BOOTSTRAP_METALLB_LB_RANGE="169.254.1.10-169.254.1.20"
-# The load balancer IP for traefik, choose from one of the available IPs above
-export BOOTSTRAP_SVC_TRAEFIK_ADDR="169.254.1.10"
-```
+4. **Verify** all the above files are **encrypted** with SOPS
 
-5. Create required files based on ALL exported environment variables.
+5. If you verified all the secrets are encrypted, you can delete the `tmpl` directory now
 
-```sh
-envsubst < ./tmpl/.sops.yaml > ./.sops.yaml
-envsubst < ./tmpl/cluster-secrets.sops.yaml > ./cluster/base/cluster-secrets.sops.yaml
-envsubst < ./tmpl/cluster-settings.yaml > ./cluster/base/cluster-settings.yaml
-envsubst < ./tmpl/gotk-sync.yaml > ./cluster/base/flux-system/gotk-sync.yaml
-envsubst < ./tmpl/secret.sops.yaml > ./cluster/core/cert-manager/secret.sops.yaml
-```
-
-6. **Verify** all the above files have the correct information present
-
-7. Encrypt `cluster/cluster-secrets.sops.yaml` and `cert-manager/secret.sops.yaml` with SOPS
-
-```sh
-export GPG_TTY=$(tty)
-sops --encrypt --in-place ./cluster/base/cluster-secrets.sops.yaml
-sops --encrypt --in-place ./cluster/core/cert-manager/secret.sops.yaml
-```
-
-:round_pushpin: Variables defined in `cluster-secrets.sops.yaml` and `cluster-settings.sops.yaml` will be usable anywhere in your YAML manifests under `./cluster`
-
-8. **Verify** all the above files are **encrypted** with SOPS
-
-9. If you verified all the secrets are encrypted, you can delete the `tmpl` directory now
-
-10. Push you changes to git
+6.  Push you changes to git
 
 ```sh
 git add -A
@@ -309,7 +252,7 @@ git commit -m "initial commit"
 git push
 ```
 
-11. Install Flux
+7. Install Flux
 
 :round_pushpin: Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
 
@@ -326,11 +269,7 @@ kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
 ```
 
-:tada: **Congratulations** you have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
-
-## :mega:&nbsp; Post installation
-
-### Verify Flux
+8. Verify Flux components are running in the cluster
 
 ```sh
 kubectl --kubeconfig=./kubeconfig get pods -n flux-system
@@ -341,17 +280,21 @@ kubectl --kubeconfig=./kubeconfig get pods -n flux-system
 # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
 ```
 
-### Verify ingress
+:tada: **Congratulations** you have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
-If your cluster is not accessible to outside world you can update your hosts file to verify the ingress controller is working.
+### :cloud:&nbsp; Configure Cloudflare DNS with Terraform
 
-This will only be temporary and you should set up DNS to handle these records either manually or automated with [external-dns](https://github.com/kubernetes-sigs/external-dns).
+:round_pushpin: Review the Terraform scripts under `./terraform/cloudflare/` and make sure you understand what it's doing (no really review it). If your domain already has existing DNS records be sure to export those DNS settings before you continue. Ideally you can update the terraform script to manage DNS for all records if you so choose to.
 
-```sh
-echo "${BOOTSTRAP_SVC_TRAEFIK_ADDR} ${BOOTSTRAP_DOMAIN} hajimari.${BOOTSTRAP_DOMAIN}" | sudo tee -a /etc/hosts
-```
+1. Pull in the Terraform deps by running `task terraform:init`
 
-Head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_DOMAIN}`
+2. Review the changes Terraform will make to your Cloudflare domain by running `task terraform:plan`
+
+3. Finally have Terraform execute the task by running `task terraform:apply`
+
+If Terraform was ran successfully head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}`
+
+## :mega:&nbsp; Post installation
 
 ### direnv
 

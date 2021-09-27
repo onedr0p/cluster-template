@@ -7,3 +7,10 @@ Thumbs.db
 kubeconfig
 # vscode-sops
 .decrypted~*.yaml
+.config.env
+# Ansible
+xanmanning.k3s*
+# Terraform
+.terraform
+.terraform.tfstate*
+terraform.tfstate*
