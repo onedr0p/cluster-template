@@ -34,6 +34,7 @@ main() {
         verify_gpg_fp
         verify_git_repository
         verify_cloudflare
+        success
     else
         # sops configuration file
         envsubst < "${PROJECT_DIR}/tmpl/.sops.yaml" \
@@ -98,7 +99,7 @@ _has_envar() {
         _log "ERROR" "Unset variable ${option}"
         exit 1
     } || {
-        _log "DEBUG" "Found variable '${option}' with value '${!option}'"
+        _log "INFO" "Found variable '${option}' with value '${!option}'"
     }
 }
 
@@ -107,10 +108,10 @@ _has_valid_ip() {
     local variable_name="${2}"
     
     if ! ipcalc "${ip}" | awk 'BEGIN{FS=":"; is_invalid=0} /^INVALID/ {is_invalid=1; print $1} END{exit is_invalid}' >/dev/null 2>&1; then
-        _log "DEBUG" "Variable '${variable_name}' has an invalid IP address '${ip}'"
+        _log "INFO" "Variable '${variable_name}' has an invalid IP address '${ip}'"
         exit 1
     else
-        _log "DEBUG" "Variable '${variable_name}' has a valid IP address '${ip}'"
+        _log "INFO" "Variable '${variable_name}' has a valid IP address '${ip}'"
     fi
 }
 
@@ -122,14 +123,14 @@ verify_gpg_fp() {
          _log "ERROR" "Invalid Personal GPG FP ${BOOTSTRAP_PERSONAL_KEY_FP}"
         exit 1    
     else
-        _log "DEBUG" "Found Personal GPG Fingerprint '${BOOTSTRAP_PERSONAL_KEY_FP}'"
+        _log "INFO" "Found Personal GPG Fingerprint '${BOOTSTRAP_PERSONAL_KEY_FP}'"
     fi
 
     if ! gpg --list-keys "${BOOTSTRAP_FLUX_KEY_FP}" >/dev/null 2>&1; then
          _log "ERROR" "Invalid Flux GPG FP '${BOOTSTRAP_FLUX_KEY_FP}'"
         exit 1    
     else
-         _log "DEBUG" "Found Flux GPG Fingerprint '${BOOTSTRAP_FLUX_KEY_FP}'"
+         _log "INFO" "Found Flux GPG Fingerprint '${BOOTSTRAP_FLUX_KEY_FP}'"
     fi
 }
 
@@ -195,8 +196,7 @@ verify_cloudflare() {
     )
 
     if [[ "$(echo "${account_zone}" | jq ".success")" == "true" ]]; then
-        _log "DEBUG" "Verified Cloudflare Account and Zone information"
-        exit 0
+        _log "INFO" "Verified Cloudflare Account and Zone information"
     else
         errors=$(echo "${account_zone}" | jq -c ".errors")
         _log "ERROR" "Unable to get Cloudflare Account and Zone information ${errors}"
@@ -228,9 +228,14 @@ verify_ansible_hosts() {
             _log "ERROR" "Unable to SSH into host '${!var}' with username '${!node_username}'"
             exit 1
         else
-            _log "DEBUG" "Successfully SSH'ed into host '${!var}' with username '${!node_username}'"
+            _log "INFO" "Successfully SSH'ed into host '${!var}' with username '${!node_username}'"
         fi
     done
+}
+
+success() {
+    printf "\nAll checks pass!"
+    exit 0
 }
 
 generate_ansible_host_secrets() {
@@ -283,7 +288,7 @@ generate_ansible_hosts() {
     } > "${PROJECT_DIR}/provision/ansible/inventory/hosts.yml"
 }
 
-function _log() {
+_log() {
     local type="${1}"
     local msg="${2}"
     printf "[%s] [%s] %s\n" "$(date -u)" "${type}" "${msg}"
