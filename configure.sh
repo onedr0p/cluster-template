@@ -93,6 +93,7 @@ _has_binary() {
 
 _has_envar() {
     local option="${1}"
+    # shellcheck disable=SC2015
     [[ "${!option}" == "" ]] && {
         _log "ERROR" "Unset variable ${option}"
         exit 1
