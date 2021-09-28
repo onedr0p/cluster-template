@@ -190,7 +190,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### :zap:&nbsp; Preparing Ubuntu with Ansible
 
-:round_pushpin: Here we will be install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `/tmp/kubeconfig` for use with interacting with your cluster with `kubectl`. This file should be manually copied to the root of your repository.
+:round_pushpin: Here we will be running a Ansible Playbook to prepare Ubuntu for running a Kubernetes cluster.
 
 1. Ensure you are able to SSH into you nodes from your workstation with using your private ssh key. This is how Ansible is able to connect to your remote nodes.
 
@@ -203,6 +203,8 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 5. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
 
 ### :sailboat:&nbsp; Installing k3s with Ansible
+
+:round_pushpin: Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `/tmp/kubeconfig` for use with interacting with your cluster with `kubectl`. This file should be manually copied to the root of your repository.
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
