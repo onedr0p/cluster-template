@@ -193,7 +193,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 2. Verify Ansible can ping your nodes by running `task ansible:ping`
 
-3. Install the roles by running `pip install -r provision/ansible/requirements.yml`
+3. Install the roles by running `ansible-galaxy install -r provision/ansible/requirements.yml`
 
 4. Run the k3s install playbook by running `task ansible:playbook:k3s-install`
 
