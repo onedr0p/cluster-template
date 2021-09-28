@@ -191,15 +191,17 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
-2. Verify Ansible can ping your nodes by running `task ansible:ping`
+2. Verify Ansible can ping your nodes by running `task ansible:adhoc:ping`
 
-3. Run the k3s install playbook by running `task ansible:playbook:k3s-install`
+3. Install the deps by running `task ansible:deps`
 
-4. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
+4. Run the k3s install playbook by running `task ansible:playbook:k3s-install`
 
-5. Copy the `kubeconfig` file from `/tmp` to your repository.
+5. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
 
-6. Verify the nodes are online
+6. Copy the `kubeconfig` file from `/tmp` to your repository.
+
+7. Verify the nodes are online
    
 ```sh
 kubectl --kubeconfig=./kubeconfig get nodes
