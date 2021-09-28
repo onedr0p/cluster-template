@@ -31,7 +31,7 @@ main() {
         verify_ansible_hosts
         verify_metallb
         verify_kubevip
-        verify_gpg_fp
+        verify_gpg
         verify_git_repository
         verify_cloudflare
         success
@@ -115,7 +115,7 @@ _has_valid_ip() {
     fi
 }
 
-verify_gpg_fp() {
+verify_gpg() {
     _has_envar "BOOTSTRAP_PERSONAL_KEY_FP"
     _has_envar "BOOTSTRAP_FLUX_KEY_FP"
 
@@ -144,6 +144,7 @@ verify_binaries() {
     _has_binary "ipcalc"
     _has_binary "jq"
     _has_binary "sops"
+    _has_binary "ssh"
     _has_binary "task"
     _has_binary "terraform"
 }
