@@ -191,7 +191,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
-2. Verify Ansible can ping your nodes by running `task ansible:ping`
+2. Verify Ansible can ping your nodes by running `task ansible:adhoc:ping`
 
 3. Install the deps by running `task ansible:deps`
 
