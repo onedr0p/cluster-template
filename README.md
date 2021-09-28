@@ -393,6 +393,40 @@ There's also a couple Github workflows included in this repository that will hel
 - [Flux upgrade schedule](./.github/workflows/flux-schedule.yaml) - workflow to upgrade Flux.
 - [Renovate schedule](./.github/workflows/renovate-schedule.yaml) - workflow to annotate `HelmRelease`'s which allows [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) to track Helm chart versions.
 
+### Keep your repository up-to-date with this template
+
+At some point you may want to update your Git repository with some commit from this repository. The following is one method to achieve this.
+
+1. Add this repository as an additional remote
+
+```sh
+git remote add tmpl git@github.com:k8s-at-home/template-cluster-k3s.git
+```
+
+2. Fetch all the branches
+
+```sh
+git fetch tmpl
+```
+
+3. List the commits from this repository
+
+```sh
+git log tmpl/main
+```
+
+4. Pick the commit you want to bring over to your repository
+
+```sh
+git cherry-pick ce67a3c
+```
+
+5. Push the changes up to your Git remote
+
+```sh
+git push origin main
+```
+
 ## :grey_question:&nbsp; What's next
 
 The world is your cluster, try installing another application or if you have a NAS and want storage back by that check out the helm charts for [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs) or [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
