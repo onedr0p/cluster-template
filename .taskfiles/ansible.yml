@@ -22,6 +22,12 @@ tasks:
     cmds:
       - "ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml --list-hosts"
 
+  ping:
+    desc: Ping all the hosts
+    dir: provision/ansible
+    cmds:
+      - "ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml --one-line -m 'ping'"
+
   playbook:ubuntu-prepare:
     desc: Prepare all the k8s nodes for running k3s
     dir: provision/ansible
