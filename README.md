@@ -27,7 +27,13 @@ Feel free to read up on any of these technologies before you get started to be m
 - [traefik](https://traefik.io) - ingress controller
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - upgrade k3s
-- [reloader](https://github.com/stakater/Reloader) - restart pod when configmap or secret changes
+- [reloader](https://github.com/stakater/Reloader) - restart pods when configmap or secret changes
+
+For provisioning the following tools will be used:
+
+- [Ubuntu](https://ubuntu.com/download/server) - this is a pretty universal operating system that supports running all kinds of home related workloads in Kubernetes
+- [Ansible](https://www.ansible.com) - this will be used to provision the Ubuntu operating system to be ready for Kubernetes and also to install k3s
+- [Terraform](https://www.terraform.io) - in order to help with the DNS settings this will be used to provision a Cloudflare domain and DNS settings
 
 ## :memo:&nbsp; Prerequisites
 
@@ -41,26 +47,35 @@ Feel free to read up on any of these technologies before you get started to be m
 
 :round_pushpin: You should install the below CLI tools on your workstation. Make sure you pull in the latest versions.
 
+#### Required
+
 | Tool                                                               | Purpose                                                             |
 |--------------------------------------------------------------------|---------------------------------------------------------------------|
 | [ansible](https://www.ansible.com)                                 | Preparing Ubuntu for Kubernetes and installing k3s                  |
 | [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |
 | [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |
-| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
+| [gnupg](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
 | [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |
-| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
+| [ipcalc](http://jodies.de/ipcalc)                                  | Used to verify settings in the configure script                     |
+| [jq](https://stedolan.github.io/jq/)                               | Used to verify settings in the configure script                     |
 | [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
 | [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |
+| [sops](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
+| [terraform](https://www.terraform.io)                              | Prepare a Cloudflare domain to be used with the cluster             |
+
+#### Optional
+
+| Tool                                                               | Purpose                                                             |
+|--------------------------------------------------------------------|---------------------------------------------------------------------|
+| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
+| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
 | [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks pre `git commit`                                        |
 | [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |
-| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
-| [terraform](https://www.terraform.io)                              | Prepare a Cloudflare domain to be used with the cluster             |
 
 ### :warning:&nbsp; pre-commit
 
 It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
-[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident commiting your secrets un-encrypted.
+[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident committing your secrets un-encrypted.
 
 After pre-commit is installed on your machine run:
 

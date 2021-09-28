@@ -215,7 +215,7 @@ verify_ansible_hosts() {
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
         node_addr="BOOTSTRAP_ANSIBLE_HOST_ADDR_${node_id}"
         node_username="BOOTSTRAP_ANSIBLE_SSH_USERNAME_${node_id}"
-        node_password="BOOTSTRAP_ANSIBLE_SSH_PASSWORD_${node_id}"
+        node_password="BOOTSTRAP_ANSIBLE_SUDO_PASSWORD_${node_id}"
         node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
 
         _has_envar "${node_addr}"
@@ -245,7 +245,7 @@ generate_ansible_host_secrets() {
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
         {
             node_username="BOOTSTRAP_ANSIBLE_SSH_USERNAME_${node_id}"
-            node_password="BOOTSTRAP_ANSIBLE_SSH_PASSWORD_${node_id}"
+            node_password="BOOTSTRAP_ANSIBLE_SUDO_PASSWORD_${node_id}"
             printf "kind: Secret\n"
             printf "ansible_user: %s\n" "${!node_username}"
             printf "ansible_become_pass: %s\n" "${!node_password}"
