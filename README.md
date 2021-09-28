@@ -194,13 +194,15 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 1. Ensure you are able to SSH into you nodes from your workstation with using your private ssh key. This is how Ansible is able to connect to your remote nodes.
 
-2. Verify Ansible can view your config by running `task ansible:list`
+2. Install the deps by running `task ansible:deps`
 
-3. Verify Ansible can ping your nodes by running `task ansible:ping`
+3. Verify Ansible can view your config by running `task ansible:list`
 
-4. Finally, run the Ubuntu Prepare playbook by running `task ansible:playbook:ubuntu-prepare`
+4. Verify Ansible can ping your nodes by running `task ansible:ping`
 
-5. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
+5. Finally, run the Ubuntu Prepare playbook by running `task ansible:playbook:ubuntu-prepare`
+
+6. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
 
 ### :sailboat:&nbsp; Installing k3s with Ansible
 
@@ -210,15 +212,13 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 2. Verify Ansible can ping your nodes by running `task ansible:adhoc:ping`
 
-3. Install the deps by running `task ansible:deps`
+3. Run the k3s install playbook by running `task ansible:playbook:k3s-install`
 
-4. Run the k3s install playbook by running `task ansible:playbook:k3s-install`
+4. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
 
-5. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
+5. Copy the `kubeconfig` file from `/tmp` to your repository.
 
-6. Copy the `kubeconfig` file from `/tmp` to your repository.
-
-7. Verify the nodes are online
+6. Verify the nodes are online
    
 ```sh
 kubectl --kubeconfig=./kubeconfig get nodes
