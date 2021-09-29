@@ -19,15 +19,16 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 
 Feel free to read up on any of these technologies before you get started to be more familiar with them.
 
-- [flannel](https://github.com/flannel-io/flannel) - default CNI provided by k3s
-- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - default storage class provided by k3s
-- [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
-- [metallb](https://metallb.universe.tf/) - bare metal load balancer
 - [cert-manager](https://cert-manager.io/) - SSL certificates - with Cloudflare DNS challenge
-- [traefik](https://traefik.io) - ingress controller
+- [flannel](https://github.com/flannel-io/flannel) - default CNI provided by k3s
+- [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
+- [kube-vip](https://kube-vip.io/) - layer 2 load balancer for the Kubernetes control plane
+- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - default storage class provided by k3s
+- [metallb](https://metallb.universe.tf/) - bare metal load balancer
+- [reloader](https://github.com/stakater/Reloader) - restart pods when Kubernetes `configmap` or `secret` changes
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - upgrade k3s
-- [reloader](https://github.com/stakater/Reloader) - restart pods when configmap or secret changes
+- [traefik](https://traefik.io) - ingress controller
 
 For provisioning the following tools will be used:
 
