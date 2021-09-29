@@ -315,65 +315,13 @@ If Terraform was ran successfully head over to your browser and you _should_ be 
 
 ## :mega:&nbsp; Post installation
 
-### direnv
+### :point_right:&nbsp; Troubleshooting
 
-This is a great tool to export environment variables depending on what your present working directory is, head over to their [installation guide](https://direnv.net/docs/installation.html) and don't forget to hook it into your shell!
+Our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki)  is a good place to start troubleshooting issues. If that doesn't cover your issue, start a new thread in the #support channel on our [Discord](https://digcord.gg/k8s-at-home).
 
-When this is done you no longer have to use `--kubeconfig=./kubeconfig` in your `kubectl`, `flux` or `helm` commands.
+### :robot:&nbsp; Integrations
 
-### VSCode SOPS extension
-
-[VSCode SOPS](https://marketplace.visualstudio.com/items?itemName=signageos.signageos-vscode-sops) is a neat little plugin for those using VSCode.
-It will automatically decrypt you SOPS secrets when you click on the file in the editor and encrypt them when you save  and exit the file.
-
-### :point_right:&nbsp; Debugging
-
-If you are stuck be sure to check out the [template-cluster-k3s/wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) or start a new thread in the #support channel on our [Discord](https://digcord.gg/k8s-at-home).
-
-### :robot:&nbsp; Automation
-
-- [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) is a very useful tool that when configured will start to create PRs in your Github repository when Docker images, Helm charts or anything else that can be tracked has a newer version. The configuration for renovate is located [here](./.github/renovate.json5).
-
-- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) will watch for new k3s releases and upgrade your nodes when new releases are found.
-
-There's also a couple Github workflows included in this repository that will help automate some processes.
-
-- [Flux upgrade schedule](./.github/workflows/flux-schedule.yaml) - workflow to upgrade Flux.
-- [Renovate schedule](./.github/workflows/renovate-schedule.yaml) - workflow to annotate `HelmRelease`'s which allows [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) to track Helm chart versions.
-
-### Keep your repository up-to-date with this template
-
-At some point you may want to update your Git repository with some commit from this repository. The following is one method to achieve this.
-
-1. Add this repository as an additional remote
-
-```sh
-git remote add tmpl git@github.com:k8s-at-home/template-cluster-k3s.git
-```
-
-2. Fetch all the branches
-
-```sh
-git fetch tmpl
-```
-
-3. List the commits from this repository
-
-```sh
-git log tmpl/main
-```
-
-4. Pick the commit you want to bring over to your repository
-
-```sh
-git cherry-pick ce67a3c
-```
-
-5. Push the changes up to your Git remote
-
-```sh
-git push origin main
-```
+Our Check out our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) for more integrations!
 
 ## :grey_question:&nbsp; What's next
 
