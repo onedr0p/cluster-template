@@ -198,7 +198,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 3. Verify Ansible can view your config by running `task ansible:list`
 
-4. Verify Ansible can ping your nodes by running `task ansible:ping`
+4. Verify Ansible can ping your nodes by running `task ansible:adhoc:ping`
 
 5. Finally, run the Ubuntu Prepare playbook by running `task ansible:playbook:ubuntu-prepare`
 
