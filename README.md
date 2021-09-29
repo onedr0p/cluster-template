@@ -317,7 +317,7 @@ If Terraform was ran successfully head over to your browser and you _should_ be 
 
 ### :point_right:&nbsp; Troubleshooting
 
-Our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki)  is a good place to start troubleshooting issues. If that doesn't cover your issue, start a new thread in the #support channel on our [Discord](https://digcord.gg/k8s-at-home).
+Our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) is a good place to start troubleshooting issues. If that doesn't cover your issue, start a new thread in the #support channel on our [Discord](https://digcord.gg/k8s-at-home).
 
 ### :robot:&nbsp; Integrations
 
