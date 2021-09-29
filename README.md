@@ -27,13 +27,19 @@ Feel free to read up on any of these technologies before you get started to be m
 - [traefik](https://traefik.io) - ingress controller
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - upgrade k3s
-- [reloader](https://github.com/stakater/Reloader) - restart pod when configmap or secret changes
+- [reloader](https://github.com/stakater/Reloader) - restart pods when configmap or secret changes
+
+For provisioning the following tools will be used:
+
+- [Ubuntu](https://ubuntu.com/download/server) - this is a pretty universal operating system that supports running all kinds of home related workloads in Kubernetes
+- [Ansible](https://www.ansible.com) - this will be used to provision the Ubuntu operating system to be ready for Kubernetes and also to install k3s
+- [Terraform](https://www.terraform.io) - in order to help with the DNS settings this will be used to provision an already existing Cloudflare domain and DNS settings
 
 ## :memo:&nbsp; Prerequisites
 
 ### :computer:&nbsp; Systems
 
-- Two nodes with a fresh install of [Ubuntu Server 20.04](https://ubuntu.com/download/server). These nodes can be bare metal or VMs.
+- One or mote nodes with a fresh install of [Ubuntu Server 20.04](https://ubuntu.com/download/server). These nodes can be bare metal or VMs.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
 - Some experience in debugging problems and a positive attitude ;)
 
@@ -41,26 +47,35 @@ Feel free to read up on any of these technologies before you get started to be m
 
 :round_pushpin: You should install the below CLI tools on your workstation. Make sure you pull in the latest versions.
 
+#### Required
+
 | Tool                                                               | Purpose                                                             |
 |--------------------------------------------------------------------|---------------------------------------------------------------------|
 | [ansible](https://www.ansible.com)                                 | Preparing Ubuntu for Kubernetes and installing k3s                  |
 | [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |
 | [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |
-| [GnuPG](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
+| [gnupg](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
 | [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |
-| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
+| [ipcalc](http://jodies.de/ipcalc)                                  | Used to verify settings in the configure script                     |
+| [jq](https://stedolan.github.io/jq/)                               | Used to verify settings in the configure script                     |
 | [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
 | [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |
+| [sops](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
+| [terraform](https://www.terraform.io)                              | Prepare a Cloudflare domain to be used with the cluster             |
+
+#### Optional
+
+| Tool                                                               | Purpose                                                             |
+|--------------------------------------------------------------------|---------------------------------------------------------------------|
+| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
+| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
 | [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks pre `git commit`                                        |
 | [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |
-| [SOPS](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
-| [terraform](https://www.terraform.io)                              | Prepare a Cloudflare domain to be used with the cluster             |
 
 ### :warning:&nbsp; pre-commit
 
 It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
-[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident commiting your secrets un-encrypted.
+[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident committing your secrets un-encrypted.
 
 After pre-commit is installed on your machine run:
 
@@ -175,19 +190,23 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### :zap:&nbsp; Preparing Ubuntu with Ansible
 
-:round_pushpin: Here we will be install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `/tmp/kubeconfig` for use with interacting with your cluster with `kubectl`. This file should be manually copied to the root of your repository.
+:round_pushpin: Here we will be running a Ansible Playbook to prepare Ubuntu for running a Kubernetes cluster.
 
 1. Ensure you are able to SSH into you nodes from your workstation with using your private ssh key. This is how Ansible is able to connect to your remote nodes.
 
-2. Verify Ansible can view your config by running `task ansible:list`
+2. Install the deps by running `task ansible:deps`
 
-3. Verify Ansible can ping your nodes by running `task ansible:ping`
+3. Verify Ansible can view your config by running `task ansible:list`
 
-4. Finally, run the Ubuntu Prepare playbook by running `task ansible:playbook:ubuntu-prepare`
+4. Verify Ansible can ping your nodes by running `task ansible:ping`
 
-5. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
+5. Finally, run the Ubuntu Prepare playbook by running `task ansible:playbook:ubuntu-prepare`
+
+6. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
 
 ### :sailboat:&nbsp; Installing k3s with Ansible
+
+:round_pushpin: Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `/tmp/kubeconfig` for use with interacting with your cluster with `kubectl`. This file should be manually copied to the root of your repository.
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
@@ -375,6 +394,40 @@ There's also a couple Github workflows included in this repository that will hel
 
 - [Flux upgrade schedule](./.github/workflows/flux-schedule.yaml) - workflow to upgrade Flux.
 - [Renovate schedule](./.github/workflows/renovate-schedule.yaml) - workflow to annotate `HelmRelease`'s which allows [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate) to track Helm chart versions.
+
+### Keep your repository up-to-date with this template
+
+At some point you may want to update your Git repository with some commit from this repository. The following is one method to achieve this.
+
+1. Add this repository as an additional remote
+
+```sh
+git remote add tmpl git@github.com:k8s-at-home/template-cluster-k3s.git
+```
+
+2. Fetch all the branches
+
+```sh
+git fetch tmpl
+```
+
+3. List the commits from this repository
+
+```sh
+git log tmpl/main
+```
+
+4. Pick the commit you want to bring over to your repository
+
+```sh
+git cherry-pick ce67a3c
+```
+
+5. Push the changes up to your Git remote
+
+```sh
+git push origin main
+```
 
 ## :grey_question:&nbsp; What's next
 

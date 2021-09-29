@@ -31,7 +31,7 @@ main() {
         verify_ansible_hosts
         verify_metallb
         verify_kubevip
-        verify_gpg_fp
+        verify_gpg
         verify_git_repository
         verify_cloudflare
         success
@@ -115,7 +115,7 @@ _has_valid_ip() {
     fi
 }
 
-verify_gpg_fp() {
+verify_gpg() {
     _has_envar "BOOTSTRAP_PERSONAL_KEY_FP"
     _has_envar "BOOTSTRAP_FLUX_KEY_FP"
 
@@ -144,6 +144,7 @@ verify_binaries() {
     _has_binary "ipcalc"
     _has_binary "jq"
     _has_binary "sops"
+    _has_binary "ssh"
     _has_binary "task"
     _has_binary "terraform"
 }
@@ -215,7 +216,7 @@ verify_ansible_hosts() {
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
         node_addr="BOOTSTRAP_ANSIBLE_HOST_ADDR_${node_id}"
         node_username="BOOTSTRAP_ANSIBLE_SSH_USERNAME_${node_id}"
-        node_password="BOOTSTRAP_ANSIBLE_SSH_PASSWORD_${node_id}"
+        node_password="BOOTSTRAP_ANSIBLE_SUDO_PASSWORD_${node_id}"
         node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
 
         _has_envar "${node_addr}"
@@ -245,7 +246,7 @@ generate_ansible_host_secrets() {
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
         {
             node_username="BOOTSTRAP_ANSIBLE_SSH_USERNAME_${node_id}"
-            node_password="BOOTSTRAP_ANSIBLE_SSH_PASSWORD_${node_id}"
+            node_password="BOOTSTRAP_ANSIBLE_SUDO_PASSWORD_${node_id}"
             printf "kind: Secret\n"
             printf "ansible_user: %s\n" "${!node_username}"
             printf "ansible_become_pass: %s\n" "${!node_password}"
