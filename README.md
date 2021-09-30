@@ -304,11 +304,11 @@ kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
 
 :round_pushpin: Review the Terraform scripts under `./terraform/cloudflare/` and make sure you understand what it's doing (no really review it). If your domain already has existing DNS records be sure to export those DNS settings before you continue. Ideally you can update the terraform script to manage DNS for all records if you so choose to.
 
-1. Pull in the Terraform deps by running `task terraform:init`
+1. Pull in the Terraform deps by running `task terraform:init:cloudflare:`
 
-2. Review the changes Terraform will make to your Cloudflare domain by running `task terraform:plan`
+2. Review the changes Terraform will make to your Cloudflare domain by running `task terraform:plan:cloudflare:`
 
-3. Finally have Terraform execute the task by running `task terraform:apply`
+3. Finally have Terraform execute the task by running `task terraform:apply:cloudflare:`
 
 If Terraform was ran successfully head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}`
 
