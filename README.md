@@ -207,7 +207,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### :sailboat:&nbsp; Installing k3s with Ansible
 
-:round_pushpin: Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `/tmp/kubeconfig` for use with interacting with your cluster with `kubectl`. This file should be manually copied to the root of your repository.
+:round_pushpin: Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./provision/kubeconfig` for use with interacting with your cluster with `kubectl`.
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
@@ -217,9 +217,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 4. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
 
-5. Copy the `kubeconfig` file from `/tmp` to your repository.
-
-6. Verify the nodes are online
+5. Verify the nodes are online
    
 ```sh
 kubectl --kubeconfig=./provision/kubeconfig get nodes
