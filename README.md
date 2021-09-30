@@ -222,7 +222,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 6. Verify the nodes are online
    
 ```sh
-kubectl --kubeconfig=./kubeconfig get nodes
+kubectl --kubeconfig=./provision/kubeconfig get nodes
 # NAME           STATUS   ROLES                       AGE     VERSION
 # k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
 # k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
@@ -235,7 +235,7 @@ kubectl --kubeconfig=./kubeconfig get nodes
 1. Verify Flux can be installed
 
 ```sh
-flux --kubeconfig=./kubeconfig check --pre
+flux --kubeconfig=./provision/kubeconfig check --pre
 # ► checking prerequisites
 # ✔ kubectl 1.21.5 >=1.18.0-0
 # ✔ Kubernetes 1.21.5+k3s1 >=1.16.0-0
@@ -245,7 +245,7 @@ flux --kubeconfig=./kubeconfig check --pre
 2. Pre-create the `flux-system` namespace
 
 ```sh
-kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig=./kubeconfig apply -f -
+kubectl --kubeconfig=./provision/kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig=./provision/kubeconfig apply -f -
 ```
 
 3. Add the Flux GPG key in-order for Flux to decrypt SOPS secrets
@@ -253,7 +253,7 @@ kubectl --kubeconfig=./kubeconfig create namespace flux-system --dry-run=client 
 ```sh
 source .config.env
 gpg --export-secret-keys --armor "${BOOTSTRAP_FLUX_KEY_FP}" |
-kubectl --kubeconfig=./kubeconfig create secret generic sops-gpg \
+kubectl --kubeconfig=./provision/kubeconfig create secret generic sops-gpg \
     --namespace=flux-system \
     --from-file=sops.asc=/dev/stdin
 ```
@@ -277,7 +277,7 @@ git push
 :round_pushpin: Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
 
 ```sh
-kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
+kubectl --kubeconfig=./provision/kubeconfig apply --kustomize=./cluster/base/flux-system
 # namespace/flux-system configured
 # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
 # ...
@@ -292,7 +292,7 @@ kubectl --kubeconfig=./kubeconfig apply --kustomize=./cluster/base/flux-system
 8. Verify Flux components are running in the cluster
 
 ```sh
-kubectl --kubeconfig=./kubeconfig get pods -n flux-system
+kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
 # NAME                                       READY   STATUS    RESTARTS   AGE
 # helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
 # kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
