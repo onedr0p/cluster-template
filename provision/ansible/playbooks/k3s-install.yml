@@ -27,11 +27,18 @@
         name: xanmanning.k3s
         public: true
 
-    - name: Copy kubeconfig locally to /tmp
+    - name: Get absolute path to this Git repository
+      delegate_to: localhost
+      become: false
+      run_once: true
+      ansible.builtin.command: "git rev-parse --show-toplevel"
+      register: repo_abs_path
+
+    - name: Copy kubeconfig to provision folder
       run_once: true
       ansible.builtin.fetch:
         src: "/etc/rancher/k3s/k3s.yaml"
-        dest: "/tmp/kubeconfig"
+        dest: "{{ repo_abs_path.stdout }}/provision/kubeconfig"
         flat: true
       when:
         - k3s_control_node is defined
@@ -42,7 +49,7 @@
       become: false
       run_once: true
       ansible.builtin.replace:
-        path: "/tmp/kubeconfig"
+        path: "{{ repo_abs_path.stdout }}/provision/kubeconfig"
         regexp: "https://127.0.0.1:6443"
         replace: "https://{{ k3s_registration_address }}:6443"
 
