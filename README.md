@@ -20,7 +20,7 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 Feel free to read up on any of these technologies before you get started to be more familiar with them.
 
 - [cert-manager](https://cert-manager.io/) - SSL certificates - with Cloudflare DNS challenge
-- [flannel](https://github.com/flannel-io/flannel) - default CNI provided by k3s
+- [calico](https://www.tigera.io/project-calico/) - CNI (container network interface)
 - [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
 - [kube-vip](https://kube-vip.io/) - layer 2 load balancer for the Kubernetes control plane

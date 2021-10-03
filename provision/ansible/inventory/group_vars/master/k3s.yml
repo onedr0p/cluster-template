@@ -12,8 +12,9 @@ k3s_server:
     # kube-vip
     - "{{ kubevip_address }}"
   docker: false
-  flannel-backend: "host-gw" # This needs to be in quotes
+  flannel-backend: "none" # This needs to be in quotes
   disable:
+    - flannel
     - traefik
     - servicelb
     - metrics-server
