@@ -25,8 +25,14 @@ k3s_use_unsupported_config: false
 # (string) Control Plane registration address
 k3s_registration_address: "{{ kubevip_address }}"
 
+# (list) A list of URLs to deploy on the primary control plane. Read notes below.
+k3s_server_manifests_urls:
+  - url: https://docs.projectcalico.org/archive/v3.20/manifests/tigera-operator.yaml
+    filename: tigera-operator.yaml
+
 # (list) A flat list of templates to deploy on the primary control plane
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
+  - "calico-installation.yaml.j2"
   - "kube-vip-rbac.yaml.j2"
   - "kube-vip-daemonset.yaml.j2"
