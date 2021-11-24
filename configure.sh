@@ -121,6 +121,13 @@ verify_age() {
     _has_envar "BOOTSTRAP_AGE_PUBLIC_KEY"
     _has_envar "SOPS_AGE_KEY_FILE"
 
+    if [[ ! "$BOOTSTRAP_AGE_PUBLIC_KEY" =~ ^age.* ]]; then
+        _log "ERROR" "BOOTSTRAP_AGE_PUBLIC_KEY does not start with age"
+        exit 1
+    else
+        _log "INFO" "Age public key is in the correct format"
+    fi
+
     if [[ ! -f ~/.config/sops/age/keys.txt ]]; then
         _log "ERROR" "Unable to find Age file keys.txt in ~/.config/sops/age"
         exit 1
