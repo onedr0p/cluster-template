@@ -124,6 +124,8 @@ verify_age() {
     if [[ ! -f ~/.config/sops/age/keys.txt ]]; then
         _log "ERROR" "Unable to find Age file keys.txt in ~/.config/sops/age"
         exit 1
+    else
+        _log "INFO" "Found Age public key '${BOOTSTRAP_AGE_PUBLIC_KEY}'"
     fi
 }
 
