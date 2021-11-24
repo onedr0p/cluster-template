@@ -137,8 +137,8 @@ mv age.agekey ~/.config/sops/age/keys.txt
 3. Export the `SOPS_AGE_KEY_FILE` variable in your `bashrc`, `zshrc` or `config.fish` and source it, e.g.
 
 ```sh
-export SOPS_AGE_KEY_FILE=/home/k8s-at-home/.config/sops/age/keys.txt
-source /home/k8s-at-home/.bashrc
+export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+source ~/.bashrc
 ```
 
 4. Fill out the Age public key in the `.config.env` under `BOOTSTRAP_AGE_PUBLIC_KEY`, **note** the public key should start with `age`...
