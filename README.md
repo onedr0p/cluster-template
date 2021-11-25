@@ -2,7 +2,7 @@
 
 Highly opinionated template for deploying a single [k3s](https://k3s.io) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
 
-The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit GPG encrypted secrets to your public repo.
+The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit Age encrypted secrets to your public repo.
 
 ## Overview
 
@@ -50,28 +50,27 @@ For provisioning the following tools will be used:
 
 #### Required
 
-| Tool                                                               | Purpose                                                             |
-|--------------------------------------------------------------------|---------------------------------------------------------------------|
-| [ansible](https://www.ansible.com)                                 | Preparing Ubuntu for Kubernetes and installing k3s                  |
-| [direnv](https://github.com/direnv/direnv)                         | Exports env vars based on present working directory                 |
-| [flux](https://toolkit.fluxcd.io/)                                 | Operator that manages your k8s cluster based on your Git repository |
-| [gnupg](https://gnupg.org/)                                        | Encrypts and signs your data                                        |
-| [go-task](https://github.com/go-task/task)                         | A task runner / simpler Make alternative written in Go              |
-| [ipcalc](http://jodies.de/ipcalc)                                  | Used to verify settings in the configure script                     |
-| [jq](https://stedolan.github.io/jq/)                               | Used to verify settings in the configure script                     |
-| [kubectl](https://kubernetes.io/docs/tasks/tools/)                 | Allows you to run commands against Kubernetes clusters              |
-| [pinentry](https://gnupg.org/related_software/pinentry/index.html) | Allows GnuPG to read passphrases and PIN numbers                    |
-| [sops](https://github.com/mozilla/sops)                            | Encrypts k8s secrets with GnuPG                                     |
-| [terraform](https://www.terraform.io)                              | Prepare a Cloudflare domain to be used with the cluster             |
+| Tool                                               | Purpose                                                                                                                                 |
+|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| [ansible](https://www.ansible.com)                 | Preparing Ubuntu for Kubernetes and installing k3s                                                                                      |
+| [direnv](https://github.com/direnv/direnv)         | Exports env vars based on present working directory                                                                                     |
+| [flux](https://toolkit.fluxcd.io/)                 | Operator that manages your k8s cluster based on your Git repository                                                                     |
+| [age](https://github.com/FiloSottile/age)          | A simple, modern and secure encryption tool (and Go library) with small explicit keys, no config options, and UNIX-style composability. |
+| [go-task](https://github.com/go-task/task)         | A task runner / simpler Make alternative written in Go                                                                                  |
+| [ipcalc](http://jodies.de/ipcalc)                  | Used to verify settings in the configure script                                                                                         |
+| [jq](https://stedolan.github.io/jq/)               | Used to verify settings in the configure script                                                                                         |
+| [kubectl](https://kubernetes.io/docs/tasks/tools/) | Allows you to run commands against Kubernetes clusters                                                                                  |
+| [sops](https://github.com/mozilla/sops)            | Encrypts k8s secrets with Age                                                                                                           |
+| [terraform](https://www.terraform.io)              | Prepare a Cloudflare domain to be used with the cluster                                                                                 |
 
 #### Optional
 
-| Tool                                                               | Purpose                                                             |
-|--------------------------------------------------------------------|---------------------------------------------------------------------|
-| [helm](https://helm.sh/)                                           | Manage Kubernetes applications                                      |
-| [kustomize](https://kustomize.io/)                                 | Template-free way to customize application configuration            |
-| [pre-commit](https://github.com/pre-commit/pre-commit)             | Runs checks pre `git commit`                                        |
-| [prettier](https://github.com/prettier/prettier)                   | Prettier is an opinionated code formatter.                          |
+| Tool                                                   | Purpose                                                  |
+|--------------------------------------------------------|----------------------------------------------------------|
+| [helm](https://helm.sh/)                               | Manage Kubernetes applications                           |
+| [kustomize](https://kustomize.io/)                     | Template-free way to customize application configuration |
+| [pre-commit](https://github.com/pre-commit/pre-commit) | Runs checks pre `git commit`                             |
+| [prettier](https://github.com/prettier/prettier)       | Prettier is an opinionated code formatter.               |
 
 ### :warning:&nbsp; pre-commit
 
@@ -118,56 +117,31 @@ Clone the repo to you local workstation and `cd` into it.
 
 :round_pushpin: **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
-### :closed_lock_with_key:&nbsp; Setting up GnuPG keys
+### :closed_lock_with_key:&nbsp; Setting up Age
 
-:round_pushpin: Here we will create a personal and a Flux GPG key. Using SOPS with GnuPG allows us to encrypt and decrypt secrets.
+:round_pushpin: Here we will create a Age Private and Public key. Using SOPS with Age allows us to encrypt and decrypt secrets.
 
-1. Create a Personal GPG Key, password protected, and export the fingerprint. It's **strongly encouraged** to back up this key somewhere safe so you don't lose it.
-
-```sh
-export GPG_TTY=$(tty)
-export PERSONAL_KEY_NAME="First name Last name (location) <email>"
-
-gpg --batch --full-generate-key <<EOF
-Key-Type: 1
-Key-Length: 4096
-Subkey-Type: 1
-Subkey-Length: 4096
-Expire-Date: 0
-Name-Real: ${PERSONAL_KEY_NAME}
-EOF
-
-gpg --list-secret-keys "${PERSONAL_KEY_NAME}"
-# pub   rsa4096 2021-03-11 [SC]
-#       772154FFF783DE317KLCA0EC77149AC618D75581
-# uid           [ultimate] k8s@home (Macbook) <k8s-at-home@gmail.com>
-# sub   rsa4096 2021-03-11 [E]
-```
-
-2. Create a Flux GPG Key and export the fingerprint
+1. Create a Age Private / Public Key
 
 ```sh
-export GPG_TTY=$(tty)
-export FLUX_KEY_NAME="Cluster name (Flux) <email>"
-
-gpg --batch --full-generate-key <<EOF
-%no-protection
-Key-Type: 1
-Key-Length: 4096
-Subkey-Type: 1
-Subkey-Length: 4096
-Expire-Date: 0
-Name-Real: ${FLUX_KEY_NAME}
-EOF
-
-gpg --list-secret-keys "${FLUX_KEY_NAME}"
-# pub   rsa4096 2021-03-11 [SC]
-#       AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D
-# uid           [ultimate] Home cluster (Flux) <k8s-at-home@gmail.com>
-# sub   rsa4096 2021-03-11 [E]
+age-keygen -o age.agekey
 ```
 
-3. You will need the Fingerprints in the configuration section below. For example, in the above steps you will need `772154FFF783DE317KLCA0EC77149AC618D75581` and `AB675CE4CC64251G3S9AE1DAA88ARRTY2C009E2D`
+2. Set up the directory for the Age key and move the Age file to it
+
+```sh
+mkdir -p ~/.config/sops/age
+mv age.agekey ~/.config/sops/age/keys.txt
+```
+
+3. Export the `SOPS_AGE_KEY_FILE` variable in your `bashrc`, `zshrc` or `config.fish` and source it, e.g.
+
+```sh
+export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+source ~/.bashrc
+```
+
+4. Fill out the Age public key in the `.config.env` under `BOOTSTRAP_AGE_PUBLIC_KEY`, **note** the public key should start with `age`...
 
 ### :cloud:&nbsp; Global Cloudflare API Key
 
@@ -248,14 +222,12 @@ flux --kubeconfig=./provision/kubeconfig check --pre
 kubectl --kubeconfig=./provision/kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig=./provision/kubeconfig apply -f -
 ```
 
-3. Add the Flux GPG key in-order for Flux to decrypt SOPS secrets
+3. Add the Age key in-order for Flux to decrypt SOPS secrets
 
 ```sh
-source .config.env
-gpg --export-secret-keys --armor "${BOOTSTRAP_FLUX_KEY_FP}" |
-kubectl --kubeconfig=./provision/kubeconfig create secret generic sops-gpg \
-    --namespace=flux-system \
-    --from-file=sops.asc=/dev/stdin
+cat ~/.config/sops/age/keys.txt |
+    kubectl -n default create secret generic sops-age \
+    --from-file=age.agekey=/dev/stdin
 ```
 
 :round_pushpin: Variables defined in `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/base/cluster-settings.sops.yaml` will be usable anywhere in your YAML manifests under `./cluster`

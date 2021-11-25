@@ -31,7 +31,7 @@ main() {
         verify_ansible_hosts
         verify_metallb
         verify_kubevip
-        verify_gpg
+        verify_age
         verify_git_repository
         verify_cloudflare
         success
@@ -117,22 +117,22 @@ _has_valid_ip() {
     fi
 }
 
-verify_gpg() {
-    _has_envar "BOOTSTRAP_PERSONAL_KEY_FP"
-    _has_envar "BOOTSTRAP_FLUX_KEY_FP"
+verify_age() {
+    _has_envar "BOOTSTRAP_AGE_PUBLIC_KEY"
+    _has_envar "SOPS_AGE_KEY_FILE"
 
-    if ! gpg --list-keys "${BOOTSTRAP_PERSONAL_KEY_FP}" >/dev/null 2>&1; then
-         _log "ERROR" "Invalid Personal GPG FP ${BOOTSTRAP_PERSONAL_KEY_FP}"
+    if [[ ! "$BOOTSTRAP_AGE_PUBLIC_KEY" =~ ^age.* ]]; then
+        _log "ERROR" "BOOTSTRAP_AGE_PUBLIC_KEY does not start with age"
         exit 1
     else
-        _log "INFO" "Found Personal GPG Fingerprint '${BOOTSTRAP_PERSONAL_KEY_FP}'"
+        _log "INFO" "Age public key is in the correct format"
     fi
 
-    if ! gpg --list-keys "${BOOTSTRAP_FLUX_KEY_FP}" >/dev/null 2>&1; then
-         _log "ERROR" "Invalid Flux GPG FP '${BOOTSTRAP_FLUX_KEY_FP}'"
+    if [[ ! -f ~/.config/sops/age/keys.txt ]]; then
+        _log "ERROR" "Unable to find Age file keys.txt in ~/.config/sops/age"
         exit 1
     else
-         _log "INFO" "Found Flux GPG Fingerprint '${BOOTSTRAP_FLUX_KEY_FP}'"
+        _log "INFO" "Found Age public key '${BOOTSTRAP_AGE_PUBLIC_KEY}'"
     fi
 }
 
@@ -141,7 +141,7 @@ verify_binaries() {
     _has_binary "envsubst"
     _has_binary "flux"
     _has_binary "git"
-    _has_binary "gpg"
+    _has_binary "age"
     _has_binary "helm"
     _has_binary "ipcalc"
     _has_binary "jq"
