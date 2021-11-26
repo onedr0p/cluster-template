@@ -7,7 +7,7 @@ set -o pipefail
 export PROJECT_DIR=$(git rev-parse --show-toplevel)
 
 # shellcheck disable=SC2155
-export GPG_TTY=$(tty)
+export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
 
 # shellcheck disable=SC1091
 source "${PROJECT_DIR}/.config.env"
