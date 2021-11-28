@@ -226,7 +226,7 @@ kubectl --kubeconfig=./provision/kubeconfig create namespace flux-system --dry-r
 
 ```sh
 cat ~/.config/sops/age/keys.txt |
-    kubectl -n default create secret generic sops-age \
+    kubectl -n flux-system create secret generic sops-age \
     --from-file=age.agekey=/dev/stdin
 ```
 
