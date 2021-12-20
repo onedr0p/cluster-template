@@ -98,7 +98,7 @@ _has_optional_envar() {
     local option="${1}"
     # shellcheck disable=SC2015
     [[ "${!option}" == "" ]] && {
-        _log "DEBUG" "Unset optional variable ${option}"
+        _log "WARN" "Unset optional variable ${option}"
     } || {
         _log "INFO" "Found variable '${option}' with value '${!option}'"
     }
