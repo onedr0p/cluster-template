@@ -94,6 +94,16 @@ _has_binary() {
     }
 }
 
+_has_optional_envar() {
+    local option="${1}"
+    # shellcheck disable=SC2015
+    [[ "${!option}" == "" ]] && {
+        _log "WARN" "Unset optional variable ${option}"
+    } || {
+        _log "INFO" "Found variable '${option}' with value '${!option}'"
+    }
+}
+
 _has_envar() {
     local option="${1}"
     # shellcheck disable=SC2015
@@ -213,6 +223,14 @@ verify_ansible_hosts() {
     local node_username=
     local node_password=
     local node_control=
+    local node_hostname=
+    local default_control_node_prefix=
+    local default_worker_node_prefix=
+    
+    default_control_node_prefix="BOOTSTRAP_ANSIBLE_DEFAULT_CONTROL_NODE_HOSTNAME_PREFIX"
+    default_worker_node_prefix="BOOTSTRAP_ANSIBLE_DEFAULT_NODE_HOSTNAME_PREFIX"
+    _has_optional_envar "${default_control_node_prefix}"
+    _has_optional_envar "${default_worker_node_prefix}"
 
     for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
@@ -220,11 +238,12 @@ verify_ansible_hosts() {
         node_username="BOOTSTRAP_ANSIBLE_SSH_USERNAME_${node_id}"
         node_password="BOOTSTRAP_ANSIBLE_SUDO_PASSWORD_${node_id}"
         node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
-
+        node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
         _has_envar "${node_addr}"
         _has_envar "${node_username}"
         _has_envar "${node_password}"
         _has_envar "${node_control}"
+        _has_optional_envar "${node_hostname}"
 
         if ssh -q -o BatchMode=yes -o ConnectTimeout=5 "${!node_username}"@"${!var}" "true"; then
             _log "INFO" "Successfully SSH'ed into host '${!var}' with username '${!node_username}'"
@@ -244,21 +263,43 @@ generate_ansible_host_secrets() {
     local node_id=
     local node_username=
     local node_password=
+    local node_hostname=
+    default_control_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_CONTROL_NODE_HOSTNAME_PREFIX:-k8s-}
+    default_worker_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_NODE_HOSTNAME_PREFIX:-k8s-}
     for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
+        if [[ "${!node_control}" == "true" ]]; then
+            node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
+            host_key="${!node_hostname:-${default_control_node_prefix}}"
+            if [ "${host_key}" == "${default_control_node_prefix}" ]; then
+                node_hostname=${default_control_node_prefix}${node_id}
+            else
+                node_hostname=${!node_hostname}
+            fi
+        else
+            node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
+            host_key="${!node_hostname:-${default_worker_node_prefix}}"
+            if [ "${host_key}" == "${default_worker_node_prefix}" ]; then
+                node_hostname=${default_worker_node_prefix}${node_id}
+            else
+                node_hostname=${!node_hostname}
+            fi
+        fi
         {
             node_username="BOOTSTRAP_ANSIBLE_SSH_USERNAME_${node_id}"
             node_password="BOOTSTRAP_ANSIBLE_SUDO_PASSWORD_${node_id}"
             printf "kind: Secret\n"
             printf "ansible_user: %s\n" "${!node_username}"
             printf "ansible_become_pass: %s\n" "${!node_password}"
-        } > "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-${node_id}.sops.yml"
-        sops --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/k8s-${node_id}.sops.yml"
+        } > "${PROJECT_DIR}/provision/ansible/inventory/host_vars/${node_hostname}.sops.yml"
+        sops --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/${node_hostname}.sops.yml"
     done
 }
 
 generate_ansible_hosts() {
     local worker_node_count=
+    default_control_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_CONTROL_NODE_HOSTNAME_PREFIX:-k8s-}
+    default_worker_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_NODE_HOSTNAME_PREFIX:-k8s-}
     {
         printf -- "---\n"
         printf "kubernetes:\n"
@@ -270,7 +311,14 @@ generate_ansible_hosts() {
             node_id=$(echo "${var}" | awk -F"_" '{print $5}')
             node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
             if [[ "${!node_control}" == "true" ]]; then
-                printf "        k8s-%s:\n" "${node_id}"
+                node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
+                host_key="${!node_hostname:-${default_control_node_prefix}}"
+                if [ "${host_key}" == "${default_control_node_prefix}" ]; then
+                    node_hostname=${default_control_node_prefix}${node_id}
+                else
+                    node_hostname=${!node_hostname}
+            fi
+                printf "        %s:\n" "${node_hostname}"
                 printf "          ansible_host: %s\n" "${!var}"
             else
                 worker_node_count=$((worker_node_count+1))
@@ -283,7 +331,14 @@ generate_ansible_hosts() {
                 node_id=$(echo "${var}" | awk -F"_" '{print $5}')
                 node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
                 if [[ "${!node_control}" == "false" ]]; then
-                    printf "        k8s-%s:\n" "${node_id}"
+                    node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
+                    host_key="${!node_hostname:-${default_worker_node_prefix}}"
+                    if [ "${host_key}" == "${default_worker_node_prefix}" ]; then
+                        node_hostname=${default_worker_node_prefix}${node_id}
+                    else
+                        node_hostname=${!node_hostname}
+                    fi
+                    printf "        %s:\n" "${node_hostname}"
                     printf "          ansible_host: %s\n" "${!var}"
                 fi
             done
