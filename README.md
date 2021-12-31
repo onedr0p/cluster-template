@@ -231,9 +231,9 @@ cat ~/.config/sops/age/keys.txt |
     --from-file=age.agekey=/dev/stdin
 ```
 
-:round_pushpin: Variables defined in `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/base/cluster-settings.sops.yaml` will be usable anywhere in your YAML manifests under `./cluster`
+:round_pushpin: Variables defined in `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/base/cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
-4. **Verify** all the above files are **encrypted** with SOPS
+4. **Verify** the `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/core/cert-manager/secret.sops.yaml` files are **encrypted** with SOPS
 
 5. If you verified all the secrets are encrypted, you can delete the `tmpl` directory now
 
