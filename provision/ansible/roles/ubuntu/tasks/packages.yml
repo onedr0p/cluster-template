@@ -37,9 +37,9 @@
   retries: 5
   until: apt_install_common is success
 
-- name: check if Raspberry Pi
+- name: Check if Raspberry Pi
   command: grep -q  "Raspberry Pi" /proc/cpuinfo
-  ignore_errors: True
+  ignore_errors: true
   register: is_raspberry 
 
 - name: Install raspberry specific packages
