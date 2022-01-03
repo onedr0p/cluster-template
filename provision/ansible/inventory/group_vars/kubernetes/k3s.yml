@@ -11,7 +11,7 @@ k3s_release_version: "v1.22.5+k3s1"
 k3s_install_hard_links: true
 
 # (bool) Escalate user privileges for all tasks
-k3s_become_for_all: true
+k3s_become: true
 
 # (bool) Enable debug logging on the k3s service
 k3s_debug: false
