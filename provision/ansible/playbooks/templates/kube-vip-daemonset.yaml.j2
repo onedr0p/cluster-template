@@ -18,6 +18,16 @@ spec:
         app.kubernetes.io/instance: kube-vip
         app.kubernetes.io/name: kube-vip
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+            - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
       containers:
         - name: kube-vip
           image: ghcr.io/kube-vip/kube-vip:v0.4.1
@@ -39,7 +49,9 @@ spec:
               value: kube-system
             - name: svc_enable
               value: "false"
-            - name: vip_address
+            - name: vip_ddns
+              value: "false"
+            - name: address
               value: "{{ k3s_registration_address }}"
           securityContext:
             capabilities:
@@ -51,10 +63,9 @@ spec:
             - kubernetes
           ip: 127.0.0.1
       hostNetwork: true
-      nodeSelector:
-        node-role.kubernetes.io/master: "true"
       serviceAccountName: kube-vip
       tolerations:
-        - key: node-role.kubernetes.io/master
+        - effect: NoSchedule
           operator: Exists
-          effect: NoSchedule
+        - effect: NoExecute
+          operator: Exists
