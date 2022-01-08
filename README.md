@@ -155,7 +155,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### :page_facing_up:&nbsp; Configuration
 
-:round_pushpin: The `.config.env` file contains necessary configuration files that are needed by Ansible, Terraform and Flux.
+:round_pushpin: The `.config.env` file contains necessary configuration that is needed by Ansible, Terraform and Flux.
 
 1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables. **All are required** and read the comments they will explain further what is required.
 
