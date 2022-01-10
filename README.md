@@ -80,7 +80,19 @@ It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-com
 After pre-commit is installed on your machine run:
 
 ```sh
-pre-commit install-hooks
+task pre-commit:init
+```
+**Remember to run this on each new clone of the repository for it to have effect.**
+
+Commands are of interest, for learning purposes:
+
+This command makes it so pre-commit runs on `git commit`, and also installs environments per the config file.
+```
+pre-commit install --install-hooks
+```
+This command checks for new versions of hooks, though it will occasionally make mistakes, so verify its results.
+```
+pre-commit autoupdate
 ```
 
 ## :open_file_folder:&nbsp; Repository structure
@@ -194,7 +206,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 4. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
 
 5. Verify the nodes are online
-   
+
 ```sh
 kubectl --kubeconfig=./provision/kubeconfig get nodes
 # NAME           STATUS   ROLES                       AGE     VERSION
