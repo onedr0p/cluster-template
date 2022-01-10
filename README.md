@@ -82,6 +82,8 @@ After pre-commit is installed on your machine run:
 ```sh
 task pre-commit:init
 ```
+**Remember to run this on each new clone of the repository for it to have effect.**
+
 Commands are of interest, for learning purposes:
 
 This command makes it so pre-commit runs on `git commit`, and also installs environments per the config file.
