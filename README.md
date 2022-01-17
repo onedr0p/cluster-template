@@ -70,12 +70,13 @@ For provisioning the following tools will be used:
 | [helm](https://helm.sh/)                               | Manage Kubernetes applications                           |
 | [kustomize](https://kustomize.io/)                     | Template-free way to customize application configuration |
 | [pre-commit](https://github.com/pre-commit/pre-commit) | Runs checks pre `git commit`                             |
+| [gitleaks](https://github.com/zricethezav/gitleaks)    | Scan git repos (or files) for secrets                    |
 | [prettier](https://github.com/prettier/prettier)       | Prettier is an opinionated code formatter.               |
 
 ### :warning:&nbsp; pre-commit
 
 It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
-[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not by accident committing your secrets un-encrypted.
+[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) and [gitleaks](https://github.com/zricethezav/gitleaks) will check to make sure you are not by accident committing your secrets un-encrypted.
 
 After pre-commit is installed on your machine run:
 
