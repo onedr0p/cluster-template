@@ -10,7 +10,7 @@ spec:
     spec:
       # renovate: registryUrl=https://helm.traefik.io/traefik
       chart: traefik
-      version: 10.11.1
+      version: 10.13.0
       sourceRef:
         kind: HelmRepository
         name: traefik-charts
