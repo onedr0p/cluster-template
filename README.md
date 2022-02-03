@@ -170,6 +170,8 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 :round_pushpin: The `.config.env` file contains necessary configuration that is needed by Ansible, Terraform and Flux.
 
+:round_pushpin: It is suggested to use **three control plane nodes**. If you **only need a single control plane node**, make sure **you update** `./provision/ansible/inventory/group_vars/kubernetes/k3s.yml` and set `k3s_use_unsupported_config` to `true`
+
 1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables. **All are required** and read the comments they will explain further what is required.
 
 2. Once that is done, verify the configuration is correct by running `./configure.sh --verify`
@@ -197,6 +199,8 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 ### :sailboat:&nbsp; Installing k3s with Ansible
 
 :round_pushpin: Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./provision/kubeconfig` for use with interacting with your cluster with `kubectl`.
+
+:round_pushpin: Once more over, it is suggested to use **three control plane nodes**. If you **only need a single control plane node**, make sure **you update** `./provision/ansible/inventory/group_vars/kubernetes/k3s.yml` and set `k3s_use_unsupported_config` to `true`
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
