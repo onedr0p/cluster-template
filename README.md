@@ -29,6 +29,7 @@ Feel free to read up on any of these technologies before you get started to be m
 - [reloader](https://github.com/stakater/Reloader) - restart pods when Kubernetes `configmap` or `secret` changes
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - upgrade k3s
 - [traefik](https://traefik.io) - ingress controller
+- [error-pages](https://github.com/tarampampam/error-pages) - pretty error pages for HTTP errors
 
 For provisioning the following tools will be used:
 
