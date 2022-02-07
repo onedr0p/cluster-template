@@ -5,12 +5,18 @@
   "dependencyDashboardTitle": "Renovate Dashboard",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
+  // set up ignored deps
+  "ignoreDeps": [
+    "ghcr.io/fluxcd/helm-controller",
+    "ghcr.io/fluxcd/image-automation-controller",
+    "ghcr.io/fluxcd/image-reflector-controller",
+    "ghcr.io/fluxcd/kustomize-controller",
+    "ghcr.io/fluxcd/notification-controller",
+    "ghcr.io/fluxcd/source-controller"
+  ],
   "flux": {
     "fileMatch": [
       "cluster/.+\\.ya?ml$"
-    ],
-    "ignorePaths": [
-      "cluster/.+/gotk-components\\.ya?ml$"
     ]
   },
   "helm-values": {
@@ -21,9 +27,6 @@
   "kubernetes": {
     "fileMatch": [
       "cluster/.+\\.ya?ml$"
-    ],
-    "ignorePaths": [
-      "cluster/.+/gotk-components\\.ya?ml$"
     ]
   },
   "regexManagers": [
