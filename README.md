@@ -6,12 +6,12 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 
 ## Overview
 
-- [Introduction](https://github.com/k8s-at-home/template-cluster-k3s#wave-introduction)
-- [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#memo-prerequisites)
-- [Repository structure](https://github.com/k8s-at-home/template-cluster-k3s#open_file_folder-repository-structure)
-- [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#rocket-lets-go)
-- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#mega-post-installation)
-- [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#handshake-thanks)
+- [Introduction](https://github.com/k8s-at-home/template-cluster-k3s#-introduction)
+- [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#-prerequisites)
+- [Repository structure](https://github.com/k8s-at-home/template-cluster-k3s#-repository-structure)
+- [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#-lets-go)
+- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#-installation)
+- [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#-thanks)
 
 ## 👋 Introduction
 
