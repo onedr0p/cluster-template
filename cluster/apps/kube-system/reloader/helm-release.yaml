@@ -9,12 +9,11 @@ spec:
   chart:
     spec:
       chart: reloader
-      version: v0.0.104
+      version: v0.0.105
       sourceRef:
         kind: HelmRepository
         name: stakater-charts
         namespace: flux-system
       interval: 5m
   values:
-    nameOverride: reloader
     fullnameOverride: reloader
