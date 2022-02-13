@@ -23,9 +23,8 @@ Feel free to read up on any of these technologies before you get started to be m
 - [calico](https://www.tigera.io/project-calico/) - CNI (container network interface)
 - [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
-- [kube-vip](https://kube-vip.io/) - layer 2 load balancer for the Kubernetes control plane
+- [kube-vip](https://kube-vip.io/) - layer 2 load balancer for the Kubernetes Control Plane and Services
 - [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - default storage class provided by k3s
-- [metallb](https://metallb.universe.tf/) - bare metal load balancer
 - [reloader](https://github.com/stakater/Reloader) - restart pods when Kubernetes `configmap` or `secret` changes
 - [reflector](https://github.com/emberstack/kubernetes-reflector) - mirror `configmap`s or `secret`s to other Kubernetes namespaces
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - automate upgrading k3s
@@ -116,7 +115,6 @@ cluster
 │   └── flux-system
 ├── core
 │   ├── cert-manager
-│   ├── metallb-system
 │   ├── namespaces
 │   └── system-upgrade
 └── crds
@@ -305,7 +303,7 @@ kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
 
 3. Finally have Terraform execute the task by running `task terraform:apply:cloudflare`
 
-If Terraform was ran successfully and you have port forwarded `80` and `443` in your router to the `${BOOTSTRAP_METALLB_TRAEFIK_ADDR}` IP, head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}`!
+If Terraform was ran successfully and you have port forwarded `80` and `443` in your router to the `${BOOTSTRAP_KUBEVIP_TRAEFIK_ADDR}` IP, head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}`!
 
 ## 📣 Post installation
 
