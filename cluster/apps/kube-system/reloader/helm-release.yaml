@@ -16,5 +16,4 @@ spec:
         namespace: flux-system
       interval: 5m
   values:
-    nameOverride: reloader
     fullnameOverride: reloader
