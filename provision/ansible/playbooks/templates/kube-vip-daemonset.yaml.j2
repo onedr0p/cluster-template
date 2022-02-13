@@ -18,16 +18,6 @@ spec:
         app.kubernetes.io/instance: kube-vip
         app.kubernetes.io/name: kube-vip
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: node-role.kubernetes.io/master
-                operator: Exists
-            - matchExpressions:
-              - key: node-role.kubernetes.io/control-plane
-                operator: Exists
       containers:
         - name: kube-vip
           image: ghcr.io/kube-vip/kube-vip:v0.4.1
@@ -39,20 +29,34 @@ spec:
               value: "true"
             - name: vip_interface
               value: "{{ kubevip_interface }}"
-            - name: port
-              value: "6443"
+            - name: vip_address
+              value: "{{ k3s_registration_address }}"
             - name: vip_cidr
               value: "32"
+            - name: vip_leaderelection
+              value: "true"
+            - name: vip_leaseduration
+              value: "5"
+            - name: vip_renewdeadline
+              value: "3"
+            - name: vip_retryperiod
+              value: "1"
+            - name: port
+              value: "6443"
             - name: cp_enable
               value: "true"
             - name: cp_namespace
               value: kube-system
             - name: svc_enable
               value: "false"
-            - name: vip_ddns
-              value: "false"
-            - name: address
-              value: "{{ k3s_registration_address }}"
+            - name: svc_enable
+              value: "true"
+            - name: lb_enable
+              value: "true"
+            - name: lb_port
+              value: "6443"
+            - name: lb_fwdmethod
+              value: local
           securityContext:
             capabilities:
               add:
@@ -63,9 +67,10 @@ spec:
             - kubernetes
           ip: 127.0.0.1
       hostNetwork: true
+      nodeSelector:
+        node-role.kubernetes.io/master: "true"
       serviceAccountName: kube-vip
       tolerations:
-        - effect: NoSchedule
+        - key: node-role.kubernetes.io/master
           operator: Exists
-        - effect: NoExecute
-          operator: Exists
+          effect: NoSchedule

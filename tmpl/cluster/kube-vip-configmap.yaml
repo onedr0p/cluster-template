@@ -1,0 +1,11 @@
+# @NOTE
+# Any changes here might be overriden if Ansible is run again
+# provision/ansible/playbooks/templates/kube-vip-configmap.yaml.j2
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevip
+  namespace: kube-system
+data:
+  range-global: "${BOOTSTRAP_KUBE_VIP_LB_RANGE}"

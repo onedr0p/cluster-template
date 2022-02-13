@@ -36,4 +36,5 @@ k3s_server_manifests_urls:
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - "calico-installation.yaml.j2"
+  - "kube-vip-configmap.yaml.j2"
   - "kube-vip-daemonset.yaml.j2"

@@ -19,7 +19,7 @@ k3s_server:
     - flannel
     # Disable traefik - installed with Flux
     - traefik
-    # Disable servicelb - replaced with metallb and install with Flux
+    # Disable servicelb - replaced with kube vip and managed with Flux
     - servicelb
     # Disable metrics-server - installed with Flux
     - metrics-server

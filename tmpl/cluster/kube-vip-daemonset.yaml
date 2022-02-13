@@ -1,3 +1,6 @@
+# @NOTE
+# Any changes here might be overriden if Ansible is run again
+# provision/ansible/playbooks/templates/kube-vip-daemonset.yaml.j2
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -29,18 +32,34 @@ spec:
               value: "true"
             - name: vip_interface
               value: "${BOOTSTRAP_KUBE_VIP_INTERFACE}"
-            - name: port
-              value: "6443"
+            - name: vip_address
+              value: "${BOOTSTRAP_KUBE_VIP_ADDRESS}"
             - name: vip_cidr
               value: "32"
+            - name: vip_leaderelection
+              value: "true"
+            - name: vip_leaseduration
+              value: "5"
+            - name: vip_renewdeadline
+              value: "3"
+            - name: vip_retryperiod
+              value: "1"
+            - name: port
+              value: "6443"
             - name: cp_enable
               value: "true"
             - name: cp_namespace
               value: kube-system
             - name: svc_enable
               value: "false"
-            - name: vip_address
-              value: "${BOOTSTRAP_KUBE_VIP_ADDRESS}"
+            - name: svc_enable
+              value: "true"
+            - name: lb_enable
+              value: "true"
+            - name: lb_port
+              value: "6443"
+            - name: lb_fwdmethod
+              value: local
           securityContext:
             capabilities:
               add:

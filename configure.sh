@@ -29,7 +29,6 @@ main() {
 
     if [[ "${verify}" == 1 ]]; then
         verify_ansible_hosts
-        verify_metallb
         verify_kubevip
         verify_age
         verify_git_repository
@@ -46,6 +45,8 @@ main() {
             > "${PROJECT_DIR}/cluster/base/flux-system/gotk-sync.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
             > "${PROJECT_DIR}/cluster/core/kube-system/kube-vip/daemon-set.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-configmap.yaml" \
+            > "${PROJECT_DIR}/cluster/core/kube-system/kube-vip/config-map.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" \
@@ -162,19 +163,17 @@ verify_binaries() {
 }
 
 verify_kubevip() {
-    _has_envar "BOOTSTRAP_KUBE_VIP_ADDRESS"
-    _has_valid_ip "${BOOTSTRAP_KUBE_VIP_ADDRESS}" "BOOTSTRAP_KUBE_VIP_ADDRESS"
-}
-
-verify_metallb() {
     local ip_floor=
     local ip_ceil=
-    _has_envar "BOOTSTRAP_KUBE_VIP_LB_RANGE"
-    _has_envar "BOOTSTRAP_KUBE_VIP_TRAEFIK_ADDR"
 
+    _has_envar "BOOTSTRAP_KUBE_VIP_ADDRESS"
+    _has_valid_ip "${BOOTSTRAP_KUBE_VIP_ADDRESS}" "BOOTSTRAP_KUBE_VIP_ADDRESS"
+    
     ip_floor=$(echo "${BOOTSTRAP_KUBE_VIP_LB_RANGE}" | cut -d- -f1)
     ip_ceil=$(echo "${BOOTSTRAP_KUBE_VIP_LB_RANGE}" | cut -d- -f2)
 
+    _has_envar "BOOTSTRAP_KUBE_VIP_LB_RANGE"
+    _has_envar "BOOTSTRAP_KUBE_VIP_TRAEFIK_ADDR"
     _has_valid_ip "${ip_floor}" "BOOTSTRAP_KUBE_VIP_LB_RANGE"
     _has_valid_ip "${ip_ceil}" "BOOTSTRAP_KUBE_VIP_LB_RANGE"
     _has_valid_ip "${BOOTSTRAP_KUBE_VIP_TRAEFIK_ADDR}" "BOOTSTRAP_KUBE_VIP_TRAEFIK_ADDR"
