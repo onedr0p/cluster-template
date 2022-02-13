@@ -5,5 +5,4 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  KUBE_VIP_LB_RANGE: ${BOOTSTRAP_KUBE_VIP_LB_RANGE}
   KUBE_VIP_TRAEFIK_ADDR: ${BOOTSTRAP_KUBE_VIP_TRAEFIK_ADDR}
