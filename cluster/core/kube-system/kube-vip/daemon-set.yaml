@@ -31,9 +31,9 @@ spec:
             - name: vip_arp
               value: "true"
             - name: vip_interface
-              value: "${BOOTSTRAP_KUBE_VIP_INTERFACE}"
+              value: "${KUBE_VIP_INTERFACE}"
             - name: vip_address
-              value: "${BOOTSTRAP_KUBE_VIP_ADDRESS}"
+              value: "${KUBE_VIP_ADDRESS}"
             - name: vip_cidr
               value: "32"
             - name: vip_leaderelection

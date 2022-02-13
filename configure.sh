@@ -43,10 +43,6 @@ main() {
             > "${PROJECT_DIR}/cluster/base/cluster-settings.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/gotk-sync.yaml" \
             > "${PROJECT_DIR}/cluster/base/flux-system/gotk-sync.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
-            > "${PROJECT_DIR}/cluster/core/kube-system/kube-vip/daemon-set.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-configmap.yaml" \
-            > "${PROJECT_DIR}/cluster/core/kube-system/kube-vip/config-map.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" \
