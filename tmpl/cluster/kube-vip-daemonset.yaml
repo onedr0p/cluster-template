@@ -39,7 +39,7 @@ spec:
               value: kube-system
             - name: svc_enable
               value: "false"
-            - name: vip_address
+            - name: address
               value: "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS}"
           securityContext:
             capabilities:
@@ -51,10 +51,19 @@ spec:
             - kubernetes
           ip: 127.0.0.1
       hostNetwork: true
-      nodeSelector:
-        node-role.kubernetes.io/master: "true"
       serviceAccountName: kube-vip
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+            - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
       tolerations:
-        - key: node-role.kubernetes.io/master
+        - effect: NoSchedule
           operator: Exists
-          effect: NoSchedule
+        - effect: NoExecute
+          operator: Exists
