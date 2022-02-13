@@ -51,8 +51,6 @@ spec:
             - name: cp_namespace
               value: kube-system
             - name: svc_enable
-              value: "false"
-            - name: svc_enable
               value: "true"
             - name: lb_enable
               value: "true"
