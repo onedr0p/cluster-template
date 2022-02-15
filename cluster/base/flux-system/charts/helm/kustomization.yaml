@@ -5,6 +5,7 @@ resources:
   - bitnami-charts.yaml
   - deliveryhero-charts.yaml
   - descheduler-charts.yaml
+  - ealenn-charts.yaml
   - emberstack-charts.yaml
   - external-dns-charts.yaml
   - grafana-charts.yaml
