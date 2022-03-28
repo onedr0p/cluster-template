@@ -29,10 +29,10 @@ spec:
     ingress:
       enabled: true
       annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt-production"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "video-input-antenna"
-          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+        cert-manager.io/cluster-issuer: "letsencrypt-production"
+        hajimari.io/enable: "true"
+        hajimari.io/icon: "video-input-antenna"
+        traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
       hosts:
         - host: "echo-server.${SECRET_DOMAIN}"
           paths:

@@ -40,7 +40,7 @@
 - name: Check if Raspberry Pi
   command: grep -q  "Raspberry Pi" /proc/cpuinfo
   ignore_errors: true
-  register: is_raspberry 
+  register: is_raspberry
 
 - name: Install raspberry specific packages for Ubuntu 21 or greater
   ansible.builtin.apt:
@@ -55,7 +55,7 @@
   retries: 5
   until: apt_install_raspberry is success
   when: is_raspberry and (ansible_lsb.major_release|int >= 21)
-  
+
 - name: Copy 20auto-upgrades unattended-upgrades config
   ansible.builtin.blockinfile:
     path: /etc/apt/apt.conf.d/20auto-upgrades
