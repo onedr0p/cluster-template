@@ -32,7 +32,8 @@
   },
   "kubernetes": {
     "fileMatch": [
-      "cluster/.+\\.ya?ml$"
+      "cluster/.+\\.ya?ml$",
+      "provision/ansible/playbooks/templates/.+\\.ya?ml.j2$"
     ]
   },
   "regexManagers": [
