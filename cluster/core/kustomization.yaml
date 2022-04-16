@@ -5,4 +5,3 @@ resources:
   - cert-manager
   - kube-system
   - metallb-system
-  - system-upgrade

@@ -4,3 +4,4 @@ resources:
   - cert-manager.yaml
   - metallb-system.yaml
   - networking.yaml
+  - system-upgrade.yaml
