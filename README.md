@@ -315,7 +315,7 @@ Now it's time to pause and go get some coffee ☕
 
 ### 🌐 DNS
 
-`k8s_gateway` is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser. 
+`k8s_gateway` is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser.
 
 You can also try debugging with the command `dig`, e.g. `dig @${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR} hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` and you should get a valid answer containing your `${BOOTSTRAP_METALLB_TRAEFIK_ADDR}` IP address.
 
@@ -325,7 +325,7 @@ To access services from the outside world port forwarded `80` and `443` in your 
 
 ### 👉 Troubleshooting
 
-Our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) (WIP, contributions welcome) is a good place to start troubleshooting issues. If that doesn't cover your issue, come join and say Hi in our [Discord](https://discord.gg/k8s-at-home) server by starting a new thread in the #kubernetes support channel. 
+Our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) (WIP, contributions welcome) is a good place to start troubleshooting issues. If that doesn't cover your issue, come join and say Hi in our [Discord](https://discord.gg/k8s-at-home) server by starting a new thread in the #kubernetes support channel.
 
 You may also open a issue on this GitHub repo or open a [discussion on GitHub](https://github.com/k8s-at-home/organization/discussions).
 

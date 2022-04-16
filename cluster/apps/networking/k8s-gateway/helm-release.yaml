@@ -25,7 +25,7 @@ spec:
       annotations:
         metallb.universe.tf/loadBalancerIPs: "${METALLB_K8S_GATEWAY_ADDR}"
       externalTrafficPolicy: Local
-    # -- Increase replicaCount and set an anti-affinity if you wish to scale this
+    # Increase replicaCount and set an anti-affinity if you wish to scale this
     # replicaCount: 1
     # affinity:
     #   podAntiAffinity:
