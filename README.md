@@ -227,7 +227,7 @@ kubectl --kubeconfig=./provision/kubeconfig get nodes
 
 ### ☁️ Configuring Cloudflare DNS with Terraform
 
-📍 Review the Terraform scripts under `./provision/terraform/cloudflare/` and make sure you understand what it's doing (no really review it). If your domain already has existing DNS records be sure to export those DNS settings before you continue. Ideally you can update the terraform script to manage DNS for all records if you so choose to.
+📍 Review the Terraform scripts under `./provision/terraform/cloudflare/` and make sure you understand what it's doing (no really review it). If your domain already has existing DNS records **be sure to export those DNS settings before you continue**.
 
 1. Pull in the Terraform deps by running `task terraform:init:cloudflare`
 
@@ -235,7 +235,7 @@ kubectl --kubeconfig=./provision/kubeconfig get nodes
 
 3. Finally have Terraform execute the task by running `task terraform:apply:cloudflare`
 
-If Terraform was ran successfully you can log into Cloudflare and validate the DNS records are present.
+If Terraform was ran successfully you can log into Cloudflare and validate the DNS records are present. The cluster application `external-dns` will be managing the rest of the DNS records you will need.
 
 ### 🔹 GitOps with Flux
 
