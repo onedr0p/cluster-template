@@ -22,6 +22,7 @@ Feel free to read up on any of these technologies before you get started to be m
 - [cert-manager](https://cert-manager.io/) - SSL certificates - with Cloudflare DNS challenge
 - [calico](https://www.tigera.io/project-calico/) - CNI (container network interface)
 - [echo-server](https://github.com/Ealenn/Echo-Server) - REST Server Tests (Echo-Server) API (useful for debugging HTTP issues)
+- [external-dns](https://github.com/kubernetes-sigs/external-dns) - Automatically configure external DNS servers for Kubernetes Ingresses and Services
 - [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
 - [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
 - [k8s_gateway](https://github.com/ori-edge/k8s_gateway) - DNS resolver for all types of external Kubernetes resources
@@ -309,11 +310,13 @@ kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
 
 🎉 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
-Now it's time to pause and go get some coffee ☕
+Now it's time to pause and go get some coffee ☕ because next is describing how DNS is handled. 🧠
 
 ## 📣 Post installation
 
 ### 🌐 DNS
+
+📍 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. `echo-server` is the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation like in the `HelmRelease` for `echo-server`. You do not need to use Terraform to create additional DNS records unless you a record outside the purposes of your Kubernetes cluster.
 
 `k8s_gateway` is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser.
 
@@ -321,7 +324,9 @@ You can also try debugging with the command `dig`, e.g. `dig @${BOOTSTRAP_METALL
 
 If your router (or Pi-Hole, Adguard Home or whatever) supports conditional DNS forwarding (also know as split-horizon DNS) you may have DNS requests for `${SECRET_DOMAIN}` only point to the  `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address. This will ensure only DNS requests for `${SECRET_DOMAIN}` will get routed to your `k8s_gateway` service.
 
-To access services from the outside world port forwarded `80` and `443` in your router to the `${BOOTSTRAP_METALLB_TRAEFIK_ADDR}` IP, in a few moments head over to your browser and you _should_ be able to access `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` from a device outside your LAN.
+To access services from the outside world port forwarded `80` and `443` in your router to the `${BOOTSTRAP_METALLB_TRAEFIK_ADDR}` IP, in a few moments head over to your browser and you _should_ be able to access `https://echo-server.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` from a device outside your LAN.
+
+Now if nothing is working, that is expected. This is DNS after all!
 
 ### 👉 Troubleshooting
 
