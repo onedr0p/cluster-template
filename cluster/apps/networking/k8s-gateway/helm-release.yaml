@@ -1,0 +1,41 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: k8s-gateway
+  namespace: networking
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: k8s-gateway
+      version: 1.1.6
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-gateway
+        namespace: flux-system
+      interval: 5m
+  values:
+    fullnameOverride: k8s-gateway
+    domain: ${SECRET_DOMAIN}
+    ttl: 1
+    service:
+      type: LoadBalancer
+      port: 53
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: "${METALLB_K8S_GATEWAY_ADDR}"
+      externalTrafficPolicy: Local
+    # Increase replicaCount and set an anti-affinity if you wish to scale this
+    # replicaCount: 1
+    # affinity:
+    #   podAntiAffinity:
+    #     preferredDuringSchedulingIgnoredDuringExecution:
+    #       - weight: 100
+    #         podAffinityTerm:
+    #           labelSelector:
+    #             matchExpressions:
+    #               - key: app.kubernetes.io/name
+    #                 operator: In
+    #                 values:
+    #                   - k8s-gateway
+    #           topologyKey: kubernetes.io/hostname
