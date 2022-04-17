@@ -48,6 +48,8 @@ For provisioning the following tools will be used:
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
 - Some experience in debugging problems and a positive attitude ;)
 
+📍 It is recommended to have 3 master nodes for a highly available control plane.
+
 ### 🔧 Tools
 
 📍 You should install the below CLI tools on your workstation. Make sure you pull in the latest versions.
@@ -113,17 +115,20 @@ The Git repository contains the following directories under `cluster` and are or
 cluster
 ├── apps
 │   ├── default
+│   ├── kube-system
 │   ├── networking
 │   └── system-upgrade
 ├── base
 │   └── flux-system
 ├── core
 │   ├── cert-manager
+│   ├── kube-system
 │   ├── metallb-system
-│   ├── namespaces
-│   └── system-upgrade
+│   └── namespaces
 └── crds
-    └── cert-manager
+    ├── cert-manager
+    ├── system-upgrade-controller
+    └── traefik
 ```
 
 ## 🚀 Lets go!
@@ -170,15 +175,13 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 3. Use the API Key in the configuration section below.
 
-📍 You may wish to update this later on to a Cloudflare **API Token** which can be scoped to certain resources. I do not recommend using a Cloudflare **API Key**, but for the purposes of this template it is easier getting started without having to define which scopes and resources are needed. For more information see the [Cloudflare docs on API Keys and Tokens](https://developers.cloudflare.com/api/).
+📍 You may wish to update this later on to a Cloudflare **API Token** which can be scoped to certain resources. I do not recommend using a Cloudflare **API Key**, however for the purposes of this template it is easier getting started without having to define which scopes and resources are needed. For more information see the [Cloudflare docs on API Keys and Tokens](https://developers.cloudflare.com/api/).
 
 ### 📄 Configuration
 
 📍 The `.config.env` file contains necessary configuration that is needed by Ansible, Terraform and Flux.
 
-📍 It is suggested to use **three control plane nodes**. If you **only need a single control plane node**, make sure **you update** `./provision/ansible/inventory/group_vars/kubernetes/k3s.yml` and set `k3s_use_unsupported_config` to `true`
-
-1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables. **All are required** and read the comments they will explain further what is required.
+1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables. **All are required** unless otherwise noted in the comments.
 
 2. Once that is done, verify the configuration is correct by running `./configure.sh --verify`
 
@@ -205,8 +208,6 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 ### ⛵ Installing k3s with Ansible
 
 📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./provision/kubeconfig` for use with interacting with your cluster with `kubectl`.
-
-📍 Once more over, it is suggested to use **three control plane nodes**. If you **only need a single control plane node**, make sure **you update** `./provision/ansible/inventory/group_vars/kubernetes/k3s.yml` and set `k3s_use_unsupported_config` to `true`
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
@@ -316,7 +317,7 @@ Now it's time to pause and go get some coffee ☕ because next is describing how
 
 ### 🌐 DNS
 
-📍 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. `echo-server` is the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation like in the `HelmRelease` for `echo-server`. You do not need to use Terraform to create additional DNS records unless you need a record outside the purposes of your Kubernetes cluster.
+📍 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` is the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation like in the `HelmRelease` for `echo-server`. You do not need to use Terraform to create additional DNS records unless you need a record outside the purposes of your Kubernetes cluster (e.g. setting up MX records).
 
 `k8s_gateway` is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser.
 
@@ -340,9 +341,19 @@ Our Check out our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wik
 
 ## ❔ What's next
 
-The world is your cluster, first thing you might want to do is to have storage backed by something other than local disk. If you have some sort of NAS and want storage back by that check out the helm charts for [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner), [democratic-csi](https://github.com/democratic-csi/democratic-csi), or [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs).
+The world is your cluster and the first thing you might want to do is to have storage backed by something other than local disk.
 
-Many people have shared their awesome repositories over at [awesome-home-kubernetes](https://github.com/k8s-at-home/awesome-home-kubernetes), be sure to check this out and click the `Search All Repos` icon if you are wondering how someone implemented or deployed an application.
+In no particular order, here are some popular storage related items you could install and use in your cluster:
+
+* [rook-ceph](https://github.com/rook/rook)
+* [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
+* [democratic-csi](https://github.com/democratic-csi/democratic-csi)
+* [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)
+* [longhorn](https://github.com/longhorn/longhorn)
+
+Community member @Whazor created [this website](https://whazor.github.io/k8s-at-home-search/) as a means to search Helm Releases across GitHub. You may use it as a means to get ideas on how to configure an applications' Helm values.
+
+Many people have shared their awesome repositories over at [awesome-home-kubernetes](https://github.com/k8s-at-home/awesome-home-kubernetes).
 
 ## 🤝 Thanks
 

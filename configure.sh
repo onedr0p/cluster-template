@@ -319,18 +319,20 @@ generate_ansible_hosts() {
         printf "  children:\n"
         printf "    master:\n"
         printf "      hosts:\n"
+        master_node_count=0
         worker_node_count=0
         for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
             node_id=$(echo "${var}" | awk -F"_" '{print $5}')
             node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
             if [[ "${!node_control}" == "true" ]]; then
+                master_node_count=$((master_node_count+1))
                 node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
                 host_key="${!node_hostname:-${default_control_node_prefix}}"
                 if [ "${host_key}" == "${default_control_node_prefix}" ]; then
                     node_hostname=${default_control_node_prefix}${node_id}
                 else
                     node_hostname=${!node_hostname}
-            fi
+                fi
                 printf "        %s:\n" "${node_hostname}"
                 printf "          ansible_host: %s\n" "${!var}"
             else
