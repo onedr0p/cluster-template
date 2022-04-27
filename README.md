@@ -44,7 +44,7 @@ For provisioning the following tools will be used:
 
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Ubuntu Server 20.04](https://ubuntu.com/download/server). These nodes can be bare metal or VMs.
+- One or more nodes with a fresh install of [Ubuntu Server 22.04](https://ubuntu.com/download/server). These nodes can be bare metal or VMs.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
 - Some experience in debugging problems and a positive attitude ;)
 
