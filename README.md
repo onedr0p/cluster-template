@@ -31,7 +31,7 @@ Feel free to read up on any of these technologies before you get started to be m
 - [metallb](https://metallb.universe.tf/) - bare metal load balancer
 - [reloader](https://github.com/stakater/Reloader) - restart pods when Kubernetes `configmap` or `secret` changes
 - [reflector](https://github.com/emberstack/kubernetes-reflector) - mirror `configmap`s or `secret`s to other Kubernetes namespaces
-- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - automate upgrading k3s
+- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - (opt-in) automate upgrading k3s
 - [traefik](https://traefik.io) - ingress controller
 
 For provisioning the following tools will be used:
