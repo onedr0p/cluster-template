@@ -42,9 +42,13 @@ For provisioning the following tools will be used:
 
 ## 📝 Prerequisites
 
+**Note:** This template has not been tested on cloud providers like AWS EC2, Hetzner, Scaleway etc... Those cloud offerings probably have a better way of provsioning a Kubernetes cluster and it's advisable to use those instead of the Ansible playbooks included here. This repository can still be used for the GitOps/Flux portion if there's a cluster working in one those environments.
+
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Ubuntu Server 22.04](https://ubuntu.com/download/server). These nodes can be bare metal or VMs.
+- One or more nodes with a fresh install of [Ubuntu Server 22.04](https://ubuntu.com/download/server).
+    - These nodes can be bare metal or VMs.
+    - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
 - Some experience in debugging problems and a positive attitude ;)
 
