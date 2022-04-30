@@ -1,12 +1,23 @@
-kind: ENC[AES256_GCM,data:bv5gMpOh,iv:2vaeGh3mF7sKSHTbokIXK//BIXHvrKPFBGCIyUFTKG8=,tag:6dzosSpMzeiAR9GDq3xlBQ==,type:str]
-ansible_user: ENC[AES256_GCM,data:tt5/iNg=,iv:7VQ0ROCIzoCW3n1iMyKbN9uastGgDTxnq7piMAnyyyE=,tag:aWfGVNn0noPzAtofSeRjAQ==,type:str]
-ansible_become_pass: ENC[AES256_GCM,data:sLPtZg==,iv:RM7bN2KSBWxuJqm2FIY0e39brwIZspGSdgi3hzsm5+c=,tag:GkBkXyb/ZQmwkVmB6gHHYw==,type:int]
+kind: Secret
+ansible_user: ENC[AES256_GCM,data:9VKsgQ4=,iv:kem13Hg7Fb7DKVB3AHkPlcW4zm1/eI3Xk4AXPxCpCsI=,tag:pqOZbi9bWoR79hZby3iIQA==,type:str]
+ansible_become_pass: ENC[AES256_GCM,data:gHBy6w==,iv:BcIKjfXNNa7z7XOnquHa8TNqiILTUYmDxK/ATKEnqCQ=,tag:MdmVvnX3XMDaFpa1vFx2lA==,type:int]
 sops:
     kms: []
     gcp_kms: []
     azure_kv: []
-    lastmodified: '2022-04-30T13:38:46Z'
-    mac: ENC[AES256_GCM,data:StVFgroqSPb4S5yxM6t2pc8aXOs1GjpaiZmf8HFYqGOLriesmxsWTJg8BT7k+sadsgbzWSePEoMgdY0+cJl59r9CLlreSrw39VaKg8hCeGXUGEuDvV142iPkWwtA/AVweg9KjNChQ5owdViMRo5OQEn9aWxK+8UzNn+1eALT1pE=,iv:XJaMfZsA0y77uuSFKgrXWuijG+8hr2VLBdLZK9EXeLE=,tag:NV+MkVGma5f0RlQlYT37cg==,type:str]
+    hc_vault: []
+    age:
+        - recipient: age18f90txv5k2ejeane06d9wzznt2hutjaktdjjgpfdg9yldd2gygnq2sphnu
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA1M3U3Wm5aMjl2U21BcTh4
+            QjJRTmh4b2VRUklKUHZRbmthQWIrVlpwd2hVCmZHRGIzMEh5ekMybjRFNldDQ283
+            TXZuVEs0L0NXaHBCWllZRFhpbG5jakEKLS0tIDkzV0V4YjVlZURBcXZIUWMvTXE0
+            TzAwb1NTYTZvSEl0d3BMWkVaZENaZTQKDClh65CLHJWslivBUjeasqUhZf1J8ce8
+            9GjycxylkHfFiQNy2hdQVRbk0NhXU7B5k1OTEsxxR6M2pwo9OV78uQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2022-04-30T21:54:09Z"
+    mac: ENC[AES256_GCM,data:4mnpaooMU7nYu8l/UZ1zbkfxrYX0KAv+4CiIJyAnbWFR1HFbrbmBMeH0aq4YFhwoDHjZj7MjQo/+dIF1rtIrwjlXnf+gXcigvjAAFL54WpNAyASbxNu/E4NlNxAb6Vv/L2TZbvw7oq6ymUVakpwG9ZoT1JYlk/PWEeuVcvaVcZk=,iv:pW+o/KsM8YlwDykYxYexJi8rtSRyx5QHSFhHL3B+RxY=,tag:87ge6J+x9F33nueAQaDMDA==,type:str]
     pgp: []
-    unencrypted_suffix: _unencrypted
-    version: 3.4.0
+    unencrypted_regex: ^(kind)$
+    version: 3.7.2
