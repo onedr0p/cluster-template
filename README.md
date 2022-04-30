@@ -227,12 +227,12 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 5. Verify the nodes are online
 
-```sh
-kubectl --kubeconfig=./provision/kubeconfig get nodes
-# NAME           STATUS   ROLES                       AGE     VERSION
-# k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
-# k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
-```
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get nodes
+    # NAME           STATUS   ROLES                       AGE     VERSION
+    # k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
+    # k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
+    ```
 
 ### ☁️ Configuring Cloudflare DNS with Terraform
 
