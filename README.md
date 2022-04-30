@@ -47,8 +47,8 @@ For provisioning the following tools will be used:
 ### 💻 Systems
 
 - One or more nodes with a fresh install of [Ubuntu Server 22.04](https://ubuntu.com/download/server).
-    - These nodes can be bare metal or VMs.
-    - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
+  - These nodes can be bare metal or VMs.
+  - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
 - Some experience in debugging problems and a positive attitude ;)
 
@@ -93,16 +93,20 @@ After pre-commit is installed on your machine run:
 ```sh
 task pre-commit:init
 ```
+
 **Remember to run this on each new clone of the repository for it to have effect.**
 
 Commands are of interest, for learning purposes:
 
 This command makes it so pre-commit runs on `git commit`, and also installs environments per the config file.
-```
+
+```sh
 pre-commit install --install-hooks
 ```
+
 This command checks for new versions of hooks, though it will occasionally make mistakes, so verify its results.
-```
+
+```sh
 pre-commit autoupdate
 ```
 
@@ -135,7 +139,7 @@ cluster
     └── traefik
 ```
 
-## 🚀 Lets go!
+## 🚀 Lets go
 
 Very first step will be to create a new repository by clicking the **Use this template** button on this page.
 
@@ -149,23 +153,23 @@ Clone the repo to you local workstation and `cd` into it.
 
 1. Create a Age Private / Public Key
 
-```sh
-age-keygen -o age.agekey
-```
+    ```sh
+    age-keygen -o age.agekey
+    ```
 
 2. Set up the directory for the Age key and move the Age file to it
 
-```sh
-mkdir -p ~/.config/sops/age
-mv age.agekey ~/.config/sops/age/keys.txt
-```
+    ```sh
+    mkdir -p ~/.config/sops/age
+    mv age.agekey ~/.config/sops/age/keys.txt
+    ```
 
 3. Export the `SOPS_AGE_KEY_FILE` variable in your `bashrc`, `zshrc` or `config.fish` and source it, e.g.
 
-```sh
-export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
-source ~/.bashrc
-```
+    ```sh
+    export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+    source ~/.bashrc
+    ```
 
 4. Fill out the Age public key in the `.config.env` under `BOOTSTRAP_AGE_PUBLIC_KEY`, **note** the public key should start with `age`...
 
@@ -197,7 +201,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or something similar.
 
-1. Ensure you are able to SSH into you nodes from your workstation with using your private ssh key. This is how Ansible is able to connect to your remote nodes. [How to configure SSH key-based authentication](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server)
+1. Ensure you are able to SSH into your nodes from your workstation using your private ssh key. This is how Ansible is able to connect to your remote nodes.
 
 2. Install the deps by running `task ansible:deps`
 
@@ -248,70 +252,70 @@ If Terraform was ran successfully you can log into Cloudflare and validate the D
 
 1. Verify Flux can be installed
 
-```sh
-flux --kubeconfig=./provision/kubeconfig check --pre
-# ► checking prerequisites
-# ✔ kubectl 1.21.5 >=1.18.0-0
-# ✔ Kubernetes 1.21.5+k3s1 >=1.16.0-0
-# ✔ prerequisites checks passed
-```
+    ```sh
+    flux --kubeconfig=./provision/kubeconfig check --pre
+    # ► checking prerequisites
+    # ✔ kubectl 1.21.5 >=1.18.0-0
+    # ✔ Kubernetes 1.21.5+k3s1 >=1.16.0-0
+    # ✔ prerequisites checks passed
+    ```
 
 2. Pre-create the `flux-system` namespace
 
-```sh
-kubectl --kubeconfig=./provision/kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig=./provision/kubeconfig apply -f -
-```
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig=./provision/kubeconfig apply -f -
+    ```
 
 3. Add the Age key in-order for Flux to decrypt SOPS secrets
 
-```sh
-cat ~/.config/sops/age/keys.txt |
-    kubectl --kubeconfig=./provision/kubeconfig \
-    -n flux-system create secret generic sops-age \
-    --from-file=age.agekey=/dev/stdin
-```
+    ```sh
+    cat ~/.config/sops/age/keys.txt |
+        kubectl --kubeconfig=./provision/kubeconfig \
+        -n flux-system create secret generic sops-age \
+        --from-file=age.agekey=/dev/stdin
+    ```
 
-📍 Variables defined in `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/base/cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
+    📍 Variables defined in `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/base/cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster`
 
 4. **Verify** the `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/core/cert-manager/secret.sops.yaml` files are **encrypted** with SOPS
 
 5. If you verified all the secrets are encrypted, you can delete the `tmpl` directory now
 
-6.  Push you changes to git
+6. Push you changes to git
 
-```sh
-git add -A
-git commit -m "initial commit"
-git push
-```
+    ```sh
+    git add -A
+    git commit -m "initial commit"
+    git push
+    ```
 
 7. Install Flux
 
-📍 Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
+    📍 Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
 
-```sh
-kubectl --kubeconfig=./provision/kubeconfig apply --kustomize=./cluster/base/flux-system
-# namespace/flux-system configured
-# customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
-# ...
-# unable to recognize "./cluster/base/flux-system": no matches for kind "Kustomization" in version "kustomize.toolkit.fluxcd.io/v1beta1"
-# unable to recognize "./cluster/base/flux-system": no matches for kind "GitRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-# unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-```
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig apply --kustomize=./cluster/base/flux-system
+    # namespace/flux-system configured
+    # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
+    # ...
+    # unable to recognize "./cluster/base/flux-system": no matches for kind "Kustomization" in version "kustomize.toolkit.fluxcd.io/v1beta1"
+    # unable to recognize "./cluster/base/flux-system": no matches for kind "GitRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+    # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+    # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+    # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+    # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
+    ```
 
 8. Verify Flux components are running in the cluster
 
-```sh
-kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
-# NAME                                       READY   STATUS    RESTARTS   AGE
-# helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
-# kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
-# notification-controller-7c46575844-k4bvr   1/1     Running   0          1h
-# source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
-```
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
+    # NAME                                       READY   STATUS    RESTARTS   AGE
+    # helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
+    # kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
+    # notification-controller-7c46575844-k4bvr   1/1     Running   0          1h
+    # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
+    ```
 
 🎉 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
@@ -349,11 +353,11 @@ The world is your cluster and the first thing you might want to do is to have st
 
 In no particular order, here are some popular storage related items you could install and use in your cluster:
 
-* [rook-ceph](https://github.com/rook/rook)
-* [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
-* [democratic-csi](https://github.com/democratic-csi/democratic-csi)
-* [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)
-* [longhorn](https://github.com/longhorn/longhorn)
+- [rook-ceph](https://github.com/rook/rook)
+- [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
+- [democratic-csi](https://github.com/democratic-csi/democratic-csi)
+- [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)
+- [longhorn](https://github.com/longhorn/longhorn)
 
 Community member @Whazor created [this website](https://whazor.github.io/k8s-at-home-search/) as a means to search Helm Releases across GitHub. You may use it as a means to get ideas on how to configure an applications' Helm values.
 
