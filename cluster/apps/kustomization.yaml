@@ -5,4 +5,9 @@ resources:
   - default
   - kube-system
   - networking
+  # Be sure to NOT downgrade k3s by keep the value in
+  # ./provision/ansible/inventory/group_vars/kubernetes/k3s.yml
+  # updated if you need to re-run the Ansible playbook.
+  # To enable automatic Kubernetes upgrades uncomment 
+  # the below line
   # - system-upgrade
