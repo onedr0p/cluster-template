@@ -1,0 +1,12 @@
+kind: ENC[AES256_GCM,data:HS+bHAUt,iv:SPUv10d7BVoMNt/IFf2+T0byKbfIDNNnTxsIoFqNlVA=,tag:DvmjkfW2MQt50xwgTeblGw==,type:str]
+ansible_user: ENC[AES256_GCM,data:DhlWLhs=,iv:hnYdcurzK6sN0+zHm7dftoZP1Ox8IfxZn0+y1QMRoR4=,tag:Wdd+47HfT0IdJz9jY6Gw9A==,type:str]
+ansible_become_pass: ENC[AES256_GCM,data:se8x+Q==,iv:OOT+OLNi8KU33kQ9ttjTFaQ19rEuEMUA+9nKUtSNAXE=,tag:k5VgC4tNy4iFFzNAWZhITw==,type:int]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    lastmodified: '2022-04-30T12:29:36Z'
+    mac: ENC[AES256_GCM,data:AJEGo7qm1qQKodWn68F+3rjr69zzN/4QY/7RVqtlib0uPE0vMFtdyTND4zvcmw6I/ymISZNtS8MA0jmmA6Me9TCtnEM5WpNVtMmjDIzX6xrcrvOXOu9CBxESJ5YBeYCDpt5Dbp5RCPMxdtaPOYwekScAZkXy9d73FZdCztY0naU=,iv:cD+Zi8ax/ypc6wZlmK45onoRoO9pWedFCbGjEmzWTuw=,tag:ED9dILhrEnBtK05QYhsQaQ==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.4.0
