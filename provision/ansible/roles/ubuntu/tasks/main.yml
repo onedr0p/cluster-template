@@ -7,6 +7,10 @@
   tags:
     - packages
 
+- import_tasks: kernel.yml
+  tags:
+    - kernel
+
 - include: network.yml
   tags:
     - network
