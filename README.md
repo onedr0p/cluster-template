@@ -201,7 +201,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or something similar.
 
-1. Ensure you are able to SSH into your nodes from your workstation using your private ssh key. This is how Ansible is able to connect to your remote nodes.
+1. Ensure you are able to SSH into your nodes from your workstation using your private ssh key. This is how Ansible is able to connect to your remote nodes. [How to configure SSH key-based authentication](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server)
 
 2. Install the deps by running `task ansible:deps`
 
@@ -227,12 +227,12 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 5. Verify the nodes are online
 
-```sh
-kubectl --kubeconfig=./provision/kubeconfig get nodes
-# NAME           STATUS   ROLES                       AGE     VERSION
-# k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
-# k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
-```
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get nodes
+    # NAME           STATUS   ROLES                       AGE     VERSION
+    # k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
+    # k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
+    ```
 
 ### ☁️ Configuring Cloudflare DNS with Terraform
 
