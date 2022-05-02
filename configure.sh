@@ -71,6 +71,7 @@ main() {
         # generate ansible hosts file and secrets
         generate_ansible_hosts
         generate_ansible_host_secrets
+        setup_github_webhook
     fi
 }
 
@@ -204,6 +205,30 @@ verify_git_repository() {
     }
     popd >/dev/null 2>&1
     export GIT_TERMINAL_PROMPT=1
+}
+
+setup_github_webhook() {
+    WEBHOOK_SECRET="${BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET:-ignored}"
+
+    if [ $WEBHOOK_SECRET != "ignored" ]; then
+        if [ $WEBHOOK_SECRET == "generated" ]; then
+            WEBHOOK_SECRET="$(openssl rand -base64 30)"
+        fi
+
+        export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET=$WEBHOOK_SECRET
+
+        cp -r  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
+
+        WEBHOOK_DIR="${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/"
+
+        envsubst < "${WEBHOOK_DIR}/ingress.yaml" | tee "${WEBHOOK_DIR}/ingress.yaml" > /dev/null
+        envsubst < "${WEBHOOK_DIR}/receiver.yaml" | tee "${WEBHOOK_DIR}/receiver.yaml" > /dev/null
+        envsubst < "${WEBHOOK_DIR}/secret.sops.yaml" | tee "${WEBHOOK_DIR}/secret.sops.yaml" > /dev/null
+
+        sops --encrypt --in-place "${WEBHOOK_DIR}/secret.sops.yaml"
+
+        yq -i '.resources += [ "flux-system" ]' "${PROJECT_DIR}/cluster/apps/kustomization.yaml"
+    fi
 }
 
 verify_cloudflare() {
