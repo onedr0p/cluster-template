@@ -51,7 +51,7 @@ spec:
               url: https://www.ultimate-guitar.com/news/
             - name: Metal sucks
               url: https://www.metalsucks.net/
-        - name: Media
+        - name: Media / Communication
           links:
             - name: YouTube
               url: https://www.youtube.com/feed/subscriptions
@@ -59,6 +59,12 @@ spec:
               url: https://reddit.com
             - name: LastFM
               url: https://www.last.fm/user/xasthuragalloch
+            - name: WhatsApp
+              url: https://web.whatsapp.com/
+            - name: Outlook 365
+              url: https://outlook.office365.com/
+            - name: Outlook (personal)
+              url: https://outlook.com
         - name: Commercial
           links:
             - name: ABN Amro
@@ -81,14 +87,6 @@ spec:
               url: https://myfigurecollection.net/profile/nekoniri
             - name: Trello wishlist
               url: https://trello.com/b/D7E8ewR9/wishlist
-        - name: Communication
-          links:
-            - name: WhatsApp
-              url: https://web.whatsapp.com/
-            - name: Outlook 365
-              url: https://outlook.office365.com/
-            - name: Outlook (personal)
-              url: https://outlook.com
     ingress:
       main:
         enabled: true
