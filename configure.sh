@@ -217,6 +217,7 @@ setup_github_webhook() {
         fi
 
         export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
+        _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
 
         cp -r  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
 
