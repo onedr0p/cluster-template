@@ -57,6 +57,8 @@ spec:
               url: https://www.youtube.com/feed/subscriptions
             - name: Reddit
               url: https://reddit.com
+            - name: LastFM
+              url: https://www.last.fm/user/xasthuragalloch
         - name: Commercial
           links:
             - name: ABN Amro
