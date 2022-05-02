@@ -166,6 +166,7 @@ verify_binaries() {
     _has_binary "helm"
     _has_binary "ipcalc"
     _has_binary "jq"
+    _has_binary "yq"
     _has_binary "sops"
     _has_binary "ssh"
     _has_binary "task"

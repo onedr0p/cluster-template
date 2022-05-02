@@ -69,6 +69,7 @@ For provisioning the following tools will be used:
 | [go-task](https://github.com/go-task/task)         | A task runner / simpler Make alternative written in Go                                                                                  |
 | [ipcalc](http://jodies.de/ipcalc)                  | Used to verify settings in the configure script                                                                                         |
 | [jq](https://stedolan.github.io/jq/)               | Used to verify settings in the configure script                                                                                         |
+| [yq](https://github.com/mikefarah/yq)              | Used to verify settings in the configure script                                                                                         |
 | [kubectl](https://kubernetes.io/docs/tasks/tools/) | Allows you to run commands against Kubernetes clusters                                                                                  |
 | [sops](https://github.com/mozilla/sops)            | Encrypts k8s secrets with Age                                                                                                           |
 | [terraform](https://www.terraform.io)              | Prepare a Cloudflare domain to be used with the cluster                                                                                 |
