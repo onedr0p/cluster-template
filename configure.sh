@@ -216,7 +216,7 @@ setup_github_webhook() {
             WEBHOOK_SECRET="$(openssl rand -base64 30)"
         fi
 
-        export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET=$WEBHOOK_SECRET
+        export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
 
         cp -r  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
 
