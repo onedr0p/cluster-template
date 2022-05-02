@@ -219,7 +219,7 @@ setup_github_webhook() {
         export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
         _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
 
-        cp -f  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
+        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
 
         WEBHOOK_DIR="${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/"
 
@@ -228,7 +228,9 @@ setup_github_webhook() {
 
         sops --encrypt --in-place "${WEBHOOK_DIR}/secret.sops.yaml"
 
-        yq -i '.resources += [ "flux-system" ]' "${PROJECT_DIR}/cluster/apps/kustomization.yaml"
+        if [[ $(yq eval --no-doc 'contains({"resources": ["flux-system"]})' "${PROJECT_DIR}/cluster/apps/kustomization.yaml") == false ]]; then
+            yq -i '.resources += [ "flux-system" ]' "${PROJECT_DIR}/cluster/apps/kustomization.yaml"
+        fi
     fi
 }
 
