@@ -1,0 +1,53 @@
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Receiver
+metadata:
+  name: github-receiver
+  namespace: flux-system
+spec:
+  type: github
+  events:
+    - "ping"
+    - "push"
+  secretRef:
+    name: github-webhook-token
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1beta2
+      kind: GitRepository
+      name: flux-system
+      namespace: "flux-system"
+
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      name: "apply-cluster-repositories"
+      namespace: "flux-system"
+
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      name: "apply-cluster-config"
+      namespace: "flux-system"
+
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      name: "apply-cluster-namespaces"
+      namespace: "flux-system"
+
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      name: "apply-cluster-crds"
+      namespace: "flux-system"
+
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      name: "apply-manage-flux"
+      namespace: "flux-system"
+
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      name: "apply-cluster-orchestration-core"
+      namespace: "flux-system"
+
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      name: "apply-cluster-orchestration-user"
+      namespace: "flux-system"
