@@ -219,17 +219,15 @@ setup_github_webhook() {
         export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
         _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
 
-        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
+        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux-system/" "${PROJECT_DIR}/cluster/apps/"
 
-        WEBHOOK_DIR="${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/"
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/flux-system/webhooks/github/secret.sops.yaml" \
+            > "${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/secret.sops.yaml"
 
-        envsubst < "${WEBHOOK_DIR}/receiver.yaml" | tee "${WEBHOOK_DIR}/receiver.yaml" > /dev/null
-        envsubst < "${WEBHOOK_DIR}/secret.sops.yaml" | tee "${WEBHOOK_DIR}/secret.sops.yaml" > /dev/null
-
-        sops --encrypt --in-place "${WEBHOOK_DIR}/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/secret.sops.yaml"
 
         if [[ $(yq eval --no-doc 'contains({"resources": ["flux-system"]})' "${PROJECT_DIR}/cluster/apps/kustomization.yaml") == false ]]; then
-            yq -i '.resources += [ "flux-system" ]' "${PROJECT_DIR}/cluster/apps/kustomization.yaml"
+            yq --inplace '.resources += [ "flux-system" ]' "${PROJECT_DIR}/cluster/apps/kustomization.yaml"
         fi
     fi
 }
