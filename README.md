@@ -338,6 +338,26 @@ To access services from the outside world port forwarded `80` and `443` in your 
 
 Now if nothing is working, that is expected. This is DNS after all!
 
+### 🪝 Github Webhook
+
+Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`.
+Your webhook will be deployed on `https://flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`, to find out your hook id you can run the following command:
+
+```sh
+kubectl -n flux-system get receiver/github-receiver --kubeconfig=./provision/kubeconfig
+# NAME              AGE    READY   STATUS
+# github-receiver   6h8m   True    Receiver initialized with URL: /hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+```
+
+Get hook secret
+
+```sh
+sops -d ./cluster/apps/flux-system/webhooks/github/secret.sops.yaml | yq .stringData.token
+```
+
+Configuring the webhook in Github
+<https://docs.github.com/en/developers/webhooks-and-events/webhooks/creating-webhooks#setting-up-a-webhook>
+
 ### 👉 Troubleshooting
 
 Our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) (WIP, contributions welcome) is a good place to start troubleshooting issues. If that doesn't cover your issue, come join and say Hi in our [Discord](https://discord.gg/k8s-at-home) server by starting a new thread in the #kubernetes support channel.
