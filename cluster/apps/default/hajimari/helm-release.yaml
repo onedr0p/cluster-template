@@ -77,6 +77,8 @@ spec:
               url: https://myanimelist.net/animelist/xasthuragalloch
             - name: My figure collection
               url: https://myfigurecollection.net/profile/nekoniri
+            - name: Trello wishlist
+              url: https://trello.com/b/D7E8ewR9/wishlist
         - name: Communication
           links:
             - name: WhatsApp
