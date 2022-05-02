@@ -211,7 +211,7 @@ verify_git_repository() {
 setup_github_webhook() {
     WEBHOOK_SECRET="${BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET:-ignored}"
 
-    if [ $WEBHOOK_SECRET != "ignored" ]; then
+    if [[ "${WEBHOOK_SECRET}" != "ignored" ]]; then
         if [ $WEBHOOK_SECRET == "generated" ]; then
             WEBHOOK_SECRET="$(openssl rand -base64 30)"
         fi
