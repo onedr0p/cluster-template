@@ -32,13 +32,59 @@ spec:
         matchNames:
           - default
           - networking
-      name: "you"
-      customApps: []
+      id: uc7P_usNm_f5Yc8cm9aNn
+      name: Nicky
       groups:
-        - name: Communicate
+        - name: Fake news
           links:
-            - name: Outlook
-              url: "https://outlook.com"
+            - name: PC Gamer
+              url: https://pcgamer.com
+            - name: Tweakers
+              url: https://tweakers.nl
+            - name: Hacker news
+              url: https://news.ycombinator.com/
+            - name: Trending Github repos
+              url: https://github.com/trending
+            - name: Nu
+              url: https://nu.nl
+            - name: Ultimate Guitar
+              url: https://www.ultimate-guitar.com/news/
+            - name: Metal sucks
+              url: https://www.metalsucks.net/
+        - name: Media
+          links:
+            - name: YouTube
+              url: https://www.youtube.com/feed/subscriptions
+            - name: Reddit
+              url: https://reddit.com
+        - name: Commercial
+          links:
+            - name: ABN Amro
+              url: https://www.abnamro.nl/nl/prive/index.html
+            - name: Marktplaats messages
+              url: https://www.marktplaats.nl/messages
+            - name: Albert Heijn orders
+              url: https://www.ah.nl/mijnbestellingen
+        - name: Collecting / trading
+          links:
+            - name: Barter matches
+              url: https://barter.vg/u/1728/t/m/
+            - name: HumbleBundle keys
+              url: https://www.humblebundle.com/home/keys
+            - name: Fanatical orders
+              url: https://www.fanatical.com/en/orders
+            - name: My anime list
+              url: https://myanimelist.net/animelist/xasthuragalloch
+            - name: My figure collection
+              url: https://myfigurecollection.net/profile/nekoniri
+        - name: Communication
+          links:
+            - name: WhatsApp
+              url: https://web.whatsapp.com/
+            - name: Outlook 365
+              url: https://outlook.office365.com/
+            - name: Outlook (personal)
+              url: https://outlook.com
     ingress:
       main:
         enabled: true
@@ -49,13 +95,13 @@ spec:
           hajimari.io/icon: "weather-sunset"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
         hosts:
-          - host: "hajimari.${SECRET_DOMAIN}"
+          - host: "home.${SECRET_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
         tls:
           - hosts:
-              - "hajimari.${SECRET_DOMAIN}"
+              - "home.${SECRET_DOMAIN}"
             secretName: "hajimari-tls"
     persistence:
       data:
