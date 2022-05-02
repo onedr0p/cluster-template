@@ -219,11 +219,10 @@ setup_github_webhook() {
         export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
         _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
 
-        cp -r  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
+        cp -f  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
 
         WEBHOOK_DIR="${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/"
 
-        envsubst < "${WEBHOOK_DIR}/ingress.yaml" | tee "${WEBHOOK_DIR}/ingress.yaml" > /dev/null
         envsubst < "${WEBHOOK_DIR}/receiver.yaml" | tee "${WEBHOOK_DIR}/receiver.yaml" > /dev/null
         envsubst < "${WEBHOOK_DIR}/secret.sops.yaml" | tee "${WEBHOOK_DIR}/secret.sops.yaml" > /dev/null
 

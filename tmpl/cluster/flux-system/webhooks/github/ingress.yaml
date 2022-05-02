@@ -7,12 +7,12 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
     external-dns/is-public: "true"
-    external-dns.alpha.kubernetes.io/target: "ipv4.${BOOTSTRAP_CLOUDFLARE_DOMAIN}"
+    external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
     external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
 spec:
   ingressClassName: traefik
   rules:
-    - host: "flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}"
+    - host: "flux-receiver.${SECRET_DOMAIN}"
       http:
         paths:
           - path: /hook/
@@ -24,5 +24,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - "flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}"
+        - "flux-receiver.${SECRET_DOMAIN}"
       secretName: flux-receiver-tls
