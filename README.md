@@ -38,7 +38,7 @@ For provisioning the following tools will be used:
 
 - [Ubuntu](https://ubuntu.com/download/server) - this is a pretty universal operating system that supports running all kinds of home related workloads in Kubernetes
 - [Ansible](https://www.ansible.com) - this will be used to provision the Ubuntu operating system to be ready for Kubernetes and also to install k3s
-- [Terraform](https://www.terraform.io) - in order to help with the DNS settings this will be used to provision an already existing Cloudflare domain and DNS settings
+- [Terraform](https://www.terraform.io) - in order to help with the DNS settings this will be used to provision an already existing Cloudflare domain and certain DNS settings
 
 ## 📝 Prerequisites
 
@@ -208,9 +208,9 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 3. Verify Ansible can view your config by running `task ansible:list`
 
-4. Verify Ansible can ping your nodes by running `task ansible:adhoc:ping`
+4. Verify Ansible can ping your nodes by running `task ansible:ping`
 
-5. Finally, run the Ubuntu Prepare playbook by running `task ansible:playbook:ubuntu-prepare`
+5. Finally, run the Ubuntu Prepare playbook by running `task ansible:prepare`
 
 6. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
 
@@ -220,9 +220,9 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 1. Verify Ansible can view your config by running `task ansible:list`
 
-2. Verify Ansible can ping your nodes by running `task ansible:adhoc:ping`
+2. Verify Ansible can ping your nodes by running `task ansible:ping`
 
-3. Run the k3s install playbook by running `task ansible:playbook:k3s-install`
+3. Run the k3s install playbook by running `task ansible:install`
 
 4. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
 
@@ -239,11 +239,11 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 Review the Terraform scripts under `./provision/terraform/cloudflare/` and make sure you understand what it's doing (no really review it). If your domain already has existing DNS records **be sure to export those DNS settings before you continue**.
 
-1. Pull in the Terraform deps by running `task terraform:init:cloudflare`
+1. Pull in the Terraform deps by running `task terraform:init`
 
-2. Review the changes Terraform will make to your Cloudflare domain by running `task terraform:plan:cloudflare`
+2. Review the changes Terraform will make to your Cloudflare domain by running `task terraform:plan`
 
-3. Finally have Terraform execute the task by running `task terraform:apply:cloudflare`
+3. Finally have Terraform execute the task by running `task terraform:apply`
 
 If Terraform was ran successfully you can log into Cloudflare and validate the DNS records are present. The cluster application `external-dns` will be managing the rest of the DNS records you will need.
 
@@ -404,6 +404,6 @@ Our Check out our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wik
 
 Big shout out to all the authors and contributors to the projects that we are using in this repository.
 
-Community member @Whazor created [this website](https://whazor.github.io/k8s-at-home-search/) as a means to search Helm Releases across GitHub. You may use it as a means to get ideas on how to configure an applications' Helm values.
+Community member @Whazor created [this website](https://whazor.github.io/k8s-at-home-search/) as a creative way to search Helm Releases across GitHub. You may use it as a means to get ideas on how to configure an applications' Helm values.
 
 Many people have shared their awesome repositories over at [awesome-home-kubernetes](https://github.com/k8s-at-home/awesome-home-kubernetes).

@@ -13,8 +13,5 @@ env:
 
 includes:
   ansible: .taskfiles/ansible.yml
-  flux: .taskfiles/flux.yml
-  format: .taskfiles/format.yml
-  lint: .taskfiles/lint.yml
   pre-commit: .taskfiles/pre-commit.yml
   terraform: .taskfiles/terraform.yml
