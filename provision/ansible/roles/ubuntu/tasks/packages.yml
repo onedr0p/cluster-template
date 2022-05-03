@@ -6,9 +6,6 @@
     cache_valid_time: 3600
     autoclean: true
     autoremove: true
-  register: apt_upgrade
-  retries: 5
-  until: apt_upgrade is success
 
 - name: Install common packages
   ansible.builtin.apt:
@@ -41,9 +38,17 @@
     cache_valid_time: 3600
     autoclean: true
     autoremove: true
-  register: apt_install_common
-  retries: 5
-  until: apt_install_common is success
+
+- name: Install raspberry specific packages
+  ansible.builtin.apt:
+    name:
+      - linux-modules-extra-raspi
+    install_recommends: false
+    update_cache: true
+    cache_valid_time: 3600
+    autoclean: true
+    autoremove: true
+  when: "'raspi' in ansible_kernel"
 
 - name: Copy 20auto-upgrades unattended-upgrades config
   ansible.builtin.blockinfile:
