@@ -174,8 +174,8 @@ verify_binaries() {
 }
 
 verify_kubevip() {
-    _has_envar "BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR"
-    _has_valid_ip "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}" "BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR"
+    _has_envar "BOOTSTRAP_KUBE_VIP_ADDR"
+    _has_valid_ip "${BOOTSTRAP_KUBE_VIP_ADDR}" "BOOTSTRAP_KUBE_VIP_ADDR"
 }
 
 verify_metallb() {
@@ -284,8 +284,8 @@ verify_ansible_hosts() {
         _has_envar "${node_control}"
         _has_optional_envar "${node_hostname}"
 
-        if [[ "${!node_addr}" == "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}" ]]; then
-            _log "ERROR" "The kube-vip IP '${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
+            _log "ERROR" "The kube-vip IP '${BOOTSTRAP_KUBE_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
 
