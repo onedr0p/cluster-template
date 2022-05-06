@@ -218,6 +218,8 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./provision/kubeconfig` for use with interacting with your cluster with `kubectl`.
 
+⚠️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
+
 1. Verify Ansible can view your config by running `task ansible:list`
 
 2. Verify Ansible can ping your nodes by running `task ansible:ping`
@@ -320,7 +322,9 @@ If Terraform was ran successfully you can log into Cloudflare and validate the D
 
 🎉 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
-Now it's time to pause and go get some coffee ☕ because next is describing how DNS is handled. 🧠
+⚠️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
+
+🧠 Now it's time to pause and go get some coffee ☕ because next is describing how DNS is handled.
 
 ## 📣 Post installation
 
