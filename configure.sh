@@ -146,34 +146,34 @@ verify_addressing() {
     local found_traefik="false"
 
     # Verify the metallb min and metallb ceiling are in the same network
-    metallb_ip_subnet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
-    metallb_ip_subnet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f1,2,3)
-    if [[ "${metallb_ip_subnet_min}" != "${metallb_ip_subnet_ceil}" ]]; then
+    metallb_subnet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
+    metallb_subnet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f1,2,3)
+    if [[ "${metallb_subnet_min}" != "${metallb_subnet_ceil}" ]]; then
         _log "ERROR" "The provided MetalLB IP range '${BOOTSTRAP_METALLB_LB_RANGE}' is not in the same subnet"
         exit 1
     fi
 
     # Verify the node IP addresses are on the same network as the metallb range
     for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
-        node_ip_subnet=$(echo "${!var}" | cut -d. -f1,2,3)
-        if [[ "${node_ip_subnet}" != "${metallb_ip_subnet_min}" ]]; then
+        node_subnet=$(echo "${!var}" | cut -d. -f1,2,3)
+        if [[ "${node_subnet}" != "${metallb_subnet_min}" ]]; then
             _log "ERROR" "The subnet for node '${!var}' is not in the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
             exit 1
         fi
     done
 
     # Verify the kube-vip IP is in the same network as the metallb range
-    kubevip_ip_subnet=$(echo "${BOOTSTRAP_KUBE_VIP_ADDR}" | cut -d. -f1,2,3)
-    if [[ "${kubevip_ip_subnet}" != "${metallb_ip_subnet_min}" ]]; then
+    kubevip_subnet=$(echo "${BOOTSTRAP_KUBE_VIP_ADDR}" | cut -d. -f1,2,3)
+    if [[ "${kubevip_subnet}" != "${metallb_subnet_min}" ]]; then
         _log "ERROR" "The subnet for kupe-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' is not the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
 
     # Depending on the IP address, verify if it should be in the metallb range or not
-    metallb_ip_octet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f4)
-    metallb_ip_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
-    for (( octet=metallb_ip_octet_min; octet<=metallb_ip_octet_ceil; octet++ )); do
-        addr="${metallb_ip_subnet_min}.${octet}"
+    metallb_octet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f4)
+    metallb_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
+    for (( octet=metallb_octet_min; octet<=metallb_octet_ceil; octet++ )); do
+        addr="${metallb_subnet_min}.${octet}"
         if [[ "${addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
             found_kube_vip="true"
         fi
