@@ -34,7 +34,7 @@ main() {
         verify_age
         verify_git_repository
         verify_cloudflare
-        success
+        verify_success
     else
         # generate sops configuration file
         envsubst < "${PROJECT_DIR}/tmpl/.sops.yaml" \
@@ -72,6 +72,7 @@ main() {
         generate_ansible_hosts
         generate_ansible_host_secrets
         setup_github_webhook
+        success
     fi
 }
 
@@ -138,6 +139,49 @@ _has_valid_ip() {
     fi
 }
 
+_has_ip_in_metallb_range() {
+    local found_k8s_gateway="false"
+    local found_traefik="false"
+
+    ip_cidr_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
+    ip_cidr_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f1,2,3)
+
+    if [[ "${ip_cidr_min}" != "${ip_cidr_ceil}" ]]; then
+        _log "ERROR" "MetalLB IP ranges '${ip_cidr_min}' and '${ip_cidr_ceil}' are not in the same network"
+        exit 1
+    fi
+
+    ip_octet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f4)
+    ip_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
+
+    for (( octet=ip_octet_min; octet<=ip_octet_ceil; octet++ )); do
+        addr="${ip_cidr_min}.${octet}"
+        if [[ "${addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
+            found_k8s_gateway="true"
+        fi
+        if [[ "${addr}" == "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" ]]; then
+            found_traefik="true"
+        fi
+
+        for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
+            if [[ "${!var}" == "${addr}" ]]; then
+                _log "ERROR" "The IP for node '${!var}' is in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+                exit 1
+            fi
+        done
+    done
+
+    if [[ $found_k8s_gateway == "false" ]]; then
+        _log "ERROR" "The IP for k8s_gateway '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' is not in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    if [[ $found_traefik == "false" ]]; then
+        _log "ERROR" "The IP for traefik '${BOOTSTRAP_METALLB_TRAEFIK_ADDR}' is not in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+}
+
 verify_age() {
     _has_envar "BOOTSTRAP_AGE_PUBLIC_KEY"
     _has_envar "SOPS_AGE_KEY_FILE"
@@ -188,11 +232,12 @@ verify_metallb() {
     ip_floor=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1)
     ip_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2)
 
-    # TODO(configure.sh): More checks on valid IP addressing
     _has_valid_ip "${ip_floor}" "BOOTSTRAP_METALLB_LB_RANGE"
     _has_valid_ip "${ip_ceil}" "BOOTSTRAP_METALLB_LB_RANGE"
     _has_valid_ip "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" "BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR"
     _has_valid_ip "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" "BOOTSTRAP_METALLB_TRAEFIK_ADDR"
+
+    _has_ip_in_metallb_range
 }
 
 verify_git_repository() {
@@ -308,8 +353,8 @@ verify_ansible_hosts() {
     done
 }
 
-success() {
-    printf "\nAll checks pass!"
+verify_success() {
+    _log "INFO" "All checks passed! Run the script without --verify to template all the files out"
     exit 0
 }
 
@@ -400,6 +445,11 @@ generate_ansible_hosts() {
             done
         fi
     } > "${PROJECT_DIR}/provision/ansible/inventory/hosts.yml"
+}
+
+success() {
+    _log "INFO" "All files have been templated, proceed to the next steps outlined in the README"
+    exit 0
 }
 
 _log() {
