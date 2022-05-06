@@ -40,7 +40,7 @@ spec:
             - name: svc_enable
               value: "false"
             - name: address
-              value: "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS}"
+              value: "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}"
           securityContext:
             capabilities:
               add:

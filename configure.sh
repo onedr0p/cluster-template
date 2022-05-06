@@ -174,8 +174,8 @@ verify_binaries() {
 }
 
 verify_kubevip() {
-    _has_envar "BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS"
-    _has_valid_ip "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS}" "BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS"
+    _has_envar "BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR"
+    _has_valid_ip "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}" "BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR"
 }
 
 verify_metallb() {
@@ -284,18 +284,18 @@ verify_ansible_hosts() {
         _has_envar "${node_control}"
         _has_optional_envar "${node_hostname}"
 
-        if [[ "${node_addr}" == "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS}" ]]; then
-            _log "ERROR" "The kube-vip IP '${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS}' should not be the same as the IP for node '${node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}" ]]; then
+            _log "ERROR" "The kube-vip IP '${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
 
-        if [[ "${node_addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
-            _log "ERROR" "The k8s-gateway load balancer IP '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' should not be the same as the IP for node '${node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
+            _log "ERROR" "The k8s-gateway load balancer IP '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
 
-        if [[ "${node_addr}" == "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" ]]; then
-            _log "ERROR" "The traefik load balancer IP '${BOOTSTRAP_METALLB_TRAEFIK_ADDR}' should not be the same as the IP for node '${node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" ]]; then
+            _log "ERROR" "The traefik load balancer IP '${BOOTSTRAP_METALLB_TRAEFIK_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
 

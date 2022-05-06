@@ -2,4 +2,4 @@
 # (string) The interface on the host kube-vip should attach to
 kubevip_interface: "${BOOTSTRAP_ANSIBLE_KUBE_VIP_INTERFACE}"
 # (string) The ARP address kube-vip broadcasts
-kubevip_address: "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDRESS}"
+kubevip_address: "${BOOTSTRAP_ANSIBLE_KUBE_VIP_ADDR}"
