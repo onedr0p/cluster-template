@@ -39,6 +39,14 @@ spec:
               value: kube-system
             - name: svc_enable
               value: "false"
+            - name: vip_leaderelection
+              value: "true"
+            - name: vip_leaseduration
+              value: "15"
+            - name: vip_renewdeadline
+              value: "10"
+            - name: vip_retryperiod
+              value: "2"
             - name: address
               value: "{{ k3s_registration_address }}"
           securityContext:
