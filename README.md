@@ -320,7 +320,29 @@ If Terraform was ran successfully you can log into Cloudflare and validate the D
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
 
-🎉 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
+### 🎤 Verification Steps
+
+_Mic check, 1, 2_
+
+1. View the Flux kustomizations
+
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get kustomizations --all-namespaces
+    ```
+
+2. View all the Flux Helm Releases
+
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get helmreleases --all-namespaces
+    ```
+
+3. View all the Pods
+
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get pods --all-namespaces
+    ```
+
+🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
 ☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
 
