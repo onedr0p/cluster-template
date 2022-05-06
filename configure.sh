@@ -31,6 +31,7 @@ main() {
         verify_ansible_hosts
         verify_metallb
         verify_kubevip
+        verify_addressing
         verify_age
         verify_git_repository
         verify_cloudflare
@@ -139,25 +140,41 @@ _has_valid_ip() {
     fi
 }
 
-_has_ip_in_metallb_range() {
+verify_addressing() {
     local found_kube_vip="false"
     local found_k8s_gateway="false"
     local found_traefik="false"
 
-    ip_cidr_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
-    ip_cidr_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f1,2,3)
-
-    if [[ "${ip_cidr_min}" != "${ip_cidr_ceil}" ]]; then
-        _log "ERROR" "MetalLB IP ranges '${ip_cidr_min}' and '${ip_cidr_ceil}' are not in the same network"
+    # Verify the metallb min and metallb ceiling are in the same network
+    metallb_ip_subnet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
+    metallb_ip_subnet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f1,2,3)
+    if [[ "${metallb_ip_subnet_min}" != "${metallb_ip_subnet_ceil}" ]]; then
+        _log "ERROR" "The provided MetalLB IP range '${BOOTSTRAP_METALLB_LB_RANGE}' is not in the same subnet"
         exit 1
     fi
 
-    ip_octet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f4)
-    ip_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
+    # Verify the node IP addresses are on the same network as the metallb range
+    for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
+        node_ip_subnet=$(echo "${!var}" | cut -d. -f1,2,3)
+        if [[ "${node_ip_subnet}" != "${metallb_ip_subnet_min}" ]]; then
+            _log "ERROR" "The subnet for node '${!var}' is not in the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+            exit 1
+        fi
+    done
 
-    for (( octet=ip_octet_min; octet<=ip_octet_ceil; octet++ )); do
-        addr="${ip_cidr_min}.${octet}"
-        if [[ "${addr}" == "${BOOTSTRAP_KUBE_VIP_ADDRESS}" ]]; then
+    # Verify the kube-vip IP is in the same network as the metallb range
+    kubevip_ip_subnet=$(echo "${BOOTSTRAP_KUBE_VIP_ADDR}" | cut -d. -f1,2,3)
+    if [[ "${kubevip_ip_subnet}" != "${metallb_ip_subnet_min}" ]]; then
+        _log "ERROR" "The subnet for kupe-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' is not the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    # Depending on the IP address, verify if it should be in the metallb range or not
+    metallb_ip_octet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f4)
+    metallb_ip_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
+    for (( octet=metallb_ip_octet_min; octet<=metallb_ip_octet_ceil; octet++ )); do
+        addr="${metallb_ip_subnet_min}.${octet}"
+        if [[ "${addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
             found_kube_vip="true"
         fi
         if [[ "${addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
@@ -169,24 +186,24 @@ _has_ip_in_metallb_range() {
 
         for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
             if [[ "${!var}" == "${addr}" ]]; then
-                _log "ERROR" "The IP for node '${!var}' is in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+                _log "ERROR" "The IP for node '${!var}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
                 exit 1
             fi
         done
     done
 
-    if [[ $found_kube_vip == "true" ]]; then
-        _log "ERROR" "The IP for k8s_gateway '${BOOTSTRAP_KUBE_VIP_ADDRESS}' is in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+    if [[ "${found_kube_vip}" == "true" ]]; then
+        _log "ERROR" "The IP for kube-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
 
-    if [[ $found_k8s_gateway == "false" ]]; then
-        _log "ERROR" "The IP for k8s_gateway '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' is not in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+    if [[ "${found_k8s_gateway}" == "false" ]]; then
+        _log "ERROR" "The IP for k8s_gateway '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
 
-    if [[ $found_traefik == "false" ]]; then
-        _log "ERROR" "The IP for traefik '${BOOTSTRAP_METALLB_TRAEFIK_ADDR}' is not in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+    if [[ "${found_traefik}" == "false" ]]; then
+        _log "ERROR" "The IP for traefik '${BOOTSTRAP_METALLB_TRAEFIK_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
 }
@@ -245,8 +262,6 @@ verify_metallb() {
     _has_valid_ip "${ip_ceil}" "BOOTSTRAP_METALLB_LB_RANGE"
     _has_valid_ip "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" "BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR"
     _has_valid_ip "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" "BOOTSTRAP_METALLB_TRAEFIK_ADDR"
-
-    _has_ip_in_metallb_range
 }
 
 verify_git_repository() {
@@ -354,9 +369,9 @@ verify_ansible_hosts() {
         fi
 
         if ssh -q -o BatchMode=yes -o ConnectTimeout=5 "${!node_username}"@"${!var}" "true"; then
-            _log "INFO" "Successfully SSH'ed into host '${!var}' with username '${!node_username}'"
+            _log "INFO" "SSH into host '${!var}' with username '${!node_username}' was successfull"
         else
-            _log "ERROR" "Unable to SSH into host '${!var}' with username '${!node_username}', did you copy over your SSH key?"
+            _log "ERROR" "SSH into host '${!var}' with username '${!node_username}'was NOT successful, did you copy over your SSH key?"
             exit 1
         fi
     done
