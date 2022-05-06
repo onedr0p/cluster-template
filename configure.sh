@@ -140,6 +140,7 @@ _has_valid_ip() {
 }
 
 _has_ip_in_metallb_range() {
+    local found_kube_vip="false"
     local found_k8s_gateway="false"
     local found_traefik="false"
 
@@ -156,6 +157,9 @@ _has_ip_in_metallb_range() {
 
     for (( octet=ip_octet_min; octet<=ip_octet_ceil; octet++ )); do
         addr="${ip_cidr_min}.${octet}"
+        if [[ "${addr}" == "${BOOTSTRAP_KUBE_VIP_ADDRESS}" ]]; then
+            found_kube_vip="true"
+        fi
         if [[ "${addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
             found_k8s_gateway="true"
         fi
@@ -170,6 +174,11 @@ _has_ip_in_metallb_range() {
             fi
         done
     done
+
+    if [[ $found_kube_vip == "true" ]]; then
+        _log "ERROR" "The IP for k8s_gateway '${BOOTSTRAP_KUBE_VIP_ADDRESS}' is in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
 
     if [[ $found_k8s_gateway == "false" ]]; then
         _log "ERROR" "The IP for k8s_gateway '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' is not in metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
@@ -354,7 +363,8 @@ verify_ansible_hosts() {
 }
 
 verify_success() {
-    _log "INFO" "All checks passed! Run the script without --verify to template all the files out"
+    _log "INFO" "All checks passed!"
+    _log "INFO" "Run the script without --verify to template all the files out"
     exit 0
 }
 
