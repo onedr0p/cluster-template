@@ -322,7 +322,7 @@ If Terraform was ran successfully you can log into Cloudflare and validate the D
 
 ### 🎤 Verification Steps
 
-_Mic check, 1, 2_
+_Mic check, 1, 2_ - In a few moments applications should be spinning up in your cluster, give it a few minutes for everything to light up like a Christmas tree 🎄
 
 1. View the Flux kustomizations
 
@@ -340,6 +340,13 @@ _Mic check, 1, 2_
 
     ```sh
     kubectl --kubeconfig=./provision/kubeconfig get pods --all-namespaces
+    ```
+
+4. View all the certificates and certificate requests
+
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get certificates --all-namespaces
+    kubectl --kubeconfig=./provision/kubeconfig get certificaterequests --all-namespaces
     ```
 
 🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
@@ -376,8 +383,7 @@ To enable Renovate on your repository, click the 'Configure' button over at thei
 
 Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`. In order to configure Github to send `push` events from your repository to the Flux webhook receiver you will need two things:
 
-1. Webhook URL
-    Your webhook receiver will be deployed on `https://flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`. In order to find out your hook id you can run the following command:
+1. Webhook URL - Your webhook receiver will be deployed on `https://flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`. In order to find out your hook id you can run the following command:
 
     ```sh
     kubectl -n flux-system get receiver/github-receiver --kubeconfig=./provision/kubeconfig
@@ -391,8 +397,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
     https://flux-receiver.k8s-at-home.com/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-2. Webhook secret
-    Your webhook secret can be found by decrypting the `secret.sops.yaml` using the following command:
+2. Webhook secret - Your webhook secret can be found by decrypting the `secret.sops.yaml` using the following command:
 
     ```sh
     sops -d ./cluster/apps/flux-system/webhooks/github/secret.sops.yaml | yq .stringData.token
