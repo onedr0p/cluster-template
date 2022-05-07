@@ -33,7 +33,7 @@
   "kubernetes": {
     "fileMatch": [
       "cluster/.+\\.ya?ml$",
-      "provision/ansible/playbooks/templates/.+\\.ya?ml.j2$"
+      "provision/ansible/.+\\.ya?ml.j2$"
     ]
   },
   "regexManagers": [
@@ -41,7 +41,7 @@
     {
       "fileMatch": [
         "cluster/.+\\.ya?ml$",
-        "ansible/.+\\.ya?ml$"
+        "provision/ansible/.+\\.ya?ml$"
       ],
       "matchStrings": [
         "datasource=(?<datasource>.*?)( versioning=(?<versioning>.*?))?\n *url: https:\/\/github\\.com\/(?<depName>.*?)\\.git\n *ref:\n *tag: (?<currentValue>.*)\n",
@@ -51,14 +51,23 @@
       "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     },
-    // Read and process Custom Resource Definitions
+    // regexManager to read and process cert-manager CRD's
     {
       "fileMatch": [
-        "cluster/.+\\.ya?ml$"
+        "cluster/crds/cert-manager/.+\\.ya?ml$"
       ],
       "matchStrings": [
-        "registryUrl=(?<registryUrl>.*?)\n *tag: (?<depName>[a-zA-Z-]+)-(?<currentValue>.*)\n",
-        "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n.*\\/v?(?<currentValue>.*)\n"
+        "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n.*\\/(?<currentValue>.*?)\\/"
+      ],
+      "datasourceTemplate": "helm"
+    },
+    // regexManager to read and process Traefik CRD's
+    {
+      "fileMatch": [
+        "cluster/crds/traefik/.+\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n *tag: v(?<currentValue>.*)\n"
       ],
       "datasourceTemplate": "helm"
     }
