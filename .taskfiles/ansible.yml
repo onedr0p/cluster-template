@@ -10,7 +10,7 @@ vars:
 
 tasks:
 
-  deps:
+  init:
     desc: Upgrade Ansible galaxy deps
     dir: provision/ansible
     cmds:

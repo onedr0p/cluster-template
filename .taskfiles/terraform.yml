@@ -3,7 +3,7 @@ version: "3"
 
 tasks:
 
-  deps:
+  init:
     desc: Initialize terraform dependencies
     dir: provision/terraform/cloudflare
     cmds:

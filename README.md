@@ -95,20 +95,10 @@ After pre-commit is installed on your machine run:
 task pre-commit:init
 ```
 
-**Remember to run this on each new clone of the repository for it to have effect.**
-
-Commands are of interest, for learning purposes:
-
-This command makes it so pre-commit runs on `git commit`, and also installs environments per the config file.
-
-```sh
-pre-commit install --install-hooks
-```
-
 This command checks for new versions of hooks, though it will occasionally make mistakes, so verify its results.
 
 ```sh
-pre-commit autoupdate
+task pre-commit:update
 ```
 
 ## 📂 Repository structure
@@ -224,7 +214,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 2. Install the Ansible deps
 
     ```sh
-    task ansible:deps
+    task ansible:init
     ```
 
 3. Verify Ansible can view your config
@@ -293,7 +283,7 @@ If your domain already has existing DNS records **be sure to export those DNS se
 1. Pull in the Terraform deps
 
     ```sh
-    task terraform:deps
+    task terraform:init
     ```
 
 2. Review the changes Terraform will make to your Cloudflare domain
