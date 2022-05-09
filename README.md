@@ -190,11 +190,26 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 The `.config.env` file contains necessary configuration that is needed by Ansible, Terraform and Flux.
 
-1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables. **All are required** unless otherwise noted in the comments.
+1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables.
 
-2. Once that is done, verify the configuration is correct by running `./configure.sh --verify`
+    **All are required** unless otherwise noted in the comments.
 
-3. If you do not encounter any errors run `./configure.sh` to start having the script wire up the templated files and place them where they need to be.
+    ```sh
+    cp .config.sample.env .config.env
+    ```
+
+2. Once that is done, verify the configuration is correct by running:
+
+    ```sh
+    task verify
+    ```
+
+3. If you do not encounter any errors run start having the script wire up the templated files and place them where they need to be.
+
+    ```sh
+    task configure
+    ```
+
 
 ### ⚡ Preparing Ubuntu with Ansible
 
@@ -202,17 +217,39 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if it supports Ubuntu 22.04.
 
-1. Ensure you are able to SSH into your nodes from your workstation using your private ssh key. This is how Ansible is able to connect to your remote nodes. [How to configure SSH key-based authentication](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server)
+1. Ensure you are able to SSH into your nodes from your workstation using your private ssh key. This is how Ansible is able to connect to your remote nodes.
 
-2. Install the deps by running `task ansible:deps`
+   [How to configure SSH key-based authentication](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server)
 
-3. Verify Ansible can view your config by running `task ansible:list`
+2. Install the Ansible deps
 
-4. Verify Ansible can ping your nodes by running `task ansible:ping`
+    ```sh
+    task ansible:deps
+    ```
 
-5. Finally, run the Ubuntu Prepare playbook by running `task ansible:prepare`
+3. Verify Ansible can view your config
 
-6. If everything goes as planned you should see Ansible running the Ubuntu Prepare Playbook against your nodes.
+    ```sh
+    task ansible:list
+    ```
+
+4. Verify Ansible can ping your nodes
+
+    ```sh
+    task ansible:ping
+    ```
+
+5. Run the Ubuntu Prepare Ansible playbook
+
+    ```sh
+    task ansible:prepare
+    ```
+
+6. Reboot the nodes
+
+    ```sh
+    task ansible:reboot
+    ```
 
 ### ⛵ Installing k3s with Ansible
 
@@ -220,15 +257,25 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
 
-1. Verify Ansible can view your config by running `task ansible:list`
+1. Verify Ansible can view your config
 
-2. Verify Ansible can ping your nodes by running `task ansible:ping`
+    ```sh
+    task ansible:list
+    ```
 
-3. Run the k3s install playbook by running `task ansible:install`
+2. Verify Ansible can ping your nodes
 
-4. If everything goes as planned you should see Ansible running the k3s install Playbook against your nodes.
+    ```sh
+    task ansible:ping
+    ```
 
-5. Verify the nodes are online
+3. Install k3s with Ansible
+
+    ```sh
+    task ansible:install
+    ```
+
+4. Verify the nodes are online
 
     ```sh
     kubectl --kubeconfig=./provision/kubeconfig get nodes
@@ -239,15 +286,31 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### ☁️ Configuring Cloudflare DNS with Terraform
 
-📍 Review the Terraform scripts under `./provision/terraform/cloudflare/` and make sure you understand what it's doing (no really review it). If your domain already has existing DNS records **be sure to export those DNS settings before you continue**.
+📍 Review the Terraform scripts under `./provision/terraform/cloudflare/` and make sure you understand what it's doing (no really review it).
 
-1. Pull in the Terraform deps by running `task terraform:init`
+If your domain already has existing DNS records **be sure to export those DNS settings before you continue**.
 
-2. Review the changes Terraform will make to your Cloudflare domain by running `task terraform:plan`
+1. Pull in the Terraform deps
 
-3. Finally have Terraform execute the task by running `task terraform:apply`
+    ```sh
+    task terraform:deps
+    ```
 
-If Terraform was ran successfully you can log into Cloudflare and validate the DNS records are present. The cluster application `external-dns` will be managing the rest of the DNS records you will need.
+2. Review the changes Terraform will make to your Cloudflare domain
+
+    ```sh
+    task terraform:plan
+    ```
+
+3. Have Terraform apply your Cloudflare settings
+
+    ```sh
+    task terraform:apply
+    ```
+
+If Terraform was ran successfully you can log into Cloudflare and validate the DNS records are present.
+
+The cluster application [external-dns](https://github.com/kubernetes-sigs/external-dns) will be managing the rest of the DNS records you will need.
 
 ### 🔹 GitOps with Flux
 
@@ -282,9 +345,7 @@ If Terraform was ran successfully you can log into Cloudflare and validate the D
 
 4. **Verify** the `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/core/cert-manager/secret.sops.yaml` files are **encrypted** with SOPS
 
-5. If you verified all the secrets are encrypted, you can delete the `tmpl` directory now
-
-6. Push you changes to git
+5. Push you changes to git
 
     ```sh
     git add -A
@@ -292,7 +353,7 @@ If Terraform was ran successfully you can log into Cloudflare and validate the D
     git push
     ```
 
-7. Install Flux
+6. Install Flux
 
     📍 Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
 
@@ -301,15 +362,10 @@ If Terraform was ran successfully you can log into Cloudflare and validate the D
     # namespace/flux-system configured
     # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
     # ...
-    # unable to recognize "./cluster/base/flux-system": no matches for kind "Kustomization" in version "kustomize.toolkit.fluxcd.io/v1beta1"
-    # unable to recognize "./cluster/base/flux-system": no matches for kind "GitRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-    # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-    # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
-    # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
     # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
     ```
 
-8. Verify Flux components are running in the cluster
+7. Verify Flux components are running in the cluster
 
     ```sh
     kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
@@ -336,13 +392,19 @@ _Mic check, 1, 2_ - In a few moments applications should be spinning up in your 
     kubectl --kubeconfig=./provision/kubeconfig get helmreleases --all-namespaces
     ```
 
-3. View all the Pods
+3. View all the Flux Helm Repositories
+
+    ```sh
+    kubectl --kubeconfig=./provision/kubeconfig get helmrepositories --all-namespaces
+    ```
+
+4. View all the Pods
 
     ```sh
     kubectl --kubeconfig=./provision/kubeconfig get pods --all-namespaces
     ```
 
-4. View all the certificates and certificate requests
+5. View all the certificates and certificate requests
 
     ```sh
     kubectl --kubeconfig=./provision/kubeconfig get certificates --all-namespaces
@@ -359,13 +421,13 @@ _Mic check, 1, 2_ - In a few moments applications should be spinning up in your 
 
 ### 🌐 DNS
 
-📍 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` is the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation like in the `HelmRelease` for `echo-server`. You do not need to use Terraform to create additional DNS records unless you need a record outside the purposes of your Kubernetes cluster (e.g. setting up MX records).
+📍 The [external-dns](https://github.com/kubernetes-sigs/external-dns) application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` is the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation like in the `HelmRelease` for `echo-server`. You do not need to use Terraform to create additional DNS records unless you need a record outside the purposes of your Kubernetes cluster (e.g. setting up MX records).
 
-`k8s_gateway` is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser.
+[k8s_gateway](https://github.com/ori-edge/k8s_gateway) is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser.
 
 You can also try debugging with the command `dig`, e.g. `dig @${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR} hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` and you should get a valid answer containing your `${BOOTSTRAP_METALLB_TRAEFIK_ADDR}` IP address.
 
-If your router (or Pi-Hole, Adguard Home or whatever) supports conditional DNS forwarding (also know as split-horizon DNS) you may have DNS requests for `${SECRET_DOMAIN}` only point to the  `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address. This will ensure only DNS requests for `${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing DNS resolution to your cluster applications/ingresses.
+If your router (or Pi-Hole, Adguard Home or whatever) supports conditional DNS forwarding (also know as split-horizon DNS) you may have DNS requests for `${SECRET_DOMAIN}` only point to the  `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address. This will ensure only DNS requests for `${SECRET_DOMAIN}` will only get routed to your [k8s_gateway](https://github.com/ori-edge/k8s_gateway) service thus providing DNS resolution to your cluster applications/ingresses.
 
 To access services from the outside world port forwarded `80` and `443` in your router to the `${BOOTSTRAP_METALLB_TRAEFIK_ADDR}` IP, in a few moments head over to your browser and you _should_ be able to access `https://echo-server.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` from a device outside your LAN.
 

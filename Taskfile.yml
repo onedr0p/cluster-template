@@ -8,6 +8,8 @@ vars:
   ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
 
+dotenv: [".config.env"]
+
 env:
   KUBECONFIG: "{{.PROJECT_DIR}}/provision/kubeconfig"
 
@@ -15,3 +17,15 @@ includes:
   ansible: .taskfiles/ansible.yml
   pre-commit: .taskfiles/pre-commit.yml
   terraform: .taskfiles/terraform.yml
+
+tasks:
+
+  verify:
+    desc: Verify env settings
+    cmds:
+      - bash configure --verify
+
+  configure:
+    desc: Configure repository
+    cmds:
+      - bash configure

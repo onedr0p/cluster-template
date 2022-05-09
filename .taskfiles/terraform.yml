@@ -3,20 +3,20 @@ version: "3"
 
 tasks:
 
-  init:
-    desc: Initialize terraform
+  deps:
+    desc: Initialize terraform dependencies
     dir: provision/terraform/cloudflare
     cmds:
-      - "terraform init"
+      - terraform init {{.CLI_ARGS}}
 
   plan:
-    desc: Prepare all the k8s nodes for running k3s
+    desc: Show the changes terraform will make
     dir: provision/terraform/cloudflare
     cmds:
-      - "terraform plan"
+      - terraform plan {{.CLI_ARGS}}
 
   apply:
-    desc: Prepare all the k8s nodes for running k3s
+    desc: Apply the changes to Cloudflare
     dir: provision/terraform/cloudflare
     cmds:
-      - "terraform apply"
+      - terraform apply {{.CLI_ARGS}}
