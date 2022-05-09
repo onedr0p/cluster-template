@@ -2,7 +2,7 @@
 
 Highly opinionated template for deploying a single [k3s](https://k3s.io) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
 
-The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit Age encrypted secrets to your public repo.
+The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit [Age](https://github.com/FiloSottile/age) encrypted secrets to your public repo.
 
 ## Overview
 
@@ -10,29 +10,26 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 - [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#-prerequisites)
 - [Repository structure](https://github.com/k8s-at-home/template-cluster-k3s#-repository-structure)
 - [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#-lets-go)
-- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#-installation)
+- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#-post-installation)
+- [Troubleshooting](https://github.com/k8s-at-home/template-cluster-k3s#-troubleshooting)
+- [What's next](https://github.com/k8s-at-home/template-cluster-k3s#-whats-next)
 - [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#-thanks)
 
 ## 👋 Introduction
 
-The following components will be installed in your [k3s](https://k3s.io/) cluster by default. They are only included to get a minimum viable cluster up and running. You are free to add / remove components to your liking but anything outside the scope of the below components are not supported by this template.
+The following components will be installed in your [k3s](https://k3s.io/) cluster by default. Most are only included to get a minimum viable cluster up and running.
 
-Feel free to read up on any of these technologies before you get started to be more familiar with them.
+- [flux](https://toolkit.fluxcd.io/) - GitOps operator for managing Kubernetes clusters from a Git repository
+- [kube-vip](https://kube-vip.io/) - Load balancer for the Kubernetes control plane nodes
+- [metallb](https://metallb.universe.tf/) - Load balancer for Kubernetes services
+- [cert-manager](https://cert-manager.io/) - Operator to request SSL certificates and store them as Kubernetes resources
+- [calico](https://www.tigera.io/project-calico/) - Container networking interface for inter pod and service networking
+- [external-dns](https://github.com/kubernetes-sigs/external-dns) - Operator to publish DNS records to Cloudflare (and other providers) based on Kubernetes ingresses
+- [k8s_gateway](https://github.com/ori-edge/k8s_gateway) - DNS resolver that provides local DNS to your Kubernetes ingresses
+- [traefik](https://traefik.io) - Kubernetes ingress controller used for a HTTP reverse proxy of Kubernetes ingresses
+- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - provision persistent local storage with Kubernetes
 
-- [cert-manager](https://cert-manager.io/) - SSL certificates - with Cloudflare DNS challenge
-- [calico](https://www.tigera.io/project-calico/) - CNI (container network interface)
-- [echo-server](https://github.com/Ealenn/Echo-Server) - REST Server Tests (Echo-Server) API (useful for debugging HTTP issues)
-- [external-dns](https://github.com/kubernetes-sigs/external-dns) - Automatically configure external DNS servers for Kubernetes Ingresses and Services
-- [flux](https://toolkit.fluxcd.io/) - GitOps tool for deploying manifests from the `cluster` directory
-- [hajimari](https://github.com/toboshii/hajimari) - start page with ingress discovery
-- [k8s_gateway](https://github.com/ori-edge/k8s_gateway) - DNS resolver for all types of external Kubernetes resources
-- [kube-vip](https://kube-vip.io/) - layer 2 load balancer for the Kubernetes control plane
-- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - default storage class provided by k3s
-- [metallb](https://metallb.universe.tf/) - bare metal load balancer
-- [reloader](https://github.com/stakater/Reloader) - restart pods when Kubernetes `configmap` or `secret` changes
-- [reflector](https://github.com/emberstack/kubernetes-reflector) - mirror `configmap`s or `secret`s to other Kubernetes namespaces
-- [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) - (opt-in) automate upgrading k3s
-- [traefik](https://traefik.io) - ingress controller
+_Additional applications include [hajimari](https://github.com/toboshii/hajimari), [echo-server](https://github.com/Ealenn/Echo-Server), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), [reflector](https://github.com/emberstack/kubernetes-reflector), and [reloader](https://github.com/stakater/Reloader)_
 
 For provisioning the following tools will be used:
 
@@ -42,7 +39,7 @@ For provisioning the following tools will be used:
 
 ## 📝 Prerequisites
 
-**Note:** This template has not been tested on cloud providers like AWS EC2, Hetzner, Scaleway etc... Those cloud offerings probably have a better way of provsioning a Kubernetes cluster and it's advisable to use those instead of the Ansible playbooks included here. This repository can still be used for the GitOps/Flux portion if there's a cluster working in one those environments.
+**Note:** _This template has not been tested on cloud providers like AWS EC2, Hetzner, Scaleway etc... Those cloud offerings probably have a better way of provsioning a Kubernetes cluster and it's advisable to use those instead of the Ansible playbooks included here. This repository can still be used for the GitOps/Flux portion if there's a cluster working in one those environments._
 
 ### 💻 Systems
 
@@ -54,52 +51,42 @@ For provisioning the following tools will be used:
 
 📍 It is recommended to have 3 master nodes for a highly available control plane.
 
-### 🔧 Tools
+### 🔧 Workstation Tools
 
-📍 You should install the below CLI tools on your workstation. Make sure you pull in the latest versions.
+1. Install the **most recent versions** of the following CLI tools on your workstation, if you are using [Homebrew](https://brew.sh/) on MacOS or Linux skip to steps 2 and 3.
 
-#### Required
+    * Required: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [gitleaks](https://github.com/zricethezav/gitleaks), [go-task](https://github.com/go-task/task), [ipcalc](http://jodies.de/ipcalc), [jq](https://stedolan.github.io/jq/), [kubectl](https://kubernetes.io/docs/tasks/tools/), [pre-commit](https://github.com/pre-commit/pre-commit), [sops](https://github.com/mozilla/sops), [terraform](https://www.terraform.io), [yq](https://github.com/mikefarah/yq)
 
-| Tool                                               | Purpose                                                                                                                                 |
-|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| [ansible](https://www.ansible.com)                 | Preparing Ubuntu for Kubernetes and installing k3s                                                                                      |
-| [direnv](https://github.com/direnv/direnv)         | Exports env vars based on present working directory                                                                                     |
-| [flux](https://toolkit.fluxcd.io/)                 | Operator that manages your k8s cluster based on your Git repository                                                                     |
-| [age](https://github.com/FiloSottile/age)          | A simple, modern and secure encryption tool (and Go library) with small explicit keys, no config options, and UNIX-style composability. |
-| [go-task](https://github.com/go-task/task)         | A task runner / simpler Make alternative written in Go                                                                                  |
-| [ipcalc](http://jodies.de/ipcalc)                  | Used to verify settings in the configure script                                                                                         |
-| [jq](https://stedolan.github.io/jq/)               | Used to verify settings in the configure script                                                                                         |
-| [yq](https://github.com/mikefarah/yq)              | Used to verify settings in the configure script                                                                                         |
-| [kubectl](https://kubernetes.io/docs/tasks/tools/) | Allows you to run commands against Kubernetes clusters                                                                                  |
-| [sops](https://github.com/mozilla/sops)            | Encrypts k8s secrets with Age                                                                                                           |
-| [terraform](https://www.terraform.io)              | Prepare a Cloudflare domain to be used with the cluster                                                                                 |
+    * Recommended: [direnv](https://github.com/direnv/direnv), [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [prettier](https://github.com/prettier/prettier), [stern](https://github.com/stern/stern), [yamllint](https://github.com/adrienverge/yamllint)
 
-#### Optional
+2. Install [go-task](https://github.com/go-task/task)
 
-| Tool                                                   | Purpose                                                  |
-|--------------------------------------------------------|----------------------------------------------------------|
-| [helm](https://helm.sh/)                               | Manage Kubernetes applications                           |
-| [kustomize](https://kustomize.io/)                     | Template-free way to customize application configuration |
-| [pre-commit](https://github.com/pre-commit/pre-commit) | Runs checks pre `git commit`                             |
-| [gitleaks](https://github.com/zricethezav/gitleaks)    | Scan git repos (or files) for secrets                    |
-| [prettier](https://github.com/prettier/prettier)       | Prettier is an opinionated code formatter.               |
+    ```sh
+    brew install go-task/tap/go-task
+    ```
+
+3. Install workstation dependencies
+
+    ```sh
+    task init
+    ```
 
 ### ⚠️ pre-commit
 
 It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
-[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) and [gitleaks](https://github.com/zricethezav/gitleaks) will check to make sure you are not by accident committing your secrets un-encrypted.
+[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) and [gitleaks](https://github.com/zricethezav/gitleaks) will check to make sure you are not by accident committing un-encrypted secrets.
 
-After pre-commit is installed on your machine run:
+1. Enable Pre-Commit
 
-```sh
-task pre-commit:init
-```
+    ```sh
+    task precommit:init
+    ```
 
-This command checks for new versions of hooks, though it will occasionally make mistakes, so verify its results.
+2. Update Pre-Commit, though it will occasionally make mistakes, so verify its results.
 
-```sh
-task pre-commit:update
-```
+    ```sh
+    task precommit:update
+    ```
 
 ## 📂 Repository structure
 
@@ -140,7 +127,7 @@ Clone the repo to you local workstation and `cd` into it.
 
 ### 🔐 Setting up Age
 
-📍 Here we will create a Age Private and Public key. Using SOPS with Age allows us to encrypt and decrypt secrets.
+📍 Here we will create a Age Private and Public key. Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible, Terraform and Flux.
 
 1. Create a Age Private / Public Key
 
