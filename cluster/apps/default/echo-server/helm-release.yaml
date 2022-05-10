@@ -34,6 +34,7 @@ spec:
         hajimari.io/enable: "true"
         hajimari.io/icon: "video-input-antenna"
         traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+        traefik.ingress.kubernetes.io/router.middlewares: "networking-cloudflare-only@kubernetescrd"
       hosts:
         - host: "echo-server.${SECRET_DOMAIN}"
           paths:
