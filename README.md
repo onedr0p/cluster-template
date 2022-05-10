@@ -53,19 +53,21 @@ For provisioning the following tools will be used:
 
 ### 🔧 Workstation Tools
 
-1. Install the **most recent versions** of the following CLI tools on your workstation, if you are using [Homebrew](https://brew.sh/) on MacOS or Linux skip to steps 2 and 3.
+1. Install the **most recent versions** of the following CLI tools on your workstation, if you are using [Homebrew](https://brew.sh/) on MacOS or Linux skip to steps 3 and 4.
 
     * Required: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [gitleaks](https://github.com/zricethezav/gitleaks), [go-task](https://github.com/go-task/task), [ipcalc](http://jodies.de/ipcalc), [jq](https://stedolan.github.io/jq/), [kubectl](https://kubernetes.io/docs/tasks/tools/), [pre-commit](https://github.com/pre-commit/pre-commit), [sops](https://github.com/mozilla/sops), [terraform](https://www.terraform.io), [yq](https://github.com/mikefarah/yq)
 
     * Recommended: [direnv](https://github.com/direnv/direnv), [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [prettier](https://github.com/prettier/prettier), [stern](https://github.com/stern/stern), [yamllint](https://github.com/adrienverge/yamllint)
 
-2. Install [go-task](https://github.com/go-task/task)
+2. This guide heavily relies on [go-task](https://github.com/go-task/task) as a framework for setting things up. It is advised to learn and understand the commands it is running under the hood.
+
+3. Install [go-task](https://github.com/go-task/task) via Brew
 
     ```sh
     brew install go-task/tap/go-task
     ```
 
-3. Install workstation dependencies
+4. Install workstation dependencies via Brew
 
     ```sh
     task init
@@ -187,7 +189,6 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task configure
     ```
 
-
 ### ⚡ Preparing Ubuntu with Ansible
 
 📍 Here we will be running a Ansible Playbook to prepare Ubuntu for running a Kubernetes cluster.
@@ -255,7 +256,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 4. Verify the nodes are online
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig get nodes
+    task cluster:nodes
     # NAME           STATUS   ROLES                       AGE     VERSION
     # k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
     # k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
@@ -296,33 +297,30 @@ The cluster application [external-dns](https://github.com/kubernetes-sigs/extern
 1. Verify Flux can be installed
 
     ```sh
-    flux --kubeconfig=./provision/kubeconfig check --pre
+    task cluster:flux:verify
     # ► checking prerequisites
     # ✔ kubectl 1.21.5 >=1.18.0-0
     # ✔ Kubernetes 1.21.5+k3s1 >=1.16.0-0
     # ✔ prerequisites checks passed
     ```
 
-2. Pre-create the `flux-system` namespace
+2. Create the `flux-system` namespace
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig=./provision/kubeconfig apply -f -
+    task cluster:flux:namespace
     ```
 
-3. Add the Age key in-order for Flux to decrypt SOPS secrets
+3. Add the Age key to your cluster as a secret in-order for Flux to decrypt SOPS secrets
 
     ```sh
-    cat ~/.config/sops/age/keys.txt |
-        kubectl --kubeconfig=./provision/kubeconfig \
-        -n flux-system create secret generic sops-age \
-        --from-file=age.agekey=/dev/stdin
+    task cluster:flux:secret
     ```
 
     📍 Variables defined in `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/base/cluster-settings.yaml` will be usable anywhere in your YAML manifests under `./cluster` except `./cluster/base`
 
-4. **Verify** the `./cluster/base/cluster-secrets.sops.yaml` and `./cluster/core/cert-manager/secret.sops.yaml` files are **encrypted** with SOPS
+4. Push you changes to git
 
-5. Push you changes to git
+    📍 **Verify** all the `*.sops.yaml` and `*.sops.yml` files under the `./cluster` and `./provision` folders are **encrypted** with SOPS
 
     ```sh
     git add -A
@@ -330,22 +328,22 @@ The cluster application [external-dns](https://github.com/kubernetes-sigs/extern
     git push
     ```
 
-6. Install Flux
+5. Install Flux
 
     📍 Due to race conditions with the Flux CRDs you will have to run the below command twice. There should be no errors on this second run.
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig apply --kustomize=./cluster/base/flux-system
+    task cluster:flux:install
     # namespace/flux-system configured
     # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
     # ...
     # unable to recognize "./cluster/base/flux-system": no matches for kind "HelmRepository" in version "source.toolkit.fluxcd.io/v1beta1"
     ```
 
-7. Verify Flux components are running in the cluster
+6. Verify Flux components are running in the cluster
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig get pods -n flux-system
+    task cluster:pods -- -n flux-system
     # NAME                                       READY   STATUS    RESTARTS   AGE
     # helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
     # kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
@@ -355,37 +353,48 @@ The cluster application [external-dns](https://github.com/kubernetes-sigs/extern
 
 ### 🎤 Verification Steps
 
-_Mic check, 1, 2_ - In a few moments applications should be spinning up in your cluster, give it a few minutes for everything to light up like a Christmas tree 🎄
+_Mic check, 1, 2_ - In a few moments applications should be lighting up like a Christmas tree 🎄
 
-1. View the Flux kustomizations
+You are able to run all the commands below with one task
+
+```sh
+task cluster:resources
+```
+
+1. View the Flux Git Repositories
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig get kustomizations --all-namespaces
+    task cluster:gitrepositories
     ```
 
-2. View all the Flux Helm Releases
+2. View the Flux kustomizations
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig get helmreleases --all-namespaces
+    task cluster:kustomizations
     ```
 
-3. View all the Flux Helm Repositories
+3. View all the Flux Helm Releases
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig get helmrepositories --all-namespaces
+    task cluster:helmreleases
     ```
 
-4. View all the Pods
+4. View all the Flux Helm Repositories
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig get pods --all-namespaces
+    task cluster:helmrepositories
     ```
 
-5. View all the certificates and certificate requests
+5. View all the Pods
 
     ```sh
-    kubectl --kubeconfig=./provision/kubeconfig get certificates --all-namespaces
-    kubectl --kubeconfig=./provision/kubeconfig get certificaterequests --all-namespaces
+    task cluster:pods
+    ```
+
+6. View all the certificates and certificate requests
+
+    ```sh
+    task cluster:certificates
     ```
 
 🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
