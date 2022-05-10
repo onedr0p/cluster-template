@@ -46,7 +46,7 @@ For provisioning the following tools will be used:
 - One or more nodes with a fresh install of [Ubuntu Server 22.04](https://ubuntu.com/download/server).
   - These nodes can be bare metal or VMs.
   - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
-- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform.
+- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform and external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
 - Some experience in debugging problems and a positive attitude ;)
 
 📍 It is recommended to have 3 master nodes for a highly available control plane.
