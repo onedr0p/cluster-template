@@ -1,0 +1,17 @@
+---
+- name: Check if network interface provided for kube-vip is valid
+  ansible.builtin.assert:
+    that:
+      - ansible_{{ kubevip_interface }}.device is defined
+      - ansible_{{ kubevip_interface }}['ipv4']['address'] | ansible.utils.ipaddr('{{ ansible_host }}')
+    success_msg: |-
+      kube-vip is able to use {{ kubevip_interface }} for this node
+    fail_msg: |-
+      This node does not have a network interface called {{ kubevip_interface }}.
+
+      You either provided the wrong BOOTSTRAP_KUBE_VIP_INTERFACE value or your nodes have different network interface names.
+
+      See this link on how to set static interface names across your nodes by using netplan
+      https://askubuntu.com/a/1317043
+  when:
+    "'master' in group_names"
