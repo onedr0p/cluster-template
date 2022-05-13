@@ -10,6 +10,7 @@ metadata:
     hajimari.io/enable: "true"
     hajimari.io/icon: "web"
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.middlewares: "networking-internal-only@kubernetescrd"
 spec:
   ingressClassName: "traefik"
   tls:

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "3.8.0"
+      version = "3.14.0"
     }
     http = {
       source  = "hashicorp/http"
@@ -11,7 +11,7 @@ terraform {
     }
     sops = {
       source  = "carlpett/sops"
-      version = "0.6.3"
+      version = "0.7.0"
     }
   }
 }
@@ -38,7 +38,7 @@ resource "cloudflare_zone_settings_override" "cloudflare_settings" {
     ssl = "strict"
     # /ssl-tls/edge-certificates
     always_use_https         = "on"
-    min_tls_version          = "1.0"
+    min_tls_version          = "1.2"
     opportunistic_encryption = "on"
     tls_1_3                  = "zrt"
     automatic_https_rewrites = "on"
@@ -93,15 +93,6 @@ resource "cloudflare_record" "ipv4" {
 
 resource "cloudflare_record" "root" {
   name    = data.sops_file.cloudflare_secrets.data["cloudflare_domain"]
-  zone_id = lookup(data.cloudflare_zones.domain.zones[0], "id")
-  value   = "ipv4.${data.sops_file.cloudflare_secrets.data["cloudflare_domain"]}"
-  proxied = true
-  type    = "CNAME"
-  ttl     = 1
-}
-
-resource "cloudflare_record" "hajimari" {
-  name    = "hajimari"
   zone_id = lookup(data.cloudflare_zones.domain.zones[0], "id")
   value   = "ipv4.${data.sops_file.cloudflare_secrets.data["cloudflare_domain"]}"
   proxied = true

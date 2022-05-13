@@ -5,7 +5,8 @@
 #
 
 # (string) Use a specific version of k3s
-k3s_release_version: "v1.22.5+k3s1"
+# renovate: datasource=github-releases depName=k3s-io/k3s
+k3s_release_version: "v1.23.6+k3s1"
 
 # (bool) Install using hard links rather than symbolic links.
 k3s_install_hard_links: true
@@ -20,14 +21,14 @@ k3s_debug: false
 k3s_etcd_datastore: true
 
 # (bool) Allow the use of unsupported configurations in k3s
-k3s_use_unsupported_config: false
+k3s_use_unsupported_config: true
 
 # (string) Control Plane registration address
 k3s_registration_address: "{{ kubevip_address }}"
 
 # (list) A list of URLs to deploy on the primary control plane. Read notes below.
 k3s_server_manifests_urls:
-  - url: https://docs.projectcalico.org/archive/v3.21/manifests/tigera-operator.yaml
+  - url: https://docs.projectcalico.org/archive/v3.22/manifests/tigera-operator.yaml
     filename: tigera-operator.yaml
   - url: https://kube-vip.io/manifests/rbac.yaml
     filename: kube-vip-rbac.yaml

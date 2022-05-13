@@ -1,3 +1,4 @@
+---
 ignore: |
   *.sops.*
   gotk-components.yaml

@@ -5,6 +5,7 @@ resources:
   - bitnami-charts.yaml
   - deliveryhero-charts.yaml
   - descheduler-charts.yaml
+  - ealenn-charts.yaml
   - emberstack-charts.yaml
   - external-dns-charts.yaml
   - grafana-charts.yaml
@@ -12,6 +13,7 @@ resources:
   - infracloudio-charts.yaml
   - jetstack-charts.yaml
   - k8s-at-home-charts.yaml
+  - k8s-gateway-charts.yaml
   - metallb-charts.yaml
   - metrics-server-charts.yaml
   - minecraft-server-charts.yaml

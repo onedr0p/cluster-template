@@ -5,12 +5,24 @@
   "dependencyDashboardTitle": "Renovate Dashboard",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
+  "schedule": [
+    "every weekend"
+  ],
+  // set up ignored deps
+  "ignoreDeps": [
+    "ghcr.io/fluxcd/helm-controller",
+    "ghcr.io/fluxcd/image-automation-controller",
+    "ghcr.io/fluxcd/image-reflector-controller",
+    "ghcr.io/fluxcd/kustomize-controller",
+    "ghcr.io/fluxcd/notification-controller",
+    "ghcr.io/fluxcd/source-controller"
+  ],
+  "pre-commit": {
+    "enabled": true
+  },
   "flux": {
     "fileMatch": [
       "cluster/.+\\.ya?ml$"
-    ],
-    "ignorePaths": [
-      "cluster/.+/gotk-components\\.ya?ml$"
     ]
   },
   "helm-values": {
@@ -20,23 +32,24 @@
   },
   "kubernetes": {
     "fileMatch": [
-      "cluster/.+\\.ya?ml$"
-    ],
-    "ignorePaths": [
-      "cluster/.+/gotk-components\\.ya?ml$"
+      "cluster/.+\\.ya?ml$",
+      "provision/ansible/.+\\.ya?ml.j2$"
     ]
   },
   "regexManagers": [
-    // regexManager to read and process HelmRelease files
+    // Read and process GitHub Releases
     {
       "fileMatch": [
-        "cluster/.+\\.ya?ml$"
+        "cluster/.+\\.ya?ml$",
+        "provision/ansible/.+\\.ya?ml$"
       ],
       "matchStrings": [
-        // helm releases
-        "registryUrl=(?<registryUrl>.*?)\n *chart: (?<depName>.*?)\n *version: (?<currentValue>.*)\n"
+        "datasource=(?<datasource>.*?)( versioning=(?<versioning>.*?))?\n *url: https:\/\/github\\.com\/(?<depName>.*?)\\.git\n *ref:\n *tag: (?<currentValue>.*)\n",
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\n.*?_version: \"(?<currentValue>.*)\"\n",
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\n.*?_VERSION=\"(?<currentValue>.*)\"\n"
       ],
-      "datasourceTemplate": "helm"
+      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     },
     // regexManager to read and process cert-manager CRD's
     {

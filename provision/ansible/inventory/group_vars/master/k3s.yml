@@ -31,21 +31,27 @@ k3s_server:
   # Network CIDR to use for service IPs
   service-cidr: "10.43.0.0/16"
   kubelet-arg:
-    # Enables the kubelet to gracefully evict pods during a node shutdown
-    - "feature-gates=GracefulNodeShutdown=true"
     # Allow k8s services to contain TCP and UDP on the same port
     - "feature-gates=MixedProtocolLBService=true"
-  # Required to monitor kube-controller-manager with kube-prometheus-stack
   kube-controller-manager-arg:
+    # Allow k8s services to contain TCP and UDP on the same port
+    - "feature-gates=MixedProtocolLBService=true"
+    # Required to monitor kube-controller-manager with kube-prometheus-stack
     - "bind-address=0.0.0.0"
-  # Required to monitor kube-proxy with kube-prometheus-stack
   kube-proxy-arg:
+    # Allow k8s services to contain TCP and UDP on the same port
+    - "feature-gates=MixedProtocolLBService=true"
+    # Required to monitor kube-proxy with kube-prometheus-stack
     - "metrics-bind-address=0.0.0.0"
-  # Required to monitor kube-scheduler with kube-prometheus-stack
   kube-scheduler-arg:
+    # Allow k8s services to contain TCP and UDP on the same port
+    - "feature-gates=MixedProtocolLBService=true"
+    # Required to monitor kube-scheduler with kube-prometheus-stack
     - "bind-address=0.0.0.0"
   # Required to monitor etcd with kube-prometheus-stack
   etcd-expose-metrics: true
-  # Required for HAProxy health-checks
   kube-apiserver-arg:
+    # Allow k8s services to contain TCP and UDP on the same port
+    - "feature-gates=MixedProtocolLBService=true"
+    # Required for HAProxy health-checks
     - "anonymous-auth=true"

@@ -1,5 +1,5 @@
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta1
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
   name: traefik-crd-source
@@ -9,7 +9,7 @@ spec:
   url: https://github.com/traefik/traefik-helm-chart.git
   ref:
     # renovate: registryUrl=https://helm.traefik.io/traefik chart=traefik
-    tag: v10.13.0
+    tag: v10.19.5
   ignore: |
     # exclude all
     /*
@@ -22,7 +22,7 @@ metadata:
   name: traefik-crds
   namespace: flux-system
 spec:
-  interval: 15m
+  interval: 30m
   prune: false
   sourceRef:
     kind: GitRepository

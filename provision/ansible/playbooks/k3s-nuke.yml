@@ -21,7 +21,7 @@
         cmd: /usr/local/bin/k3s-agent-uninstall.sh
         removes: /usr/local/bin/k3s-agent-uninstall.sh
     - name: Gather list of CNI files to delete
-      find:
+      ansible.builtin.find:
         paths: /etc/cni/net.d
         patterns: "*"
       register: files_to_delete
