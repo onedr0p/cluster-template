@@ -471,7 +471,12 @@ Rancher's `local-path-provisioner` is a great start for storage but soon you mig
 
 Authenticating Flux to your git repository has a couple benefits like using a private git repository and/or using the Flux [Image Automation Controllers](https://fluxcd.io/docs/components/image/).
 
-📍 By default this template only works on a public GitHub repository, it is advised to keep your repository public and add a topic to your repository of `k8s-at-home` to be included in the [k8s-at-home-search](https://whazor.github.io/k8s-at-home-search/). This search helps people discover different configurations of Helm charts across others Flux based repositories.
+By default this template only works on a public GitHub repository, it is advised to keep your repository public.
+
+The benefits of a public repository include:
+
+* Debugging or asking for help, you can provide a link to a resource you are having issues with.
+* Adding a topic to your repository of `k8s-at-home` to be included in the [k8s-at-home-search](https://whazor.github.io/k8s-at-home-search/). This search helps people discover different configurations of Helm charts across others Flux based repositories.
 
 <details>
   <summary>Expand to read guide on adding Flux SSH authentication</summary>
