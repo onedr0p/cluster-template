@@ -535,7 +535,7 @@ Authenticating Flux to your git repository has a couple benefits like using a pr
       ```sh
       task cluster:gitrepositories
       ```
-  10. Set your repository to Private in your repository settings.
+  10. Optionally set your repository to Private in your repository settings.
 </details>
 
 ## 👉 Troubleshooting
