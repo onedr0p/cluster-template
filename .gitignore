@@ -9,6 +9,8 @@ kubeconfig
 .decrypted~*.yaml
 .config.env
 *.agekey
+*.pub
+*.key
 # Ansible
 xanmanning.k3s*
 # Terraform
