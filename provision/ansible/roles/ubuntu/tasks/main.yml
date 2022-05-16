@@ -23,6 +23,10 @@
   tags:
     - filesystem
 
+- include: unattended-upgrades.yml
+  tags:
+    - unattended-upgrades
+
 - include: user.yml
   tags:
     - user
