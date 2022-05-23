@@ -1,8 +1,4 @@
 ---
-- include: checks.yml
-  tags:
-    - checks
-
 - include: locale.yml
   tags:
     - locale
