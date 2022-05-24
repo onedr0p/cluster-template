@@ -11,10 +11,10 @@
         seconds: 5
   tasks:
     - name: Check if cluster is installed
+      check_mode: false
       ansible.builtin.stat:
         path: "/etc/rancher/k3s/config.yaml"
       register: k3s_check_installed
-      check_mode: false
 
     - name: Set manifest facts
       ansible.builtin.set_fact:
@@ -31,7 +31,9 @@
       delegate_to: localhost
       become: false
       run_once: true
-      ansible.builtin.command: "git rev-parse --show-toplevel"
+      check_mode: false
+      ansible.builtin.command: |-
+        git rev-parse --show-toplevel
       register: repo_abs_path
 
     - name: Copy kubeconfig to provision folder
@@ -54,23 +56,19 @@
         replace: "https://{{ k3s_registration_address }}:6443"
 
     - name: Wait for k3s to finish installing the deployed manifests
-      ansible.builtin.pause:
-        seconds: 15
+      ansible.builtin.wait_for:
+        timeout: 15
+      when: k3s_server_manifests_templates | length > 0
+        or k3s_server_manifests_dir | length > 0
 
     - name: Remove deployed manifest templates
       ansible.builtin.file:
         path: "{{ k3s_server_manifests_dir }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
         state: absent
-      loop: "{{ k3s_server_manifests_templates }}"
-      when:
-        - k3s_server_manifests_templates
-        - k3s_server_manifests_templates | length > 0
+      loop: "{{ k3s_server_manifests_templates | default([]) }}"
 
     - name: Remove deployed manifest urls
       ansible.builtin.file:
         path: "{{ k3s_server_manifests_dir }}/{{ item.filename }}"
         state: absent
-      loop: "{{ k3s_server_manifests_urls }}"
-      when:
-        - k3s_server_manifests_urls
-        - k3s_server_manifests_urls | length > 0
+      loop: "{{ k3s_server_manifests_urls | default([]) }}"
