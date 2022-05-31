@@ -43,6 +43,7 @@ tasks:
         jq
         kubernetes-cli
         kustomize
+        packer
         pre-commit
         prettier
         sops
