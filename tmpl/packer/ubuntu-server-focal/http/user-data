@@ -1,0 +1,36 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: us
+  ssh:
+    install-server: true
+    allow-pw: true
+    disable_root: true
+    ssh_quiet_keygen: true
+    allow_public_ssh_keys: true
+  packages:
+    - qemu-guest-agent
+    - sudo
+  late-commands:
+    - curtin in-target --target=/target -- systemctl start qemu-guest-agent
+    - curtin in-target --target=/target -- systemctl enable qemu-guest-agent
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
+  user-data:
+    package_upgrade: false
+    timezone: American/New_York
+    users:
+      - name: ubuntu
+        groups: [adm, sudo]
+        lock-passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        # passwd: your-password
+        # - or -
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCqCih42F1ypvB4fxgX8zAfR7CxLjynrXzxLFQnZVhkErDuxn12UMAvpplFqGjHhnP28EnXTa0w7r+qIVI1jNAjHG3KnbLRAnQSnoSRn5T/0c81wdMBDOfWxF2sQGihEu33HvqNOdMAd5u47dWj8SD/Jx5tV44qIfIb6BSTGT3bFst5kBWoPgPZSbES+RDrBL5YN8AUV6tGbbHP7Yv4xc1u/HndrC6TLFyxq3ntDTBXcet78QUdZQ0FIeQp5PWLCJRT698FTiZ5bxIGgME1W7bF371aJuNuevhKMyQl0lULem5w5bDBh2fX2uZffkfaCKpT7jzhfO47vLiJ7I8hBjkvDTz9vsEjGCU/Yu6BlQaIE75eD2ZeYE544J+dIlPQtx0DFPT70gpmJF6OkAPNrOXoWeXw2PzQ9C05T09vmNVxOeznLxt7TkqNW5Z3Wgqvezk/YUZjXlc23ke8y/vt4GOvwDZVAAl4b4ddUYRmHRtHxdhqRFA7j53dPZSPU4xrdlrvW4MjiK4x3u9SCWssDfDsm+JMjuAnYX6FRd2CyQJ4D/cvKxPWXwevJIGh4tZtDl0gchjEJyLhf9fHVuVlGaFRcApvs2QZ2g906JOnXWPD8RoKlToqjN/pZiYZmK9hZvPkD6faBkI+d08/gC1xJ3B08nl2nZZqCJmv28ufNNcedQ== dalekurt@lunarops.io

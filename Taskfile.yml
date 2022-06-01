@@ -6,12 +6,15 @@ vars:
     sh: "git rev-parse --show-toplevel"
   CLUSTER_DIR: "{{.PROJECT_DIR}}/cluster"
   ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
+  PACKER_DIR: "{{.PROJECT_DIR}}provision/packer"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
 
 dotenv: [".config.env"]
 
 env:
   KUBECONFIG: "{{.PROJECT_DIR}}/provision/kubeconfig"
+  PACKER_VARS_FILE: "{{.PROJECT_DIR}}/provision/vars.pkr.hcl"
+  PACKER_BUILD_TEMPLATE: "{{.PROJECT_DIR}}/provision/template.pkr.hcl"
 
 includes:
   ansible: .taskfiles/AnsibleTasks.yml
