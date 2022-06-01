@@ -56,6 +56,11 @@ main() {
             > "${PROJECT_DIR}/cluster/apps/networking/cloudflare-ddns/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/external-dns-secret.sops.yaml" \
             > "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
+        # generate packer template
+        envsubst < "${PROJECT_DIR}/tmpl/packer/vars.pkr.hcl" \
+            > "${PROJECT_DIR}/provision/packer/vars.pkr.hcl"
+        envsubst < "${PROJECT_DIR}/tmpl/packer/${BOOTSTRAP_PACKER_OS}/template.pkr.hcl" \
+            > "${PROJECT_DIR}/provision/packer/template.pkr.hcl"
         # encrypt cluster secrets
         sops --encrypt --in-place "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
@@ -73,6 +78,7 @@ main() {
         generate_ansible_hosts
         generate_ansible_host_secrets
         setup_github_webhook
+        setup_packer
         success
     fi
 }
@@ -299,6 +305,11 @@ setup_github_webhook() {
             yq --inplace '.resources += [ "flux-system" ]' "${PROJECT_DIR}/cluster/apps/kustomization.yaml"
         fi
     fi
+}
+
+setup_packer() {
+    cp -rf  "${PROJECT_DIR}/tmpl/packer/${PACKER_OS}/files" "${PROJECT_DIR}/provision/packer/files"
+    cp -rf  "${PROJECT_DIR}/tmpl/packer/${PACKER_OS}/http" "${PROJECT_DIR}/provision/packer/http"
 }
 
 verify_cloudflare() {

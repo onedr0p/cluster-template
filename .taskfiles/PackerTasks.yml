@@ -1,0 +1,19 @@
+---
+version: "3"
+
+vars:
+  PACKER_DIR: "{{.PACKER_DIR}}"
+  PACKER_VARS_FILE: "{{.PACKER_DIR}}/vars.pkr.hcl"
+  PACKER_BUILD_TEMPLATE: "{{.PACKER_DIR}}/template.pkr.hcl"
+
+tasks:
+
+  validate:
+    desc: Validate the syntax and configuration of a template.
+    cmds:
+      - packer validate --var-file='{{.PACKER_DIR}}/{{.PACKER_VARS_FILE}}' {{.PACKER_BUILD_TEMPLATE}}
+
+  build:
+    desc: Build artifacts using the template 
+    cmds:
+      - packer build --var-file='{{.PACKER_DIR}}/{{.PACKER_VARS_FILE}}' {{.PACKER_BUILD_TEMPLATE}}
