@@ -16,6 +16,53 @@ variable "proxmox_api_token_secret" {
     sensitive = true
 }
 
+variable "proxmox_build_os"{
+    type = string
+}
+
+variable "proxmox_node"{
+    type = string
+}
+
+variable "proxmox_vm_id"{
+    type = string
+}
+
+variable "proxmox_vm_desc"{
+    type = string
+}
+
+variable "proxmox_iso_file"{
+    type = string
+}
+
+variable "proxmox_iso_file"{
+    type = string
+}
+
+variable "proxmox_iso_storage_pool"{
+    type = string
+}
+
+variable "proxmox_cores"{
+    type = string
+}
+
+variable "proxmox_memory"{
+    type = string
+}
+
+variable "proxmox_host_bind_address"{
+    type = string
+}
+
+variable "proxmox_ssh_username"{
+    type = string
+}
+
+variable "proxmox_ssh_private_key"{
+    type = string
+}
 # Resource Definiation for the VM Template
 source "proxmox" "ubuntu-server-focal" {
  
@@ -27,19 +74,19 @@ source "proxmox" "ubuntu-server-focal" {
     insecure_skip_tls_verify = true
     
     # VM General Settings
-    node = "pve0"
-    vm_id = "102"
-    vm_name = "tmpl-ubuntu-server-focal"
-    template_description = "Ubuntu Server Focal Image"
+    node = "${var.proxmox_node}"
+    vm_id = "${var.proxmox_vm_id}"
+    vm_name = "${var.proxmox_vm_name}"
+    template_description = "${var.proxmox_desc}"
 
     # VM OS Settings
     # (Option 1) Local ISO File
-    iso_file = "local-nas:iso/ubuntu-20.04.4-live-server-amd64.iso"
+    iso_file = "${var.proxmox_iso_file}"
     # - or -
     # (Option 2) Download ISO
     # iso_url = "https://releases.ubuntu.com/20.04/ubuntu-20.04.4-live-server-amd64.iso"
     # iso_checksum = "28ccdb56450e643bad03bb7bcf7507ce3d8d90e8bf09e38f6bd9ac298a98eaad"
-    iso_storage_pool = "local-nas"
+    iso_storage_pool = "${var.proxmox_iso_storage_pool}"
     unmount_iso = true
 
     # VM System Settings
@@ -57,10 +104,10 @@ source "proxmox" "ubuntu-server-focal" {
     }
 
     # VM CPU Settings
-    cores = "2"
+    cores = "${var.proxmox_cores}"
     
     # VM Memory Settings
-    memory = "2048" 
+    memory = "${var.proxmox_memory}" 
 
     # VM Network Settings
     network_adapters {
@@ -89,17 +136,17 @@ source "proxmox" "ubuntu-server-focal" {
     http_directory = "http" 
     # (Optional) Bind IP Address and Port
     # http_bind_address = "0.0.0.0"
-    http_bind_address = "172.16.3.104"
+    http_bind_address = "${var.proxmox_http_bind_address}"
     http_port_min = 8802
     http_port_max = 8802
 
-    ssh_username = "ubuntu"
+    ssh_username = "${var.proxmox_ssh_username}"
 
     # (Option 1) Add your Password here
     # ssh_password = "your-password"
     # - or -
     # (Option 2) Add your Private SSH KEY file here
-    ssh_private_key_file = "~/.ssh/ubuntu"
+    ssh_private_key_file = "${var.proxmox_ssh_private_key_file}"
 
     # Raise the timeout, when installation takes longer
     ssh_timeout = "20m"
@@ -147,7 +194,7 @@ build {
     //     ]
     // }
 
-    # Provisioning the VM Template with Teleport
+    # Provisioning the VM Template with OpenTelemetry
     provisioner "shell" {
         inline = [
             "sudo apt-get -y install wget systemctl",
