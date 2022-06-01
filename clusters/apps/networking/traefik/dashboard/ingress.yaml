@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-dashboard
+  namespace: networking
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    hajimari.io/appName: "traefik"
+    hajimari.io/enable: "true"
+    hajimari.io/icon: "web"
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.middlewares: "networking-internal-only@kubernetescrd"
+spec:
+  ingressClassName: "traefik"
+  tls:
+    - hosts:
+        - "traefik.${SECRET_DOMAIN}"
+      secretName: "traefik-dashboard-tls"
+  rules:
+    - host: "traefik.${SECRET_DOMAIN}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: traefik
+                port:
+                  number: 9000

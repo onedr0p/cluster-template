@@ -1,0 +1,40 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: error-pages
+  namespace: networking
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: error-pages
+      version: 1.1.2
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home-charts
+        namespace: flux-system
+      interval: 5m
+  dependsOn:
+    - name: traefik
+      namespace: networking
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    image:
+      repository: ghcr.io/tarampampam/error-pages
+      tag: 2.15.0
+    env:
+      TEMPLATE_NAME: lost-in-space
+      SHOW_DETAILS: "false"
+    resources:
+      requests:
+        memory: 100Mi
+        cpu: 100m
+      limits:
+        memory: 250Mi

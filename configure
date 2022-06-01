@@ -41,31 +41,31 @@ main() {
         envsubst < "${PROJECT_DIR}/tmpl/.sops.yaml" \
             > "${PROJECT_DIR}/.sops.yaml"
         # generate cluster settings
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-settings.yaml" \
-            > "${PROJECT_DIR}/cluster/base/cluster-settings.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/gotk-sync.yaml" \
-            > "${PROJECT_DIR}/cluster/base/flux-system/gotk-sync.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
-            > "${PROJECT_DIR}/cluster/core/kube-system/kube-vip/daemon-set.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/cluster-settings.yaml" \
+            > "${PROJECT_DIR}/clusters/base/cluster-settings.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/gotk-sync.yaml" \
+            > "${PROJECT_DIR}/clusters/${BOOTSTRAP_CLUSTER_NAME}/flux-system/gotk-sync.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/kube-vip-daemonset.yaml" \
+            > "${PROJECT_DIR}/clusters/core/kube-system/kube-vip/daemon-set.yaml"
         # generate cluster secrets
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/cloudflare-ddns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/networking/cloudflare-ddns/secret.sops.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/external-dns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/cluster-secrets.sops.yaml" \
+            > "${PROJECT_DIR}/clusters/base/cluster-secrets.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/cert-manager-secret.sops.yaml" \
+            > "${PROJECT_DIR}/clusters/core/cert-manager/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/cloudflare-ddns-secret.sops.yaml" \
+            > "${PROJECT_DIR}/clusters/apps/networking/cloudflare-ddns/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/external-dns-secret.sops.yaml" \
+            > "${PROJECT_DIR}/clusters/apps/networking/external-dns/secret.sops.yaml"
         # generate packer template
         envsubst < "${PROJECT_DIR}/tmpl/packer/vars.pkr.hcl" \
             > "${PROJECT_DIR}/provision/packer/vars.pkr.hcl"
-        envsubst < "${PROJECT_DIR}/tmpl/packer/${BOOTSTRAP_PACKER_OS}/template.pkr.hcl" \
+        envsubst < "${PROJECT_DIR}/tmpl/packer/${BOOTSTRAP_PROXMOX_BUILD_OS}/template.pkr.hcl" \
             > "${PROJECT_DIR}/provision/packer/template.pkr.hcl"
         # encrypt cluster secrets
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/base/cluster-secrets.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/core/cert-manager/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/cloudflare-ddns/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/clusters/base/cluster-secrets.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/clusters/core/cert-manager/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/clusters/apps/networking/cloudflare-ddns/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/clusters/apps/networking/external-dns/secret.sops.yaml"
         # generate terraform secrets
         envsubst < "${PROJECT_DIR}/tmpl/terraform/secret.sops.yaml" \
             > "${PROJECT_DIR}/provision/terraform/cloudflare/secret.sops.yaml"
@@ -294,15 +294,15 @@ setup_github_webhook() {
         export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
         _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
 
-        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux-system" "${PROJECT_DIR}/cluster/apps/"
+        cp -rf  "${PROJECT_DIR}/tmpl/clusters/flux-system" "${PROJECT_DIR}/clusters/apps/"
 
         envsubst < "${PROJECT_DIR}/tmpl/cluster/flux-system/webhooks/github/secret.sops.yaml" \
             > "${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/secret.sops.yaml"
 
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/clusters/apps/flux-system/webhooks/github/secret.sops.yaml"
 
-        if [[ $(yq eval --no-doc 'contains({"resources": ["flux-system"]})' "${PROJECT_DIR}/cluster/apps/kustomization.yaml") == false ]]; then
-            yq --inplace '.resources += [ "flux-system" ]' "${PROJECT_DIR}/cluster/apps/kustomization.yaml"
+        if [[ $(yq eval --no-doc 'contains({"resources": ["flux-system"]})' "${PROJECT_DIR}/clusters/apps/kustomization.yaml") == false ]]; then
+            yq --inplace '.resources += [ "flux-system" ]' "${PROJECT_DIR}/clusters/apps/kustomization.yaml"
         fi
     fi
 }
