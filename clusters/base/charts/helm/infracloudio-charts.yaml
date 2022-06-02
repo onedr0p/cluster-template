@@ -1,0 +1,10 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: infracloudio-charts
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://infracloudio.github.io/charts
+  timeout: 3m

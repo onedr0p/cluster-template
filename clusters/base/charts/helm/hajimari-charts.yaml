@@ -1,0 +1,10 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: hajimari-charts
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://hajimari.io
+  timeout: 3m
