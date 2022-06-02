@@ -29,6 +29,8 @@ main() {
 
     if [[ "${verify}" == 1 ]]; then
         verify_ansible_hosts
+        verify_cluster
+        verify_packer
         verify_metallb
         verify_kubevip
         verify_addressing
@@ -308,8 +310,9 @@ setup_github_webhook() {
 }
 
 setup_packer() {
-    cp -rf  "${PROJECT_DIR}/tmpl/packer/${PACKER_OS}/files" "${PROJECT_DIR}/provision/packer/files"
-    cp -rf  "${PROJECT_DIR}/tmpl/packer/${PACKER_OS}/http" "${PROJECT_DIR}/provision/packer/http"
+    cp -rf  "${PROJECT_DIR}/tmpl/packer/config.pkr.hcl" "${PROJECT_DIR}/provision/packer/"
+    cp -rf  "${PROJECT_DIR}/tmpl/packer/${BOOTSTRAP_PROXMOX_BUILD_OS}/files" "${PROJECT_DIR}/provision/packer/"
+    cp -rf  "${PROJECT_DIR}/tmpl/packer/${BOOTSTRAP_PROXMOX_BUILD_OS}/http" "${PROJECT_DIR}/provision/packer/"
 }
 
 verify_cloudflare() {
@@ -386,6 +389,25 @@ verify_ansible_hosts() {
             exit 1
         fi
     done
+}
+
+verify_cluster() {
+    _has_envar "BOOTSTRAP_CLUSTER_NAME"
+}
+
+verify_packer() {
+    _has_envar "BOOTSTRAP_PROXMOX_BUILD_OS"
+    _has_envar "BOOTSTRAP_PROXMOX_NODE"
+    _has_envar "BOOTSTRAP_PROXMOX_VM_ID"
+    _has_envar "BOOTSTRAP_PROXMOX_VM_NAME"
+    _has_envar "BOOTSTRAP_PROXMOX_VM_DESC"
+    _has_envar "BOOTSTRAP_PROXMOX_ISO_FILE"
+    _has_envar "BOOTSTRAP_PROXMOX_ISO_STORAGE_POOL"
+    _has_envar "BOOTSTRAP_PROXMOX_CORES"
+    _has_envar "BOOTSTRAP_PROXMOX_MEMORY"
+    _has_envar "BOOTSTRAP_PROXMOX_HTTP_BIND_ADDRESS"
+    _has_envar "BOOTSTRAP_PROXMOX_SSH_USERNAME"
+    _has_envar "BOOTSTRAP_PROXMOX_SSH_PRIVATE_KEY_FILE"
 }
 
 verify_success() {
