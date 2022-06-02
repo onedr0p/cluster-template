@@ -16,10 +16,6 @@ variable "proxmox_api_token_secret" {
     sensitive = true
 }
 
-variable "proxmox_build_os"{
-    type = string
-}
-
 variable "proxmox_node"{
     type = string
 }
@@ -28,11 +24,11 @@ variable "proxmox_vm_id"{
     type = string
 }
 
-variable "proxmox_vm_desc"{
+variable "proxmox_vm_name"{
     type = string
 }
 
-variable "proxmox_iso_file"{
+variable "proxmox_vm_desc"{
     type = string
 }
 
@@ -52,7 +48,7 @@ variable "proxmox_memory"{
     type = string
 }
 
-variable "proxmox_host_bind_address"{
+variable "proxmox_http_bind_address"{
     type = string
 }
 
@@ -60,9 +56,10 @@ variable "proxmox_ssh_username"{
     type = string
 }
 
-variable "proxmox_ssh_private_key"{
+variable "proxmox_ssh_private_key_file"{
     type = string
 }
+
 # Resource Definiation for the VM Template
 source "proxmox" "ubuntu-server-focal" {
  
@@ -77,7 +74,7 @@ source "proxmox" "ubuntu-server-focal" {
     node = "${var.proxmox_node}"
     vm_id = "${var.proxmox_vm_id}"
     vm_name = "${var.proxmox_vm_name}"
-    template_description = "${var.proxmox_desc}"
+    template_description = "${var.proxmox_vm_desc}"
 
     # VM OS Settings
     # (Option 1) Local ISO File
@@ -195,22 +192,22 @@ build {
     // }
 
     # Provisioning the VM Template with OpenTelemetry
-    provisioner "shell" {
-        inline = [
-            "sudo apt-get -y install wget systemctl",
-            "wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.51.0/otelcol_0.51.0_linux_amd64.deb",
-            "sudo dpkg -i otelcol_0.51.0_linux_amd64.deb",
-        ]
-    }
+    // provisioner "shell" {
+    //     inline = [
+    //         "sudo apt-get -y --allow-remove-essential install wget systemctl",
+    //         "sudo wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.51.0/otelcol_0.51.0_linux_amd64.deb -P /tmp",
+    //         "sudo dpkg -i /tmp/otelcol_0.51.0_linux_amd64.deb",
+    //     ]
+    // }
 
     # Provisioning the VM Template with Falco
-    provisioner "shell" {
-        inline = [
-            "sudo curl -s https://falco.org/repo/falcosecurity-3672BA8F.asc | apt-key add -",
-            "echo \"deb https://download.falco.org/packages/deb stable main\" | tee -a /etc/apt/sources.list.d/falcosecurity.list",
-            "apt-get update -y",
-            "apt-get -y install linux-headers-$(uname -r)",
-            "apt-get install -y falco"
-        ]
-    }
+    // provisioner "shell" {
+    //     inline = [
+    //         "sudo curl -s https://falco.org/repo/falcosecurity-3672BA8F.asc | apt-key add -",
+    //         "echo \"deb https://download.falco.org/packages/deb stable main\" | sudo tee -a /etc/apt/sources.list.d/falcosecurity.list",
+    //         "sudo apt-get update -y",
+    //         "sudo apt-get -y install linux-headers-$(uname -r)",
+    //         "sudo apt-get install -y falco"
+    //     ]
+    // }
 }

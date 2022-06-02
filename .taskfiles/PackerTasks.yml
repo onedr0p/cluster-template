@@ -2,18 +2,26 @@
 version: "3"
 
 vars:
-  PACKER_DIR: "{{.PACKER_DIR}}"
-  PACKER_VARS_FILE: "{{.PACKER_DIR}}/vars.pkr.hcl"
-  PACKER_BUILD_TEMPLATE: "{{.PACKER_DIR}}/template.pkr.hcl"
+  PACKER_DIR: "{{.PROJECT_DIR}}/provision/packer"
+  PACKER_VARS_FILE: "vars.pkr.hcl"
+  PACKER_BUILD_TEMPLATE: "template.pkr.hcl"
 
 tasks:
 
+  init:
+    desc: Init
+    dir: provision/packer
+    cmds:
+      - packer init config.pkr.hcl
+
   validate:
     desc: Validate the syntax and configuration of a template.
+    dir: provision/packer
     cmds:
-      - packer validate --var-file='{{.PACKER_DIR}}/{{.PACKER_VARS_FILE}}' {{.PACKER_BUILD_TEMPLATE}}
+      - packer validate --var-file='{{.PACKER_VARS_FILE}}' {{.PACKER_BUILD_TEMPLATE}}
 
   build:
-    desc: Build artifacts using the template 
+    desc: Build artifacts using the template
+    dir: provision/packer
     cmds:
-      - packer build --var-file='{{.PACKER_DIR}}/{{.PACKER_VARS_FILE}}' {{.PACKER_BUILD_TEMPLATE}}
+      - packer build --var-file='{{.PACKER_VARS_FILE}}' {{.PACKER_BUILD_TEMPLATE}}

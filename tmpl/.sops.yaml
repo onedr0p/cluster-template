@@ -4,7 +4,7 @@ creation_rules:
     unencrypted_regex: "^(kind)$"
     age: >-
       ${BOOTSTRAP_AGE_PUBLIC_KEY}
-  - path_regex: cluster/.*\.ya?ml
+  - path_regex: clusters/.*\.ya?ml
     encrypted_regex: "^(data|stringData)$"
     age: >-
       ${BOOTSTRAP_AGE_PUBLIC_KEY}
