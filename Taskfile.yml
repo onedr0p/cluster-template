@@ -4,7 +4,7 @@ version: "3"
 vars:
   PROJECT_DIR:
     sh: "git rev-parse --show-toplevel"
-  CLUSTER_DIR: "{{.PROJECT_DIR}}/cluster"
+  CLUSTER_DIR: "{{.PROJECT_DIR}}/clusters"
   ANSIBLE_DIR: "{{.PROJECT_DIR}}/provision/ansible"
   PACKER_DIR: "{{.PROJECT_DIR}}provision/packer"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/provision/terraform"
@@ -15,6 +15,7 @@ env:
   KUBECONFIG: "{{.PROJECT_DIR}}/provision/kubeconfig"
   PACKER_VARS_FILE: "{{.PROJECT_DIR}}/provision/vars.pkr.hcl"
   PACKER_BUILD_TEMPLATE: "{{.PROJECT_DIR}}/provision/template.pkr.hcl"
+  CLUSTER_NAME: "{{.BOOTSTRAP_CLUSTER_NAME}}"
 
 includes:
   ansible: .taskfiles/AnsibleTasks.yml

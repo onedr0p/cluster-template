@@ -189,6 +189,16 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task configure
     ```
 
+## Building Proxmox VM Template with Packer
+
+```sh
+task packer:validate
+```
+
+```sh
+task packer:build
+```
+
 ### ⚡ Preparing Ubuntu with Ansible
 
 📍 Here we will be running a Ansible Playbook to prepare Ubuntu for running a Kubernetes cluster.
