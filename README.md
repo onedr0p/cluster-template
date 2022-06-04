@@ -102,21 +102,25 @@ The Git repository contains the following directories under `cluster` and are or
 ```
 cluster
 ├── apps
-│   ├── default
-│   ├── kube-system
-│   ├── networking
-│   └── system-upgrade
+│   ├── default
+│   ├── kube-system
+│   ├── networking
+│   └── system-upgrade
 ├── base
-│   └── flux-system
+│   └── charts
 ├── core
-│   ├── cert-manager
-│   ├── kube-system
-│   ├── metallb-system
-│   └── namespaces
-└── crds
-    ├── cert-manager
-    ├── system-upgrade-controller
-    └── traefik
+│   ├── cert-manager
+│   ├── kube-system
+│   ├── metallb-system
+│   └── namespaces
+├── crds
+│   ├── cert-manager
+│   ├── system-upgrade-controller
+│   └── traefik
+├── DEV-CLUSTER
+│    └── flux-system
+└── PROD-CLUSTER
+    └── flux-system
 ```
 
 ## 🚀 Lets go
@@ -189,11 +193,21 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task configure
     ```
 
-## Building Proxmox VM Template with Packer
+### 📦 Building Proxmox VM Template with Packer
+
+1. Install all required plugins
+
+```sh
+task packer:init
+```
+
+2. Validate the Packer template and variables
 
 ```sh
 task packer:validate
 ```
+
+3. Build Proxmox VM template
 
 ```sh
 task packer:build
