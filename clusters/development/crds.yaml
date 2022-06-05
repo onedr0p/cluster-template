@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./cluster/crds
+  path: ./clusters/crds
   prune: false
   sourceRef:
     kind: GitRepository

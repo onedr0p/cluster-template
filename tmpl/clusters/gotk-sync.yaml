@@ -17,7 +17,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./cluster/base
+  path: ./clusters/${BOOTSTRAP_CLUSTER_NAME}
   prune: true
   sourceRef:
     kind: GitRepository

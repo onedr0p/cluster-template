@@ -4,5 +4,5 @@ kind: Kustomization
 resources:
   - apps.yaml
   - base.yaml
+  - core.yaml
   - crds.yaml
-  - charts

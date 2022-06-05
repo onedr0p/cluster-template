@@ -10,7 +10,7 @@
     "prettier.configPath": ".github/linters/.prettierrc.yaml",
     "prettier.ignorePath": ".github/linters/.prettierignore",
     "yaml.schemas": {
-        "Kubernetes": "cluster/*.yaml"
+        "Kubernetes": "clusters/*.yaml"
     },
     "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs":"active",

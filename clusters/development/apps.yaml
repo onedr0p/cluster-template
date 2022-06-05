@@ -8,7 +8,7 @@ spec:
   interval: 10m0s
   dependsOn:
     - name: core
-  path: ./cluster/apps
+  path: ./clusters/apps
   prune: true
   sourceRef:
     kind: GitRepository

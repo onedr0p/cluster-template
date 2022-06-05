@@ -213,6 +213,11 @@ task packer:validate
 task packer:build
 ```
 
+### 🖥 Create Proxmox VMs
+
+Using Terraform to create Proxmox virtual machines to be used for the Kubernetes cluster.
+
+
 ### ⚡ Preparing Ubuntu with Ansible
 
 📍 Here we will be running a Ansible Playbook to prepare Ubuntu for running a Kubernetes cluster.

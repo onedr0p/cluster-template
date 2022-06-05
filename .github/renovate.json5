@@ -22,17 +22,17 @@
   },
   "flux": {
     "fileMatch": [
-      "cluster/.+\\.ya?ml$"
+      "clusters.+\\.ya?ml$"
     ]
   },
   "helm-values": {
     "fileMatch": [
-      "cluster/.+\\.ya?ml$"
+      "clusters.+\\.ya?ml$"
     ]
   },
   "kubernetes": {
     "fileMatch": [
-      "cluster/.+\\.ya?ml$",
+      "clusters.+\\.ya?ml$",
       "provision/ansible/.+\\.ya?ml.j2$"
     ]
   },
@@ -40,7 +40,7 @@
     // Read and process GitHub Releases
     {
       "fileMatch": [
-        "cluster/.+\\.ya?ml$",
+        "clusters.+\\.ya?ml$",
         "provision/ansible/.+\\.ya?ml$"
       ],
       "matchStrings": [
@@ -54,7 +54,7 @@
     // regexManager to read and process cert-manager CRD's
     {
       "fileMatch": [
-        "cluster/crds/cert-manager/.+\\.ya?ml$"
+        "clusterscrds/cert-manager/.+\\.ya?ml$"
       ],
       "matchStrings": [
         "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n.*\\/(?<currentValue>.*?)\\/"
@@ -64,7 +64,7 @@
     // regexManager to read and process Traefik CRD's
     {
       "fileMatch": [
-        "cluster/crds/traefik/.+\\.ya?ml$"
+        "clusterscrds/traefik/.+\\.ya?ml$"
       ],
       "matchStrings": [
         "registryUrl=(?<registryUrl>.*?) chart=(?<depName>.*?)\n *tag: v(?<currentValue>.*)\n"

@@ -244,6 +244,7 @@ verify_binaries() {
     _has_binary "helm"
     _has_binary "ipcalc"
     _has_binary "jq"
+    _has_binary "packer"
     _has_binary "yq"
     _has_binary "sops"
     _has_binary "ssh"
@@ -298,8 +299,8 @@ setup_github_webhook() {
 
         cp -rf  "${PROJECT_DIR}/tmpl/clusters/flux-system" "${PROJECT_DIR}/clusters/apps/"
 
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/flux-system/webhooks/github/secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/clusters/flux-system/webhooks/github/secret.sops.yaml" \
+            > "${PROJECT_DIR}/clusters/apps/flux-system/webhooks/github/secret.sops.yaml"
 
         sops --encrypt --in-place "${PROJECT_DIR}/clusters/apps/flux-system/webhooks/github/secret.sops.yaml"
 
