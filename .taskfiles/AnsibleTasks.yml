@@ -27,20 +27,21 @@ tasks:
     desc: Prepare all the k8s nodes for running k3s
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/ubuntu-prepare.yml
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yml
 
   install:
     desc: Install Kubernetes on the nodes
     dir: provision/ansible
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/k3s-install.yml
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yml
 
   nuke:
     desc: Uninstall Kubernetes on the nodes
     dir: provision/ansible
+    interactive: true
     cmds:
-      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/k3s-nuke.yml
-      - defer: ansible kubernetes -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml -a '/usr/bin/systemctl reboot' --become
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yml
+      - task: reboot
 
   ping:
     desc: Ping all the hosts
@@ -58,7 +59,7 @@ tasks:
     desc: Reboot all the k8s nodes
     dir: provision/ansible
     cmds:
-      - ansible kubernetes -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml -a '/usr/bin/systemctl reboot' --become
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yml
 
   poweroff:
     desc: Shutdown all the k8s nodes
