@@ -3,20 +3,18 @@ version: "3"
 
 tasks:
 
-  flux:verify:
+  verify:
     desc: Verify flux meets the prerequisites
     cmds:
       - flux check --pre
 
-  flux:namespace:
-    desc: Create the flux-system namespace
+  install:
+    desc: Install Flux into your cluster
     cmds:
-      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
-
-  flux:secret:
-    desc: Create the Age secret in the flux-system namespace
-    cmds:
+      - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/
       - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
+      - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/flux-system/
+      - task: reconcile
     preconditions:
       - sh: test -f {{.SOPS_AGE_KEY_FILE}}
         msg: |
@@ -24,15 +22,11 @@ tasks:
     vars:
       SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
 
-  flux:install:
-    desc: Install Flux into your cluster, run this again if it fails
-    cmds:
-      - kubectl apply -k {{.CLUSTER_DIR}}/base/flux-system
-
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
-      - flux reconcile source git flux-system {{.CLI_ARGS | default "-n flux-system"}}
+      - flux reconcile -n flux-system source git flux-cluster
+      - flux reconcile -n flux-system source kustomization flux-cluster
 
   nodes:
     desc: List all the nodes in your cluster

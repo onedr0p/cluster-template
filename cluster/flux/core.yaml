@@ -6,14 +6,15 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  dependsOn:
-    - name: charts
-    - name: crds
   path: ./cluster/core
   prune: false
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: flux-cluster
+  dependsOn:
+    - name: charts
+    - name: config
+    - name: crds
   decryption:
     provider: sops
     secretRef:
