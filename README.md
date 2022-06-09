@@ -6,14 +6,14 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 
 ## Overview
 
-- [Introduction](https://github.com/k8s-at-home/template-cluster-k3s#-introduction)
-- [Prerequisites](https://github.com/k8s-at-home/template-cluster-k3s#-prerequisites)
-- [Repository structure](https://github.com/k8s-at-home/template-cluster-k3s#-repository-structure)
-- [Lets go!](https://github.com/k8s-at-home/template-cluster-k3s#-lets-go)
-- [Post installation](https://github.com/k8s-at-home/template-cluster-k3s#-post-installation)
-- [Troubleshooting](https://github.com/k8s-at-home/template-cluster-k3s#-troubleshooting)
-- [What's next](https://github.com/k8s-at-home/template-cluster-k3s#-whats-next)
-- [Thanks](https://github.com/k8s-at-home/template-cluster-k3s#-thanks)
+- [Introduction](https://github.com/k8s-at-home/flux-cluster-template#-introduction)
+- [Prerequisites](https://github.com/k8s-at-home/flux-cluster-template#-prerequisites)
+- [Repository structure](https://github.com/k8s-at-home/flux-cluster-template#-repository-structure)
+- [Lets go!](https://github.com/k8s-at-home/flux-cluster-template#-lets-go)
+- [Post installation](https://github.com/k8s-at-home/flux-cluster-template#-post-installation)
+- [Troubleshooting](https://github.com/k8s-at-home/flux-cluster-template#-troubleshooting)
+- [What's next](https://github.com/k8s-at-home/flux-cluster-template#-whats-next)
+- [Thanks](https://github.com/k8s-at-home/flux-cluster-template#-thanks)
 
 ## 👋 Introduction
 
@@ -429,7 +429,7 @@ Once you have confirmed there are no issues requesting your certificates replace
 
 [Renovatebot](https://www.whitesourcesoftware.com/free-developer-tools/renovate/) will scan your repository and offer PRs when it finds dependencies out of date. Common dependencies it will discover and update are Flux, Ansible Galaxy Roles, Terraform Providers, Kubernetes Helm Charts, Kubernetes Container Images, Pre-commit hooks updates, and more!
 
-The base Renovate configuration provided in your repository can be view at [.github/renovate.json5](https://github.com/k8s-at-home/template-cluster-k3s/blob/main/.github/renovate.json5). If you notice this only runs on weekends and you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/) or simply remove it.
+The base Renovate configuration provided in your repository can be view at [.github/renovate.json5](https://github.com/k8s-at-home/flux-cluster-template/blob/main/.github/renovate.json5). If you notice this only runs on weekends and you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/) or simply remove it.
 
 To enable Renovate on your repository, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and choose your repository. Over time Renovate will create PRs for out-of-date dependencies it finds. Any merged PRs that are in the cluster directory Flux will deploy.
 
@@ -551,7 +551,7 @@ The benefits of a public repository include:
 
 ## 👉 Troubleshooting
 
-Our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) (WIP, contributions welcome) is a good place to start troubleshooting issues. If that doesn't cover your issue, come join and say Hi in our [Discord](https://discord.gg/k8s-at-home) server by starting a new thread in the #kubernetes support channel.
+Our [wiki](https://github.com/k8s-at-home/flux-cluster-template/wiki) (WIP, contributions welcome) is a good place to start troubleshooting issues. If that doesn't cover your issue, come join and say Hi in our [Discord](https://discord.gg/k8s-at-home) server by starting a new thread in the #kubernetes support channel.
 
 You may also open a issue on this GitHub repo or open a [discussion on GitHub](https://github.com/k8s-at-home/organization/discussions).
 
@@ -559,7 +559,7 @@ You may also open a issue on this GitHub repo or open a [discussion on GitHub](h
 
 The world is your cluster, see below for important things you could work on adding.
 
-Our Check out our [wiki](https://github.com/k8s-at-home/template-cluster-k3s/wiki) (WIP, contributions welcome) for more integrations!
+Our Check out our [wiki](https://github.com/k8s-at-home/flux-cluster-template/wiki) (WIP, contributions welcome) for more integrations!
 
 ## 🤝 Thanks
 
