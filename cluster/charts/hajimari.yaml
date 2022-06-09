@@ -5,6 +5,5 @@ metadata:
   name: hajimari
   namespace: flux-system
 spec:
-  interval: 30m
+  interval: 1h
   url: https://hajimari.io
-  timeout: 3m
