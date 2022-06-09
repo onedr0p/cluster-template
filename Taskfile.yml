@@ -36,7 +36,6 @@ tasks:
         ansible
         direnv
         fluxcd/tap/flux
-        gitleaks
         go-task/tap/go-task
         helm
         ipcalc
