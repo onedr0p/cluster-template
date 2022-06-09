@@ -12,7 +12,7 @@ spec:
       version: 1.9.0
       sourceRef:
         kind: HelmRepository
-        name: external-dns-charts
+        name: external-dns
         namespace: flux-system
       interval: 5m
   install:

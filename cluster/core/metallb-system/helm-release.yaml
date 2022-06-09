@@ -12,7 +12,7 @@ spec:
       version: 0.12.1
       sourceRef:
         kind: HelmRepository
-        name: metallb-charts
+        name: metallb
         namespace: flux-system
   install:
     createNamespace: true

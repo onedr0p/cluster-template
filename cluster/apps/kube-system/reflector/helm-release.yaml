@@ -12,7 +12,7 @@ spec:
       version: 6.1.47
       sourceRef:
         kind: HelmRepository
-        name: emberstack-charts
+        name: emberstack
         namespace: flux-system
       interval: 5m
   install:
