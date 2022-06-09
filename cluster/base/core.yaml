@@ -5,8 +5,9 @@ metadata:
   name: core
   namespace: flux-system
 spec:
-  interval: 10m0s
+  interval: 10m
   dependsOn:
+    - name: charts
     - name: crds
   path: ./cluster/core
   prune: false
@@ -18,7 +19,6 @@ spec:
     secretRef:
       name: sops-age
   postBuild:
-    substitute: {}
     substituteFrom:
       - kind: ConfigMap
         name: cluster-settings

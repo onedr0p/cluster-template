@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - bitnami.yaml
+  - ealenn.yaml
+  - emberstack.yaml
+  - external-dns.yaml
+  - hajimari.yaml
+  - jetstack.yaml
+  - k8s-at-home.yaml
+  - k8s-gateway.yaml
+  - metallb.yaml
+  - metrics-server.yaml
+  - stakater.yaml
+  - traefik.yaml
+  - weaveworks-kured.yaml
