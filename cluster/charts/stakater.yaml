@@ -6,4 +6,4 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1h
-  url: https://stakater.github.io/stakater
+  url: https://stakater.github.io/stakater-charts
