@@ -26,7 +26,7 @@ tasks:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
       - flux reconcile -n flux-system source git flux-cluster
-      - flux reconcile -n flux-system source kustomization flux-cluster
+      - flux reconcile -n flux-system kustomization flux-cluster
 
   nodes:
     desc: List all the nodes in your cluster
