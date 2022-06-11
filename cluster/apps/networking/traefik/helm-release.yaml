@@ -34,7 +34,7 @@ spec:
       type: LoadBalancer
       annotations:
         metallb.universe.tf/loadBalancerIPs: |-
-          "${METALLB_TRAEFIK_ADDR}"
+          ${METALLB_TRAEFIK_ADDR}
       spec:
         externalTrafficPolicy: Local
     logs:
