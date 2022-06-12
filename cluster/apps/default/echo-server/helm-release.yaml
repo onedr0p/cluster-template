@@ -67,14 +67,14 @@ spec:
       main:
         enabled: true
         ingressClassName: "traefik"
-      annotations:
-        cert-manager.io/cluster-issuer: "letsencrypt-staging"
-        external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
-        external-dns/is-public: "true"
-        hajimari.io/enable: "true"
-        hajimari.io/icon: "video-input-antenna"
-        traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-        traefik.ingress.kubernetes.io/router.middlewares: "networking-cloudflare-only@kubernetescrd"
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-staging"
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "video-input-antenna"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-cloudflare-only@kubernetescrd"
         hosts:
           - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
             paths:
