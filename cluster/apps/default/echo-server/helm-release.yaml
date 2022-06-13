@@ -83,6 +83,7 @@ spec:
         tls:
           - hosts:
               - *host
+            secretName: "echo-server-tls"
     # # FIXME: Uncomment this block to ensure multiple
     # # replicas of the pod are scheduled on different nodes
     # topologySpreadConstraints:
