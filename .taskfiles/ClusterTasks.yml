@@ -64,6 +64,11 @@ tasks:
       - kubectl get certificates {{.CLI_ARGS | default "-A"}}
       - kubectl get certificaterequests {{.CLI_ARGS | default "-A"}}
 
+  ingresses:
+    desc: List all the helmreleases in your cluster
+    cmds:
+      - kubectl get ingress {{.CLI_ARGS | default "-A"}}
+
   resources:
     desc: Gather common resources in your cluster, useful when asking for support
     cmds:
@@ -73,4 +78,5 @@ tasks:
       - task: helmrepositories
       - task: gitrepositories
       - task: certificates
+      - task: ingresses
       - task: pods

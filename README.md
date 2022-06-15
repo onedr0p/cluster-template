@@ -364,6 +364,12 @@ task cluster:resources
     task cluster:certificates
     ```
 
+7. View all the ingresses
+
+    ```sh
+    task cluster:ingresses
+    ```
+
 🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
 
 ☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
@@ -459,7 +465,7 @@ The benefits of a public repository include:
       ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./cluster/github-deploy-key -q -P ""
       ```
   2. Paste public key in the deploy keys section of your repository settings
-  3. Create sops secret in `cluster/base/flux-system/github-deploy-key.sops.yaml` with the contents of:
+  3. Create sops secret in `cluster/flux/flux-system/github-deploy-key.sops.yaml` with the contents of:
       ```yaml
       # yamllint disable
       apiVersion: v1
@@ -481,19 +487,19 @@ The benefits of a public repository include:
       ```
   4. Encrypt secret:
       ```sh
-      sops --encrypt --in-place ./cluster/base/flux-system/github-deploy-key.sops.yaml
+      sops --encrypt --in-place ./cluster/flux/flux-system/github-deploy-key.sops.yaml
       ```
   5. Apply secret to cluster:
       ```sh
-      sops --decrypt cluster/base/flux-system/github-deploy-key.sops.yaml | kubectl apply -f -
+      sops --decrypt cluster/flux/flux-system/github-deploy-key.sops.yaml | kubectl apply -f -
       ```
-  6.  Update `cluster/base/flux-system/gotk-sync.yaml`:
+  6.  Update `cluster/flux/flux-system/flux-cluster.yaml`:
       ```yaml
       ---
       apiVersion: source.toolkit.fluxcd.io/v1beta2
       kind: GitRepository
       metadata:
-        name: flux-installation
+        name: flux-cluster
         namespace: flux-system
       spec:
         interval: 10m
