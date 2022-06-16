@@ -4,3 +4,6 @@ kind: Kustomization
 resources:
   - rbac.yaml
   - daemon-set.yaml
+labels:
+  - pairs:
+      kustomize.toolkit.fluxcd.io/prune: disabled

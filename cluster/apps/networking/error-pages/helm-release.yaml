@@ -15,9 +15,6 @@ spec:
         name: k8s-at-home
         namespace: flux-system
       interval: 5m
-  dependsOn:
-    - name: traefik
-      namespace: networking
   install:
     createNamespace: true
     remediation:
@@ -25,6 +22,9 @@ spec:
   upgrade:
     remediation:
       retries: 3
+  dependsOn:
+    - name: traefik
+      namespace: networking
   values:
     image:
       repository: ghcr.io/tarampampam/error-pages

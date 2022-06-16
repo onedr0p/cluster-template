@@ -17,11 +17,16 @@ spec:
       interval: 5m
   install:
     createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
   values:
     global:
       nameOverride: *app
     controller:
-      replicas: 2
+      replicas: 1
       strategy: RollingUpdate
     image:
       repository: docker.io/jmalloc/echo-server
@@ -84,15 +89,6 @@ spec:
           - hosts:
               - *host
             secretName: "echo-server-tls"
-    # # FIXME: Uncomment this block to ensure multiple
-    # # replicas of the pod are scheduled on different nodes
-    # topologySpreadConstraints:
-    #   - maxSkew: 1
-    #     topologyKey: kubernetes.io/hostname
-    #     whenUnsatisfiable: DoNotSchedule
-    #     labelSelector:
-    #       matchLabels:
-    #         app.kubernetes.io/name: *app
     resources:
       requests:
         cpu: 50m
