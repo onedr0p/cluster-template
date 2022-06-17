@@ -23,7 +23,7 @@ spec:
     remediation:
       retries: 5
   values:
-    interval: 15m
+    interval: 5m
     logLevel: debug
     provider: cloudflare
     env:
