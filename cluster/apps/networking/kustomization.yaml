@@ -6,5 +6,6 @@ resources:
   - error-pages
   - cloudflare-ddns
   - external-dns
+  - metallb
   - k8s-gateway
   - traefik
