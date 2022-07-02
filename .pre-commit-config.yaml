@@ -11,10 +11,11 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
     hooks:
-      - id: trailing-whitespace
-        args: [--markdown-linebreak-ext=md]
+      - id: check-merge-conflict
       - id: end-of-file-fixer
       - id: mixed-line-ending
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.2.0
     hooks:
@@ -28,3 +29,9 @@ repos:
     rev: v2.1.1
     hooks:
       - id: forbid-secrets
+  - repo: https://github.com/gruntwork-io/pre-commit
+    rev: v0.1.17
+    hooks:
+      - id: terraform-fmt
+      - id: terraform-validate
+      - id: tflint
