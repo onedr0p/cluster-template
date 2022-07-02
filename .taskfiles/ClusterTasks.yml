@@ -49,12 +49,12 @@ tasks:
       - kubectl get helmreleases {{.CLI_ARGS | default "-A"}}
 
   helmrepositories:
-    desc: List all the helmreleases in your cluster
+    desc: List all the helmrepositories in your cluster
     cmds:
       - kubectl get helmrepositories {{.CLI_ARGS | default "-A"}}
 
   gitrepositories:
-    desc: List all the helmreleases in your cluster
+    desc: List all the gitrepositories in your cluster
     cmds:
       - kubectl get gitrepositories {{.CLI_ARGS | default "-A"}}
 
@@ -65,7 +65,7 @@ tasks:
       - kubectl get certificaterequests {{.CLI_ARGS | default "-A"}}
 
   ingresses:
-    desc: List all the helmreleases in your cluster
+    desc: List all the ingresses in your cluster
     cmds:
       - kubectl get ingress {{.CLI_ARGS | default "-A"}}
 
