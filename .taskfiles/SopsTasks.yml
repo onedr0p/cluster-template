@@ -1,0 +1,14 @@
+---
+version: "3"
+
+tasks:
+
+  encrypt:
+    desc: encrypt sops file 'to use must include -- before path to file.' eg "task sops:encrypt -- file.yml"
+    cmds:
+      - sops --encrypt --in-place {{.CLI_ARGS}}
+
+  decrypt:
+    desc: decrypt sops file 'to use must include -- before path to file.'  eg "task sops:decrypt -- file.yml"
+    cmds:
+      - sops --decrypt --in-place {{.CLI_ARGS}}
