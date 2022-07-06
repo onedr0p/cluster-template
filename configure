@@ -45,8 +45,10 @@ main() {
             > "${PROJECT_DIR}/cluster/config/cluster-settings.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/flux-cluster.yaml" \
             > "${PROJECT_DIR}/cluster/flux/flux-system/flux-cluster.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/kube-system/kube-vip/daemon-set.yaml"
+        if [[ "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
+            envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
+                > "${PROJECT_DIR}/cluster/apps/kube-system/kube-vip/daemon-set.yaml"
+	fi
         # generate cluster secrets
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/cluster/config/cluster-secrets.sops.yaml"
@@ -353,7 +355,7 @@ verify_ansible_hosts() {
         _has_envar "${node_control}"
         _has_optional_envar "${node_hostname}"
 
-        if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
+        if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" && "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
             _log "ERROR" "The kube-vip IP '${BOOTSTRAP_KUBE_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
