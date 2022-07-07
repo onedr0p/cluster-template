@@ -5,5 +5,6 @@ resources:
   - namespace.yaml
   - cloudflare-ddns
   - external-dns
+  - ingress-nginx
   - metallb
   - k8s-gateway
