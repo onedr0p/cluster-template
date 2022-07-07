@@ -48,7 +48,7 @@ main() {
         if [[ "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
             envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
                 > "${PROJECT_DIR}/cluster/apps/kube-system/kube-vip/daemon-set.yaml"
-	fi
+        fi
         # generate cluster secrets
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/cluster/config/cluster-secrets.sops.yaml"
@@ -83,7 +83,7 @@ main() {
                 yq --inplace '.k3s_server_manifests_urls += [{"url": "https://kube-vip.io/manifests/rbac.yaml", "filename": "kube-vip-rbac.yaml"}]' "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/k3s.yml"
             fi
         fi
-	# generate ansible hosts file and secrets
+        # generate ansible hosts file and secrets
         generate_ansible_hosts
         generate_ansible_host_secrets
         setup_github_webhook
@@ -157,7 +157,7 @@ _has_valid_ip() {
 verify_addressing() {
     local found_kube_vip="false"
     local found_k8s_gateway="false"
-    local found_traefik="false"
+    local found_ingress="false"
 
     # Verify the metallb min and metallb ceiling are in the same network
     metallb_subnet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
@@ -194,8 +194,8 @@ verify_addressing() {
         if [[ "${addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
             found_k8s_gateway="true"
         fi
-        if [[ "${addr}" == "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" ]]; then
-            found_traefik="true"
+        if [[ "${addr}" == "${BOOTSTRAP_METALLB_INGRESS_ADDR}" ]]; then
+            found_ingress="true"
         fi
 
         for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
@@ -216,8 +216,8 @@ verify_addressing() {
         exit 1
     fi
 
-    if [[ "${found_traefik}" == "false" ]]; then
-        _log "ERROR" "The IP for traefik '${BOOTSTRAP_METALLB_TRAEFIK_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+    if [[ "${found_ingress}" == "false" ]]; then
+        _log "ERROR" "The IP for ingress '${BOOTSTRAP_METALLB_INGRESS_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
 }
@@ -267,7 +267,7 @@ verify_metallb() {
     local ip_ceil=
     _has_envar "BOOTSTRAP_METALLB_LB_RANGE"
     _has_envar "BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR"
-    _has_envar "BOOTSTRAP_METALLB_TRAEFIK_ADDR"
+    _has_envar "BOOTSTRAP_METALLB_INGRESS_ADDR"
 
     ip_floor=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1)
     ip_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2)
@@ -275,7 +275,7 @@ verify_metallb() {
     _has_valid_ip "${ip_floor}" "BOOTSTRAP_METALLB_LB_RANGE"
     _has_valid_ip "${ip_ceil}" "BOOTSTRAP_METALLB_LB_RANGE"
     _has_valid_ip "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" "BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR"
-    _has_valid_ip "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" "BOOTSTRAP_METALLB_TRAEFIK_ADDR"
+    _has_valid_ip "${BOOTSTRAP_METALLB_INGRESS_ADDR}" "BOOTSTRAP_METALLB_INGRESS_ADDR"
 }
 
 verify_git_repository() {
@@ -377,8 +377,8 @@ verify_ansible_hosts() {
             exit 1
         fi
 
-        if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_TRAEFIK_ADDR}" ]]; then
-            _log "ERROR" "The traefik load balancer IP '${BOOTSTRAP_METALLB_TRAEFIK_ADDR}' should not be the same as the IP for node '${!node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_INGRESS_ADDR}" ]]; then
+            _log "ERROR" "The ingress load balancer IP '${BOOTSTRAP_METALLB_INGRESS_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
 

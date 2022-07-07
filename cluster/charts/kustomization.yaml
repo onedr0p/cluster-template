@@ -5,11 +5,11 @@ resources:
   - emberstack.yaml
   - external-dns.yaml
   - hajimari.yaml
+  - ingress-nginx.yaml
   - jetstack.yaml
   - k8s-at-home.yaml
   - k8s-gateway.yaml
   - metallb.yaml
   - metrics-server.yaml
   - stakater.yaml
-  - traefik.yaml
   - weaveworks-kured.yaml

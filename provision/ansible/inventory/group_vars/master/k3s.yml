@@ -17,7 +17,7 @@ k3s_server:
   disable:
     # Disable flannel - replaced with Calico
     - flannel
-    # Disable traefik - installed with Flux
+    # Disable traefik - replaced with ingress-nginx
     - traefik
     # Disable servicelb - replaced with metallb and install with Flux
     - servicelb
