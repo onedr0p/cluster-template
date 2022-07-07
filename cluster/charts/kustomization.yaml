@@ -11,5 +11,4 @@ resources:
   - metallb.yaml
   - metrics-server.yaml
   - stakater.yaml
-  - traefik.yaml
   - weaveworks-kured.yaml
