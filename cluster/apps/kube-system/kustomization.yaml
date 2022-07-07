@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - cert-manager
-  - kube-vip
   # - kured
   - metrics-server
   - reflector
