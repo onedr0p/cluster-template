@@ -33,8 +33,8 @@ _Additional applications include [hajimari](https://github.com/toboshii/hajimari
 
 For provisioning the following tools will be used:
 
-- [Ubuntu](https://ubuntu.com/download/server) - Universal operating system that supports running all kinds of home related workloads in Kubernetes
-- [Ansible](https://www.ansible.com) - Provision the Ubuntu OS and install k3s
+- [Fedora 36 Server](https://getfedora.org/en/server/download/) - Universal operating system that supports running all kinds of home related workloads in Kubernetes and has a faster release cycle
+- [Ansible](https://www.ansible.com) - Provision Fedora Server and install k3s
 - [Terraform](https://www.terraform.io) - Provision an already existing Cloudflare domain and certain DNS records to be used with your k3s cluster
 
 ## 📝 Prerequisites
@@ -43,7 +43,7 @@ For provisioning the following tools will be used:
 
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Ubuntu Server 22.04](https://ubuntu.com/download/server).
+- One or more nodes with a fresh install of [Fedora Server 36](https://getfedora.org/en/server/download/).
   - These nodes can be ARM64/AMD64 bare metal or VMs.
   - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform and external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
@@ -174,11 +174,11 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task configure
     ```
 
-### ⚡ Preparing Ubuntu with Ansible
+### ⚡ Preparing Fedora Server with Ansible
 
-📍 Here we will be running a Ansible Playbook to prepare Ubuntu for running a Kubernetes cluster.
+📍 Here we will be running a Ansible Playbook to prepare Fedora Server for running a Kubernetes cluster.
 
-📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if it supports Ubuntu 22.04.
+📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if it supports Fedora Server.
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. This is how Ansible is able to connect to your remote nodes.
 
@@ -202,7 +202,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task ansible:ping
     ```
 
-5. Run the Ubuntu Prepare Ansible playbook
+5. Run the Fedora Server Ansible prepare playbook
 
     ```sh
     task ansible:prepare
