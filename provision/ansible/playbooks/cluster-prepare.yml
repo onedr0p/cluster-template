@@ -112,6 +112,7 @@
         - name: System Configuration (2) | Permissive SELinux
           ansible.posix.selinux:
             state: permissive
+            policy: targeted
       notify: Reboot
 
   handlers:
