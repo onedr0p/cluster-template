@@ -25,7 +25,7 @@
             path: /etc/hosts
             block: |
               127.0.1.1   {{ inventory_hostname }}
-    - name: Packages
+    - name: Packages | Fedora
       block:
         - name: Packages | Install required packages
           ansible.builtin.dnf:
@@ -35,6 +35,16 @@
         - name: Packages | Remove leaf packages
           ansible.builtin.dnf:
             autoremove: true
+      when: ansible_facts['distribution'] == 'Fedora'
+    - name: Packages | Ubuntu
+      block:
+        - name: Packages | Ensure the cache is updated
+          ansible.builtin.apt:
+            update_cache: yes
+        - name: Packages | Ensure the packages are updated
+          ansible.builtin.apt:
+            upgrade: dist
+      when: ansible_facts['distribution'] == 'Ubuntu'
     - name: User Configuration
       block:
         - name: User Configuration | Add additional SSH public keys
