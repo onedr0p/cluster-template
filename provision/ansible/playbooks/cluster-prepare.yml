@@ -25,7 +25,7 @@
             path: /etc/hosts
             block: |
               127.0.1.1   {{ inventory_hostname }}
-    - name: Packages
+    - name: Packages | Fedora
       block:
         - name: Packages | Improve dnf performance
           ansible.builtin.blockinfile:
@@ -55,6 +55,20 @@
             service: dnf-automatic-download.timer
             enabled: true
             state: started
+      when: ansible_facts['distribution'] == 'Fedora'
+      tags: packages
+    - name: Packages | Ubuntu
+      block:
+        - name: Packages | Ensure the cache is updated
+          ansible.builtin.apt:
+            update_cache: yes
+          tags: update
+        - name: Packages | Ensure the packages are updated
+          ansible.builtin.apt:
+            upgrade: dist
+          tags: upgrade
+      when: ansible_facts['distribution'] == 'Ubuntu'
+      tags: packages
     - name: User Configuration
       block:
         - name: User Configuration | Add additional SSH public keys
