@@ -29,3 +29,14 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-installation
+  patches:
+    - target:
+        group: networking.k8s.io
+        version: v1
+        kind: NetworkPolicy
+      patch: |-
+        $patch: delete
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        metadata:
+          name: not-used
