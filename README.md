@@ -218,7 +218,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./provision/kubeconfig` for use with interacting with your cluster with `kubectl`.
 -Note: kubectl defaults to $HOME/.kube/config to find a kubeconfig and then references $KUBECONFIG otherwise if it can't find it.
---You must either copy kubeconfig into $HOME/.kube/config OR use [direnv](https://github.com/direnv/direnv) to source this project's .envrc file which sets $KUBECONFIG
+--You must either copy kubeconfig into $HOME/.kube/config OR use the recommended [direnv](https://github.com/direnv/direnv) to source this project's .envrc file which sets $KUBECONFIG
 
 ☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
 
