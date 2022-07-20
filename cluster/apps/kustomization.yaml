@@ -6,4 +6,4 @@ resources:
   - flux-system
   - kube-system
   - networking
-  # - system-upgrade
+  - system-upgrade
