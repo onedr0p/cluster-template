@@ -28,4 +28,5 @@ spec:
       endTime: "2am"
       logFormat: "json"
       timeZone: "${TIMEZONE}"
-      rebootSentinelCommand: 'sh -c "! needs-restarting --reboothint"'
+      rebootSentinelCommand: |-
+        sh -c "! needs-restarting --reboothint"
