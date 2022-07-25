@@ -24,9 +24,8 @@ spec:
       retries: 5
   values:
     configuration:
-      annotateNodes: true
       startTime: "10pm"
       endTime: "2am"
       logFormat: "json"
-      rebootCommand: "/bin/systemctl reboot"
       timeZone: "${TIMEZONE}"
+      rebootSentinelCommand: 'sh -c "! needs-restarting --reboothint"'
