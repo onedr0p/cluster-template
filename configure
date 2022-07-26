@@ -255,6 +255,7 @@ verify_binaries() {
     _has_binary "ssh"
     _has_binary "task"
     _has_binary "terraform"
+    _has_binary "tflint"
 }
 
 verify_kubevip() {
