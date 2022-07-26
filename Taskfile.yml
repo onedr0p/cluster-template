@@ -48,6 +48,7 @@ tasks:
         sops
         stern
         terraform
+        tflint
         yamllint
         yq
 
