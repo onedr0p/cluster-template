@@ -54,7 +54,6 @@ jobs:
           ANSIBLE_ANSIBLE_LINT_CONFIG_FILE: .github/linters/.ansible-lint
           KUBERNETES_DIRECTORY: cluster
           KUBERNETES_KUBEVAL_ARGUMENTS: --ignore-missing-schemas
-          KUBERNETES_KUBEVAL_FILTER_REGEX_INCLUDE: "(kubernetes)"
           MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .github/linters/.markdownlint.yaml
           MARKDOWN_MARKDOWNLINT_RULES_PATH: .github/
           YAML_YAMLLINT_CONFIG_FILE: .github/linters/.yamllint.yaml
