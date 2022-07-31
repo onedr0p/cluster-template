@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: kured
-      version: 2.17.0
+      version: 3.0.0
       sourceRef:
         kind: HelmRepository
         name: weaveworks-kured
