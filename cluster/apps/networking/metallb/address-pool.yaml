@@ -3,7 +3,7 @@ apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
   name: default
-  namespace: metallb-system
+  namespace: networking
 spec:
   addresses:
     - "${METALLB_LB_RANGE}"
@@ -12,7 +12,7 @@ apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: default
-  namespace: metallb-system
+  namespace: networking
 spec:
   ipAddressPools:
     - default
