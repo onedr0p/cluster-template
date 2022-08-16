@@ -470,6 +470,7 @@ The benefits of a public repository include:
       ```
   2. Paste public key in the deploy keys section of your repository settings
   3. Create sops secret in `cluster/flux/flux-system/github-deploy-key.sops.yaml` with the contents of:
+      <!-- secretlint-disable -->
       ```yaml
       # yamllint disable
       apiVersion: v1
@@ -489,6 +490,7 @@ The benefits of a public repository include:
               github.com ecdsa-sha2-nistp256 ...
               github.com ssh-rsa ...
       ```
+      <!-- secretlint-enable -->
   4. Encrypt secret:
       ```sh
       sops --encrypt --in-place ./cluster/flux/flux-system/github-deploy-key.sops.yaml
