@@ -490,7 +490,6 @@ The benefits of a public repository include:
               github.com ecdsa-sha2-nistp256 ...
               github.com ssh-rsa ...
       ```
-      <!-- secretlint-enable -->
   4. Encrypt secret:
       ```sh
       sops --encrypt --in-place ./cluster/flux/flux-system/github-deploy-key.sops.yaml
