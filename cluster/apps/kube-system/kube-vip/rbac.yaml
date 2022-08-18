@@ -14,7 +14,7 @@ metadata:
   name: kube-vip
   namespace: kube-system
   annotations:
-    kubernetes.io/service-account-name: kube-vip
+    kubernetes.io/service-account.name: kube-vip
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
