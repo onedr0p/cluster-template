@@ -514,16 +514,20 @@ The benefits of a public repository include:
         secretRef:
           name: github-deploy-key
       ```
-  7. Commit and push changes
-  8. Force flux to reconcile your changes
+  7. Remove the files `cluster/github-deploy-key` and `cluster\github-deploy-key.pub` to prevent the private key from being pushed to your repository.
+      ```sh
+      rm ./cluster/github-deploy-key*
+      ```
+  8. Commit and push changes
+  9. Force flux to reconcile your changes
      ```sh
      task cluster:reconcile
      ```
-  9. Verify git repository is now using SSH:
+  10. Verify git repository is now using SSH:
       ```sh
       task cluster:gitrepositories
       ```
-  10. Optionally set your repository to Private in your repository settings.
+  11. Optionally set your repository to Private in your repository settings.
 </details>
 
 ## 👉 Troubleshooting
