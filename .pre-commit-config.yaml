@@ -16,11 +16,11 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.3.1
-    hooks:
-      - id: remove-crlf
-      - id: remove-tabs
+  # - repo: https://github.com/Lucas-C/pre-commit-hooks
+  #   rev: v1.3.1
+  #   hooks:
+  #     - id: remove-crlf
+  #     - id: remove-tabs
   - repo: https://github.com/sirosen/texthooks
     rev: 0.4.0
     hooks:

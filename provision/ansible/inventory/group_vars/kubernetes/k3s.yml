@@ -7,31 +7,26 @@
 # (string) Use a specific version of k3s
 # renovate: datasource=github-releases depName=k3s-io/k3s
 k3s_release_version: "v1.24.4+k3s1"
-
 # (bool) Install using hard links rather than symbolic links.
 k3s_install_hard_links: true
-
 # (bool) Escalate user privileges for all tasks
 k3s_become: true
-
 # (bool) Enable debug logging on the k3s service
 k3s_debug: false
-
 # (bool) Enable etcd embedded datastore
 k3s_etcd_datastore: true
-
 # (bool) Allow the use of unsupported configurations in k3s
 k3s_use_unsupported_config: true
-
 # (string) Control Plane registration address
 k3s_registration_address: "{{ kubevip_address }}"
-
 # (list) A list of URLs to deploy on the primary control plane. Read notes below.
 k3s_server_manifests_urls:
   - url: https://docs.projectcalico.org/archive/v3.22/manifests/tigera-operator.yaml
     filename: tigera-operator.yaml
-
+  - url: https://kube-vip.io/manifests/rbac.yaml
+    filename: kube-vip-rbac.yaml
 # (list) A flat list of templates to deploy on the primary control plane
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - "calico-installation.yaml.j2"
+  - kube-vip-daemonset.yaml.j2
