@@ -1,0 +1,10 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: wrmilling-charts
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: https://wrmilling.github.io/wrmilling-charts/
+  timeout: 3m

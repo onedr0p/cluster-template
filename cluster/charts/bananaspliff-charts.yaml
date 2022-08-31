@@ -1,0 +1,10 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: bananaspliff-charts
+  namespace: flux-system
+spec:
+  interval: 15m
+  url: https://bananaspliff.github.io/geek-charts
+  timeout: 3m
