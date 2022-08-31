@@ -1,0 +1,12 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hdd-storage-class-service
+  namespace: storage
+spec:
+  selector:
+    app: hdd-storage-class-site
+  ports:
+    - protocol: TCP
+      port: 80
