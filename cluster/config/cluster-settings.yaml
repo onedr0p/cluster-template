@@ -5,7 +5,39 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  TIMEZONE: Europe/London
+
+  # General settings
+  TZ: Europe/London
+
+  # Load Balancer settings
   METALLB_LB_RANGE: 192.168.1.200-192.168.1.250
   METALLB_K8S_GATEWAY_ADDR: 192.168.1.200
   METALLB_INGRESS_ADDR: 192.168.1.201
+
+  # Cluster ranges
+  K8S_CLUSTER_CIDR: "10.42.0.0/16"
+  K8S_SERVICE_CIDR: "10.43.0.0/16"
+
+  # LAN settings
+  LAN_NETWORK_CIDR: "192.168.0.0/16"
+  LAN_GATEWAY_ADDRESS: 192.168.1.1
+
+  # Loadbalancer IP's
+  SVC_PLEX_ADDR: 192.168.1.240
+  SVC_EMQX_ADDR: 192.168.1.241
+  SVC_HOME_ASSISTANT_ADDR: 192.168.1.242
+
+  # Storage [NAS] settings
+  NAS_SERVER: 192.168.1.3
+  NAS_PATH_MEDIA: /PersistentVolumeClaims/Media
+  NAS_PATH_MINIO: /PersistentVolumeClaims/MiniIO
+
+  # VPN settings
+  # VPN_GATEWAY_VPN_PORT: "51820"
+  VPN_FORWARDED_PORT_1: "18289"
+  # VPN_PORT_QB: "18289"
+  VPN_PORT: "51820"
+  VPN_COUNTRY: "FR"
+
+  # Mail server details
+  CLUSTER_MAIL_SERVER: smtp.gmail.com
