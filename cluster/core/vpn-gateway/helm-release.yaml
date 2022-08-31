@@ -86,13 +86,13 @@ spec:
       VPN_BLOCK_OTHER_TRAFFIC: true
       VPN_TRAFFIC_PORT: ${VPN_PORT}
       # NOT_ROUTED_TO_GATEWAY_CIDRS: "${K8S_CLUSTER_CIDR} ${K8S_SERVICE_CIDR} ${LAN_NETWORK_CIDR}"  # "10.42.0.0/24 192.168.0.0/8 192.168.1.0/24"
-      VPN_LOCAL_CIDRS: "${K8S_CLUSTER_CIDR} ${K8S_SERVICE_CIDR} ${LAN_NETWORK_CIDR}"  #"10.42.0.0/24 192.168.0.0/24 192.168.1.0/24"
+      VPN_LOCAL_CIDRS: "${K8S_CLUSTER_CIDR} ${K8S_SERVICE_CIDR} ${LAN_NETWORK_CIDR}" #"10.42.0.0/24 192.168.0.0/24 192.168.1.0/24"
     # & Public ports for torrent
     # ? -- settings to expose ports, usually through a VPN provider.
     # ? NOTE: if you change it you will need to manually restart the gateway POD
     publicPorts:
-      - hostname: torrent  # hostname assigned to the pod
-        IP: 10  # must be an integer between 2 and VXLAN_GATEWAY_FIRST_DYNAMIC_IP (20 by default)
+      - hostname: torrent # hostname assigned to the pod
+        IP: 10 # must be an integer between 2 and VXLAN_GATEWAY_FIRST_DYNAMIC_IP (20 by default)
         ports:
           - type: udp
             port: ${VPN_FORWARDED_PORT_1}
