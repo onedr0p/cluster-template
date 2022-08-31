@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: transmission-config
+  namespace: downloads
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: hdd-nfs-storage
+  volumeMode: Filesystem
+
+---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: transmission-incomplete
+#   namespace: downloads
+#   labels:
+#     kasten.io/backup-volume: disabled
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 200Gi
+#   storageClassName: nfs
+#   volumeMode: Filesystem

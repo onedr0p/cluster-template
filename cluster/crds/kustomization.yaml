@@ -4,3 +4,8 @@ kind: Kustomization
 resources:
   - cert-manager
   - system-upgrade-controller
+  - external-snapshotter
+  - kyverno
+  - kube-prometheus-stack
+  - cloudnative-pg
+  - velero

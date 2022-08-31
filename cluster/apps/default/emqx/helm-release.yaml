@@ -1,0 +1,100 @@
+---
+# yamllint disable rule:line-length
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: emqx
+  namespace: default
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: emqx
+      version: 5.0.3
+      sourceRef:
+        kind: HelmRepository
+        name: emqx-charts
+        namespace: flux-system
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    image:
+      repository: public.ecr.aws/emqx/emqx
+    replicaCount: 3
+    recreatePods: true
+    emqxConfig:
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_AUTH__MNESIA__PASSWORD_HASH: plain
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "${SVC_EMQX_ADDR}"
+      # # ? you can only use an external ip with calico and BGP, set a load balancer ip instead on the service
+      # externalIPs:
+      #   - "${SVC_EMQX_ADDR}"
+      externalTrafficPolicy: Local
+    ingress:
+      dashboard:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          # hajimari.io/enable: "true"
+          # hajimari.io/icon: "table-network"
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          # external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          # external-dns/is-public: "true"
+          # nginx.ingress.kubernetes.io/auth-url: "https://oauth.${SECRET_DOMAIN}/oauth2/auth"
+          # nginx.ingress.kubernetes.io/auth-signin: "https://oauth.${SECRET_DOMAIN}/oauth2/start?rd=$scheme://$best_http_host$request_uri"
+          # nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email, x-auth-request-access-token"
+        path: /
+        pathType: Prefix
+        hosts:
+          - &host "emqx.${SECRET_DOMAIN}"
+        tls:
+          - hosts:
+              - *host
+            secretName: "emqx-tls"
+    metrics:
+      enabled: false
+    persistence:
+      enabled: true
+      storageClass: hdd-nfs-storage
+      size: 100Mi
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - emqx
+              topologyKey: kubernetes.io/hostname
+    podAnnotations:
+      secret.reloader.stakater.com/reload: "emqx-config"
+      configmap.reloader.stakater.com/reload: "emqx-env"
+    resources:
+      requests:
+        cpu: 10m
+        memory: 150Mi
+      limits:
+        memory: 512Mi
+  valuesFrom:
+    - targetPath: emqxConfig.EMQX_DASHBOARD__DEFAULT_PASSWORD
+      kind: Secret
+      name: emqx-config
+      valuesKey: admin_password
+    - targetPath: emqxConfig.EMQX_AUTH__USER__1__USERNAME
+      kind: Secret
+      name: emqx-config
+      valuesKey: user_1_username
+    - targetPath: emqxConfig.EMQX_AUTH__USER__1__PASSWORD
+      kind: Secret
+      name: emqx-config
+      valuesKey: user_1_password

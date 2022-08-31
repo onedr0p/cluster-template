@@ -30,7 +30,7 @@ spec:
       replicaCount: 1
       extraEnvs:
         - name: TZ
-          value: "${TIMEZONE}"
+          value: "${TZ}"
       service:
         annotations:
           metallb.universe.tf/loadBalancerIPs: |-

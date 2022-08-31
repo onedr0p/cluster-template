@@ -1,0 +1,106 @@
+---
+# yamllint disable rule:line-length
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: &app minio
+  namespace: default
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 0.1.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    image:
+      repository: quay.io/minio/minio
+      tag: RELEASE.2022-08-25T07-17-05Z
+    env:
+      TZ: "${TZ}"
+      MINIO_UPDATE: "off"
+      MINIO_PROMETHEUS_URL: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+      MINIO_PROMETHEUS_JOB_ID: minio
+      MINIO_BROWSER_REDIRECT_URL: "https://minio.${SECRET_DOMAIN}"
+      MINIO_SERVER_URL: "https://s3.${SECRET_DOMAIN}"
+      # MINIO_IDENTITY_OPENID_CONFIG_URL: "https://auth.${SECRET_DOMAIN}/.well-known/openid-configuration"
+      # MINIO_IDENTITY_OPENID_CLIENT_ID: minio
+      # MINIO_IDENTITY_OPENID_CLIENT_SECRET: "${SECRET_MINIO_OAUTH_CLIENT_SECRET}"
+      # MINIO_IDENTITY_OPENID_SCOPES: "openid,profile,email,groups"
+      # MINIO_IDENTITY_OPENID_REDIRECT_URI: "https://minio.${SECRET_DOMAIN}/oauth_callback"
+      MINIO_ROOT_USER: ${SECRET_MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${SECRET_MINIO_ROOT_PASSWORD}
+    args: ["server", "/data", "--console-address", ":9001"]
+    service:
+      main:
+        enabled: true
+        ports:
+          http:
+            port: &port-console 9001
+          api:
+            enabled: true
+            port: &port-api 9000
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "server"
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
+          # nginx.ingress.kubernetes.io/auth-url: "https://oauth.${SECRET_DOMAIN}/oauth2/auth"
+          # nginx.ingress.kubernetes.io/auth-signin: "https://oauth.${SECRET_DOMAIN}/oauth2/start?rd=$scheme://$best_http_host$request_uri"
+          # nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email, x-auth-request-access-token"
+          # nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+          # nginx.ingress.kubernetes.io/proxy-body-size: 5000m
+          # nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+          # nginx.ingress.kubernetes.io/configuration-snippet: |
+          #   chunked_transfer_encoding off;
+        hosts:
+          - host: &host-console "{{ .Release.Name }}.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  port: *port-console
+          - host: &host-api "s3.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  port: *port-api
+        tls:
+          - hosts:
+              - *host-console
+              - *host-api
+            secretName: "minio-tls"
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 100
+    persistence:
+      config:
+        enabled: true
+        existingClaim: minio-nfs
+        mountPath: /data
+    resources:
+      requests:
+        memory: 100Mi
+        cpu: 100m
+      limits:
+        memory: 750Mi

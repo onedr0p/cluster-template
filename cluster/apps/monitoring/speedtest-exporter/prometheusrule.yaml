@@ -1,0 +1,61 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: speedtest-exporter
+  labels:
+    app.kubernetes.io/instance: speedtest-exporter
+    app.kubernetes.io/name: speedtest-exporter
+spec:
+  groups:
+    - name: speedtest-exporter
+      rules:
+        - alert: SpeedtestExporterAbsent
+          annotations:
+            description: Speedtest Exporter has disappeared from Prometheus target discovery.
+            summary: Speedtest Exporter is down.
+          expr: |
+            absent(up{job=~".*speedtest-exporter.*"} == 1)
+          for: 75m
+          labels:
+            severity: critical
+        - alert: SpeedtestSlowInternetDownload
+          annotations:
+            description: Internet download speed is averaging {{ "{{ humanize $value }}" }} Mbps.
+            summary: SpeedTest slow internet download.
+          expr: |
+            avg_over_time(speedtest_download_bits_per_second{job=~".*speedtest-exporter.*"}[4h])
+              < 400
+          for: 0m
+          labels:
+            severity: warning
+        - alert: SpeedtestSlowInternetUpload
+          annotations:
+            description: Internet upload speed is averaging {{ "{{ humanize $value }}" }} Mbps.
+            summary: SpeedTest slow internet upload.
+          expr: |
+            avg_over_time(speedtest_upload_bits_per_second{job=~".*speedtest-exporter.*"}[4h])
+              < 400
+          for: 0m
+          labels:
+            severity: warning
+        - alert: SpeedtestHighPingLatency
+          annotations:
+            description: Internet ping latency is averaging {{ "{{ humanize $value }}" }} ms.
+            summary: SpeedTest high ping latency.
+          expr: |
+            avg_over_time(speedtest_ping_latency_milliseconds{job=~".*speedtest-exporter.*"}[4h])
+              > 15
+          for: 0m
+          labels:
+            severity: warning
+        - alert: SpeedtestHighJitterLatency
+          annotations:
+            description: Internet jitter latency is averaging {{ "{{ humanize $value }}" }} ms.
+            summary: SpeedTest high jitter latency.
+          expr: |
+            avg_over_time(speedtest_jitter_latency_milliseconds{job=~".*speedtest-exporter.*"}[4h])
+              > 30
+          for: 0m
+          labels:
+            severity: warning

@@ -1,0 +1,15 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - cluster-role-binding.yml
+  - cluster-role.yml
+  - provisioner-deploy.yml
+  - role-binding.yml
+  - role.yml
+  - service-account.yml
+  # - site-deploy.yml
+  # - site-ingress.yml
+  # - site-service.yml
+  - storage-class.yml
+  # - volume-claim.yml

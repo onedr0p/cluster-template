@@ -1,0 +1,89 @@
+---
+# yamllint disable rule:line-length
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: thanos
+  namespace: monitoring
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://charts.bitnami.com/bitnami
+      chart: thanos
+      version: 11.2.2
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami-charts
+        namespace: flux-system
+      interval: 5m
+
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+
+  upgrade:
+    remediation:
+      retries: 5
+
+  dependsOn:
+    - name: kube-prometheus-stack
+      namespace: monitoring
+      #FIXME
+    # - name: ingress-nginx
+    #   namespace: networking
+    # - name: rook-ceph
+    #   namespace: rook-ceph
+
+  values:
+    query:
+      enabled: true
+      replicaLabels:
+        - replica
+      dnsDiscovery:
+        sidecarsService: prometheus-thanos-discovery
+        sidecarsNamespace: monitoring
+      ingress:
+        enabled: true
+        hostname: "thanos.${SECRET_DOMAIN}"
+        ingressClassName: "nginx"
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "database-search-outline"
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.${SECRET_DOMAIN}/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.${SECRET_DOMAIN}/oauth2/start?rd=$scheme://$best_http_host$request_uri"
+          nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email, x-auth-request-access-token"
+        tls: true
+
+    existingObjstoreSecret: thanos-objstore
+
+    queryFrontend:
+      enabled: false
+
+    bucketweb:
+      enabled: true
+
+    compactor:
+      enabled: true
+      retentionResolutionRaw: 14d
+      retentionResolution5m: 30d
+      retentionResolution1h: 180d
+      persistence:
+        enabled: false
+
+    storegateway:
+      enabled: true
+      replicaCount: 1
+      podAntiAffinityPreset: hard
+      persistence:
+        enabled: true
+        size: 5Gi
+
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true

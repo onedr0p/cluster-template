@@ -1,0 +1,117 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vpn-gateway
+  namespace: vpn-gateway
+  labels:
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: pod-gateway
+      version: 5.6.2
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/k8s-at-home/pod-gateway
+      tag: v1.7.0
+    addons:
+      vpn:
+        enabled: true
+        type: wireguard
+        wireguard:
+          image:
+            repository: ghcr.io/k8s-at-home/wireguard
+            tag: v1.0.20210914
+            pullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 568
+          runAsGroup: 568
+          capabilities:
+            add:
+              - "SYS_MODULE"
+              - "NET_ADMIN"
+        env:
+          TZ: "${TZ}"
+          # IPTABLES_BACKEND: nft
+          KILLSWITCH: "false"
+        configFileSecret: vpn-gateway-vpnconfig
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+        # livenessProbe:
+        #   exec:
+        #     # ? update country ref if neccesary
+        #     command:
+        #       - sh
+        #       - -c
+        #       - if [ $(wget -q -O- https://ipinfo.io/country) == '${VPN_COUNTRY}' ]; then exit 0; else exit $?; fi
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 60
+        #   failureThreshold: 1
+
+        networkPolicy:
+          enabled: true
+          egress:
+            - to:
+                - ipBlock:
+                    cidr: 0.0.0.0/0
+              ports:
+                # VPN traffic allowed to this port only
+                - port: ${VPN_PORT}
+                  protocol: UDP
+            - to:
+                # Only allow egress to K8S
+                - ipBlock:
+                    cidr: ${K8S_CLUSTER_CIDR}
+                - ipBlock:
+                    cidr: ${K8S_SERVICE_CIDR}
+    # & Namespaces that will use the gateway
+    routed_namespaces:
+      - downloads
+    settings:
+      VPN_INTERFACE: wg0
+      # VXLAN_ID: 43
+      # VXLAN_IP_NETWORK: 172.16.1
+      VPN_BLOCK_OTHER_TRAFFIC: true
+      VPN_TRAFFIC_PORT: ${VPN_PORT}
+      # NOT_ROUTED_TO_GATEWAY_CIDRS: "${K8S_CLUSTER_CIDR} ${K8S_SERVICE_CIDR} ${LAN_NETWORK_CIDR}"  # "10.42.0.0/24 192.168.0.0/8 192.168.1.0/24"
+      VPN_LOCAL_CIDRS: "${K8S_CLUSTER_CIDR} ${K8S_SERVICE_CIDR} ${LAN_NETWORK_CIDR}" #"10.42.0.0/24 192.168.0.0/24 192.168.1.0/24"
+    # & Public ports for torrent
+    # ? -- settings to expose ports, usually through a VPN provider.
+    # ? NOTE: if you change it you will need to manually restart the gateway POD
+    publicPorts:
+      - hostname: torrent # hostname assigned to the pod
+        IP: 10 # must be an integer between 2 and VXLAN_GATEWAY_FIRST_DYNAMIC_IP (20 by default)
+        ports:
+          - type: udp
+            port: ${VPN_FORWARDED_PORT_1}
+          - type: tcp
+            port: ${VPN_FORWARDED_PORT_1}
+    webhook:
+      image:
+        repository: ghcr.io/k8s-at-home/gateway-admision-controller
+        tag: v3.6.0
+      gatewayDefault: false
+
+      # * add me to the pod(s)
+      gatewayLabel: setGateway
+      gatewayAnnotation: setGateway
+
+      # * add me to the namespace(s)
+      namespaceSelector:
+        label: vpn-routed-gateway
+    # persistence:
+    #   data:
+    #     enabled: true
+    #     existingClaim: pod-gateway-config

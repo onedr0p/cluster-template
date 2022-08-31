@@ -1,0 +1,104 @@
+---
+# yamllint disable rule:line-length
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: plex
+  namespace: media
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: plex
+      version: 6.4.3
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/k8s-at-home/plex
+      tag: v1.24.4.5081-e362dc1ee
+    env:
+      TZ: "${TZ}"
+      ADVERTISE_IP: "http://${SVC_PLEX_ADDR}:32400/,https://plex.${SECRET_DOMAIN}"
+      PLEX_CLAIM: "${SECRET_PLEX_CLAIM_TOKEN}"
+    extraEnv:
+      PLEX_PREFERENCE_1: "FriendlyName=k8splex"
+      PLEX_PREFERENCE_2: "EnableIPv6=0"
+      PLEX_PREFERENCE_3: "logDebug=0"
+      PLEX_PREFERENCE_4: "sendCrashReports=0"
+      PLEX_PREFERENCE_5: "secureConnections=1"
+      PLEX_PREFERENCE_6: "ScheduledLibraryUpdatesEnabled=1"
+      PLEX_PREFERENCE_7: "FSEventLibraryUpdatesEnabled=1"
+      PLEX_PREFERENCE_8: "FSEventLibraryPartialScanEnabled=1"
+      PLEX_PREFERENCE_9: "AcceptedEULA=1"
+      PLEX_PREFERENCE_10: "TranscoderThrottleBuffer=300"
+      PLEX_PREFERENCE_11: "LanNetworksBandwidth=172.16.0.0/16,192.168.0.0/16,10.0.0.0/8"
+      PLEX_PREFERENCE_12: "customConnections=https://plex.${SECRET_DOMAIN}"
+      PLEX_PREFERENCE_13: "allowedNetworks=172.16.0.0/16,192.168.0.0/16,10.0.0.0/8"
+      PLEX_PREFERENCE_14: "TreatWanIpAsLocal=1"
+      PLEX_PREFERENCE_15: "DisableTLSv1_0=1"
+    podSecurityContext:
+      supplementalGroups:
+        - 44
+        - 109
+        - 100
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: "${SVC_PLEX_ADDR}"
+        # # ? you can only use an external ip with calico and BGP, set a load balancer ip instead on the service
+        # externalIPs:
+        #   - "${SVC_PLEX_ADDR}"
+        externalTrafficPolicy: Local
+        annotations:
+          traefik.ingress.kubernetes.io/service.serversscheme: https
+    hostNetwork: true
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          # external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          # external-dns/is-public: "true"
+          # hajimari.io/enable: "true"
+          # hajimari.io/icon: "plex"
+        hosts:
+          - host: "plex.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - "plex.${SECRET_DOMAIN}"
+            secretName: "plex-tls"
+    persistence:
+      config:
+        enabled: true
+        existingClaim: plex-config
+      media:
+        enabled: true
+        type: custom
+        volumeSpec:
+          nfs:
+            server: "${NAS_SERVER}"
+            path: "${NAS_PATH_MEDIA}"
+        mountPath: /media
+        readOnly: true
+      transcode:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+    podAnnotations:
+      backup.velero.io/backup-volumes: config
+    resources:
+      requests:
+        cpu: 256m
+        memory: 2048Mi
+      limits:
+        cpu: 640m
+        memory: 8768Mi

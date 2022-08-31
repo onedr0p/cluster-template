@@ -1,0 +1,41 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nfs-client-provisioner
+  namespace: storage
+spec:
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
+          resources:
+            limits:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - name: nfs-client-hdd
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: fabricesemti.net/nfs
+            - name: NFS_SERVER
+              value: "${NAS_SERVER}"
+            - name: NFS_PATH
+              value: /StorageClasses
+      volumes:
+        - name: nfs-client-hdd
+          nfs:
+            server: "${NAS_SERVER}"
+            path: /StorageClasses

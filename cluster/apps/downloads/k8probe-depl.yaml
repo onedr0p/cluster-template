@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: terminal
+  namespace: downloads
+  labels:
+    app: terminal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: terminal
+  template:
+    metadata:
+      labels:
+        app: terminal
+    spec:
+      containers:
+        - name: terminal
+          image: nicolaka/netshoot
+          command:
+            - /bin/sh
+            - -c
+            - while true; do
+              sleep 600 &
+              wait $!;
+              done
+          imagePullPolicy: IfNotPresent
+          podAnnotations:
+            setGateway: "true"
+          resources:
+            limits:
+              cpu: 50m
+              memory: 50Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          restartPolicy: Always

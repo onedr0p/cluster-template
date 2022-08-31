@@ -7,3 +7,9 @@ resources:
   - kube-system
   - networking
   - system-upgrade
+  - media
+  - security
+  - downloads
+  - monitoring
+  - development
+  - velero

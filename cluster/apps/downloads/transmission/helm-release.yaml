@@ -1,0 +1,115 @@
+---
+# yamllint disable rule:line-length
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: transmission
+  namespace: downloads
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://bananaspliff.github.io/geek-charts
+      chart: transmission-openvpn
+      version: 0.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bananaspliff-charts
+        namespace: flux-system
+      interval: 5m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    replicaCount: 1
+
+    image:
+      repository: "haugene/transmission-openvpn"
+      tag: "dev"
+      pullPolicy: "IfNotPresent"
+
+    ingress:
+      enabled: false
+
+    env:
+      - name: OPENVPN_PROVIDER
+        value: "NORDVPN" # VPN provider. List of supported providers: https://haugene.github.io/docker-transmission-openvpn/supported-providers/
+      - name: OPENVPN_CONFIG
+        value: "france"
+      - name: OPENVPN_USERNAME
+        value: "${SECRET_OVPN_USER}"
+      - name: OPENVPN_PASSWORD
+        value: "${SECRET_OVPN_PASS}"
+      - name: LOCAL_NETWORK
+        value: "${LAN_NETWORK_CIDR}"
+      - name: TRANSMISSION_DOWNLOAD_DIR
+        value: "/downloads"
+      # - name: TRANSMISSION_INCOMPLETE_DIR
+      #   value: "/incomplete"
+      - name: TRANSMISSION_SCRAPE_PAUSED_TORRENTS_ENABLED
+        value: "false"
+      - name: PUID
+        value: "985"
+      - name: PGID
+        value: "977"
+      - name: TRANSMISSION_WEB_UI
+        value: transmission-web-control
+
+    podSecurityContext:
+      fsGroup: 977
+      runAsUser: 0
+      runAsGroup: 0
+    volumes:
+      - name: "dev-tun" # Needed for VPN
+        hostPath:
+          path: "/dev/net/tun"
+      - name: "transmission-config"
+        persistentVolumeClaim:
+          claimName: "transmission-config"
+      # - name: "transmission-incomplete"
+      #   nfs:
+      #     server: "${NAS_SERVER}"
+      #     path: "${NAS_PATH_MEDIA}/downloads/transmission-incomplete"
+      # - name: "transmission-downloads"
+      # nfs:
+      #   server: "${NAS_SERVER}"
+      #   path: "${NAS_PATH_MEDIA}/downlonads/transmission-downloads"
+      # - name: "transmission-other"
+      #   nfs:
+      #     server: "${NAS_SERVER}"
+      #     path: "${NAS_PATH_MEDIA}/downloads/transmission-other"
+
+    volumeMounts:
+      - name: "transmission-config"
+        mountPath: "/data"
+        subPath: "configs/transmission-home"
+      # - name: "transmission-incomplete"
+      #   mountPath: "/incomplete"
+      # - name: "transmission-downloads"
+      #   mountPath: "/downloads"
+      # - name: "transmission-other"
+      #   mountPath: "/other"
+      # - name: "transmission-incomplete"
+      #   mountPath: "/incomplete"
+      # - name: "transmission-downloads"
+      #   mountPath: "/downloads"
+      # - name: "transmission-other"
+      #   mountPath: "/other"
+      - name: "dev-tun"
+        mountPath: "/dev/net/tun" # Needed for VPN
+
+    securityContext:
+      capabilities: # Needed for VPN
+        add:
+          - NET_ADMIN
+
+    resources:
+      requests:
+        cpu: 48m
+        memory: 1555M
+      limits:
+        memory: 3778M

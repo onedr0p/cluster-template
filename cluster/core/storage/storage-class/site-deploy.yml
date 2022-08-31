@@ -1,0 +1,32 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: hdd-storage-class-site
+  namespace: storage
+  name: hdd-storage-class-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hdd-storage-class-site
+  template:
+    metadata:
+      labels:
+        app: hdd-storage-class-site
+    spec:
+      volumes:
+        - name: hdd-storage-class-volume
+          persistentVolumeClaim:
+            claimName: hdd-nfs-pvc-1
+      containers:
+        - image: nginx
+          name: hdd-storage-class-site
+          resources:
+            limits:
+              cpu: "1"
+              memory: 100Mi
+          volumeMounts:
+            - name: hdd-storage-class-volume
+              mountPath: /usr/share/nginx/html
