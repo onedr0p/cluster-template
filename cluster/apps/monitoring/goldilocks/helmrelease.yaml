@@ -22,8 +22,7 @@ spec:
       # vpa.enabled -- If true, the vpa will be installed as a sub-chart
       enabled: true
       updater:
-        enabled:
-          true
+        enabled: true
     controller:
       # controller.enabled -- Whether or not to install the controller deployment
       enabled: true

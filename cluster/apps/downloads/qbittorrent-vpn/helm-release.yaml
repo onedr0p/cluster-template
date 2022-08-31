@@ -82,7 +82,8 @@ spec:
     podAnnotations:
       backup.velero.io/backup-volumes: config
       setGateway: "true"
-      configmap.reloader.stakater.com/reload: ["qbittorrent-vpn-scripts", "vpn-gateway-pod-gateway"]
+      configmap.reloader.stakater.com/reload:
+        ["qbittorrent-vpn-scripts", "vpn-gateway-pod-gateway"]
     resources:
       requests:
         memory: 250Mi

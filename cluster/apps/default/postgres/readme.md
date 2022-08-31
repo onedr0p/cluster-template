@@ -9,6 +9,7 @@ brew install minio-mc
 ```
 
 2. Create `~/.mc/config.json`
+
     ```json
     {
         "version": "10",
@@ -24,7 +25,6 @@ brew install minio-mc
     }
     ```
 
-
 3. Test your connection
 
     ```sh
@@ -34,18 +34,20 @@ brew install minio-mc
     Version: 2022-08-25T07:17:05Z
     ```
 
-
 4. Create the outline user and password
+
     ```sh
     mc admin user add minio postgresql <super-secret-password>
     ```
 
 5. Create the outline bucket
+
     ```sh
     mc mb minio/postgresql
     ```
 
 6. Create `postgresql-user-policy.json`
+
     ```json
     {
         "Version": "2012-10-17",
@@ -66,11 +68,13 @@ brew install minio-mc
     ```
 
 7. Apply the bucket policies
+
     ```sh
     mc admin policy add minio postgresql-private postgresql-user-policy.json
     ```
 
 8. Associate private policy with the user
+
     ```sh
     mc admin policy set minio postgresql-private user=postgresql
     ```

@@ -75,9 +75,9 @@ spec:
       #     server: "${NAS_SERVER}"
       #     path: "${NAS_PATH_MEDIA}/downloads/transmission-incomplete"
       # - name: "transmission-downloads"
-        # nfs:
-        #   server: "${NAS_SERVER}"
-        #   path: "${NAS_PATH_MEDIA}/downlonads/transmission-downloads"
+      # nfs:
+      #   server: "${NAS_SERVER}"
+      #   path: "${NAS_PATH_MEDIA}/downlonads/transmission-downloads"
       # - name: "transmission-other"
       #   nfs:
       #     server: "${NAS_SERVER}"

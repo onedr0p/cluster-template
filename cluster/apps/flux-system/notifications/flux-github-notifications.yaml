@@ -31,6 +31,6 @@ spec:
   eventSeverity: info
   eventSources:
     - kind: Kustomization
-      name: '*'
+      name: "*"
     - kind: HelmRelease
-      name: '*'
+      name: "*"
