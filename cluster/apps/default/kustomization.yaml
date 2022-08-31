@@ -4,3 +4,8 @@ kind: Kustomization
 resources:
   - echo-server
   - hajimari
+  - minio
+  - postgres
+  - redis
+  - emqx
+  - home-assistant

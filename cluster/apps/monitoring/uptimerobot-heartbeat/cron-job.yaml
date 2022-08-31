@@ -1,0 +1,43 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: monitoring
+  name: &app uptimerobot-heartbeat
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      ttlSecondsAfterFinished: 300
+      template:
+        spec:
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          containers:
+            - name: *app
+              image: ghcr.io/k8s-at-home/kubectl:v1.25.0
+              envFrom:
+                - secretRef:
+                    name: *app
+              command:
+                - "/bin/bash"
+                - &scriptPath "/app/uptimerobot-heartbeat.sh"
+              volumeMounts:
+                - name: *app
+                  mountPath: *scriptPath
+                  subPath: &scriptName uptimerobot-heartbeat.sh
+                  readOnly: true
+          volumes:
+            - name: *app
+              projected:
+                defaultMode: 0775
+                sources:
+                  - configMap:
+                      name: *app
+                      items:
+                        - key: *scriptName
+                          path: *scriptName

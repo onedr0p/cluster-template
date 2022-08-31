@@ -1,0 +1,65 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: overseerr
+  namespace: media
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: overseerr
+      version: 5.4.2
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/sct/overseerr
+      tag: 1.29.1
+    env:
+      TZ: "${TZ}"
+      LOG_LEVEL: "info"
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "eye-circle"
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.${SECRET_DOMAIN}/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.${SECRET_DOMAIN}/oauth2/start?rd=$scheme://$best_http_host$request_uri"
+          nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email, x-auth-request-access-token"
+        hosts:
+          - host: "requests.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - "requests.${SECRET_DOMAIN}"
+            secretName: "overseerr-tls"
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+    persistence:
+      config:
+        enabled: true
+        existingClaim: overseerr-config
+        mountPath: /app/config
+    podAnnotations:
+      backup.velero.io/backup-volumes: config
+    resources:
+      requests:
+        memory: 250Mi
+        cpu: 500m
+      limits:
+        memory: 750Mi

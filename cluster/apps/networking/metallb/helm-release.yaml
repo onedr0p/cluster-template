@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: metallb
-      version: 0.12.1
+      version: 0.12.1  # 0.13.4
       sourceRef:
         kind: HelmRepository
         name: metallb
@@ -28,3 +28,24 @@ spec:
           protocol: layer2
           addresses:
             - "${METALLB_LB_RANGE}"
+            -
+#           commonLabels:
+#             app.kubernetes.io/managed-by: Helm
+# ---
+# apiVersion: metallb.io/v1beta1
+# kind: L2Advertisement
+# metadata:
+#   name: l2-ip
+#   namespace: networking
+# spec:
+#   ipAddressPools:
+#     - default-pool
+# ---
+# apiVersion: metallb.io/v1beta1
+# kind: IPAddressPool
+# metadata:
+#   name: default-pool
+#   namespace: networking
+# spec:
+#   addresses:
+#     - "${METALLB_LB_RANGE}"

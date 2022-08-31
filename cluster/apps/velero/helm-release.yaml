@@ -1,0 +1,133 @@
+---
+# yamllint disable rule:line-length
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: velero
+  namespace: velero
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://vmware-tanzu.github.io/helm-charts
+      chart: velero
+      version: 2.31.3
+      sourceRef:
+        kind: HelmRepository
+        name: vmware-tanzu-charts
+        namespace: flux-system
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    image:
+      repository: velero/velero
+      tag: v1.9.1
+    configuration:
+      provider: aws
+      backupStorageLocation:
+        name: default
+        bucket: velero
+        config:
+          region: us-east-1
+          s3ForcePathStyle: true
+          s3Url: http://minio.default.svc.cluster.local:9000 # http://truenas.home:9000
+          publicUrl: "https://s3.${SECRET_DOMAIN}" # https://minio.eviljungle.com
+      volumeSnapshotLocation:
+        name: aws
+        config:
+          region: us-east-1
+      resticTimeout: 6h
+    initContainers:
+      - name: velero-plugin-for-aws
+        image: velero/velero-plugin-for-aws:v1.5.0
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /target
+            name: plugins
+    resources:
+      requests:
+        memory: 300Mi
+        cpu: 25m
+      limits:
+        memory: 1500Mi
+    # tolerations:
+    # - key: "arm"
+    #   operator: "Exists"
+    # enableHelmHooks: false
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+    snapshotsEnabled: true
+    deployRestic: true
+    upgradeCRDs: false
+    restic:
+      podVolumePath: /var/lib/kubelet/pods
+      privileged: false
+      tolerations:
+        - key: "arm"
+          operator: "Exists"
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+      resources:
+        requests:
+          memory: 200Mi
+          cpu: 15m
+        limits:
+          memory: 3000Mi
+          cpu: null
+    schedules:
+      daily-backup:
+        schedule: "0 6 * * *"
+        template:
+          ttl: "120h"
+      # mcbr-minecraft-bedrock-hourly:
+      #   schedule: "0 */6 * * *"
+      #   template:
+      #     labelSelector:
+      #       matchLabels:
+      #         app: mcbr-minecraft-bedrock
+      #     ttl: "120h"
+      #     includedNamespaces:
+      #       - default
+      # mcsv-minecraft-hourly:
+      #   schedule: "0 * * * *"
+      #   template:
+      #     labelSelector:
+      #       matchLabels:
+      #         app: mcsv-minecraft
+      #     ttl: "120h"
+      #     includedNamespaces:
+      #       - default
+      # mcsv2-minecraft-hourly:
+      #   schedule: "0 * * * *"
+      #   template:
+      #     labelSelector:
+      #       matchLabels:
+      #         app: mcsv2-minecraft
+      #     ttl: "120h"
+      #     includedNamespaces:
+      #       - default
+      # mc-minecraft-hourly:
+      #   schedule: "0 */6 * * *"
+      #   template:
+      #     labelSelector:
+      #       matchLabels:
+      #         app: mc-minecraft
+      #     ttl: "120h"
+      #     includedNamespaces:
+      #       - default
+    credentials:
+      name: minio-creds
+      secretContents:
+        cloud: |
+          [default]
+          aws_access_key_id=${SECRET_MINIO_ROOT_USER}
+          aws_secret_access_key=${SECRET_MINIO_ROOT_PASSWORD}
+    kubectl:
+      image:
+        repository: onedr0p/kubernetes-kubectl
+        tag: 1.24.4@sha256:41221810e5a8b370b4d60050e833388b67d2888aa79093e023e87f7ae78318ba

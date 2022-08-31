@@ -1,0 +1,10 @@
+# apiVersion: ricoberger.de/v1alpha1
+# kind: VaultSecret
+# metadata:
+#   name: velero-helm-values
+#   namespace: velero
+# spec:
+#   keys:
+#     - values.yaml
+#   path: secrets/velero/velero/velero-helm-values
+#   type: Opaque

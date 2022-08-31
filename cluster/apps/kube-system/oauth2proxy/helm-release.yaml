@@ -1,0 +1,92 @@
+---
+# ? https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/oauth_provider/#keycloak-oidc-auth-provider
+# ? https://www.talkingquickly.co.uk/webapp-authentication-keycloak-OAuth2-proxy-nginx-ingress-kubernetes
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: kube-system
+spec:
+  dependsOn:
+    - name: ingress-nginx
+      namespace: networking
+    - name: cert-manager
+      namespace: kube-system
+  interval: 5m
+  install:
+    timeout: 15m
+    remediation:
+      retries: 5
+  upgrade:
+    timeout: 15m
+    remediation:
+      retries: 5
+      remediateLastFailure: true
+    cleanupOnFail: true
+  chart:
+    spec:
+      # renovate: registryUrl=https://oauth2-proxy.github.io/manifests
+      chart: oauth2-proxy
+      version: 6.2.4
+      sourceRef:
+        kind: HelmRepository
+        name: oauth2-proxy
+        namespace: flux-system
+  values:
+    config:
+      # & GOOGLE ->
+      clientID: ${SECRET_PROVIDERS_GOOGLE_CLIENT_ID}
+      clientSecret: ${SECRET_PROVIDERS_GOOGLE_CLIENT_SECRET}
+      # & <- GOOGLE
+
+      # # * KEYCLOAK ->
+      # clientID: ${SECRET_PROVIDERS_KEYCLOAK_CLIENT_ID}  # ? This is the client ID noted down from the Keycloak
+      # clientSecret: ${SECRET_PROVIDERS_KEYCLOAK_CLIENT_SECRET}  # ? This is the client secret noted down from the Keycloak credentials page
+      # # * <- KEYCLOAK
+
+      cookieSecret: ${SECRET_OAUTH_SECRET} # ? This can be randomly generated with: openssl rand -base64 32 | head -c 32 | base64
+    extraArgs:
+      whitelist-domain: ".${SECRET_DOMAIN}" # ? base domain
+      cookie-domain: ".${SECRET_DOMAIN}" # ? base domain
+
+      # # * KEYCLOAK ->
+      # # ? optionals
+      # pass-authorization-header: true
+      # pass-access-token: true
+      # pass-user-headers: true
+      # set-authorization-header: true
+      # set-xauthrequest: true
+      # cookie-refresh: "1m"
+      # cookie-expire: "30m"
+      # scope: "openid profile email"
+      # # * <- KEYCLOAK
+
+      # & GOOGLE ->
+      provider: google
+      # & <- GOOGLE
+
+      # # * KEYCLOAK ->
+      # provider: keycloak-oidc
+      # provider-display-name: "keycloak"
+      # redirect-url: "https://oauth.${SECRET_DOMAIN}/oauth2/callback"
+      # oidc-issuer-url: "https://id.${SECRET_DOMAIN}/auth/realms/master"
+      # # * <- KEYCLOAK
+
+    authenticatedEmailsFile:
+      enabled: true
+      restricted_access: ${SECRET_WHITELIST}
+
+    ingress:
+      enabled: true
+      path: /
+      hosts:
+        - "oauth.${SECRET_DOMAIN}"
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: "letsencrypt-production"
+        external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+        external-dns/is-public: "true"
+      tls:
+        - secretName: oauth2-proxy-tls
+          hosts:
+            - "oauth.${SECRET_DOMAIN}"

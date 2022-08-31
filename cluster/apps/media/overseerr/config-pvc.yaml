@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: overseerr-config
+  namespace: media
+  labels:
+    kasten.io/backup-volume: "enabled"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  #? replace me with your storage class name
+  storageClassName: hdd-nfs-storage

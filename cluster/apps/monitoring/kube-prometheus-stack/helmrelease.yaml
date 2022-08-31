@@ -1,0 +1,282 @@
+---
+# yamllint disable rule:line-length
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      version: 39.9.0
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community-charts
+        namespace: flux-system
+      interval: 5m
+
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+
+  upgrade:
+    remediation:
+      retries: 5
+
+  #FIXME:
+  # dependsOn:
+  #   - name: ingress-nginx
+  #     namespace: networking
+  #   - name: nfs-client-provisioner
+  #     namespace: storage
+
+  values:
+    fullnameOverride: prometheus
+
+    alertmanager:
+      config:
+        global:
+          slack_api_url: "${SECRET_ALERT_MANAGER_DISCORD_WEBHOOK}/slack" ## ? Discord
+          # slack_api_url: "${ SECRET_ALERT_MANAGER_SLACK_WEBHOOK}" ## ? Slack
+          resolve_timeout: 5m
+        receivers:
+          - name: "null"
+          - name: "discord"
+            slack_configs:
+              - channel: "#prometheus"
+                icon_url: https://avatars3.githubusercontent.com/u/3380462
+                username: "Prometheus"
+                send_resolved: true
+                title: |-
+                  [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ if ne .CommonAnnotations.summary ""}}{{ .CommonAnnotations.summary }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}
+                text: >-
+                  {{ range .Alerts -}}
+                    **Alert:** {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
+                  **Description:** {{ if ne .Annotations.description ""}}{{ .Annotations.description }}{{else}}N/A{{ end }}
+                  **Details:**
+                    {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+                    {{ end }}
+                  {{ end }}
+        route:
+          group_by: ["alertname", "job"]
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 6h
+          receiver: "discord"
+          routes:
+            - receiver: "null"
+              match:
+                alertname: Watchdog
+            - receiver: "discord"
+              match_re:
+                severity: critical|warning|error
+              continue: true
+        inhibit_rules:
+          - source_match:
+              severity: "critical"
+            target_match:
+              severity: "warning"
+            equal: ["alertname", "namespace"]
+
+      ingress:
+        enabled: true
+        pathType: Prefix
+        ingressClassName: "nginx"
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "fire-alert"
+          # nginx.ingress.kubernetes.io/auth-url: "https://oauth.${SECRET_DOMAIN}/oauth2/auth"
+          # nginx.ingress.kubernetes.io/auth-signin: "https://oauth.${SECRET_DOMAIN}/oauth2/start?rd=$scheme://$best_http_host$request_uri"
+          # nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email, x-auth-request-access-token"
+        hosts:
+          - &host "alert-manager.${SECRET_DOMAIN}"
+        tls:
+          - hosts:
+              - *host
+            secretName: "alert-manager-tls"
+      alertmanagerSpec:
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: "hdd-nfs-storage"
+              resources:
+                requests:
+                  storage: 1Gi
+
+      resources:
+        requests:
+          cpu: 11m
+          memory: 37M
+
+    kube-state-metrics:
+      fullnameOverride: kube-state-metrics
+
+    grafana:
+      enabled: false
+      forceDeployDashboards: true
+      sidecar:
+        dashboards:
+          multicluster:
+            etcd:
+              enabled: true
+
+    kubelet:
+      enabled: true
+      serviceMonitor:
+        metricRelabelings:
+          - action: replace
+            sourceLabels:
+              - node
+            targetLabel: instance
+
+    kubeApiServer:
+      enabled: true
+
+    kubeControllerManager:
+      enabled: true
+      endpoints:
+        - 192.168.1.10
+        - 192.168.1.11
+        - 192.168.1.12
+        - 192.168.1.13
+        - 192.168.1.14
+      service:
+        enabled: true
+        port: 10257
+        targetPort: 10257
+      serviceMonitor:
+        enabled: true
+        https: true
+        insecureSkipVerify: true
+
+    kubeScheduler:
+      enabled: true
+      endpoints:
+        - 192.168.1.10
+        - 192.168.1.11
+        - 192.168.1.12
+        - 192.168.1.13
+        - 192.168.1.14
+      service:
+        enabled: true
+        port: 10259
+        targetPort: 10259
+      serviceMonitor:
+        enabled: true
+        https: true
+        insecureSkipVerify: true
+
+    kubeProxy:
+      enabled: true
+      endpoints:
+        - 192.168.1.10
+        - 192.168.1.11
+        - 192.168.1.12
+        - 192.168.1.13
+        - 192.168.1.14
+
+    kubeEtcd:
+      enabled: true
+      endpoints:
+        - 192.168.1.10
+        - 192.168.1.11
+        - 192.168.1.12
+      service:
+        enabled: true
+        port: 2381
+        targetPort: 2381
+
+    prometheusOperator:
+      prometheusConfigReloader:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 50Mi
+          limits:
+            memory: 100Mi
+
+    prometheus-node-exporter:
+      fullnameOverride: node-exporter
+      prometheus:
+        monitor:
+          enabled: true
+          relabelings:
+            - action: replace
+              regex: (.*)
+              replacement: $1
+              sourceLabels:
+                - __meta_kubernetes_pod_node_name
+              targetLabel: kubernetes_node
+
+    prometheus:
+      ingress:
+        enabled: true
+        pathType: Prefix
+        ingressClassName: "nginx"
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "database-search-outline"
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.${SECRET_DOMAIN}/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.${SECRET_DOMAIN}/oauth2/start?rd=$scheme://$best_http_host$request_uri"
+          nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email, x-auth-request-access-token"
+        hosts:
+          - &host "prometheus.${SECRET_DOMAIN}"
+        tls:
+          - hosts:
+              - *host
+            secretName: "prometheus-tls"
+      resources:
+        requests:
+          memory: 512Mi
+          cpu: 250m
+        limits:
+          memory: 2048Mi
+
+      thanosService:
+        enabled: true
+
+      prometheusSpec:
+        replicas: 1
+        replicaExternalLabelName: "replica"
+        ruleSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        retention: 6h
+        enableAdminAPI: true
+        walCompression: true
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: "hdd-nfs-storage"
+              resources:
+                requests:
+                  storage: 10Gi
+        #FIXME:
+        # thanos:
+        #   image: quay.io/thanos/thanos:v0.28.0
+        #   # renovate: datasource=docker depName=quay.io/thanos/thanos
+        #   version: "v0.28.0"
+        #   objectStorageConfig:
+        #     name: thanos-objstore
+        #     key: objstore.yml
+
+        # additionalScrapeConfigs:
+        #   - job_name: node-exporter
+        #     scrape_interval: 1m
+        #     scrape_timeout: 10s
+        #     honor_timestamps: true
+        #     static_configs:
+        #       - targets:
+        #           - "gw01.${SECRET_DOMAIN}:9100"
+        #           - "nas02.${SECRET_DOMAIN}:9100"
