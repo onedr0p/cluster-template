@@ -1,7 +1,7 @@
 ---
 collections:
   - name: community.general
-    version: 5.5.0
+    version: 5.6.0
   - name: community.sops
     version: 1.4.0
   - name: ansible.posix
