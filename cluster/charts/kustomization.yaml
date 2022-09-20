@@ -2,14 +2,14 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - bitnami.yaml
-  - bjw-s.yaml
-  - external-dns.yaml
-  - hajimari.yaml
-  - ingress-nginx.yaml
-  - jetstack.yaml
-  - k8s-gateway.yaml
-  - metallb.yaml
-  - metrics-server.yaml
-  - stakater.yaml
-  - weaveworks-kured.yaml
+  - bitnami-charts.yaml
+  - bjw-s-charts.yaml
+  - external-dns-charts.yaml
+  - hajimari-charts.yaml
+  - ingress-nginx-charts.yaml
+  - jetstack-charts.yaml
+  - kubereboot-charts.yaml
+  - k8s-gateway-charts.yaml
+  - metallb-charts.yaml
+  - metrics-server-charts.yaml
+  - stakater-charts.yaml
