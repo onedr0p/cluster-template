@@ -22,6 +22,8 @@ spec:
     remediation:
       retries: 5
   values:
+    psp:
+     create: false
     configInline:
       address-pools:
         - name: default
