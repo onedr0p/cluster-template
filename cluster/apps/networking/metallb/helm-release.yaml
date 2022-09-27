@@ -23,7 +23,7 @@ spec:
       retries: 5
   values:
     psp:
-     create: false
+      create: false
     configInline:
       address-pools:
         - name: default
