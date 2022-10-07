@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: metallb
-      version: 0.12.1
+      version: 0.13.5
       sourceRef:
         kind: HelmRepository
         name: metallb
@@ -24,9 +24,5 @@ spec:
   values:
     psp:
       create: false
-    configInline:
-      address-pools:
-        - name: default
-          protocol: layer2
-          addresses:
-            - "${METALLB_LB_RANGE}"
+    crds:
+      enabled: false
