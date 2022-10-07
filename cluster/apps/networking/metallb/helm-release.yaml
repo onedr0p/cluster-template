@@ -26,4 +26,3 @@ spec:
       create: false
     crds:
       enabled: false
-
