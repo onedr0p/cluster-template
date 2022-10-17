@@ -9,7 +9,7 @@ spec:
   url: https://github.com/metallb/metallb.git
   ref:
     # renovate: registryUrl=https://metallb.github.io/metallb chart=metallb
-    tag: v0.13.5
+    tag: 0.13.7
   ignore: |
     # exclude all
     /*
