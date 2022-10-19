@@ -2,41 +2,41 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cloudflare-ddns
-  namespace: networking
+  name: &app cloudflare-ddns
+  namespace: default
 spec:
-  schedule: "0 * * * *"
-  concurrencyPolicy: "Forbid"
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 5
+  schedule: "@hourly"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
   jobTemplate:
     spec:
-      backoffLimit: 3
-      ttlSecondsAfterFinished: 300
+      ttlSecondsAfterFinished: 3600
       template:
         spec:
-          restartPolicy: Never
+          automountServiceAccountToken: false
+          restartPolicy: OnFailure
           containers:
-            - name: cloudflare-ddns
-              image: ghcr.io/onedr0p/kubernetes-kubectl:1.25.3
+            - name: *app
+              image: ghcr.io/onedr0p/kubernetes-kubectl:1.25.3@sha256:e1f54416c4f8779f748ba4a8d7d48d489b584e8963ee8b84310e19d6e2f0430e
               envFrom:
                 - secretRef:
-                    name: cloudflare-ddns
+                    name: *app
               command:
                 - "/bin/bash"
-                - "/app/cloudflare-ddns.sh"
+                - &scriptPath "/app/cloudflare-ddns.sh"
               volumeMounts:
-                - name: cloudflare-ddns
-                  mountPath: /app/cloudflare-ddns.sh
-                  subPath: cloudflare-ddns.sh
+                - name: *app
+                  mountPath: *scriptPath
+                  subPath: &scriptName cloudflare-ddns.sh
                   readOnly: true
           volumes:
-            - name: cloudflare-ddns
+            - name: *app
               projected:
                 defaultMode: 0775
                 sources:
                   - configMap:
-                      name: cloudflare-ddns
+                      name: *app
                       items:
-                        - key: cloudflare-ddns.sh
-                          path: cloudflare-ddns.sh
+                        - key: *scriptName
+                          path: *scriptName

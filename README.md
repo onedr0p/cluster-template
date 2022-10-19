@@ -103,10 +103,8 @@ The Git repository contains the following directories under `cluster` and are or
 ```sh
 📁 cluster      # k8s cluster defined as code
 ├─📁 flux       # flux, gitops operator, loaded before everything
-├─📁 crds       # custom resources, loaded before 📁 core and 📁 apps
-├─📁 charts     # helm repos, loaded before 📁 core and 📁 apps
-├─📁 config     # cluster config, loaded before 📁 core and 📁 apps
-├─📁 core       # crucial apps, namespaced dir tree, loaded before 📁 apps
+├─📁 charts     # helm chart repos
+├─📁 config     # cluster config
 └─📁 apps       # regular apps, namespaced dir tree, loaded last
 ```
 

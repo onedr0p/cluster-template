@@ -6,11 +6,7 @@ resources:
   - plans
 images:
   - name: rancher/system-upgrade-controller
-    newName: docker.io/rancher/system-upgrade-controller
     newTag: v0.9.1
-commonLabels:
-  app.kubernetes.io/name: system-upgrade-controller
-  app.kubernetes.io/instance: system-upgrade-controller
 patchesStrategicMerge:
   # Delete namespace resource
   - |
@@ -19,3 +15,13 @@ patchesStrategicMerge:
     kind: Namespace
     metadata:
       name: system-upgrade
+  # Add labels
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: system-upgrade-controller
+      namespace: system-upgrade
+      labels:
+        app.kubernetes.io/name: system-upgrade-controller
+        app.kubernetes.io/instance: system-upgrade-controller

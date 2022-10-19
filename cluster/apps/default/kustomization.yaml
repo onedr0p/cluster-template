@@ -5,3 +5,4 @@ resources:
   - namespace.yaml
   - echo-server
   - hajimari
+  - reloader

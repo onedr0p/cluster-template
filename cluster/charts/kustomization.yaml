@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - bitnami-charts.yaml
   - bjw-s-charts.yaml
+  - dysnix-charts.yaml
   - external-dns-charts.yaml
   - hajimari-charts.yaml
   - ingress-nginx-charts.yaml

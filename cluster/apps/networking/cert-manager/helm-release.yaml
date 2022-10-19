@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: cert-manager
-  namespace: kube-system
+  namespace: networking
 spec:
   interval: 15m
   chart:
@@ -23,7 +23,7 @@ spec:
     remediation:
       retries: 5
   values:
-    installCRDs: false
+    installCRDs: true
     webhook:
       enabled: true
     extraArgs:
