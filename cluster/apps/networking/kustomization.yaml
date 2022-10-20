@@ -8,3 +8,4 @@ resources:
   - ingress-nginx
   - metallb
   - k8s-gateway
+  - cert-manager
