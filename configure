@@ -403,10 +403,12 @@ generate_ansible_host_secrets() {
     local node_username=
     local node_password=
     local node_hostname=
+    local node_control=
     default_control_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_CONTROL_NODE_HOSTNAME_PREFIX:-k8s-}
     default_worker_node_prefix=${BOOTSTRAP_ANSIBLE_DEFAULT_NODE_HOSTNAME_PREFIX:-k8s-}
     for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
+        node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
         if [[ "${!node_control}" == "true" ]]; then
             node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
             host_key="${!node_hostname:-${default_control_node_prefix}}"
