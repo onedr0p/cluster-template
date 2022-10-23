@@ -27,6 +27,9 @@
               127.0.1.1   {{ inventory_hostname }}
     - name: Packages
       block:
+        - name: Packages | Include package variables
+          ansible.builtin.include_vars:
+            dir: ../inventory/group_vars/kubernetes
         - name: Packages | Improve dnf performance
           ansible.builtin.blockinfile:
             path: /etc/dnf/dnf.conf
