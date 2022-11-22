@@ -6,9 +6,6 @@
 # ssh_authorized_keys:
 
 packages:
-  - "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
-  - "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
-  - dnf-automatic
   - dnf-plugin-system-upgrade
   - dnf-utils
   - hdparm
@@ -20,12 +17,3 @@ packages:
   - nvme-cli
   - socat
   - python3-libselinux
-  # TODO(ansible): Might be required for newer Intel CPU generations
-  # https://ask.fedoraproject.org/t/intel-graphics-best-practices-and-settings-for-hardware-acceleration/21119
-  # - intel-media-driver
-  # - mesa-dri-drivers
-  # - libva-intel-driver
-  # - libva-intel-hybrid-driver
-  # - libva-utils
-  # - libva-vdpau-driver
-  # - libvdpau-va-gl
