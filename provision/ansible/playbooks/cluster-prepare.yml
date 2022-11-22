@@ -27,21 +27,6 @@
               127.0.1.1   {{ inventory_hostname }}
     - name: Packages
       block:
-        - name: Packages | Improve dnf performance
-          ansible.builtin.blockinfile:
-            path: /etc/dnf/dnf.conf
-            block: |
-              defaultyes=True
-              deltarpm=True
-              install_weak_deps=False
-              max_parallel_downloads={{ ansible_processor_vcpus | default('8') }}
-        - name: Packages | Import rpmfusion keys
-          ansible.builtin.rpm_key:
-            state: present
-            key: "{{ item }}"
-          loop:
-            - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
-            - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
         - name: Packages | Install required packages
           ansible.builtin.dnf:
             name: "{{ packages | default([]) }}"
@@ -50,11 +35,6 @@
         - name: Packages | Remove leaf packages
           ansible.builtin.dnf:
             autoremove: true
-        - name: Packages | Enable automatic downloads of updates
-          ansible.builtin.systemd:
-            service: dnf-automatic-download.timer
-            enabled: true
-            state: started
     - name: User Configuration
       block:
         - name: User Configuration | Add additional SSH public keys
