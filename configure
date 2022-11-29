@@ -53,16 +53,16 @@ main() {
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/cluster/flux/vars/cluster-secrets.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/networking/cert-manager/issuers/secret.sops.yaml"
+            > "${PROJECT_DIR}/cluster/apps/kube-system/cert-manager/issuers/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cloudflare-ddns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/networking/cloudflare-ddns/secret.sops.yaml"
+            > "${PROJECT_DIR}/cluster/apps/kube-system/cloudflare-ddns/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/external-dns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
+            > "${PROJECT_DIR}/cluster/apps/kube-system/external-dns/secret.sops.yaml"
         # encrypt cluster secrets
         sops --encrypt --in-place "${PROJECT_DIR}/cluster/flux/vars/cluster-secrets.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/cert-manager/issuers/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/cloudflare-ddns/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/kube-system/cert-manager/issuers/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/kube-system/cloudflare-ddns/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/kube-system/external-dns/secret.sops.yaml"
         # generate terraform secrets
         envsubst < "${PROJECT_DIR}/tmpl/terraform/secret.sops.yaml" \
             > "${PROJECT_DIR}/provision/terraform/cloudflare/secret.sops.yaml"

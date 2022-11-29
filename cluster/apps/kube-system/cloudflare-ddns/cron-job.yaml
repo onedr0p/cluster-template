@@ -3,7 +3,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: &app cloudflare-ddns
-  namespace: default
+  namespace: kube-system
 spec:
   schedule: "@hourly"
   concurrencyPolicy: Forbid

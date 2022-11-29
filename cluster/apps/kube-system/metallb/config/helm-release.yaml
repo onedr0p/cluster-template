@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: metallb-config
-  namespace: networking
+  namespace: kube-system
 spec:
   interval: 15m
   chart:
@@ -23,14 +23,14 @@ spec:
       retries: 5
   dependsOn:
     - name: metallb
-      namespace: networking
+      namespace: kube-system
   values:
     resources:
       - apiVersion: metallb.io/v1beta1
         kind: L2Advertisement
         metadata:
           name: l2-ip
-          namespace: networking
+          namespace: kube-system
         spec:
           ipAddressPools:
             - default-pool
@@ -39,7 +39,7 @@ spec:
         kind: IPAddressPool
         metadata:
           name: default-pool
-          namespace: networking
+          namespace: kube-system
         spec:
           addresses:
             - "${METALLB_LB_RANGE}"

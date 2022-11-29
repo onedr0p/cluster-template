@@ -2,5 +2,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - namespace.yaml
-  - metrics-server
+  - ./namespace.yaml
+  - ./cert-manager
+  - ./cloudflare-ddns
+  - ./external-dns
+  - ./ingress-nginx
+  - ./k8s-gateway
+  - ./metallb
+  - ./metrics-server
+  - ./reloader
