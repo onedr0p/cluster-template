@@ -256,6 +256,16 @@ verify_binaries() {
     _has_binary "task"
     _has_binary "terraform"
     _has_binary "tflint"
+
+    if ! [[ "$(sops --version)" =~ 3\.[0-9]+\.[0-9]+ ]]; then
+        _log "ERROR" "Incompatible sops version, make sure you are using the latest release of v3"
+        exit 1
+    fi
+
+    if ! [[ "$(yq --version)" =~ 4\.[0-9]+\.[0-9]+ ]]; then
+        _log "ERROR" "Incompatible yq version, make sure you are using the latest release of v4"
+        exit 1
+    fi
 }
 
 verify_kubevip() {
