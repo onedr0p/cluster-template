@@ -12,8 +12,8 @@ spec:
     kind: GitRepository
     name: flux-cluster
   dependsOn:
-    - name: config
-    - name: charts
+    - name: flux-installation
+    - name: flux-cluster
   decryption:
     provider: sops
     secretRef:

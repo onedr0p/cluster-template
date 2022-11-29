@@ -42,16 +42,16 @@ main() {
             > "${PROJECT_DIR}/.sops.yaml"
         # generate cluster settings
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-settings.yaml" \
-            > "${PROJECT_DIR}/cluster/config/cluster-settings.yaml"
+            > "${PROJECT_DIR}/cluster/flux/vars/cluster-settings.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/flux-cluster.yaml" \
-            > "${PROJECT_DIR}/cluster/flux/flux-system/flux-cluster.yaml"
+            > "${PROJECT_DIR}/cluster/flux/config/flux-cluster.yaml"
         if [[ "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
             envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
                 > "${PROJECT_DIR}/cluster/apps/kube-system/kube-vip/daemon-set.yaml"
         fi
         # generate cluster secrets
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/config/cluster-secrets.sops.yaml"
+            > "${PROJECT_DIR}/cluster/flux/vars/cluster-secrets.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cert-manager-secret.sops.yaml" \
             > "${PROJECT_DIR}/cluster/apps/networking/cert-manager/issuers/secret.sops.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cloudflare-ddns-secret.sops.yaml" \
@@ -59,7 +59,7 @@ main() {
         envsubst < "${PROJECT_DIR}/tmpl/cluster/external-dns-secret.sops.yaml" \
             > "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
         # encrypt cluster secrets
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/config/cluster-secrets.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/flux/vars/cluster-secrets.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/cert-manager/issuers/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/cloudflare-ddns/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
@@ -303,15 +303,15 @@ setup_github_webhook() {
         export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
         _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
 
-        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux-system/webhooks" "${PROJECT_DIR}/cluster/apps/flux-system"
+        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux/webhooks" "${PROJECT_DIR}/cluster/flux/config"
 
-        envsubst < "${PROJECT_DIR}/tmpl/cluster/flux-system/webhooks/github/secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/flux/webhooks/github/secret.sops.yaml" \
+            > "${PROJECT_DIR}/cluster/flux/config/webhooks/github/secret.sops.yaml"
 
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/flux-system/webhooks/github/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/flux/config/webhooks/github/secret.sops.yaml"
 
-        if [[ $(yq eval --no-doc 'contains({"resources": ["webhooks"]})' "${PROJECT_DIR}/cluster/apps/flux-system/kustomization.yaml") == false ]]; then
-            yq --inplace '.resources += [ "webhooks" ]' "${PROJECT_DIR}/cluster/apps/flux-system/kustomization.yaml"
+        if [[ $(yq eval --no-doc 'contains({"resources": ["./webhooks"]})' "${PROJECT_DIR}/cluster/flux/config/kustomization.yaml") == false ]]; then
+            yq --inplace '.resources += [ "./webhooks" ]' "${PROJECT_DIR}/cluster/flux/config/kustomization.yaml"
         fi
     fi
 }
