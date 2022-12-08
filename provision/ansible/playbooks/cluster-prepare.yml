@@ -29,7 +29,7 @@
       block:
         - name: Packages | Install required packages
           ansible.builtin.dnf:
-            name: "{{ packages | default([]) }}"
+            name: "{{ fedora.packages | default([]) }}"
             state: present
             update_cache: true
         - name: Packages | Remove leaf packages
@@ -38,12 +38,14 @@
       when: ansible_facts['distribution'] == 'Fedora'
     - name: Packages | Ubuntu
       block:
-        - name: Packages | Ensure the cache is updated
+        - name: Packages | Install required packages
           ansible.builtin.apt:
-            update_cache: yes
-        - name: Packages | Ensure the packages are updated
+            name: "{{ ubuntu.packages | default([]) }}"
+            state: present
+            update_cache: true
+        - name: Packages | Remove leaf packages
           ansible.builtin.apt:
-            upgrade: dist
+            autoremove: true
       when: ansible_facts['distribution'] == 'Ubuntu'
     - name: User Configuration
       block:
@@ -54,12 +56,20 @@
           loop: "{{ public_ssh_keys | default([]) }}"
     - name: System Configuration (1)
       block:
-        - name: System Configuration (1) | Disable firewalld
+        - name: System Configuration (1) | Disable firewalld | Fedora
           ansible.builtin.systemd:
             service: firewalld.service
             enabled: false
             masked: true
             state: stopped
+          when: ansible_facts['distribution'] == 'Fedora'
+        - name: System Configuration (1) | Disable ufw | Ubuntu
+          ansible.builtin.systemd:
+            service: ufw.service
+            enabled: false
+            masked: true
+            state: stopped
+          when: ansible_facts['distribution'] == 'Ubuntu' and "{{ ubuntu.disable_ufw | default true }}" == true
         - name: System Configuration (1) | Enable fstrim
           ansible.builtin.systemd:
             service: fstrim.timer
@@ -95,14 +105,28 @@
               net.bridge.bridge-nf-call-ip6tables: 1
               fs.inotify.max_user_watches: 524288
               fs.inotify.max_user_instances: 512
-        - name: System Configuration (2) | Disable swap
+        - name: System Configuration (2) | Disable swap | Fedora
           ansible.builtin.dnf:
             name: zram-generator-defaults
             state: absent
-        - name: System Configuration (2) | Permissive SELinux
+          when: ansible_facts['distribution'] == 'Fedora'
+        - name: System Configuration (2) | Disable swap at runtime | Ubuntu
+          ansible.builtin.command: swapoff -a
+          when: ansible_facts['distribution'] == 'Ubuntu' and "{{ ubuntu.disable_swap | default true }}" == true and ansible_swaptotal_mb > 0
+        - name: System Configuration (2) | Disable swap at boot | Ubuntu
+          ansible.posix.mount:
+            name: "{{ item }}"
+            fstype: swap
+            state: absent
+            loop:
+              - swap
+              - none
+          when: ansible_facts['distribution'] == 'Ubuntu' and "{{ ubuntu.disable_swap | default true }}" == true
+        - name: System Configuration (2) | Permissive SELinux | Fedora
           ansible.posix.selinux:
             state: permissive
             policy: targeted
+          when: ansible_facts['distribution'] == 'Fedora'
       notify: Reboot
 
   handlers:
