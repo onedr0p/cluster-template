@@ -34,6 +34,7 @@ _Additional applications include [hajimari](https://github.com/toboshii/hajimari
 For provisioning the following tools will be used:
 
 - [Fedora 36 Server](https://getfedora.org/en/server/download/) - Universal operating system that supports running all kinds of home related workloads in Kubernetes and has a faster release cycle
+- [Ubuntu 22.04 Server](https://ubuntu.com/download/server) - Alternative operating system, limited community support
 - [Ansible](https://www.ansible.com) - Provision Fedora Server and install k3s
 - [Terraform](https://www.terraform.io) - Provision an already existing Cloudflare domain and certain DNS records to be used with your k3s cluster
 
