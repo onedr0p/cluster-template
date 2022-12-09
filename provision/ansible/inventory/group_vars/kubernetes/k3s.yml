@@ -28,9 +28,27 @@ k3s_registration_address: "{{ kubevip_address }}"
 
 # (list) A list of URLs to deploy on the primary control plane. Read notes below.
 k3s_server_manifests_urls:
+  # Tigera Operator
   # https://github.com/projectcalico/calico/issues/7003
   - url: https://raw.githubusercontent.com/projectcalico/calico/v3.24.2/manifests/tigera-operator.yaml
     filename: tigera-operator.yaml
+  # Prometheus Operator
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagerconfigs.yaml
+    filename: monitoring.coreos.com_alertmanagerconfigs.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagers.yaml
+    filename: monitoring.coreos.com_alertmanagers.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+    filename: monitoring.coreos.com_podmonitors.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_probes.yaml
+    filename: monitoring.coreos.com_probes.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
+    filename: monitoring.coreos.com_prometheuses.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+    filename: monitoring.coreos.com_prometheusrules.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+    filename: monitoring.coreos.com_servicemonitors.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.60.1/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
+    filename: monitoring.coreos.com_thanosrulers.yaml
 
 # (list) A flat list of templates to deploy on the primary control plane
 # /var/lib/rancher/k3s/server/manifests

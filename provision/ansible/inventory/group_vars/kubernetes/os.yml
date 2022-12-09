@@ -17,7 +17,9 @@ fedora:
     - nano
     - nvme-cli
     - socat
+    - python3-kubernetes
     - python3-libselinux
+    - python3-pyyaml
 
 ubuntu:
   # disable_ufw: true
@@ -31,3 +33,5 @@ ubuntu:
     - nano
     - nvme-cli
     - socat
+    - python3-kubernetes
+    - python3-yaml
