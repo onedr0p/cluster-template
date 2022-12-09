@@ -119,7 +119,9 @@
             fstype: swap
             state: absent
             loop: ["none", "swap"]
-          when: ansible_facts['distribution'] == 'Ubuntu' and "{{ ubuntu.disable_swap | default true }}" == true
+          when:
+            - ansible_facts['distribution'] == 'Ubuntu'
+            - "{{ ubuntu.disable_swap | default true }}" == true
         - name: System Configuration (2) | Permissive SELinux | Fedora
           ansible.posix.selinux:
             state: permissive
