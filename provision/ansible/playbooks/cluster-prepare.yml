@@ -112,7 +112,10 @@
           when: ansible_facts['distribution'] == 'Fedora'
         - name: System Configuration (2) | Disable swap at runtime | Ubuntu
           ansible.builtin.command: swapoff -a
-          when: ansible_facts['distribution'] == 'Ubuntu' and "{{ ubuntu.disable_swap | default true }}" == true and ansible_swaptotal_mb > 0
+          when:
+            - ansible_facts['distribution'] == 'Ubuntu'
+            - "{{ ubuntu.disable_swap | default true }}" == true
+            - ansible_swaptotal_mb > 0
         - name: System Configuration (2) | Disable swap at boot | Ubuntu
           ansible.posix.mount:
             name: "{{ item }}"
