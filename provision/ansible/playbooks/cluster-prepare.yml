@@ -69,7 +69,9 @@
             enabled: false
             masked: true
             state: stopped
-          when: ansible_facts['distribution'] == 'Ubuntu' and "{{ ubuntu.disable_ufw | default true }}" == true
+          when:
+            - ansible_facts['distribution'] == 'Ubuntu'
+            - "{{ ubuntu.disable_ufw | default true }}" == true
         - name: System Configuration (1) | Enable fstrim
           ansible.builtin.systemd:
             service: fstrim.timer
