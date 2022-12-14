@@ -22,8 +22,6 @@ fedora:
     - python3-pyyaml
 
 ubuntu:
-  # disable_ufw: true
-  # disable_swap: true
   packages:
     - hdparm
     - htop
