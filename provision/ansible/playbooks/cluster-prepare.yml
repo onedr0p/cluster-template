@@ -69,9 +69,7 @@
             enabled: false
             masked: true
             state: stopped
-          when:
-            - ansible_facts['distribution'] == 'Ubuntu'
-            - "{{ ubuntu.disable_ufw | default true }}" == true
+          when: ansible_facts['distribution'] == 'Ubuntu'
         - name: System Configuration (1) | Enable fstrim
           ansible.builtin.systemd:
             service: fstrim.timer
@@ -116,7 +114,6 @@
           ansible.builtin.command: swapoff -a
           when:
             - ansible_facts['distribution'] == 'Ubuntu'
-            - "{{ ubuntu.disable_swap | default true }}" == true
             - ansible_swaptotal_mb > 0
         - name: System Configuration (2) | Disable swap at boot | Ubuntu
           ansible.posix.mount:
@@ -124,9 +121,7 @@
             fstype: swap
             state: absent
             loop: ["none", "swap"]
-          when:
-            - ansible_facts['distribution'] == 'Ubuntu'
-            - "{{ ubuntu.disable_swap | default true }}" == true
+          when: ansible_facts['distribution'] == 'Ubuntu'
         - name: System Configuration (2) | Permissive SELinux | Fedora
           ansible.posix.selinux:
             state: permissive
