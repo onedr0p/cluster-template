@@ -8,6 +8,7 @@ resources:
   - ./external-dns
   - ./ingress-nginx
   - ./k8s-gateway
+  - ./kube-vip
   - ./metallb
   - ./metrics-server
   - ./reloader

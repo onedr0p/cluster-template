@@ -45,10 +45,8 @@ main() {
             > "${PROJECT_DIR}/cluster/flux/vars/cluster-settings.yaml"
         envsubst < "${PROJECT_DIR}/tmpl/cluster/flux-cluster.yaml" \
             > "${PROJECT_DIR}/cluster/flux/config/flux-cluster.yaml"
-        if [[ "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
-            envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
-                > "${PROJECT_DIR}/cluster/apps/kube-system/kube-vip/daemon-set.yaml"
-        fi
+        envsubst < "${PROJECT_DIR}/tmpl/cluster/kube-vip-daemonset.yaml" \
+            > "${PROJECT_DIR}/cluster/apps/kube-system/kube-vip/daemon-set.yaml"
         # generate cluster secrets
         envsubst < "${PROJECT_DIR}/tmpl/cluster/cluster-secrets.sops.yaml" \
             > "${PROJECT_DIR}/cluster/flux/vars/cluster-secrets.sops.yaml"
@@ -71,18 +69,6 @@ main() {
         # generate ansible settings
         envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" \
             > "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
-        # include kube-vip if enabled
-        if [[ ${BOOTSTRAP_KUBE_VIP_ENABLED} == "true" ]]; then
-            if [[ $(yq eval --no-doc 'contains({"resources": ["kube-vip"]})' "${PROJECT_DIR}/cluster/apps/kube-system/kustomization.yaml") == false ]]; then
-                yq --inplace '.resources += [ "kube-vip" ]' "${PROJECT_DIR}/cluster/apps/kube-system/kustomization.yaml"
-            fi
-            if [[ $(yq eval --no-doc 'contains({"k3s_server_manifests_templates": ["kube-vip-daemonset.yaml.j2"]})' "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/k3s.yml") == false ]]; then
-                yq --inplace '.k3s_server_manifests_templates += [ "kube-vip-daemonset.yaml.j2" ]' "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/k3s.yml"
-            fi
-            if [[ $(yq eval --no-doc 'contains({"k3s_server_manifests_urls": [{"url": "https://kube-vip.io/manifests/rbac.yaml", "filename": "kube-vip-rbac.yaml"}]})' "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/k3s.yml") == false ]]; then
-                yq --inplace '.k3s_server_manifests_urls += [{"url": "https://kube-vip.io/manifests/rbac.yaml", "filename": "kube-vip-rbac.yaml"}]' "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/k3s.yml"
-            fi
-        fi
         # generate ansible hosts file and secrets
         generate_ansible_hosts
         generate_ansible_host_secrets

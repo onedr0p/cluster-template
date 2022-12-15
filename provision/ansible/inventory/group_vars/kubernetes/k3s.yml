@@ -28,6 +28,9 @@ k3s_registration_address: "{{ kubevip_address }}"
 
 # (list) A list of URLs to deploy on the primary control plane. Read notes below.
 k3s_server_manifests_urls:
+  # Kube-vip
+  - url: https://kube-vip.io/manifests/rbac.yaml
+    filename": kube-vip-rbac.yaml
   # Tigera Operator
   # https://github.com/projectcalico/calico/issues/7003
   - url: https://raw.githubusercontent.com/projectcalico/calico/v3.24.2/manifests/tigera-operator.yaml
@@ -53,4 +56,5 @@ k3s_server_manifests_urls:
 # (list) A flat list of templates to deploy on the primary control plane
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
-  - "calico-installation.yaml.j2"
+  - calico-installation.yaml.j2
+  - kube-vip-daemonset.yaml.j2
