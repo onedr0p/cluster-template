@@ -299,16 +299,14 @@ setup_github_webhook() {
         export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
         _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
 
-        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux/webhooks" "${PROJECT_DIR}/cluster/flux/config"
+        mkdir -p "${PROJECT_DIR}/cluster/flux/add-ons"
+        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux/webhooks" "${PROJECT_DIR}/cluster/flux/add-ons"
+        cp -rf  "${PROJECT_DIR}/tmpl/cluster/flux/kustomization.yaml" "${PROJECT_DIR}/cluster/flux/add-ons"
 
         envsubst < "${PROJECT_DIR}/tmpl/cluster/flux/webhooks/github/secret.sops.yaml" \
-            > "${PROJECT_DIR}/cluster/flux/config/webhooks/github/secret.sops.yaml"
+            > "${PROJECT_DIR}/cluster/flux/add-ons/webhooks/github/secret.sops.yaml"
 
-        sops --encrypt --in-place "${PROJECT_DIR}/cluster/flux/config/webhooks/github/secret.sops.yaml"
-
-        if [[ $(yq eval --no-doc 'contains({"resources": ["./webhooks"]})' "${PROJECT_DIR}/cluster/flux/config/kustomization.yaml") == false ]]; then
-            yq --inplace '.resources += [ "./webhooks" ]' "${PROJECT_DIR}/cluster/flux/config/kustomization.yaml"
-        fi
+        sops --encrypt --in-place "${PROJECT_DIR}/cluster/flux/add-ons/webhooks/github/secret.sops.yaml"
     fi
 }
 
