@@ -527,9 +527,10 @@ The benefits of a public repository include:
   10. Optionally set your repository to Private in your repository settings.
 </details>
 
-## 👉 Troubleshooting
+## 👉 Help
 
-Our [wiki](https://github.com/onedr0p/flux-cluster-template/wiki) (WIP, contributions welcome) is a good place to start troubleshooting issues. If that doesn't cover your issue, come join and say Hi in our community [Discord](https://discord.gg/k8s-at-home).
+- [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions)
+- [Discord](https://discord.gg/k8s-at-home)
 
 ## ❔ What's next
 
