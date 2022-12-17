@@ -30,7 +30,7 @@ k3s_registration_address: "{{ kubevip_address }}"
 k3s_server_manifests_urls:
   # Kube-vip
   - url: https://kube-vip.io/manifests/rbac.yaml
-    filename": kube-vip-rbac.yaml
+    filename: kube-vip-rbac.yaml
   # Tigera Operator
   # https://github.com/projectcalico/calico/issues/7003
   - url: https://raw.githubusercontent.com/projectcalico/calico/v3.24.2/manifests/tigera-operator.yaml
