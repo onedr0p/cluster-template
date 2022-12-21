@@ -10,34 +10,20 @@
     "enabled": true
   },
   "flux": {
-    "fileMatch": ["cluster/.+\\.ya?ml$"]
+    "fileMatch": ["kubernetes/.+\\.ya?ml$"]
   },
   "helm-values": {
-    "fileMatch": ["cluster/.+\\.ya?ml$"]
+    "fileMatch": ["kubernetes/.+\\.ya?ml$"]
   },
   "kubernetes": {
-    "fileMatch": [
-      "cluster/.+\\.ya?ml$",
-      "provision/ansible/.+\\.ya?ml.j2$"
-    ]
+    "fileMatch": ["kubernetes/.+\\.ya?ml$"]
   },
   "regexManagers": [
     {
-      "description": "Process CRD dependencies",
-      "fileMatch": ["cluster/crds/.+\\.ya?ml$"],
-      "matchStrings": [
-        // GitRepository and Flux Kustomization where 'Git release/tag' matches 'Helm' version
-        "registryUrl=(?<registryUrl>\\S+) chart=(?<depName>\\S+)\n.*?(?<currentValue>[^-\\s]*)\n",
-        // Kustomization where 'GitHub release artifact URL' matches 'Docker image' version
-        "datasource=(?<datasource>\\S+) image=(?<depName>\\S+)\n.*?-\\s(.*?)\/(?<currentValue>[^/]+)\/[^/]+\n"
-      ],
-      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}"
-    },
-    {
       "description": "Process various other dependencies",
       "fileMatch": [
-        "provision/ansible/.+\\.ya?ml$",
-        "cluster/.+\\.ya?ml$"
+        "ansible/.+\\.ya?ml$",
+        "kubernetes/.+\\.ya?ml$"
       ],
       "matchStrings": [
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?\"(?<currentValue>.*)\"\n"
@@ -47,12 +33,6 @@
     }
   ],
   "packageRules": [
-    {
-      "description": "Disable kubernetes-api",
-      "matchManagers": ["kubernetes"],
-      "matchDatasources": ["kubernetes-api"],
-      "enabled": false
-    },
     // setup datasources
     {
       "matchDatasources": ["helm"],
@@ -66,14 +46,6 @@
       "commitMessageTopic": "container image {{depName}}",
       "commitMessageExtra": "to {{#if isSingleVersion}}v{{{newVersion}}}{{else}}{{{newValue}}}{{/if}}",
       "matchUpdateTypes": ["major", "minor", "patch"]
-    },
-    {
-      "description": "Group Cert-Manager image (for CRDs) and chart",
-      "groupName": "Cert-Manager",
-      "matchPackagePatterns": ["cert-manager"],
-      "matchDatasources": ["docker", "helm"],
-      "group": { "commitMessageTopic": "{{{groupName}}} group" },
-      "separateMinorPatch": true
     },
     // add labels according to package and update types
     {

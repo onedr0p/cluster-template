@@ -102,11 +102,10 @@ It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-com
 The Git repository contains the following directories under `cluster` and are ordered below by how Flux will apply them.
 
 ```sh
-📁 cluster      # k8s cluster defined as code
-├─📁 flux       # flux, gitops operator, loaded before everything
-├─📁 charts     # helm chart repos
-├─📁 config     # cluster config
-└─📁 apps       # regular apps, namespaced dir tree, loaded last
+📁 kubernetes      # Kubernetes cluster defined as code
+├─📁 bootstrap     # Flux installation
+├─📁 flux          # Main Flux configuration of repository
+└─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
 ## 🚀 Lets go
@@ -221,7 +220,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### ⛵ Installing k3s with Ansible
 
-📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./provision/kubeconfig` for use with interacting with your cluster with `kubectl`.
+📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./kubeconfig` for use with interacting with your cluster with `kubectl`.
 
 ☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
 
@@ -254,7 +253,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 ### ☁️ Configuring Cloudflare DNS with Terraform
 
-📍 Review the Terraform scripts under `./provision/terraform/cloudflare/` and make sure you understand what it's doing (no really review it).
+📍 Review the Terraform scripts under `./terraform/cloudflare/` and make sure you understand what it's doing (no really review it).
 
 If your domain already has existing DNS records **be sure to export those DNS settings before you continue**.
 
@@ -296,7 +295,7 @@ The cluster application [external-dns](https://github.com/kubernetes-sigs/extern
 
 2. Push you changes to git
 
-    📍 **Verify** all the `*.sops.yaml` and `*.sops.yml` files under the `./cluster` and `./provision` folders are **encrypted** with SOPS
+    📍 **Verify** all the `*.sops.yaml` and `*.sops.yml` files under the `./ansible`, `./kubernetes`, and `./terraform` folders are **encrypted** with SOPS
 
     ```sh
     git add -A
@@ -418,7 +417,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
 1. Webhook URL - Your webhook receiver will be deployed on `https://flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`. In order to find out your hook id you can run the following command:
 
     ```sh
-    kubectl -n flux-system get receiver/github-receiver --kubeconfig=./provision/kubeconfig
+    kubectl -n flux-system get receiver/github-receiver --kubeconfig=./kubeconfig
     # NAME              AGE    READY   STATUS
     # github-receiver   6h8m   True    Receiver initialized with URL: /hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
@@ -432,7 +431,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
 2. Webhook secret - Your webhook secret can be found by decrypting the `secret.sops.yaml` using the following command:
 
     ```sh
-    sops -d ./cluster/flux/config/webhooks/github/secret.sops.yaml | yq .stringData.token
+    sops -d ./kubernetes/flux/config/webhooks/github/secret.sops.yaml | yq .stringData.token
     ```
 
     **Note:** Don't forget to update the `BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET` variable in your `.config.env` file so it matches the generated secret if applicable
@@ -467,12 +466,11 @@ The benefits of a public repository include:
 
   1. Generate new SSH key:
       ```sh
-      ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./cluster/github-deploy-key -q -P ""
+      ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./kubernetes/bootstrap/github-deploy.key -q -P ""
       ```
   2. Paste public key in the deploy keys section of your repository settings
-  3. Create sops secret in `./cluster/bootstrap/github-deploy-key.sops.yaml` with the contents of:
+  3. Create sops secret in `./kubernetes/bootstrap/github-deploy-key.sops.yaml` with the contents of:
       ```yaml
-      # yamllint disable
       apiVersion: v1
       kind: Secret
       metadata:
@@ -492,19 +490,18 @@ The benefits of a public repository include:
       ```
   4. Encrypt secret:
       ```sh
-      sops --encrypt --in-place ./cluster/bootstrap/github-deploy-key.sops.yaml
+      sops --encrypt --in-place ./kubernetes/bootstrap/github-deploy-key.sops.yaml
       ```
   5. Apply secret to cluster:
       ```sh
-      sops --decrypt cluster/bootstrap/github-deploy-key.sops.yaml | kubectl apply -f -
+      sops --decrypt ./kubernetes/bootstrap/github-deploy-key.sops.yaml | kubectl apply -f -
       ```
-  6.  Update `cluster/flux/config/flux-cluster.yaml`:
+  6.  Update `./kubernetes/flux/config/cluster.yaml`:
       ```yaml
-      ---
       apiVersion: source.toolkit.fluxcd.io/v1beta2
       kind: GitRepository
       metadata:
-        name: flux-cluster
+        name: home-kubernetes
         namespace: flux-system
       spec:
         interval: 10m

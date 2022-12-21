@@ -1,0 +1,15 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./bitnami.yaml
+  - ./bjw-s.yaml
+  - ./external-dns.yaml
+  - ./hajimari.yaml
+  - ./ingress-nginx.yaml
+  - ./jetstack.yaml
+  - ./k8s-gateway.yaml
+  - ./metallb.yaml
+  - ./metrics-server.yaml
+  - ./stakater.yaml
+  - ./weave-gitops.yaml

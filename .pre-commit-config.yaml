@@ -6,37 +6,9 @@ repos:
     hooks:
       - args:
           - --config-file
-          - .github/linters/.yamllint.yaml
+          - .yamllint.yaml
         id: yamllint
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
-    hooks:
-      - id: check-merge-conflict
-      - id: end-of-file-fixer
-      - id: mixed-line-ending
-      - id: trailing-whitespace
-        args: [--markdown-linebreak-ext=md]
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.3.1
-    hooks:
-      - id: remove-crlf
-      - id: remove-tabs
-  - repo: https://github.com/sirosen/texthooks
-    rev: 0.4.0
-    hooks:
-      - id: fix-smartquotes
-  - repo: https://github.com/onedr0p/sops-pre-commit
-    rev: v2.1.1
-    hooks:
-      - id: forbid-secrets
-        exclude: |
-          (?x)^(
-            cluster\/apps\/kube-system\/kube-vip\/rbac.yaml|
-            tmpl\/.*.sops\.ya?ml
-            )$
   - repo: https://github.com/gruntwork-io/pre-commit
     rev: v0.1.17
     hooks:
       - id: terraform-fmt
-      - id: terraform-validate
-      - id: tflint

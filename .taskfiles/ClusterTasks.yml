@@ -11,11 +11,11 @@ tasks:
   install:
     desc: Install Flux into your cluster
     cmds:
-      - kubectl apply --kustomize {{.CLUSTER_DIR}}/bootstrap/
+      - kubectl apply --kustomize {{.KUBERNETES_DIR}}/bootstrap
       - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
-      - sops --decrypt {{.CLUSTER_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply -f -
-      - kubectl apply -f {{.CLUSTER_DIR}}/flux/vars/cluster-settings.yaml
-      - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/config
+      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply -f -
+      - kubectl apply -f {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml
+      - kubectl apply --kustomize {{.KUBERNETES_DIR}}/flux/config
       - task: reconcile
     preconditions:
       - sh: test -f {{.SOPS_AGE_KEY_FILE}}
@@ -27,8 +27,8 @@ tasks:
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
-      - flux reconcile -n flux-system source git flux-cluster
-      - flux reconcile -n flux-system kustomization flux-cluster
+      - flux reconcile -n flux-system source git home-kubernetes
+      - flux reconcile -n flux-system kustomization cluster
 
   hr-restart:
     desc: Restart all failed Helm Releases
