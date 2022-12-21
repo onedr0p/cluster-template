@@ -98,7 +98,7 @@ It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-com
 
 ## 📂 Repository structure
 
-The Git repository contains the following directories under `cluster` and are ordered below by how Flux will apply them.
+The Git repository contains the following directories under `kubernetes` and are ordered below by how Flux will apply them.
 
 ```sh
 📁 kubernetes      # Kubernetes cluster defined as code
@@ -407,7 +407,7 @@ Once you have confirmed there are no issues requesting your certificates replace
 
 The base Renovate configuration provided in your repository can be view at [.github/renovate.json5](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate.json5). If you notice this only runs on weekends and you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/) or simply remove it.
 
-To enable Renovate on your repository, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and choose your repository. Over time Renovate will create PRs for out-of-date dependencies it finds. Any merged PRs that are in the cluster directory Flux will deploy.
+To enable Renovate on your repository, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and choose your repository. Over time Renovate will create PRs for out-of-date dependencies it finds. Any merged PRs that are in the kubernetes directory Flux will deploy.
 
 ### 🪝 Github Webhook
 
