@@ -1,0 +1,19 @@
+---
+name: "Meta Labeler"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: [".github/labeler.yaml"]
+
+jobs:
+  labeler:
+    name: Labeler
+    runs-on: ubuntu-latest
+    steps:
+      - name: Labeler
+        uses: actions/labeler@5c7539237e04b714afd8ad9b4aed733815b9fab4 # renovate: tag=v4.0.2
+        with:
+          configuration-path: .github/labeler.yaml
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
