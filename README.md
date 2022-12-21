@@ -83,7 +83,6 @@ For provisioning the following tools will be used:
 ### ⚠️ pre-commit
 
 It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-commit hooks that come with this repository.
-[sops-pre-commit](https://github.com/k8s-at-home/sops-pre-commit) will check to make sure you are not committing non-encrypted Kubernetes secrets to your repository.
 
 1. Enable Pre-Commit
 
