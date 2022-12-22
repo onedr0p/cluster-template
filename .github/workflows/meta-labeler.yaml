@@ -3,9 +3,8 @@ name: "Meta Labeler"
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: ["main"]
-    paths: [".github/labeler.yaml"]
 
 jobs:
   labeler:
