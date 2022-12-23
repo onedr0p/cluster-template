@@ -26,7 +26,7 @@ spec:
     reloader:
       enableHA: true
       deployment:
-        replicas: 3
+        replicas: 1
       reloadStrategy: annotations
       reloadOnCreate: false
       podMonitor:

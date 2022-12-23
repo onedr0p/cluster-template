@@ -7,6 +7,9 @@ metadata:
   labels:
     substitution.flux.home.arpa/enabled: "true"
 spec:
+  dependsOn:
+    - name: cluster-apps-node-feature-discovery
+      namespace: node-feature-discovery
   path: ./kubernetes/apps/networking/metallb/app
   prune: true
   sourceRef:

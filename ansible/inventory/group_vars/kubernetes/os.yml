@@ -5,31 +5,17 @@
 # (list) Additional ssh public keys to add to the nodes
 # ssh_authorized_keys:
 
-fedora:
-  packages:
-    - dnf-plugin-system-upgrade
-    - dnf-utils
-    - hdparm
-    - htop
-    - intel-gpu-tools
-    - ipvsadm
-    - lm_sensors
-    - nano
-    - nvme-cli
-    - socat
-    - python3-kubernetes
-    - python3-libselinux
-    - python3-pyyaml
-
-ubuntu:
-  packages:
-    - hdparm
-    - htop
-    - intel-gpu-tools
-    - ipvsadm
-    - lm-sensors
-    - nano
-    - nvme-cli
-    - socat
-    - python3-kubernetes
-    - python3-yaml
+packages:
+  - jq
+  - iptables
+  - lm-sensors
+  - nfs-common
+  - ipvsadm
+  - open-iscsi
+  - util-linux
+  - dbus
+  - python3-pip
+  - python3-setuptools
+  - python3-kubernetes
+  - python3-yaml
+  - python3-netaddr

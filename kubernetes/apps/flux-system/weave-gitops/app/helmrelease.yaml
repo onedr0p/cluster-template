@@ -25,19 +25,9 @@ spec:
     adminUser:
       create: true
       username: admin
-    ingress:
-      enabled: true
-      className: nginx
-      annotations:
-        hajimari.io/icon: "sawtooth-wave"
-      hosts:
-        - host: &host "gitops.${SECRET_DOMAIN}"
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - hosts:
-            - *host
+    service:
+      type: LoadBalancerIP
+      loadBalancerIP: ${SVC_WEAVEGITOPS_LB_IP}
     networkPolicy:
       create: false
     metrics:

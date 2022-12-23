@@ -71,27 +71,8 @@
         - kind: Deployment
           name: tigera-operator
           namespace: tigera-operator
-        - kind: DaemonSet
-          name: kube-vip
-          namespace: kube-system
         - kind: Installation
           name: default
-        - kind: CustomResourceDefinition
-          name: alertmanagerconfigs.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: alertmanagers.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: podmonitors.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: probes.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheuses.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheusrules.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: servicemonitors.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: thanosrulers.monitoring.coreos.com
       when:
         - k3s_server_manifests_templates | length > 0
             or k3s_server_manifests_urls | length > 0

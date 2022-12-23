@@ -26,3 +26,25 @@ spec:
       enabled: true
     psp:
       create: false
+    controller:
+      priorityClassName: "system-node-critical"
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      resources:
+        limits:
+          cpu: 250m
+          memory: 250Mi
+    speaker:
+      priorityClassName: "system-node-critical"
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      resources:
+        limits:
+          cpu: 250m
+          memory: 250Mi

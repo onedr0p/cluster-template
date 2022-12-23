@@ -1,0 +1,54 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: longhorn
+  namespace: longhorn-system
+spec:
+  interval: 5m
+  releaseName: longhorn
+  chart:
+    spec:
+      chart: longhorn
+      version: 1.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: longhorn
+        namespace: flux-system
+      interval: 1m
+  dependsOn:
+    - name: metallb
+      namespace: networking
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    service:
+      ui:
+        type: LoadBalancer
+        loadBalancerIP: ${SVC_LONGHORN_LB_IP}
+    persistence:
+      defaultClass: true
+      defaultClassReplicaCount: 1
+    csi:
+      attacherReplicaCount: 1
+      provisionerReplicaCount: 1
+      resizerReplicaCount: 1
+      snapshotterReplicaCount: 1
+    defaultSettings:
+      backupTarget: ${SECRET_SVC_LONGHORN_BACKUP_TARGET}
+      backupTargetCredentialSecret: longhorn-backup-secrets
+      defaultReplicaCount: 1
+    ingress:
+      enabled: false
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "50Mi"
+      limits:
+        cpu: "2500m"
+        memory: "500Mi"

@@ -13,3 +13,4 @@
     - name: Reboot
       ansible.builtin.reboot:
         msg: Rebooting nodes
+        reboot_command: /sbin/reboot
