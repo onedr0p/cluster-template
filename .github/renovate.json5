@@ -18,7 +18,7 @@
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
-  "schedule": ["every sunday"],
+  "schedule": ["every saturday"],
   "pre-commit": {
     "enabled": true
   },
