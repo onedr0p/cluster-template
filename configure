@@ -30,10 +30,11 @@ main() {
     if [[ "${verify}" == 1 ]]; then
         verify_ansible_hosts
         verify_metallb
-        verify_kubevip
+        verify_svc_settings
         verify_addressing
         verify_age
         verify_git_repository
+        verify_tunnel
         verify_cloudflare
         verify_success
     else
@@ -57,21 +58,29 @@ main() {
             > "${PROJECT_DIR}/kubernetes/apps/cert-manager/cert-manager/issuers/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/cert-manager/cert-manager/issuers/secret.sops.yaml"
 
-        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cloudflare-ddns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cloudflared-secret.sops.yaml" \
+            > "${PROJECT_DIR}/kubernetes/apps/networking/cloudflared/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/cloudflared/app/secret.sops.yaml"
 
-        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/external-dns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/emqx-secret.sops.yaml" \
+            > "${PROJECT_DIR}/kubernetes/apps/home/emqx/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/home/emqx/app/secret.sops.yaml"
+
+        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/zigbee2mqtt-secret.sops.yaml" \
+            > "${PROJECT_DIR}/kubernetes/apps/home/zigbee2mqtt/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/home/zigbee2mqtt/app/secret.sops.yaml"
+
+        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/longhorn-secret.sops.yaml" \
+            > "${PROJECT_DIR}/kubernetes/apps/longhorn-system/longhorn/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/longhorn-system/longhorn/app/secret.sops.yaml"
+
+        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/velero-secret.sops.yaml" \
+            > "${PROJECT_DIR}/kubernetes/apps/velero/velero/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/velero/velero/app/secret.sops.yaml"
 
         envsubst < "${PROJECT_DIR}/tmpl/terraform/secret.sops.yaml" \
             > "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
-
-        # generate ansible settings
-        envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" \
-            > "${PROJECT_DIR}/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
 
         # generate ansible hosts file and secrets
         generate_ansible_hosts
@@ -146,9 +155,13 @@ _has_valid_ip() {
 }
 
 verify_addressing() {
-    local found_kube_vip="false"
-    local found_k8s_gateway="false"
     local found_ingress="false"
+    local found_longhorn="false"
+    local found_emqx="false"
+    local found_homeassistant="false"
+    local found_homeassistant_code="false"
+    local found_zigbee2mqtt="false"
+    local found_node_red="false"
 
     # Verify the metallb min and metallb ceiling are in the same network
     metallb_subnet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
@@ -167,26 +180,37 @@ verify_addressing() {
         fi
     done
 
-    # Verify the kube-vip IP is in the same network as the metallb range
-    kubevip_subnet=$(echo "${BOOTSTRAP_KUBE_VIP_ADDR}" | cut -d. -f1,2,3)
-    if [[ "${kubevip_subnet}" != "${metallb_subnet_min}" ]]; then
-        _log "ERROR" "The subnet for kupe-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' is not the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-        exit 1
-    fi
-
     # Depending on the IP address, verify if it should be in the metallb range or not
     metallb_octet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f4)
     metallb_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
     for (( octet=metallb_octet_min; octet<=metallb_octet_ceil; octet++ )); do
         addr="${metallb_subnet_min}.${octet}"
-        if [[ "${addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
-            found_kube_vip="true"
-        fi
-        if [[ "${addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
-            found_k8s_gateway="true"
-        fi
-        if [[ "${addr}" == "${BOOTSTRAP_METALLB_INGRESS_ADDR}" ]]; then
+        if [[ "${addr}" == "${BOOTSTRAP_SVC_TRAEFIK_LB_IP}" ]]; then
             found_ingress="true"
+        fi
+
+        if [[ "${addr}" == "${BOOTSTRAP_SVC_LONGHORN_LB_IP}" ]]; then
+            found_longhorn="true"
+        fi
+
+        if [[ "${addr}" == "${BOOTSTRAP_SVC_EMQX_LB_IP}" ]]; then
+            found_emqx="true"
+        fi
+
+        if [[ "${addr}" == "${BOOTSTRAP_SVC_HOME_ASSISTANT_CODE_LB_IP}" ]]; then
+            found_homeassistant_code="true"
+        fi
+
+        if [[ "${addr}" == "${BOOTSTRAP_SVC_HOME_ASSISTANT_LB_IP}" ]]; then
+            found_homeassistant="true"
+        fi
+
+        if [[ "${addr}" == "${BOOTSTRAP_SVC_ZIGBEE2MQTT_LB_IP}" ]]; then
+            found_zigbee2mqtt="true"
+        fi
+
+        if [[ "${addr}" == "${BOOTSTRAP_SVC_NODERED_LB_IP}" ]]; then
+            found_node_red="true"
         fi
 
         for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
@@ -197,18 +221,38 @@ verify_addressing() {
         done
     done
 
-    if [[ "${found_kube_vip}" == "true" ]]; then
-        _log "ERROR" "The IP for kube-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-        exit 1
-    fi
-
-    if [[ "${found_k8s_gateway}" == "false" ]]; then
-        _log "ERROR" "The IP for k8s_gateway '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-        exit 1
-    fi
-
     if [[ "${found_ingress}" == "false" ]]; then
-        _log "ERROR" "The IP for ingress '${BOOTSTRAP_METALLB_INGRESS_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        _log "ERROR" "The IP for ingress '${BOOTSTRAP_SVC_TRAEFIK_LB_IP}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    if [[ "${found_longhorn}" == "false" ]]; then
+        _log "ERROR" "The IP for longhorn '${BOOTSTRAP_SVC_LONGHORN_LB_IP}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    if [[ "${found_emqx}" == "false" ]]; then
+        _log "ERROR" "The IP for emqx '${BOOTSTRAP_SVC_EMQX_LB_IP}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    if [[ "${found_homeassistant}" == "false" ]]; then
+        _log "ERROR" "The IP for homeassistant '${BOOTSTRAP_SVC_HOME_ASSISTANT_LB_IP}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    if [[ "${found_homeassistant_code}" == "false" ]]; then
+        _log "ERROR" "The IP for ha-code '${BOOTSTRAP_SVC_HOME_ASSISTANT_CODE_LB_IP}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    if [[ "${found_zigbee2mqtt}" == "false" ]]; then
+        _log "ERROR" "The IP for zigbee2mqtt '${BOOTSTRAP_SVC_ZIGBEE2MQTT_LB_IP}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
+        exit 1
+    fi
+
+    if [[ "${found_node_red}" == "false" ]]; then
+        _log "ERROR" "The IP for node-red '${BOOTSTRAP_SVC_NODERED_LB_IP}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
         exit 1
     fi
 }
@@ -260,11 +304,6 @@ verify_binaries() {
     fi
 }
 
-verify_kubevip() {
-    _has_envar "BOOTSTRAP_KUBE_VIP_ADDR"
-    _has_valid_ip "${BOOTSTRAP_KUBE_VIP_ADDR}" "BOOTSTRAP_KUBE_VIP_ADDR"
-}
-
 verify_metallb() {
     local ip_floor=
     local ip_ceil=
@@ -294,23 +333,6 @@ verify_git_repository() {
     export GIT_TERMINAL_PROMPT=1
 }
 
-setup_github_webhook() {
-    _has_envar "BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET"
-
-    WEBHOOK_SECRET="${BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET}"
-
-    if [[ "${WEBHOOK_SECRET}" == "generated" ]]; then
-        WEBHOOK_SECRET="$(openssl rand -base64 30)"
-    fi
-
-    export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
-    _log "INFO" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
-
-    envsubst < "${PROJECT_DIR}/tmpl/kubernetes/github-webhook-token-secret.sops.yaml" \
-        > "${PROJECT_DIR}/kubernetes/apps/flux-system/addons/webhooks/github/secret.sops.yaml"
-    sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/flux-system/addons/webhooks/github/secret.sops.yaml"
-}
-
 setup_weave_gitops() {
     _has_envar "BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD"
 
@@ -329,6 +351,18 @@ setup_weave_gitops() {
     envsubst < "${PROJECT_DIR}/tmpl/kubernetes/weave-gitops-secret.sops.yaml" \
         > "${PROJECT_DIR}/kubernetes/apps/flux-system/weave-gitops/app/secret.sops.yaml"
     sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/flux-system/weave-gitops/app/secret.sops.yaml"
+}
+
+verify_tunnel() {
+    _has_envar "BOOTSTRAP_CLUSTER_DOMAIN"
+    _has_envar "BOOTSTRAP_CLUSTER_SELECTOR"
+    _has_envar "BOOTSTRAP_CLUSTER_CD_TUNNEL_ID"
+    _has_envar "BOOTSTRAP_CLUSTER_CD_TUNNEL_TOKEN"
+
+    if ! echo $BOOTSTRAP_CLUSTER_CD_TUNNEL_TOKEN | base64 -d; then
+        _log "ERROR" "Variable BOOTSTRAP_CLUSTER_CD_TUNNEL_TOKEN must be base64 encoded"
+        exit 1
+    fi
 }
 
 verify_cloudflare() {
