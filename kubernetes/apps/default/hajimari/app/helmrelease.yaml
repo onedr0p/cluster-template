@@ -41,8 +41,9 @@ spec:
         enabled: true
         ingressClassName: nginx
         annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt-staging"
-          nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+          cert-manager.io/cluster-issuer: letsencrypt-staging
+          nginx.ingress.kubernetes.io/whitelist-source-range: |
+            10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
           hajimari.io/enable: "false"
         hosts:
           - host: &host "hajimari.${SECRET_DOMAIN}"
@@ -54,7 +55,7 @@ spec:
               - *host
             secretName: hajimari-tls
     podAnnotations:
-      configmap.reloader.stakater.com/reload: "hajimari-settings"
+      configmap.reloader.stakater.com/reload: hajimari-settings
     persistence:
       data:
         enabled: true
