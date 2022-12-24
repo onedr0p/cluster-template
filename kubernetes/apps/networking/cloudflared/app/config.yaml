@@ -1,0 +1,12 @@
+---
+tunnel: ${SECRET_CLUSTER_CD_TUNNEL_ID}
+credentials-file: /etc/cloudflared/tunnel.json
+no-autoupdate: true
+originRequest:
+  connectTimeout: 30s
+ingress:
+  - hostname: '${SECRET_CLUSTER_SELECTOR}'
+    originRequest:
+      noTLSVerify: true
+    service: https://traefik.networking.svc.cluster.local
+  - service: http_status:404
