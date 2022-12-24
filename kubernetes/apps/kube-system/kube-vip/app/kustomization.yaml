@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: kube-system
 resources:
   - ./rbac.yaml
-  - ./daemon-set.yaml
+  - ./daemonset.yaml
 labels:
   - pairs:
       kustomize.toolkit.fluxcd.io/prune: disabled
