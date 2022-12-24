@@ -4,12 +4,15 @@ kind: Kustomization
 resources:
   - ./bitnami.yaml
   - ./bjw-s.yaml
-  - ./external-dns.yaml
-  - ./hajimari.yaml
-  - ./ingress-nginx.yaml
+  - ./dysnix.yaml
+  - ./emqx.yaml
   - ./jetstack.yaml
-  - ./k8s-gateway.yaml
+  - ./k8s-at-home.yaml
+  - ./longhorn.yaml
   - ./metallb.yaml
   - ./metrics-server.yaml
+  - ./node-feature-discovery.yaml
   - ./stakater.yaml
+  - ./traefik.yaml
+  - ./vmware-tanzu.yaml
   - ./weave-gitops.yaml

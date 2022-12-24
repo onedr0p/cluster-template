@@ -12,7 +12,7 @@ spec:
       version: 3.0.0
       sourceRef:
         kind: HelmRepository
-        name: vmware-tanzu-charts
+        name: vmware-tanzu
         namespace: flux-system
       interval: 5m
   install:
