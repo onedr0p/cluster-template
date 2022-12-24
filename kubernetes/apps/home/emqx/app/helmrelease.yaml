@@ -1,0 +1,47 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: emqx
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: emqx
+      version: 5.0.11
+      sourceRef:
+        kind: HelmRepository
+        name: emqx-charts
+        namespace: flux-system
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 3
+  dependsOn:
+    - name: metallb
+      namespace: networking
+    - name: longhorn
+      namespace: longhorn-system
+  values:
+    replicaCount: 3
+    recreatePods: true
+    emqxConfig:
+      EMQX_ALLOW_ANONYMOUS: "false"
+    service:
+      type: LoadBalancer
+      loadBalancerIP: ${SVC_EMQX_LB_IP}
+    persistence:
+      enabled: true
+      size: 100Mi
+  valuesFrom:
+    - targetPath: emqxConfig.EMQX_DASHBOARD__DEFAULT_USERNAME
+      kind: Secret
+      name: emqx-config
+      valuesKey: dashboard_user
+    - targetPath: emqxConfig.EMQX_DASHBOARD__DEFAULT_PASSWORD
+      kind: Secret
+      name: emqx-config
+      valuesKey: dashboard_password

@@ -1,0 +1,77 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: velero
+  namespace: velero
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: velero
+      version: 3.0.0
+      sourceRef:
+        kind: HelmRepository
+        name: vmware-tanzu-charts
+        namespace: flux-system
+      interval: 5m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    initContainers:
+      - name: velero-plugin-for-aws
+        image: velero/velero-plugin-for-aws:v1.5.2
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /target
+            name: plugins
+    annotations:
+      secret.reloader.stakater.com/reload: velero-s3-creds
+    configuration:
+      extraEnvVars:
+        TZ: ${TIMEZONE}
+      provider: aws
+      backupStorageLocation:
+        name: default
+        bucket: ${SECRET_SVC_VELERO_BUCKET_NAME}
+        default: true
+        config:
+          region: ${SECRET_SVC_VELERO_REGION}
+          s3Url: ${SECRET_SVC_VELERO_ENDPOINT}
+    credentials:
+      existingSecret: velero-s3-creds
+    schedules:
+      daily-backup:
+        # At 6:00am in the morning every day
+        schedule: "0 6 * * *"
+        template:
+          ttl: "168h"
+      weekly-backup:
+        # At the end of the week on a Sunday morning, at 6:00am
+        schedule: "0 6 * * 0"
+        template:
+          ttl: "672h"
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+    backupsEnabled: true
+    snapshotsEnabled: false
+    upgradeCRDs: false
+    cleanUpCRDs: false
+    kubectl:
+      image:
+        repository: docker.io/bitnami/kubectl
+        tag: 1.25.5
+    deployNodeAgent: false
+    resources:
+      requests:
+        memory: 300Mi
+        cpu: 25m
+      limits:
+        memory: 1500Mi
