@@ -523,6 +523,16 @@ The benefits of a public repository include:
   10. Optionally set your repository to Private in your repository settings.
 </details>
 
+### 💨 Kubernetes Dashboard
+
+Included in your cluster is the [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/). Inorder to log into this you will have to get the secret token from the cluster using the command below.
+
+```sh
+kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}'
+```
+
+You should be able to access the dashboard at `https://kubernetes.${SECRET_DOMAIN}`
+
 ## 👉 Help
 
 - [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions)
