@@ -413,7 +413,7 @@ To enable Renovate on your repository, click the 'Configure' button over at thei
 
 Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`. In order to configure Github to send `push` events from your repository to the Flux webhook receiver you will need two things:
 
-1. Webhook URL - Your webhook receiver will be deployed on `https://flux-receiver.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`. In order to find out your hook id you can run the following command:
+1. Webhook URL - Your webhook receiver will be deployed on `https://flux-webhook.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`. In order to find out your hook id you can run the following command:
 
     ```sh
     kubectl -n flux-system get receiver/github-receiver --kubeconfig=./kubeconfig
@@ -424,7 +424,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
     So if my domain was `onedr0p.com` the full url would look like this:
 
     ```text
-    https://flux-receiver.onedr0p.com/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    https://flux-webhook.onedr0p.com/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
 2. Webhook secret - Your webhook secret can be found by decrypting the `secret.sops.yaml` using the following command:
