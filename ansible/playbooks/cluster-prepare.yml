@@ -46,6 +46,12 @@
         - name: Packages | Remove leaf packages
           ansible.builtin.apt:
             autoremove: true
+        - name: Packages | RasPi packages
+          ansible.builtin.apt:
+            name: ["linux-modules-extra-raspi"]
+            install_recommends: false
+          notify: Reboot
+          when: "'raspi' in ansible_kernel"
       when: ansible_facts['distribution'] == 'Ubuntu'
     - name: User Configuration
       block:
