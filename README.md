@@ -139,7 +139,7 @@ Clone the repo to you local workstation and `cd` into it.
     source ~/.bashrc
     ```
 
-4. Fill out the Age public key in the `.config.env` under `BOOTSTRAP_AGE_PUBLIC_KEY`, **note** the public key should start with `age`...
+4. Fill out the Age public key in the appropriate variable in configuration section below, **note** the public key should start with `age`...
 
 ### ☁️ Global Cloudflare API Key
 
@@ -149,7 +149,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 2. Under the `API Keys` section, create a global API Key.
 
-3. Use the API Key in the configuration section below.
+3. Use the API Key in the appropriate variable in configuration section below.
 
 📍 You may wish to update this later on to a Cloudflare **API Token** which can be scoped to certain resources. I do not recommend using a Cloudflare **API Key**, however for the purposes of this template it is easier getting started without having to define which scopes and resources are needed. For more information see the [Cloudflare docs on API Keys and Tokens](https://developers.cloudflare.com/api/).
 
