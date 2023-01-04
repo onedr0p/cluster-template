@@ -11,7 +11,6 @@ fedora:
     - dnf-utils
     - hdparm
     - htop
-    - intel-gpu-tools
     - ipvsadm
     - lm_sensors
     - nano
@@ -25,7 +24,6 @@ ubuntu:
   packages:
     - hdparm
     - htop
-    - intel-gpu-tools
     - ipvsadm
     - lm-sensors
     - nano
