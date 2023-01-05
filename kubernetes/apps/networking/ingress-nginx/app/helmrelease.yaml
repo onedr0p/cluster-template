@@ -27,7 +27,6 @@ spec:
       namespace: cert-manager
   values:
     controller:
-      replicaCount: 2
       extraEnvs:
         - name: TZ
           value: "${TIMEZONE}"
@@ -69,7 +68,6 @@ spec:
       image:
         repository: ghcr.io/tarampampam/error-pages
         tag: 2.19.0
-      replicaCount: 1
       extraEnvs:
         - name: TEMPLATE_NAME
           value: lost-in-space

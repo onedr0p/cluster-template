@@ -23,7 +23,6 @@ spec:
       retries: 3
   values:
     controller:
-      replicas: 1
       strategy: RollingUpdate
     image:
       repository: docker.io/jmalloc/echo-server
@@ -66,13 +65,6 @@ spec:
           - hosts:
               - *host
             secretName: echo-server-tls
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: *app
     resources:
       requests:
         cpu: 5m
