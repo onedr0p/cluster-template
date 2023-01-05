@@ -23,8 +23,9 @@ EOF
 main() {
     local verify=
     parse_command_line "$@"
-    verify_binaries
     if [[ "${verify}" == 1 ]]; then
+        verify_start
+        verify_binaries
         verify_master_count
         verify_ansible_hosts
         verify_metallb
@@ -98,6 +99,7 @@ _has_binary() {
         _log "ERROR(${FUNCNAME[0]})" "${1} is not installed or not found in \$PATH"
         exit 1
     }
+    _log "INFO(${FUNCNAME[0]})" "Found CLI tool ${1} and it is in \$PATH"
 }
 
 _has_optional_envar() {
@@ -112,13 +114,18 @@ _has_optional_envar() {
 
 _has_envar() {
     local option="${1}"
+    local secret="${2:-false}"
+    local value=
     # shellcheck disable=SC2015
-    [[ "${!option}" == "" ]] && {
+    if [[ "${!option}" == "" ]]; then
         _log "ERROR(${FUNCNAME[0]})" "Unset variable ${option}"
         exit 1
-    } || {
-        _log "INFO(${FUNCNAME[0]})" "Found variable '${option}' with value '${!option}'"
-    }
+    fi
+    value="${!option}"
+    if [[ $secret == "true" ]]; then
+        value="***"
+    fi
+    _log "INFO(${FUNCNAME[0]})" "Found variable '${option}' with value '${value}'"
 }
 
 _has_valid_ip() {
@@ -215,7 +222,6 @@ verify_binaries() {
     _has_binary "flux"
     _has_binary "git"
     _has_binary "age"
-    _has_binary "helm"
     _has_binary "ipcalc"
     _has_binary "jq"
     _has_binary "gitops"
@@ -224,7 +230,6 @@ verify_binaries() {
     _has_binary "ssh"
     _has_binary "task"
     _has_binary "terraform"
-    _has_binary "tflint"
     if ! [[ "$(sops --version)" =~ 3\.[0-9]+\.[0-9]+ ]]; then
         _log "ERROR(${FUNCNAME[0]})" "Incompatible sops version, make sure you are using the latest release of github.com/mozilla/sops"
         exit 1
@@ -283,9 +288,9 @@ verify_master_count() {
 verify_cloudflare() {
     local account_zone=
     local errors=
-    _has_envar "BOOTSTRAP_CLOUDFLARE_APIKEY"
-    _has_envar "BOOTSTRAP_CLOUDFLARE_DOMAIN"
-    _has_envar "BOOTSTRAP_CLOUDFLARE_EMAIL"
+    _has_envar "BOOTSTRAP_CLOUDFLARE_APIKEY" "true"
+    _has_envar "BOOTSTRAP_CLOUDFLARE_DOMAIN" "true"
+    _has_envar "BOOTSTRAP_CLOUDFLARE_EMAIL" "true"
     # Try to retrieve zone information from Cloudflare's API
     account_zone=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${BOOTSTRAP_CLOUDFLARE_DOMAIN}&status=active" \
         -H "X-Auth-Email: ${BOOTSTRAP_CLOUDFLARE_EMAIL}" \
@@ -323,7 +328,7 @@ verify_ansible_hosts() {
         node_hostname="BOOTSTRAP_ANSIBLE_HOSTNAME_${node_id}"
         _has_envar "${node_addr}"
         _has_envar "${node_username}"
-        _has_envar "${node_password}"
+        _has_envar "${node_password}" "true"
         _has_envar "${node_control}"
         _has_optional_envar "${node_hostname}"
         if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" && "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
@@ -345,6 +350,10 @@ verify_ansible_hosts() {
             exit 1
         fi
     done
+}
+
+verify_start() {
+    _log "INFO(${FUNCNAME[0]})" "Starting verification of .config.env, please wait..."
 }
 
 verify_success() {
@@ -445,7 +454,7 @@ generate_ansible_hosts() {
 }
 
 setup_github_webhook() {
-    _has_envar "BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET"
+    _has_envar "BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET" "true"
     WEBHOOK_SECRET="${BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET}"
     if [[ "${WEBHOOK_SECRET}" == "generated" ]]; then
         WEBHOOK_SECRET="$(openssl rand -base64 30)"
@@ -458,7 +467,7 @@ setup_github_webhook() {
 }
 
 setup_weave_gitops() {
-    _has_envar "BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD"
+    _has_envar "BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD" "true"
     WEAVE_GITOPS_ADMIN_PASSWORD="${BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD}"
     if [[ "${WEAVE_GITOPS_ADMIN_PASSWORD}" == "generated" ]]; then
         WEAVE_GITOPS_ADMIN_PASSWORD="$(openssl rand -base64 30)"
@@ -481,7 +490,7 @@ success() {
 _log() {
     local type="${1}"
     local msg="${2}"
-    printf "[%s] [%s] %s\n" "$(date -u)" "${type}" "${msg}"
+    printf 'timestamp="%s" type="%s" message="%s"\n' "$(date --rfc-3339=seconds)" "${type}" "${msg}"
 }
 
 main "$@"
