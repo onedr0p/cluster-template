@@ -33,14 +33,14 @@ _Additional applications include [hajimari](https://github.com/toboshii/hajimari
 
 For provisioning the following tools will be used:
 
-- [Fedora 36 Server](https://getfedora.org/en/server/download/) - Universal operating system that supports running all kinds of home related workloads in Kubernetes and has a faster release cycle
-- [Ubuntu 22.04 Server](https://ubuntu.com/download/server) - Alternative operating system, limited community support
-- [Ansible](https://www.ansible.com) - Provision Fedora Server and install k3s
-- [Terraform](https://www.terraform.io) - Provision an already existing Cloudflare domain and certain DNS records to be used with your k3s cluster
+- [Ansible](https://www.ansible.com) - Sets up the operating system and installs k3s
+- [Terraform](https://www.terraform.io) - Provisions an existing Cloudflare domain and certain DNS records to be used with your Kubernetes cluster
 
 ## 📝 Prerequisites
 
 **Note:** _This template has not been tested on cloud providers like AWS EC2, Hetzner, Scaleway etc... Those cloud offerings probably have a better way of provsioning a Kubernetes cluster and it's advisable to use those instead of the Ansible playbooks included here. This repository can still be tweaked for the GitOps/Flux portion if there's a cluster working in one those environments._
+
+First and foremost some experience in debugging/troubleshooting problems **and a positive attitude is required** ;)
 
 ### 📚 Reading material
 
@@ -48,11 +48,10 @@ For provisioning the following tools will be used:
 
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Fedora Server 36](https://getfedora.org/en/server/download/).
+- One or more nodes with a fresh install of [Fedora Server 36](https://getfedora.org/en/server/download/) or [Ubuntu 22.04 Server](https://ubuntu.com/download/server).
   - These nodes can be ARM64/AMD64 bare metal or VMs.
   - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform and external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
-- Some experience in debugging problems and a positive attitude ;)
 
 📍 It is recommended to have 3 master nodes for a highly available control plane.
 
