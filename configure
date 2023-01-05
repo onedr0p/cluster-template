@@ -454,7 +454,7 @@ generate_ansible_hosts() {
 }
 
 setup_github_webhook() {
-    _has_envar "BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET" "true"
+    _has_envar "BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET"
     WEBHOOK_SECRET="${BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET}"
     if [[ "${WEBHOOK_SECRET}" == "generated" ]]; then
         WEBHOOK_SECRET="$(openssl rand -base64 30)"
@@ -467,7 +467,7 @@ setup_github_webhook() {
 }
 
 setup_weave_gitops() {
-    _has_envar "BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD" "true"
+    _has_envar "BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD"
     WEAVE_GITOPS_ADMIN_PASSWORD="${BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD}"
     if [[ "${WEAVE_GITOPS_ADMIN_PASSWORD}" == "generated" ]]; then
         WEAVE_GITOPS_ADMIN_PASSWORD="$(openssl rand -base64 30)"
