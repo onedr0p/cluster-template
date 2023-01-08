@@ -534,10 +534,6 @@ Included in your cluster is the [Kubernetes Dashboard](https://kubernetes.io/doc
 kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}' | base64 -d
 ```
 
-To ensure this token is valid, goto https://jwt.io and paste the contents in.
-
-<img src="https://user-images.githubusercontent.com/6330506/211162704-fc0c6b3d-fe24-4078-a153-c2ac92918100.png" width=50% height=50%>
-
 You should be able to access the dashboard at `https://kubernetes.${SECRET_DOMAIN}`
 
 ## 👉 Help
