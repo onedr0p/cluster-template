@@ -176,9 +176,9 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task configure
     ```
 
-### ⚡ Preparing Fedora Server with Ansible
+### ⚡ Preparing Fedora or Ubuntu Server with Ansible
 
-📍 Here we will be running a Ansible Playbook to prepare Fedora Server for running a Kubernetes cluster.
+📍 Here we will be running a Ansible Playbook to prepare Fedora or Ubuntu Server for running a Kubernetes cluster.
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
 
