@@ -204,7 +204,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
     task ansible:ping
     ```
 
-5. Run the Fedora Server Ansible prepare playbook
+5. Run the Fedora/Ubuntu Server Ansible prepare playbook
 
     ```sh
     task ansible:prepare
