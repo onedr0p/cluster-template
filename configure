@@ -217,19 +217,20 @@ verify_age() {
 }
 
 verify_binaries() {
+    _has_binary "age"
     _has_binary "ansible"
     _has_binary "envsubst"
     _has_binary "flux"
     _has_binary "git"
-    _has_binary "age"
+    _has_binary "gitops"
     _has_binary "ipcalc"
     _has_binary "jq"
-    _has_binary "gitops"
-    _has_binary "yq"
+    _has_binary "pip3"
     _has_binary "sops"
     _has_binary "ssh"
     _has_binary "task"
     _has_binary "terraform"
+    _has_binary "yq"
     if ! [[ "$(sops --version)" =~ 3\.[0-9]+\.[0-9]+ ]]; then
         _log "ERROR(${FUNCNAME[0]})" "Incompatible sops version, make sure you are using the latest release of github.com/mozilla/sops"
         exit 1
