@@ -16,12 +16,14 @@ k3s_server:
   disable:
     # Disable flannel - replaced with Calico
     - flannel
-    # Disable traefik - replaced with ingress-nginx
-    - traefik
-    # Disable servicelb - replaced with metallb and install with Flux
-    - servicelb
+    # Disable local-path-provisioner - installed with Flux
+    - local-storage
     # Disable metrics-server - installed with Flux
     - metrics-server
+    # Disable servicelb - replaced with metallb and installed with Flux
+    - servicelb
+    # Disable traefik - replaced with ingress-nginx and installed with Flux
+    - traefik
   disable-network-policy: true
   disable-cloud-controller: true
   write-kubeconfig-mode: "644"
