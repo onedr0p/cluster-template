@@ -491,7 +491,7 @@ success() {
 _log() {
     local type="${1}"
     local msg="${2}"
-    printf 'timestamp="%s" type="%s" message="%s"\n' "$(date --rfc-3339=seconds)" "${type}" "${msg}"
+    printf 'timestamp="%s" type="%s" message="%s"\n' "$(date)" "${type}" "${msg}"
 }
 
 main "$@"

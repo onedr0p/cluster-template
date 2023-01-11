@@ -216,7 +216,7 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 6. Reboot the nodes
 
     ```sh
-    task ansible:reboot
+    task ansible:force-reboot
     ```
 
 ### ⛵ Installing k3s with Ansible
