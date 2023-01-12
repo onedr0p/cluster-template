@@ -5,7 +5,6 @@ metadata:
   name: flux-webhook
   namespace: flux-system
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging
     external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
     external-dns.home.arpa/enabled: "true"
     hajimari.io/enable: "false"
@@ -25,4 +24,3 @@ spec:
   tls:
     - hosts:
         - *host
-      secretName: flux-webhook-tls

@@ -14,17 +14,17 @@ spec:
         kind: HelmRepository
         name: ingress-nginx
         namespace: flux-system
-      interval: 15m
+  maxHistory: 3
   install:
     createNamespace: true
     remediation:
       retries: 3
   upgrade:
+    cleanupOnFail: true
     remediation:
       retries: 3
-  dependsOn:
-    - name: cert-manager
-      namespace: cert-manager
+  uninstall:
+    keepHistory: false
   values:
     controller:
       extraEnvs:
@@ -32,8 +32,7 @@ spec:
           value: "${TIMEZONE}"
       service:
         annotations:
-          metallb.universe.tf/loadBalancerIPs: |-
-            ${METALLB_INGRESS_ADDR}
+          metallb.universe.tf/loadBalancerIPs: "${METALLB_INGRESS_ADDR}"
         externalTrafficPolicy: Local
       publishService:
         enabled: true
@@ -43,8 +42,7 @@ spec:
         client-header-timeout: 120
         client-body-buffer-size: "100M"
         client-body-timeout: 120
-        custom-http-errors: |-
-          401,403,404,500,501,502,503
+        custom-http-errors: 400,401,403,404,500,502,503,504
         enable-brotli: "true"
         forwarded-for-header: "CF-Connecting-IP"
         hsts-max-age: "31449600"
@@ -53,10 +51,21 @@ spec:
         proxy-body-size: "100M"
         ssl-protocols: "TLSv1.3 TLSv1.2"
         use-forwarded-headers: "true"
+        log-format-escape-json: "true"
+        log-format-upstream: >-
+          {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr",
+          "x_forwarded_for": "$proxy_add_x_forwarded_for", "request_id": "$req_id",
+          "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time,
+          "status": $status, "vhost": "$host", "request_proto": "$server_protocol",
+          "path": "$uri", "request_query": "$args", "request_length": $request_length,
+          "duration": $request_time,"method": "$request_method", "http_referrer": "$http_referer",
+          "http_user_agent": "$http_user_agent"}
       metrics:
         enabled: false
+      extraArgs:
+        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
       podAnnotations:
-        configmap.reloader.stakater.com/reload: "cloudflare-networks"
+        configmap.reloader.stakater.com/reload: cloudflare-networks
       resources:
         requests:
           cpu: 10m

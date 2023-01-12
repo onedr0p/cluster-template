@@ -14,13 +14,17 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
+  maxHistory: 3
   install:
     createNamespace: true
     remediation:
       retries: 3
   upgrade:
+    cleanupOnFail: true
     remediation:
       retries: 3
+  uninstall:
+    keepHistory: false
   values:
     controller:
       strategy: RollingUpdate
@@ -52,7 +56,6 @@ spec:
         enabled: true
         ingressClassName: nginx
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-staging
           external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
           external-dns.home.arpa/enabled: "true"
           hajimari.io/icon: video-input-antenna
@@ -64,7 +67,6 @@ spec:
         tls:
           - hosts:
               - *host
-            secretName: echo-server-tls
     resources:
       requests:
         cpu: 5m

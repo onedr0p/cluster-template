@@ -2,15 +2,33 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
+  name: cluster-apps-ingress-nginx-certificates
+  namespace: flux-system
+  labels:
+    substitution.flux.home.arpa/enabled: "true"
+spec:
+  dependsOn:
+    - name: cluster-apps-cert-manager-issuers
+  path: ./kubernetes/apps/networking/ingress-nginx/certificates
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: home-kubernetes
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 3m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
   name: cluster-apps-ingress-nginx
   namespace: flux-system
   labels:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   dependsOn:
-    - name: cluster-apps-cert-manager
-    - name: cluster-apps-cert-manager-issuers
-    - name: cluster-apps-metallb
+    - name: cluster-apps-ingress-nginx-certificates
     - name: cluster-apps-metallb-config
   path: ./kubernetes/apps/networking/ingress-nginx/app
   prune: true

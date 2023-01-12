@@ -14,13 +14,17 @@ spec:
         kind: HelmRepository
         name: external-dns
         namespace: flux-system
+  maxHistory: 3
   install:
     createNamespace: true
     remediation:
       retries: 3
   upgrade:
+    cleanupOnFail: true
     remediation:
       retries: 3
+  uninstall:
+    keepHistory: false
   values:
     interval: 2m
     # logLevel: debug
@@ -43,8 +47,7 @@ spec:
     sources: ["ingress"]
     txtPrefix: k8s.
     txtOwnerId: default
-    domainFilters:
-      - "${SECRET_DOMAIN}"
+    domainFilters: ["${SECRET_DOMAIN}"]
     serviceMonitor:
       enabled: true
     podAnnotations:

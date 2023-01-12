@@ -14,13 +14,17 @@ spec:
         kind: HelmRepository
         name: weave-gitops
         namespace: flux-system
+  maxHistory: 3
   install:
     createNamespace: true
     remediation:
       retries: 3
   upgrade:
+    cleanupOnFail: true
     remediation:
       retries: 3
+  uninstall:
+    keepHistory: false
   values:
     adminUser:
       create: true
@@ -29,7 +33,6 @@ spec:
       enabled: true
       className: nginx
       annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-staging
         nginx.ingress.kubernetes.io/whitelist-source-range: |
           10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
         hajimari.io/icon: sawtooth-wave
@@ -41,7 +44,6 @@ spec:
       tls:
         - hosts:
             - *host
-          secretName: weave-gitops-tls
     networkPolicy:
       create: false
     metrics:

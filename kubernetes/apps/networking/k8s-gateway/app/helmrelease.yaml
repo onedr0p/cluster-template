@@ -14,16 +14,17 @@ spec:
         kind: HelmRepository
         name: k8s-gateway
         namespace: flux-system
-      interval: 15m
+  maxHistory: 3
   install:
     createNamespace: true
     remediation:
-      retries: 5
+      retries: 3
   upgrade:
+    cleanupOnFail: true
     remediation:
-      retries: 5
-  dependsOn:
-    - name: metallb
+      retries: 3
+  uninstall:
+    keepHistory: false
   values:
     fullnameOverride: k8s-gateway
     domain: "${SECRET_DOMAIN}"
