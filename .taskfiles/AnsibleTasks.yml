@@ -2,8 +2,8 @@
 version: "3"
 
 env:
-  ANSIBLE_CONFIG: "{{.PROJECT_DIR}}/ansible.cfg"
-  K8S_AUTH_KUBECONFIG: "{{.PROJECT_DIR}}/kubeconfig"
+  ANSIBLE_CONFIG: "{{.ROOT_DIR}}/ansible.cfg"
+  K8S_AUTH_KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
 
 vars:
   ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"

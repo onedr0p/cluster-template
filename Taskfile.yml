@@ -2,16 +2,14 @@
 version: "3"
 
 vars:
-  PROJECT_DIR:
-    sh: "git rev-parse --show-toplevel"
-  KUBERNETES_DIR: "{{.PROJECT_DIR}}/kubernetes"
-  ANSIBLE_DIR: "{{.PROJECT_DIR}}/ansible"
-  TERRAFORM_DIR: "{{.PROJECT_DIR}}/terraform"
+  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
+  ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
+  TERRAFORM_DIR: "{{.ROOT_DIR}}/terraform"
 
 dotenv: [".config.env"]
 
 env:
-  KUBECONFIG: "{{.PROJECT_DIR}}/kubeconfig"
+  KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
   SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
 
 includes:
