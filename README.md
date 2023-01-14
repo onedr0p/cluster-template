@@ -55,6 +55,25 @@ First and foremost some experience in debugging/troubleshooting problems **and a
 
 📍 It is recommended to have 3 master nodes for a highly available control plane.
 
+## 📂 Repository structure
+
+The Git repository contains the following directories under `kubernetes` and are ordered below by how Flux will apply them.
+
+```sh
+📁 kubernetes      # Kubernetes cluster defined as code
+├─📁 bootstrap     # Flux installation
+├─📁 flux          # Main Flux configuration of repository
+└─📁 apps          # Apps deployed into the cluster grouped by namespace
+```
+
+## 🚀 Lets go
+
+Very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page.
+
+Clone **your new repo** to you local workstation and `cd` into it.
+
+📍 **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
+
 ### 🔧 Workstation Tools
 
 📍 Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools, **!especially sops AND yq!**.
@@ -97,25 +116,6 @@ It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-com
     ```sh
     task precommit:update
     ```
-
-## 📂 Repository structure
-
-The Git repository contains the following directories under `kubernetes` and are ordered below by how Flux will apply them.
-
-```sh
-📁 kubernetes      # Kubernetes cluster defined as code
-├─📁 bootstrap     # Flux installation
-├─📁 flux          # Main Flux configuration of repository
-└─📁 apps          # Apps deployed into the cluster grouped by namespace
-```
-
-## 🚀 Lets go
-
-Very first step will be to create a new repository by clicking the **Use this template** button on this page.
-
-Clone the repo to you local workstation and `cd` into it.
-
-📍 **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
 ### 🔐 Setting up Age
 
