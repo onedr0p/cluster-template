@@ -430,7 +430,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
 2. Webhook secret - Your webhook secret can be found by decrypting the `secret.sops.yaml` using the following command:
 
     ```sh
-    sops -d ./kubernetes/flux/config/webhooks/github/secret.sops.yaml | yq .stringData.token
+    sops -d ./kubernetes/apps/flux-system/addons/webhooks/github/secret.sops.yaml | yq .stringData.token
     ```
 
     **Note:** Don't forget to update the `BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET` variable in your `.config.env` file so it matches the generated secret if applicable
