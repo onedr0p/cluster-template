@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-flux-webhooks
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   path: ./kubernetes/apps/flux-system/addons/webhooks
   prune: true

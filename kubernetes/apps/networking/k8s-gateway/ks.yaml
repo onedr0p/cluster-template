@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-k8s-gateway
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   dependsOn:
     - name: cluster-apps-metallb

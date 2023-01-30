@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-cloudflare-ddns
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   path: ./kubernetes/apps/networking/cloudflare-ddns/app
   prune: true
