@@ -546,9 +546,9 @@ Below is a general guide on trying to debug an issue with an resource or applica
 4. Then check the logs of the pod if its there.
   - `kubectl -n <namespace> logs <pod-name> -f`
 
-Note: If a resource exists, running `kubectl -n <namespace> describe <resource> <name>` should give you insight into what the problem(s) might be.
+Note: If a resource exists, running `kubectl -n <namespace> describe <resource> <name>` might give you insight into what the problem(s) could be.
 
-Resolving problems that you see could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
+Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
 
 ## 👉 Help
 
