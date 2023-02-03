@@ -533,10 +533,27 @@ kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}
 
 You should be able to access the dashboard at `https://kubernetes.${SECRET_DOMAIN}`
 
+## 🐛 Debugging
+
+Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state.
+
+1. Start by checking all Flux Kustomizations and verify they are healthy.
+  - `flux get ks -A`
+2. Then check all the Flux Helm Releases and verify they are healthy.
+  - `flux get hr -A`
+3. Then check the if the pod is present.
+  - `kubectl -n <namespace> get pods`
+4. Then check the logs of the pod if its there.
+  - `kubectl -n <namespace> logs <pod-name> -f`
+
+Note: If a resource exists, running `kubectl -n <namespace> describe <resource> <name>` should give you insight into what the problem(s) might be.
+
+Resolving problems that you see could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
+
 ## 👉 Help
 
-- [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions)
-- [Discord](https://discord.gg/k8s-at-home)
+- Make a post in this repository's GitHub [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
+- Start a thread in the `support` or `flux-cluster-template` channel in the [k8s@home](https://discord.gg/k8s-at-home) Discord server.
 
 ## ❔ What's next
 
