@@ -8,7 +8,3 @@ k3s_control_node: false
 # (dict) k3s settings for all worker nodes
 k3s_agent:
   node-ip: "{{ ansible_host }}"
-  kubelet-arg:
-    # Don't pull /etc/resolv.conf from host
-    - "resolv-conf="
-
