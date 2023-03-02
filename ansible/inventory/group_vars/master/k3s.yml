@@ -31,9 +31,6 @@ k3s_server:
   cluster-cidr: "10.42.0.0/16"
   # Network CIDR to use for service IPs
   service-cidr: "10.43.0.0/16"
-  kubelet-arg:
-    # Don't pull /etc/resolv.conf from host
-    - "resolv-conf="
   kube-controller-manager-arg:
     # Required to monitor kube-controller-manager with kube-prometheus-stack
     - "bind-address=0.0.0.0"
