@@ -10,38 +10,25 @@ k3s_server:
   node-ip: "{{ ansible_host }}"
   tls-san:
     - "{{ kubevip_address }}"
-  # Disable Docker - this will use the default containerd CRI
-  docker: false
-  flannel-backend: "none" # This needs to be in quotes
+  https-listen-port: 6443
+  docker: false                    # Disable Docker - this will use the default containerd CRI
+  flannel-backend: "none"          # This needs to be in quotes
   disable:
-    # Disable flannel - replaced with Calico
-    - flannel
-    # Disable local-path-provisioner - installed with Flux
-    - local-storage
-    # Disable metrics-server - installed with Flux
-    - metrics-server
-    # Disable servicelb - replaced with metallb and installed with Flux
-    - servicelb
-    # Disable traefik - replaced with ingress-nginx and installed with Flux
-    - traefik
+    - flannel                      # Disable flannel - replaced with Calico
+    - local-storage                # Disable local-path-provisioner - installed with Flux
+    - metrics-server               # Disable metrics-server - installed with Flux
+    - servicelb                    # Disable servicelb - replaced with metallb and installed with Flux
+    - traefik                      # Disable traefik - replaced with ingress-nginx and installed with Flux
   disable-network-policy: true
   disable-cloud-controller: true
+  disable-kube-proxy: true         # Disable kube-proxy - replaced with Calico eBPF
   write-kubeconfig-mode: "644"
-  # Network CIDR to use for pod IPs
-  cluster-cidr: "10.42.0.0/16"
-  # Network CIDR to use for service IPs
-  service-cidr: "10.43.0.0/16"
+  cluster-cidr: "10.42.0.0/16"     # Network CIDR to use for pod IPs
+  service-cidr: "10.43.0.0/16"     # Network CIDR to use for service IPs
   kube-controller-manager-arg:
-    # Required to monitor kube-controller-manager with kube-prometheus-stack
-    - "bind-address=0.0.0.0"
-  kube-proxy-arg:
-    # Required to monitor kube-proxy with kube-prometheus-stack
-    - "metrics-bind-address=0.0.0.0"
+    - "bind-address=0.0.0.0"       # Required to monitor kube-controller-manager with kube-prometheus-stack
   kube-scheduler-arg:
-    # Required to monitor kube-scheduler with kube-prometheus-stack
-    - "bind-address=0.0.0.0"
-  # Required to monitor etcd with kube-prometheus-stack
-  etcd-expose-metrics: true
+    - "bind-address=0.0.0.0"       # Required to monitor kube-scheduler with kube-prometheus-stack
+  etcd-expose-metrics: true        # Required to monitor etcd with kube-prometheus-stack
   kube-apiserver-arg:
-    # Required for HAProxy health-checks
-    - "anonymous-auth=true"
+    - "anonymous-auth=true"        # Required for HAProxy health-checks

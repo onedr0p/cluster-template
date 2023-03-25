@@ -7,6 +7,8 @@ spec:
   registry: quay.io
   imagePath: calico
   calicoNetwork:
+    hostPorts: Disabled
+    linuxDataplane: BPF
     # https://projectcalico.docs.tigera.io/networking/ip-autodetection
     nodeAddressAutodetectionV4:
       cidrs:
