@@ -48,7 +48,7 @@ First and foremost some experience in debugging/troubleshooting problems **and a
 
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Fedora Server 36](https://getfedora.org/en/server/download/) or [Ubuntu 22.04 Server](https://ubuntu.com/download/server).
+- One or more nodes with a fresh install of [Fedora Server 37](https://getfedora.org/en/server/download/) or [Ubuntu 22.04 Server](https://ubuntu.com/download/server) (not minimal).
   - These nodes can be ARM64/AMD64 bare metal or VMs.
   - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform and external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
