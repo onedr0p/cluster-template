@@ -1,5 +1,5 @@
 ---
-apiVersion: notification.toolkit.fluxcd.io/v1beta1
+apiVersion: notification.toolkit.fluxcd.io/v1
 kind: Receiver
 metadata:
   name: github-receiver
@@ -12,15 +12,15 @@ spec:
   secretRef:
     name: github-webhook-token-secret
   resources:
-    - apiVersion: source.toolkit.fluxcd.io/v1beta2
+    - apiVersion: source.toolkit.fluxcd.io/v1
       kind: GitRepository
       name: home-kubernetes
       namespace: flux-system
-    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1
       kind: Kustomization
       name: cluster
       namespace: flux-system
-    - apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1
       kind: Kustomization
       name: cluster-apps
       namespace: flux-system
