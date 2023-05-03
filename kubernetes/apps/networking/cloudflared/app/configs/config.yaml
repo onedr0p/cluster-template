@@ -22,5 +22,5 @@ ingress:
   - hostname: "${SECRET_DOMAIN}"
     service: http://ingress-nginx.networking.svc.cluster.local
   - hostname: "*.${SECRET_DOMAIN}"
-    service: http://ingress-nginx.networking.svc.cluster.local
+    service: http://ingress-nginx-controller.networking.svc.cluster.local
   - service: http_status:404
