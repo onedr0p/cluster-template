@@ -8,7 +8,3 @@ repos:
           - --config-file
           - .yamllint.yaml
         id: yamllint
-  - repo: https://github.com/gruntwork-io/pre-commit
-    rev: v0.1.21
-    hooks:
-      - id: terraform-fmt
