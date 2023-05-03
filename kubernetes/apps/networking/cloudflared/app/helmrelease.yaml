@@ -82,13 +82,6 @@ spec:
         name: cloudflared-secret
         mountPath: /etc/cloudflared/creds
         readOnly: true
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: *app
     resources:
       requests:
         cpu: 5m
