@@ -79,7 +79,7 @@ spec:
       creds:
         enabled: true
         type: secret
-        name: *secret
+        name: cloudflared-secret
         mountPath: /etc/cloudflared/creds
         readOnly: true
     topologySpreadConstraints:
