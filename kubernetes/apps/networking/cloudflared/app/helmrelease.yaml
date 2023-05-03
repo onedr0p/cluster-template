@@ -27,7 +27,7 @@ spec:
     keepHistory: false
   values:
     controller:
-      replicas: 3
+      replicas: 1
       strategy: RollingUpdate
       annotations:
         configmap.reloader.stakater.com/reload: &configmap cloudflared-config
