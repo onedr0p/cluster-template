@@ -72,7 +72,7 @@ spec:
       config:
         enabled: true
         type: configMap
-        name: *configmap
+        name: cloudflared-configmap
         subPath: config.yaml
         mountPath: /etc/cloudflared/config/config.yaml
         readOnly: true
