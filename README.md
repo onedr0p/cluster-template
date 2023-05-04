@@ -1,8 +1,8 @@
 # Template for deploying k3s backed by Flux
 
-Highly opinionated template for deploying a single [k3s](https://k3s.io) cluster with [Ansible](https://www.ansible.com) and [Terraform](https://www.terraform.io) backed by [Flux](https://toolkit.fluxcd.io/) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/).
+This is a sighly opinionated template for deploying a single [k3s](https://k3s.io) cluster with [Ansible](https://www.ansible.com) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
 
-The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), [Terraform](https://github.com/carlpett/terraform-provider-sops) and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit [Age](https://github.com/FiloSottile/age) encrypted secrets to your public repo.
+The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit [Age](https://github.com/FiloSottile/age) encrypted secrets to your public repo.
 
 ## Overview
 
@@ -31,16 +31,11 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 
 _Additional applications include [hajimari](https://github.com/toboshii/hajimari), [error-pages](https://github.com/tarampampam/error-pages), [echo-server](https://github.com/Ealenn/Echo-Server), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), [reloader](https://github.com/stakater/Reloader), and [kured](https://github.com/weaveworks/kured)_
 
-For provisioning the following tools will be used:
-
-- [Ansible](https://www.ansible.com) - Sets up the operating system and installs k3s
-- [Terraform](https://www.terraform.io) - Provisions an existing Cloudflare domain and certain DNS records to be used with your Kubernetes cluster
-
 ## 📝 Prerequisites
 
 **Note:** _This template has not been tested on cloud providers like AWS EC2, Hetzner, Scaleway etc... Those cloud offerings probably have a better way of provsioning a Kubernetes cluster and it's advisable to use those instead of the Ansible playbooks included here. This repository can still be tweaked for the GitOps/Flux portion if there's a cluster working in one those environments._
 
-First and foremost some experience in debugging/troubleshooting problems **and a positive attitude is required** ;)
+First and foremost some experience in debugging/troubleshooting problems **and a positive attitude is required** :)
 
 ### 📚 Reading material
 
@@ -48,10 +43,10 @@ First and foremost some experience in debugging/troubleshooting problems **and a
 
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Fedora Server 37](https://getfedora.org/en/server/download/) or [Ubuntu 22.04 Server](https://ubuntu.com/download/server) (not minimal).
+- One or more nodes with a fresh install of [Fedora Server 37+](https://getfedora.org/en/server/download/) or [Ubuntu 22.04 Server](https://ubuntu.com/download/server) (not minimal).
   - These nodes can be ARM64/AMD64 bare metal or VMs.
   - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
-- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by Terraform and external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
+- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
 
 📍 It is recommended to have 3 master nodes for a highly available control plane.
 
@@ -120,7 +115,7 @@ It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-com
 
 ### 🔐 Setting up Age
 
-📍 Here we will create a Age Private and Public key. Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible, Terraform and Flux.
+📍 Here we will create a Age Private and Public key. Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
 
 1. Create a Age Private / Public Key
 
@@ -144,9 +139,9 @@ It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-com
 
 4. Fill out the Age public key in the appropriate variable in configuration section below, **note** the public key should start with `age`...
 
-### ☁️ Global Cloudflare API Key
+### ☁️ Cloudflare API Key
 
-In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge you will need to create a API key.
+In order to use `cert-manager` with the Cloudflare DNS challenge you will need to create a API key.
 
 1. Head over to Cloudflare and create a API key by going [here](https://dash.cloudflare.com/profile/api-tokens).
 
@@ -156,9 +151,27 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
 
 📍 You may wish to update this later on to a Cloudflare **API Token** which can be scoped to certain resources. I do not recommend using a Cloudflare **API Key**, however for the purposes of this template it is easier getting started without having to define which scopes and resources are needed. For more information see the [Cloudflare docs on API Keys and Tokens](https://developers.cloudflare.com/api/).
 
+### ☁️ Cloudflare Tunnel
+
+In order to expose services to the internet you will need to create a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
+
+1. Authenticate cloudflared to your domain
+
+   ```sh
+   cloudflared tunnel login
+   ```
+
+2. Create the tunnel
+
+   ```sh
+   cloudflared tunnel create k8s
+   ```
+
+3. In the `~/.cloudflared` directory there will be a json file with details you need to populate in configuration section below. You can ignore the `cert.pem` file.
+
 ### 📄 Configuration
 
-📍 The `.config.env` file contains necessary configuration that is needed by Ansible, Terraform and Flux.
+📍 The `.config.env` file contains necessary configuration that is needed by Ansible and Flux.
 
 1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables.
 
@@ -252,34 +265,6 @@ In order to use Terraform and `cert-manager` with the Cloudflare DNS challenge y
    # k8s-0          Ready    control-plane,master      4d20h   v1.21.5+k3s1
    # k8s-1          Ready    worker                    4d20h   v1.21.5+k3s1
    ```
-
-### ☁️ Configuring Cloudflare DNS with Terraform
-
-📍 Review the Terraform scripts under `./terraform/cloudflare/` and make sure you understand what it's doing (no really review it).
-
-If your domain already has existing DNS records **be sure to export those DNS settings before you continue**.
-
-1. Pull in the Terraform deps
-
-   ```sh
-   task terraform:init
-   ```
-
-2. Review the changes Terraform will make to your Cloudflare domain
-
-   ```sh
-   task terraform:plan
-   ```
-
-3. Have Terraform apply your Cloudflare settings
-
-   ```sh
-   task terraform:apply
-   ```
-
-If Terraform was ran successfully you can log into Cloudflare and validate the DNS records are present.
-
-The cluster application [external-dns](https://github.com/kubernetes-sigs/external-dns) will be managing the rest of the DNS records you will need.
 
 ### 🔹 GitOps with Flux
 
@@ -390,7 +375,7 @@ task cluster:resources
 
 ### 🌐 DNS
 
-📍 The [external-dns](https://github.com/kubernetes-sigs/external-dns) application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`. You do not need to use Terraform to create additional DNS records unless you need a record outside the purposes of your Kubernetes cluster (e.g. setting up MX records).
+📍 The [external-dns](https://github.com/kubernetes-sigs/external-dns) application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
 
 [k8s_gateway](https://github.com/ori-edge/k8s_gateway) is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser.
 
