@@ -10,4 +10,4 @@ spec:
   endpoints:
     - dnsName: "ipv4.${SECRET_DOAMIN}"
       recordType: CNAME
-      targets: ["todo.cfargotunnel.com"]
+      targets: ["${SECRET_CLOUDFLARE_TUNNEL_ID}.cfargotunnel.com"]
