@@ -3,35 +3,35 @@
   "packageRules": [
     {
       "matchUpdateTypes": ["major"],
-      "labels": ["type/major"],
+      "labels": ["type/major"]
     },
     {
       "matchUpdateTypes": ["minor"],
-      "labels": ["type/minor"],
+      "labels": ["type/minor"]
     },
     {
       "matchUpdateTypes": ["patch"],
-      "labels": ["type/patch"],
+      "labels": ["type/patch"]
     },
     {
       "matchDatasources": ["docker"],
-      "addLabels": ["renovate/container"],
+      "addLabels": ["renovate/container"]
     },
     {
       "matchDatasources": ["helm"],
-      "addLabels": ["renovate/helm"],
+      "addLabels": ["renovate/helm"]
     },
     {
       "matchDatasources": ["galaxy", "galaxy-collection"],
-      "addLabels": ["renovate/ansible"],
+      "addLabels": ["renovate/ansible"]
     },
     {
       "matchDatasources": ["github-releases", "github-tags"],
-      "addLabels": ["renovate/github-release"],
+      "addLabels": ["renovate/github-release"]
     },
     {
       "matchManagers": ["github-actions"],
-      "addLabels": ["renovate/github-action"],
-    },
-  ],
+      "addLabels": ["renovate/github-action"]
+    }
+  ]
 }
