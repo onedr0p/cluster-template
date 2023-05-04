@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: external-dns
+  name: &app external-dns
   namespace: networking
 spec:
   interval: 15m
@@ -26,8 +26,7 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    interval: 2m
-    # logLevel: debug
+    fullnameOverride: *app
     provider: cloudflare
     env:
       - name: CF_API_EMAIL
@@ -41,10 +40,12 @@ spec:
             name: external-dns-secret
             key: api-key
     extraArgs:
-      - --cloudflare-proxied
       - --annotation-filter=external-dns.alpha.kubernetes.io/target
+      - --cloudflare-proxied
+      - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+      - --crd-source-kind=DNSEndpoint
     policy: sync
-    sources: ["ingress"]
+    sources: ["crd", "ingress"]
     txtPrefix: k8s.
     txtOwnerId: default
     domainFilters: ["${SECRET_DOMAIN}"]

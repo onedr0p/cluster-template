@@ -4,9 +4,3 @@ kind: Kustomization
 namespace: networking
 resources:
   - ./helmrelease.yaml
-configMapGenerator:
-  - name: cloudflare-networks
-    files:
-      - ./cloudflare-networks.txt
-generatorOptions:
-  disableNameSuffixHash: true

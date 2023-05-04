@@ -4,7 +4,6 @@
         "**/ansible/**/*.yml": "ansible",
         "**/ansible/**/*.sops.yml": "yaml",
         "**/ansible/**/inventory/**/*.yml": "yaml",
-        "**/terraform/**/*.tf": "terraform",
         "**/kubernetes/**/*.sops.toml": "plaintext"
     },
     "yaml.schemas": {

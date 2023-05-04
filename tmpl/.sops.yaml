@@ -9,7 +9,3 @@ creation_rules:
     key_groups:
       - age:
           - ${BOOTSTRAP_AGE_PUBLIC_KEY}
-  - path_regex: terraform/.*\.sops\.ya?ml
-    key_groups:
-      - age:
-          - ${BOOTSTRAP_AGE_PUBLIC_KEY}

@@ -3,13 +3,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: networking
 resources:
+  - ./dnsendpoint.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml
 configMapGenerator:
-  - name: cloudflare-ddns-configmap
+  - name: cloudflared-configmap
     files:
-      - ./cloudflare-ddns.sh
+      - ./configs/config.yaml
 generatorOptions:
   disableNameSuffixHash: true
-  annotations:
-    kustomize.toolkit.fluxcd.io/substitute: disabled

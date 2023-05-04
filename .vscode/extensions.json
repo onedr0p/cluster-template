@@ -8,7 +8,6 @@
         "signageos.signageos-vscode-sops",
         "will-stone.in-any-case",
         "EditorConfig.editorconfig",
-        "HashiCorp.terraform",
         "PKief.material-icon-theme",
     ]
 }

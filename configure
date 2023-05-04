@@ -51,15 +51,9 @@ main() {
         envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cert-manager-secret.sops.yaml" \
             > "${PROJECT_DIR}/kubernetes/apps/cert-manager/cert-manager/issuers/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/cert-manager/cert-manager/issuers/secret.sops.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cloudflare-ddns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/cloudflare-ddns/app/secret.sops.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/external-dns-secret.sops.yaml" \
-            > "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
-        envsubst < "${PROJECT_DIR}/tmpl/terraform/secret.sops.yaml" \
-            > "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
-        sops --encrypt --in-place "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
+        envsubst < "${PROJECT_DIR}/tmpl/kubernetes/cloudflared-secret.sops.yaml" \
+            > "${PROJECT_DIR}/kubernetes/apps/networking/cloudflared/app/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/cloudflared/app/secret.sops.yaml"
         # generate ansible settings
         envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" \
             > "${PROJECT_DIR}/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
@@ -229,7 +223,6 @@ verify_binaries() {
     _has_binary "sops"
     _has_binary "ssh"
     _has_binary "task"
-    _has_binary "terraform"
     _has_binary "yq"
     if ! [[ "$(sops --version)" =~ 3\.[0-9]+\.[0-9]+ ]]; then
         _log "ERROR(${FUNCNAME[0]})" "Incompatible sops version, make sure you are using the latest release of github.com/mozilla/sops"
@@ -287,8 +280,8 @@ verify_master_count() {
 }
 
 verify_cloudflare() {
-    local account_zone=
     local errors=
+    local account_zone=
     _has_envar "BOOTSTRAP_CLOUDFLARE_APIKEY" "true"
     _has_envar "BOOTSTRAP_CLOUDFLARE_DOMAIN" "true"
     _has_envar "BOOTSTRAP_CLOUDFLARE_EMAIL" "true"
@@ -303,6 +296,23 @@ verify_cloudflare() {
     else
         errors=$(echo "${account_zone}" | jq -c ".errors")
         _log "ERROR(${FUNCNAME[0]})" "Unable to get Cloudflare Account and Zone information ${errors}"
+        exit 1
+    fi
+    local cloudflare_tunnel=
+    _has_envar "BOOTSTRAP_CLOUDFLARE_ACCOUNT_TAG" "true"
+    _has_envar "BOOTSTRAP_CLOUDFLARE_TUNNEL_SECRET" "true"
+    _has_envar "BOOTSTRAP_CLOUDFLARE_TUNNEL_ID" "true"
+    # Try to retrieve the Cloudflare Tunnel information from Cloudflare's API
+    cloudflare_tunnel=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${BOOTSTRAP_CLOUDFLARE_ACCOUNT_TAG}/cfd_tunnel/${BOOTSTRAP_CLOUDFLARE_TUNNEL_ID}" \
+        -H "X-Auth-Email: ${BOOTSTRAP_CLOUDFLARE_EMAIL}" \
+        -H "X-Auth-Key: ${BOOTSTRAP_CLOUDFLARE_APIKEY}" \
+        -H "Content-Type: application/json"
+    )
+    if [[ "$(echo "${cloudflare_tunnel}" | jq ".success")" == "true" ]]; then
+        _log "INFO(${FUNCNAME[0]})" "Verified Cloudflare Tunnel information"
+    else
+        errors=$(echo "${cloudflare_tunnel}" | jq -c ".errors")
+        _log "ERROR(${FUNCNAME[0]})" "Unable to get Cloudflare Tunnel information ${errors}"
         exit 1
     fi
 }

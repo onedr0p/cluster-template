@@ -2,10 +2,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-cloudflare-ddns
+  name: cluster-apps-cloudflared
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/networking/cloudflare-ddns/app
+  dependsOn:
+    - name: cluster-apps-ingress-nginx
+  path: ./kubernetes/apps/networking/cloudflared/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -13,7 +15,8 @@ spec:
   healthChecks:
     - apiVersion: helm.toolkit.fluxcd.io/v2beta1
       kind: HelmRelease
-      name: cloudflare-ddns
+      name: cloudflared
       namespace: networking
   interval: 30m
-  timeout: 5m
+  retryInterval: 1m
+  timeout: 3m
