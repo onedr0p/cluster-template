@@ -1,0 +1,111 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: unifi
+  namespace: networking
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.2.1
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+
+  values:
+    image:
+      repository: jacobalberty/unifi
+      tag: v7.3.76
+
+    env:
+      RUNAS_UID0: "false"
+      UNIFI_UID: "999"
+      UNIFI_GID: "999"
+      UNIFI_STDOUT: "true"
+      JVM_INIT_HEAP_SIZE:
+      JVM_MAX_HEAP_SIZE: 1024M
+
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: "${SVC_UNIFI_ADDR}"
+        externalTrafficPolicy: Local
+        ports:
+          http:
+            port: 8443
+            protocol: HTTPS
+          portal-https:
+            enabled: false
+            port: 8843
+            protocol: HTTPS
+      tcp:
+        type: LoadBalancer
+        loadBalancerIP: "${SVC_UNIFI_ADDR2}"
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/allow-shared-ip: unifi
+        ports:
+          controller:
+            enabled: true
+            port: 8080
+            protocol: TCP
+          speedtest:
+            enabled: true
+            port: 6789
+            protocol: TCP
+      udp:
+        type: LoadBalancer
+        loadBalancerIP: "${SVC_UNIFI_ADDR2}"
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/allow-shared-ip: unifi
+        ports:
+          stun:
+            enabled: true
+            port: 3478
+            protocol: UDP
+          syslog:
+            enabled: true
+            port: 5514
+            protocol: UDP
+          discovery:
+            enabled: true
+            port: 10001
+            protocol: UDP
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "youtube"
+          hajimari.io/group: "Media"
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: networking-chain-authelia@kubernetescrd
+        ingressClassName: "nginx"
+        hosts:
+          - host: &host "unifi.${SECRET_DEV_DOMAIN}"
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - *host
+            secretName: *host
+
+    persistence:
+      data:
+        enabled: true
+        existingClaim: unifi-config-volume
+        mountPath: /unifi
+
+    resources:
+      requests:
+        cpu: 23m
+        memory: 1390M
+      limits:
+        memory: 1390M
