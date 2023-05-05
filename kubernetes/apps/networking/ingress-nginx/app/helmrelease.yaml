@@ -32,7 +32,7 @@ spec:
           value: "${TIMEZONE}"
       service:
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: "ipv4.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/hostname: "ingress.${SECRET_DOMAIN}"
         loadBalancerIP: "${METALLB_INGRESS_ADDR}"
         externalTrafficPolicy: Local
       publishService:
