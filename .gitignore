@@ -11,4 +11,3 @@ kubeconfig
 *.key
 # Ansible
 xanmanning.k3s*
-kubernetes/apps/networking/traefik/add-ons/basic-auth.yaml
