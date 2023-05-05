@@ -1,0 +1,86 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: proxmox
+  namespace: networking
+  labels:
+    app.kubernetes.io/name: proxmox
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`proxmox.${SECRET_DOMAIN}`)
+      services:
+        - name: proxmox
+          port: 8006
+          namespace: networking
+          serversTransport: proxmox
+      middlewares:
+        - name: traefik-middlewares-authentik #traefik-middleware-chains-authentik
+          namespace: networking
+  tls:
+    secretName: "proxmox-${SECRET_DOMAIN/./-}-tls"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proxmox
+  namespace: default
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    #traefik.ingress.kubernetes.io/router.middlewares: networking-traefik-middlewares-authentik@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: networking-traefik-middleware-chains-authentik@kubernetescrd
+spec:
+  ingressClassName: "traefik"
+  tls:
+    - hosts:
+        - "proxmox.${SECRET_DOMAIN}"
+      secretName: "proxmox-tls"
+  rules:
+    - host: "proxmox.${SECRET_DOMAIN}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxmox
+                port:
+                  number: 8006
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: proxmox
+  labels:
+    app.kubernetes.io/name: proxmox
+spec:
+  insecureSkipVerify: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxmox
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 8006
+      targetPort: https
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: proxmox
+subsets:
+  - addresses:
+      - ip: ${PROXMOX_ADDR}
+    ports:
+      - name: https
+        port: 8006
+        protocol: TCP

@@ -1,0 +1,162 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: grafana
+      version: 6.52.4
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    replicas: 1
+    # admin:
+    #   existingSecret: grafana-secret
+    ## sops --encrypt --in-place ./kubernetes/apps/monitoring/grafana/app/grafana.sops.yaml
+    ## sops --decrypt ./kubernetes/apps/monitoring/grafana/app/grafana.sops.yaml | kubectl apply -f -
+    admin:
+      existingSecret: grafana-admin-creds
+    env:
+      GF_SMTP_ENABLED: true
+      GF_SMTP_HOST: ${SECRET_GF_SMTP_HOST}
+      GF_SMTP_FROM_ADDRESS: "${SECRET_GF_SMTP_FROM_ADDRESS}"
+      GF_SMTP_FROM_NAME: "${SECRET_GF_SMTP_FROM_NAME}"
+      GF_SMTP_USER: "${SECRET_GF_SMTP_USER}"
+      GF_SMTP_PASSWORD: ${SECRET_GF_SMTP_PASSWORD}
+    grafana.ini:
+      server:
+        root_url: "https://grafana.${SECRET_DOMAIN}"
+      paths:
+        data: /var/lib/grafana/data
+        logs: /var/log/grafana
+        plugins: /var/lib/grafana/plugins
+        provisioning: /etc/grafana/provisioning
+      log:
+        mode: console
+      grafana_net:
+        url: https://grafana.net
+      auth.basic:
+        #disable_login_form: false
+        enabled: true
+      auth.anonymous:
+        enabled: true
+        org_id: 1
+        org_role: Viewer
+    persistence:
+      enabled: true
+      #useExisting: true
+      existingClaim: pvc-grafana
+      name: pvc-grafana
+    volumeMounts:
+      - mountPath: /var/lib/grafana
+        name: grafana-data
+
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: "default"
+            orgId: 1
+            folder: ""
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        deleteDatasources:
+          - name: Loki
+            orgId: 1
+          - name: Alertmanager
+            orgId: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/
+            isDefault: true
+          # - name: influxdb
+          #   type: influxdb
+          #   access: proxy
+          #   url: http://influxdb.monitoring.svc.cluster.local:8086/
+          #   isDefault: false
+    dashboards:
+      default:
+        radarr:
+          url: https://raw.githubusercontent.com/k8s-at-home/grafana-dashboards/main/radarr.json
+          datasource: Prometheus
+        sonarr:
+          url: https://raw.githubusercontent.com/k8s-at-home/grafana-dashboards/main/sonarr.json
+          datasource: Prometheus
+    sidecar:
+      dashboards:
+        enabled: true
+        searchNamespace: ALL
+        folderAnnotation: grafana_folder
+        provider:
+          foldersFromFilesStructure: true
+      datasources:
+        enabled: true
+        searchNamespace: ALL
+    plugins:
+      - grafana-piechart-panel
+      - grafana-worldmap-panel
+      - grafana-clock-panel
+    serviceMonitor:
+      enabled: true
+    ingress:
+      enabled: true
+      ingressClassName: "traefik"
+      annotations:
+        hajimari.io/enable: "true"
+        hajimari.io/icon: "chart-scatter-plot-hexbin"
+        external-dns.home.arpa/enabled: "true"
+        external-dns.alpha.kubernetes.io/target: "${SECRET_DOMAIN}"
+        external-dns.alpha.kubernetes.io/hostname: grafana.${SECRET_DOMAIN}
+        cert-manager.io/cluster-issuer: "letsencrypt-production"
+        traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+        #traefik.ingress.kubernetes.io/router.middlewares: networking-traefik-middleware-chains-authentik@kubernetescrd
+        traefik.ingress.kubernetes.io/router.middlewares: networking-traefik-middleware-chains-authelia@kubernetescrd
+        #traefik.ingress.kubernetes.io/router.middlewares: networking-traefik-middleware-chains-default@kubernetescrd
+      hosts:
+        - "grafana.${SECRET_DOMAIN}"
+      tls:
+        - hosts:
+            - "grafana.${SECRET_DOMAIN}"
+          secretName: "grafana.${SECRET_DOMAIN}"
+
+    # imageRenderer:
+    #   enabled: true
+    #   replicas: 3
+    # persistence:
+    #   enabled: false
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values: ["grafana"]
+              topologyKey: kubernetes.io/hostname

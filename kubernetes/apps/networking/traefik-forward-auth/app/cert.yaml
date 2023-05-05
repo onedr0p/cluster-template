@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "auth-${SECRET_DOMAIN/./-}"
+  namespace: networking
+spec:
+  secretName: "auth-${SECRET_DOMAIN/./-}-tls"
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "auth.${SECRET_DOMAIN}"
+  dnsNames:
+    - "auth.${SECRET_DOMAIN}"

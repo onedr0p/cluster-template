@@ -1,0 +1,45 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: helm-dashboard
+  namespace: monitoring
+  # app.kubernetes.io/managed-by: helm
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: helm-dashboard
+      version: 0.1.5
+      sourceRef:
+        kind: HelmRepository
+        name: komodorio
+        namespace: flux-system
+      interval: 5m
+
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+
+  values:
+    ## @param.updateStrategy.type Set up update strategy for helm-dashboard installation.
+    ## Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to make sure the pods is destroyed first.
+    ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+    updateStrategy:
+      type: Recreate
+    # ingress:
+    #   enabled: true
+    #   className: "traefik"
+    #   hosts:
+    #     - host: &host "helm.${SECRET_DOMAIN}"
+    #       paths:
+    #         - path: /
+    #           pathType: Prefix
+    #   tls:
+    #     - hosts:
+    #         - *host
+
+    dashboard:
+      persistence:
+        enabled: true
+        storageClass: "longhorn"
