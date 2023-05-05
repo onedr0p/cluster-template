@@ -5,9 +5,9 @@ metadata:
   name: cloudflared
   namespace: networking
   annotations:
-    external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOAMIN}"
+    external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
 spec:
   endpoints:
-    - dnsName: "ipv4.${SECRET_DOAMIN}"
+    - dnsName: "ipv4.${SECRET_DOMAIN}"
       recordType: CNAME
       targets: ["${SECRET_CLOUDFLARE_TUNNEL_ID}.cfargotunnel.com"]
