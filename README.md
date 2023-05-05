@@ -6,14 +6,14 @@ The purpose here is to showcase how you can deploy an entire Kubernetes cluster 
 
 ## Overview
 
-- [Introduction](https://github.com/onedr0p/flux-cluster-template#-introduction)
-- [Prerequisites](https://github.com/onedr0p/flux-cluster-template#-prerequisites)
-- [Repository structure](https://github.com/onedr0p/flux-cluster-template#-repository-structure)
-- [Lets go!](https://github.com/onedr0p/flux-cluster-template#-lets-go)
-- [Post installation](https://github.com/onedr0p/flux-cluster-template#-post-installation)
-- [Troubleshooting](https://github.com/onedr0p/flux-cluster-template#-troubleshooting)
-- [What's next](https://github.com/onedr0p/flux-cluster-template#-whats-next)
-- [Thanks](https://github.com/onedr0p/flux-cluster-template#-thanks)
+- [Introduction](https://github.com/laulilulelo/flux-k3s-home#-introduction)
+- [Prerequisites](https://github.com/laulilulelo/flux-k3s-home#-prerequisites)
+- [Repository structure](https://github.com/laulilulelo/flux-k3s-home#-repository-structure)
+- [Lets go!](https://github.com/laulilulelo/flux-k3s-home#-lets-go)
+- [Post installation](https://github.com/laulilulelo/flux-k3s-home#-post-installation)
+- [Troubleshooting](https://github.com/laulilulelo/flux-k3s-home#-troubleshooting)
+- [What's next](https://github.com/laulilulelo/flux-k3s-home#-whats-next)
+- [Thanks](https://github.com/laulilulelo/flux-k3s-home#-thanks)
 
 ## 👋 Introduction
 
@@ -389,7 +389,7 @@ Now if nothing is working, that is expected. This is DNS after all!
 
 [Renovatebot](https://www.mend.io/free-developer-tools/renovate/) will scan your repository and offer PRs when it finds dependencies out of date. Common dependencies it will discover and update are Flux, Ansible Galaxy Roles, Terraform Providers, Kubernetes Helm Charts, Kubernetes Container Images, Pre-commit hooks updates, and more!
 
-The base Renovate configuration provided in your repository can be view at [.github/renovate.json5](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate.json5). If you notice this only runs on weekends and you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/) or simply remove it.
+The base Renovate configuration provided in your repository can be view at [.github/renovate.json5](https://github.com/laulilulelo/flux-k3s-home/blob/main/.github/renovate.json5). If you notice this only runs on weekends and you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/) or simply remove it.
 
 To enable Renovate on your repository, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and choose your repository. Over time Renovate will create PRs for out-of-date dependencies it finds. Any merged PRs that are in the kubernetes directory Flux will deploy.
 
