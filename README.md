@@ -541,15 +541,6 @@ Note: If a resource exists, running `kubectl -n <namespace> describe <resource> 
 
 Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
 
-## 👉 Help
-
-- Make a post in this repository's GitHub [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
-- Start a thread in the `support` or `flux-cluster-template` channel in the [k8s@home](https://discord.gg/k8s-at-home) Discord server.
-
-## ❔ What's next
-
-The world is your cluster, have at it!
-
 ## 🤝 Thanks
 
 Big shout out to all the authors and contributors to the projects that we are using in this repository.
