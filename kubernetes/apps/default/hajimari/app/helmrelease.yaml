@@ -14,21 +14,25 @@ spec:
         kind: HelmRepository
         name: hajimari
         namespace: flux-system
+  maxHistory: 3
   install:
     createNamespace: true
     remediation:
       retries: 3
   upgrade:
+    cleanupOnFail: true
     remediation:
       retries: 3
+  uninstall:
+    keepHistory: false
   values:
     hajimari:
       title: Apps
       darkTheme: espresso
       alwaysTargetBlank: true
       showGreeting: false
-      showAppGroups: true
-      showAppStatus: true
+      showAppGroups: false
+      showAppStatus: false
       showBookmarkGroups: false
       showGlobalBookmarks: false
       showAppUrls: false
@@ -36,39 +40,22 @@ spec:
       namespaceSelector:
         matchNames:
           - default
-          - kube-system
-          - longhorn-system
-          - monitoring
-          - media
-          - networking
-      # customApps:
-      #   - group: Infra
-      #     apps:
-      #       - name: Proxmox
-      #         url: "https://prox.${SECRET_DOMAIN}"
-      #         icon: server
-      #       - name: Plex
-      #         url: "https://plex.${SECRET_DOMAIN}"
-      #         icon: plex
-      globalBookmarks:
-        - group: Daily
-          bookmarks:
-            - name: k8s-at-home-search
-              url: "https://nanne.dev/k8s-at-home-search/"
-            - name: Home-Cluster
-              url: "https://github.com/clarknova99/home-cluster"
-            - name: onedr0p
-              url: "https://github.com/onedr0p/home-ops"
-            - name: OneDrive
-              url: 'https://onedrive.live.com'
-              icon: 'mdi:microsoft-onedrive'
-              info: ondedrive
-            - name: AdGuard
-              url: 'http://192.168.1.14'
-            - name: Renovate
-              url: https://app.renovatebot.com/dashboard#github/clarknova99/home-cluster
-
-
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          nginx.ingress.kubernetes.io/whitelist-source-range: |
+            10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+          hajimari.io/enable: "false"
+        hosts:
+          - host: &host "hajimari.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
     podAnnotations:
       configmap.reloader.stakater.com/reload: hajimari-settings
     persistence:

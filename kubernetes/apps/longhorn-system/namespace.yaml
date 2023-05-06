@@ -1,11 +1,7 @@
-# ---
-# apiVersion: v1
-# kind: Namespace
-# metadata:
-#   name: longhorn-system
-#   labels:
-#     kustomize.toolkit.fluxcd.io/prune: "true"
-#     goldilocks.fairwinds.com/enabled: "true"
-# spec:
-#   finalizers:
-#     - foregroundDeletion
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+  labels:
+    app.kubernetes.io/component: longhorn-system

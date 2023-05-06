@@ -4,12 +4,3 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./kubernetes-dashboard/ks.yaml
-  - ./goldilocks/ks.yaml
-  - ./influxdb/ks.yaml
-  - ./vpa/ks.yaml
-  - ./kube-prometheus-stack/ks.yaml
-  - ./grafana/ks.yaml
-  # - ./helm-dashboard/ks.yaml
-  - ./loki/ks.yaml
-  # - ./vector/ks.yaml
-  # - ./thanos/ks.yaml

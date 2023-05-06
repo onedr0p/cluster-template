@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./addons/ks.yaml
+  - ./weave-gitops/ks.yaml

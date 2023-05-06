@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: cluster-apps-kube-vip
   namespace: flux-system
-  labels:
-    substitution.flux.home.arpa/enabled: "true"
 spec:
   path: ./kubernetes/apps/kube-system/kube-vip/app
   prune: true

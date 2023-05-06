@@ -5,4 +5,3 @@ metadata:
   name: cert-manager
   labels:
     kustomize.toolkit.fluxcd.io/prune: disabled
-    goldilocks.fairwinds.com/enabled: "true"

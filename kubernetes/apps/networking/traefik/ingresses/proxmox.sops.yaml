@@ -1,0 +1,109 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: proxmox
+    namespace: networking
+    annotations:
+        coredns.io/hostname: proxmox.${SECRET_DEV_DOMAIN}
+        cert-manager.io/cluster-issuer: letsencrypt-production
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.middlewares: networking-chain-authelia@kubernetescrd
+spec:
+    ingressClassName: traefik
+    rules:
+        - host: proxmox.${SECRET_DEV_DOMAIN}
+          http:
+            paths:
+                - backend:
+                    service:
+                        name: proxmox
+                        port:
+                            number: 80
+                  path: /
+                  pathType: Prefix
+    tls:
+        - hosts:
+            - proxmox.${SECRET_DEV_DOMAIN}
+          secretName: proxmox.${SECRET_DEV_DOMAIN}
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1fxgpxhzdu4xmx83eyen6kl7w7lx0gwfyttyp6nf30w6x7n0yd4mskzfz7u
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBtU2VSRjdrWVRmSWQzNWNO
+            RXludlpEZmwwalVUbTd1d0MvQzQ4cmhBVG1VCjNxZ3dER2xzSzRMQ21QaEV2a0s4
+            Y01qM2Q0blZjK3RqWExUc0lpcTlHWDAKLS0tIGxpNzJDaWsyUFNYRWY4RDRGeEUr
+            MzY0b1UyM2xya00rdWVBb1ZRQ2JvbDAKFBMEnLEIVx3abKQMV0XK7TNt7NpvHlWQ
+            1xOEEb0rYE46FdXOKzjB8ft8qwgf1b2ryIUtZEmg0A+xzftnNMvmhA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2023-05-06T03:45:12Z"
+    mac: ENC[AES256_GCM,data:ErnODEkZiEnSNa2eOzwrMzRR+96uXbkWhq0wa2wvzAxbfqQ5a1ZVju0M6Zy2eUU4q62H7nG7Cfr5rJU3K9diNW8Li1XhTPNDkkVs2V9teY/mxmDs/x6v4hZc8SgU4qjvQ8vYNpX8wDj1YboA9OIwG9DsBPf2Scm/H/OiDO8UQ9g=,iv:ErQHQRWZukyDJ4UspC5zKRNnE3wGdM89/7nYqoJB0kM=,tag:aDU7mgwrLnf1vvTWI/QGfw==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: proxmox
+    namespace: networking
+spec:
+    ports:
+        - port: 80
+          protocol: TCP
+          targetPort: 8006
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1fxgpxhzdu4xmx83eyen6kl7w7lx0gwfyttyp6nf30w6x7n0yd4mskzfz7u
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBtU2VSRjdrWVRmSWQzNWNO
+            RXludlpEZmwwalVUbTd1d0MvQzQ4cmhBVG1VCjNxZ3dER2xzSzRMQ21QaEV2a0s4
+            Y01qM2Q0blZjK3RqWExUc0lpcTlHWDAKLS0tIGxpNzJDaWsyUFNYRWY4RDRGeEUr
+            MzY0b1UyM2xya00rdWVBb1ZRQ2JvbDAKFBMEnLEIVx3abKQMV0XK7TNt7NpvHlWQ
+            1xOEEb0rYE46FdXOKzjB8ft8qwgf1b2ryIUtZEmg0A+xzftnNMvmhA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2023-05-06T03:45:12Z"
+    mac: ENC[AES256_GCM,data:ErnODEkZiEnSNa2eOzwrMzRR+96uXbkWhq0wa2wvzAxbfqQ5a1ZVju0M6Zy2eUU4q62H7nG7Cfr5rJU3K9diNW8Li1XhTPNDkkVs2V9teY/mxmDs/x6v4hZc8SgU4qjvQ8vYNpX8wDj1YboA9OIwG9DsBPf2Scm/H/OiDO8UQ9g=,iv:ErQHQRWZukyDJ4UspC5zKRNnE3wGdM89/7nYqoJB0kM=,tag:aDU7mgwrLnf1vvTWI/QGfw==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+    name: proxmox
+    namespace: networking
+subsets:
+    - addresses:
+        - ip: 10.0.20.4
+      ports:
+        - port: 8006
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1fxgpxhzdu4xmx83eyen6kl7w7lx0gwfyttyp6nf30w6x7n0yd4mskzfz7u
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBtU2VSRjdrWVRmSWQzNWNO
+            RXludlpEZmwwalVUbTd1d0MvQzQ4cmhBVG1VCjNxZ3dER2xzSzRMQ21QaEV2a0s4
+            Y01qM2Q0blZjK3RqWExUc0lpcTlHWDAKLS0tIGxpNzJDaWsyUFNYRWY4RDRGeEUr
+            MzY0b1UyM2xya00rdWVBb1ZRQ2JvbDAKFBMEnLEIVx3abKQMV0XK7TNt7NpvHlWQ
+            1xOEEb0rYE46FdXOKzjB8ft8qwgf1b2ryIUtZEmg0A+xzftnNMvmhA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2023-05-06T03:45:12Z"
+    mac: ENC[AES256_GCM,data:ErnODEkZiEnSNa2eOzwrMzRR+96uXbkWhq0wa2wvzAxbfqQ5a1ZVju0M6Zy2eUU4q62H7nG7Cfr5rJU3K9diNW8Li1XhTPNDkkVs2V9teY/mxmDs/x6v4hZc8SgU4qjvQ8vYNpX8wDj1YboA9OIwG9DsBPf2Scm/H/OiDO8UQ9g=,iv:ErQHQRWZukyDJ4UspC5zKRNnE3wGdM89/7nYqoJB0kM=,tag:aDU7mgwrLnf1vvTWI/QGfw==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3
