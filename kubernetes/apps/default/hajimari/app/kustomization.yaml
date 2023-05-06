@@ -4,3 +4,5 @@ kind: Kustomization
 namespace: default
 resources:
   - ./helmrelease.yaml
+  #- ./ingress-route.yaml
+  - ./ingress.yaml

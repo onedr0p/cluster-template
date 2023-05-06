@@ -1,0 +1,90 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: radarr
+  namespace: media
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/onedr0p/radarr-develop
+      tag: 4.5.0.7106@sha256:16cf40b76cc704cf2425f271be489657ddc618dc77e6cfa2b81eacdccbdb8e99
+    env:
+      TZ: ${TIMEZONE}
+      RADARR__INSTANCE_NAME: Radarr
+      RADARR__PORT: &port 80
+      RADARR__APPLICATION_URL: "radarr.${SECRET_DOMAIN}"
+      RADARR__LOG_LEVEL: debug
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups: [10000]
+    persistence:
+      config:
+        enabled: true
+        existingClaim: pvc-radarr-config
+        mountPath: /config
+      downloads:
+        enabled: true
+        existingClaim: pvc-downloads
+        mountPath: /downloads
+      movies:
+        enabled: true
+        existingClaim: pvc-movies
+        mountPath: /movies
+      tv:
+        enabled: true
+        existingClaim: pvc-tv
+        mountPath: /tv
+    resources:
+      requests:
+        cpu: 10m
+        memory: 250Mi
+      limits:
+        memory: 2000Mi
+    metrics:
+      enabled: true
+      serviceMonitor:
+        interval: 3m
+        scrapeTimeout: 1m
+      prometheusRule:
+        enabled: true
+      exporter:
+        image:
+          repository: ghcr.io/onedr0p/exportarr
+          tag: v1.2.6
+        env:
+          port: 9794
+          additionalMetrics: true
+          unknownQueueItems: true

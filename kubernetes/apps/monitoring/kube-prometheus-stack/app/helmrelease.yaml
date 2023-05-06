@@ -1,0 +1,187 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: 45.7.1
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    # persistence:
+    #   alerts:
+    #     enabled: true
+    #     type: hostPath
+    #     hostPath: /network-storage/prometheus/alerts
+    #     hostPathType: Directory
+    #     readOnly: false
+    cleanPrometheusOperatorObjectNames: true
+    alertmanager:
+      enabled: true
+      config:
+        global:
+          resolve_timeout: 5m
+
+      ingress:
+        enabled: true
+        pathType: Prefix
+        ingressClassName: traefik
+        annotations:
+          hajimari.io/appName: "Alert Manager"
+          hajimari.io/icon: mdi:alert-decagram-outline
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+        hosts:
+          - "alerts.${SECRET_DOMAIN}"
+        tls:
+          - hosts:
+              - "alerts.${SECRET_DOMAIN}"
+            secretName: "alerts.${SECRET_DOMAIN}"
+      alertmanagerSpec:
+        replicas: 1
+        podAntiAffinity: hard
+        # storage:
+        #   disableMountSubPath: true
+        #   volumeClaimTemplate:
+        #     spec:
+        #       selector:
+        #         matchLabels:
+        #           app.kubernetes.io/name: prometheus-alerts
+        #       accessModes: ["ReadWriteOnce"]
+        #       volumeName: prometheus-alerts
+              #storageClassName: local
+              # resources:
+              #   requests:
+              #     storage: 10Gi
+      # storage:
+      #   volumeClaimTemplate:
+      #     spec:
+      #       selector:
+      #         matchLabels:
+      #           app.kubernetes.io/name: kube-prometheus-stack
+      #       resources:
+      #         requests:
+      #           storage: 2Gi
+        # storage:
+        #   volumeClaimTemplate:
+        #     spec:
+        #       storageClassName: nfs-client
+        #       resources:
+        #         requests:
+        #           storage: 1Gi
+    kube-state-metrics:
+      metricLabelsAllowlist: ["persistentvolumeclaims=[*]"]
+      prometheus:
+        monitor:
+          enabled: true
+          relabelings:
+            - action: replace
+              regex: (.*)
+              replacement: $1
+              sourceLabels: ["__meta_kubernetes_pod_node_name"]
+              targetLabel: kubernetes_node
+    grafana:
+      enabled: false
+      forceDeployDashboards: true
+      sidecar:
+        dashboards:
+          enabled: true
+          label: grafana_dashboard
+          labelValue: "1"
+
+    prometheus:
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+          hajimari.io/appName: Prometheus
+          hajimari.io/icon: simple-icons:prometheus
+          external-dns.home.arpa/enabled: "true"
+          external-dns.alpha.kubernetes.io/target: "${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/hostname: prom.${SECRET_DOMAIN}
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.middlewares: networking-traefik-middleware-chains-authelia@kubernetescrd
+        hosts:
+          - "prom.${SECRET_DOMAIN}"
+        path: /
+        pathType: Prefix
+        tls:
+          - hosts:
+              - "prom.${SECRET_DOMAIN}"
+            secretName: "prom.${SECRET_DOMAIN}"
+
+      thanosService:
+        enabled: true
+      thanosServiceMonitor:
+        enabled: true
+      prometheusSpec:
+        replicas: 1
+        replicaExternalLabelName: __replica__
+        externalLabels:
+          cluster: home-kubernetes
+        ruleSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        retention: 2d
+        retentionSize: 2GB
+        enableAdminAPI: true
+        walCompression: true
+        ## Prometheus StorageSpec for persistent data
+        ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
+        ##
+        # storageSpec:
+        #   disableMountSubPath: true
+        #   volumeClaimTemplate:
+        #     spec:
+        #       selector:
+        #         matchLabels:
+        #           app.kubernetes.io/name: prometheus-db
+        #       accessModes: ["ReadWriteOnce"]
+        #       volumeName: prometheus-db
+              #storageClassName: local
+              # resources:
+              #   requests:
+              #     storage: 10Gi
+          #storageSpec:
+          # volumeClaimTemplate:
+          #   spec:
+          #     selector:
+          #       matchLabels:
+          #         app.kubernetes.io/name: kube-prometheus-stack
+          #     resources:
+          #       requests:
+          #         storage: 2Gi
+        # storageSpec:
+        #   volumeClaimTemplate:
+        #     spec:
+        #       storageClassName: nfs-client
+        #       resources:
+        #         requests:
+        #           storage: 5Gi
+        resources:
+          requests:
+            cpu: 10m
+            memory: 2000Mi
+          limits:
+            memory: 4000Mi

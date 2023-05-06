@@ -5,17 +5,15 @@ metadata:
   name: home-kubernetes
   namespace: flux-system
 spec:
-  interval: 5m
+  interval: 30m
   ref:
     branch: main
-  url: "https://github.com/laulilulelo/flux-k3s-home"
+  url: "https://github.com/clarknova99/home-cluster.git"
   ignore: |
     # exclude all
     /*
     # include kubernetes directory
     !/kubernetes
-  secretRef:
-    name: github-deploy-key
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: minio
+    namespace: kube-system
+stringData:
+    MINIO_ROOT_USER: ENC[AES256_GCM,data:QDFX1baYUA==,iv:0hDAwmthYvJvLGpqMGkNeLdqeyHCQ/nabZ5U+Mw5Tmg=,tag:56nEapOSEmtFTDadjQWzGA==,type:str]
+    MINIO_ROOT_PASSWORD: ENC[AES256_GCM,data:/8+WFRUzOZid,iv:ln/OU4FbS3XwZgrSUtJyP3BzPwixsGZpKYJQF1Xh0Ps=,tag:VDKXu/PDbTlr+MZHYWtdNw==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age13q8sfmjsr5nhc6mr5a95wdayu6v9nq3007e0kuft7edvcy6zjdgsj26eln
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBQbmJTRW94WncvS2JOQmxs
+            UFJ5VVlVSVNLazJubFI3UXpaa2oyMFRVa1M0Clk0Z0EyZGZvL2x2MGRNMHZvcHJV
+            NVBnZVl4ZXdnTlI3RjlXamRCQnAvSVEKLS0tIE8xSGdNd1NFbjhkS1VkYlJud3dx
+            blJnd2svZ2l2Nnl2djdhc01MR29xZ3MKC5oAUuaJ/afEUPh0EUbsNczHtjBPTFwM
+            aAGMw0nW+Ws1CUdVR6UnOeXP7xkAWLmrUUP1x3+lbSfnKGXxjLVsqQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2023-03-03T03:55:40Z"
+    mac: ENC[AES256_GCM,data:qFfpxuEiGWkc811Rkja5snArI6hMCculUTJ3XCTdeH/XOcdUh/v404mQOBa88EWK9sosC7+PKWHohO/SFaHnSGp/VesCttchVKA4jH/GJfkLfWtS8kmBh81XEF5G/9lqkSsF4/l4epGX3EGr+ShGlriunWmhMPxam3ANP01J5pE=,iv:vQZIa1OlKAhkuz3c/tfv/H/0DzjU0u+QJgFSxb9GmxY=,tag:IVyYva3bsCefPYsT19hbXA==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3

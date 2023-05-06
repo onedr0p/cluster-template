@@ -1,0 +1,10 @@
+---
+- General:
+    - Cloudflare:
+        - icon: cloudflare.png
+          href: https://www.cloudflare.com/
+- Git:
+    - k8s-at-home:
+        - href: 'https://nanne.dev/k8s-at-home-search/'
+    - home-cluster:
+        - href: 'https://github.com/clarknova99/home-cluster'

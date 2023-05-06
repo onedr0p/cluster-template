@@ -2,31 +2,28 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: echo-server
+  name: &app echo-server
   namespace: default
 spec:
   interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 1.4.0
+      version: 1.2.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  maxHistory: 3
   install:
     createNamespace: true
     remediation:
       retries: 3
   upgrade:
-    cleanupOnFail: true
     remediation:
       retries: 3
-  uninstall:
-    keepHistory: false
   values:
     controller:
+      replicas: 1
       strategy: RollingUpdate
     image:
       repository: docker.io/jmalloc/echo-server
@@ -51,21 +48,6 @@ spec:
       readiness: *probes
       startup:
         enabled: false
-    ingress:
-      main:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
-          hajimari.io/icon: video-input-antenna
-        hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                pathType: Prefix
-        tls:
-          - hosts:
-              - *host
     resources:
       requests:
         cpu: 5m

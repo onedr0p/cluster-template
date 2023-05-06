@@ -2,15 +2,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: flux-webhook
+  name: webhook-receiver
   namespace: flux-system
   annotations:
-    external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    external-dns.alpha.kubernetes.io/target: "${SECRET_DOMAIN}"
+    external-dns.home.arpa/enabled: "true"
     hajimari.io/enable: "false"
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
   rules:
-    - host: &host "flux-webhook.${SECRET_DOMAIN}"
+    - host: &host "flux-receiver.${SECRET_DOMAIN}"
       http:
         paths:
           - path: /hook/
@@ -23,3 +25,4 @@ spec:
   tls:
     - hosts:
         - *host
+      secretName: flux-receiver-tls

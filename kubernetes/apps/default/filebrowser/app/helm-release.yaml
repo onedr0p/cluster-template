@@ -1,0 +1,60 @@
+# https://filebrowser.org/installation
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: filebrowser
+  namespace: default
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.2.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    image:
+      repository: docker.io/filebrowser/filebrowser
+      tag: latest
+    env:
+      TZ: "${TIMEZONE}"
+      FB_DATABASE: "/data/filebrowser/filebrowser.db"
+      FB_ROOT: "/data"
+      FB_LOG: "stdout"
+      FB_NOAUTH: "true"
+    service:
+      main:
+        ports:
+          http:
+            port: &port 80
+    probes:
+      liveness: &probes
+        enabled: true
+        custom: true
+        spec:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
+      readiness: *probes
+      startup:
+        enabled: false
+    persistence:
+      data:
+        enabled: true
+        existingClaim: pvc-default
+        #mountPath: /data/filebrowser

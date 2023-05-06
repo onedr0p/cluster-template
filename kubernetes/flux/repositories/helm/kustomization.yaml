@@ -2,15 +2,35 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ./authelia.yaml
+  - ./authentik.yaml
+  # - ./csi-driver-nfs.yaml
   - ./bitnami.yaml
   - ./bjw-s.yaml
+  # - ./cloudnative-pg.yaml
+  - ./dysnix.yaml
   - ./external-dns.yaml
+  - ./fairwinds.yaml
+  - ./grafana.yaml
   - ./hajimari.yaml
   - ./ingress-nginx.yaml
+  - ./influxdata.yaml
+  - ./intel.yaml
+  - ./jameswynn.yaml
   - ./jetstack.yaml
+  - ./k8s-at-home.yaml
   - ./k8s-gateway.yaml
+  - ./komodorio.yaml
   - ./kubernetes-dashboard.yaml
+  # - ./longhorn.yaml
   - ./metallb.yaml
   - ./metrics-server.yaml
+  - ./node-feature-discovery.yaml
+  - ./nfs-subdir-external-provisioner.yaml
+  - ./portainer.yaml
+  - ./prometheus-community.yaml
+  - ./runix.yaml
   - ./stakater.yaml
+  - ./vector.yaml
   - ./weave-gitops.yaml
+  - ./traefik.yaml

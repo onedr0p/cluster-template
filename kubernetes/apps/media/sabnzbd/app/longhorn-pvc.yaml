@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-sabnzbd-config
+  # labels:
+  #   type: longhorn
+  #   recurring-job-group.longhorn.io/weekly-bakup: enabled
+  #   recurring-job-group.longhorn.io/daily-snapshot: enabled
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: sabnzbd-config-storage-class
+  csi:
+    driver: driver.longhorn.io
+    fsType: xfs
+    volumeAttributes:
+      numberOfReplicas: '2'
+      staleReplicaTimeout: '2880'
+    volumeHandle: radarr-config-xfs
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: media
+  name: pvc-sabnzbd-config
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: ppv-sabnzbd-config
+  storageClassName: sabnzbd-config-storage-class

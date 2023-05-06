@@ -1,0 +1,77 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nginx-site
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: nginx
+      version: 13.2.21
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+      interval: 5m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      remediateLastFailure: true
+    cleanupOnFail: true
+  values:
+    image:
+      registry: docker.io
+      repository: bitnami/nginx
+      tag: latest
+    pullPolicy: IfNotPresent
+    debug: false
+    replicaCount: 1
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate: {}
+    serverBlock: |-
+      server {
+        listen 80;
+        server_name ${SECRET_DOMAIN} www.${SECRET_DOMAIN};
+      }
+      server {
+        listen 80;
+        server_name ${SECRET_DOMAIN} ${SECRET_DOMAIN};
+      }
+
+    extraVolumes:
+      - name: nginx-www
+        persistentVolumeClaim:
+          claimName: pvc-nginx-www
+
+    extraVolumeMounts:
+      - mountPath: /app
+        name: nginx-www
+
+    persistence:
+      data:
+        enabled: true
+        existingClaim: pvc-nginx-www
+
+    service:
+      ports:
+        http: &port 8080
+      type: ClusterIP
+      main:
+        ports:
+          http:
+            port: *port
+
+    resources:
+      requests:
+        cpu: 15m
+        memory: 79M
+      limits:
+        cpu: 15m
+        memory: 79M

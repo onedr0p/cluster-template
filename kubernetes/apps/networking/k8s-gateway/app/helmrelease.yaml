@@ -9,22 +9,21 @@ spec:
   chart:
     spec:
       chart: k8s-gateway
-      version: 2.0.3
+      version: 2.0.0
       sourceRef:
         kind: HelmRepository
         name: k8s-gateway
         namespace: flux-system
-  maxHistory: 3
+      interval: 15m
   install:
     createNamespace: true
     remediation:
-      retries: 3
+      retries: 5
   upgrade:
-    cleanupOnFail: true
     remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
+      retries: 5
+  dependsOn:
+    - name: metallb
   values:
     fullnameOverride: k8s-gateway
     domain: "${SECRET_DOMAIN}"

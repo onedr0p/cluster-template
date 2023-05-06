@@ -4,6 +4,12 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./kube-vip/ks.yaml
-  - ./local-path-provisioner/ks.yaml
+  #- ./intel-device-plugin/ks.yaml
   - ./metrics-server/ks.yaml
+  - ./node-feature-discovery/ks.yaml
   - ./reloader/ks.yaml
+  - ./nfs-subdir-external-provisioner/ks.yaml
+  - ./local-path-provisioner/ks.yaml
+  - ./portainer/ks.yaml
+  - ./storage/ks.yaml
+  - ./minio/ks.yaml

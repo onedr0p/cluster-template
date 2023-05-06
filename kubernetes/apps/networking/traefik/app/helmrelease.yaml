@@ -1,0 +1,146 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: networking
+  labels:
+    app: traefik
+spec:
+  chart:
+    spec:
+      #test
+      chart: traefik
+      version: 22.1.0
+      interval: 5m
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+        namespace: flux-system
+  interval: 5m
+  dependsOn:
+    - name: metallb
+      namespace: networking
+    - name: cert-manager
+      namespace: cert-manager
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    deployment:
+      enabled: true
+      replicas: 1
+    experimental:
+      # http3:
+      #   enabled: true
+      plugins:
+        enabled: true
+
+    ingressClass:
+      enabled: true
+      isDefaultClass: true
+      fallbackApiVersion: v1
+    ingressRoute:
+      dashboard:
+        enabled: false
+    persistence:
+      name: data
+      enabled: true
+      accessMode: ReadWriteMany
+      path: /data
+      existingClaim: pvc-networking
+    service:
+      enabled: true
+      type: LoadBalancer
+      spec:
+        loadBalancerIP: "${TRAEFIK_SERVICE_ADDR}"
+        externalTrafficPolicy: Cluster #testing Cluster - originally local
+    ports:
+      traefik:
+        port: 8080
+        protocol: TCP
+      web:
+        port: 80
+        protocol: TCP
+        expose: true
+      # web:
+      #   redirectTo: websecure
+      websecure:
+        port: 443
+        tls:
+          enabled: true
+          options: "default"
+          domains:
+            - main: "${SECRET_DOMAIN}"
+              sans:
+                - "*.${SECRET_DOMAIN}"
+          stores: networking-default@kubernetescrd
+    providers:
+      kubernetesCRD:
+        enabled: true
+        allowCrossNamespace: true
+        allowExternalNameServices: true
+      kubernetesIngress:
+        enabled: true
+        allowExternalNameServices: true
+        allowCrossNamespace: true
+        # https://github.com/kubernetes-sigs/external-dns/issues/1940
+        publishedService:
+          enabled: false
+    globalArguments:
+      - --entryPoints.web.address=:80/tcp
+      - --entryPoints.websecure.address=:443/tcp
+      - --entryPoints.web.forwardedHeaders.insecure
+      - --entryPoints.websecure.forwardedHeaders.insecure
+      - --api=true
+      - --api.dashboard=true #required for the dashboard
+      #- --api.insecure=true #only used in combination with api.dashboard=true. not recommended  https://doc.traefik.io/traefik/operations/dashboard/#insecure-mode
+      - --ping=true
+      - --providers.kubernetescrd
+      - --providers.kubernetescrd.allowCrossNamespace=true
+      # - --providers.kubernetesingress.ingressclass=traefik
+      - --metrics.prometheus=true
+      - --metrics.prometheus.entryPoint=metrics
+    additionalArguments:
+      - --log.level=DEBUG
+      - --log.filePath=/data/traefik/logs/traefik.log
+      - --accessLog=true
+      - --accesslog.filepath=/data/traefik/logs/access.log
+      - --accesslog.fields.defaultmode=keep
+      - --accesslog.fields.headers.defaultmode=keep
+      - --accesslog.fields.headers.names.X-Forwarded-User=keep
+      - --providers.kubernetescrd
+      - --providers.kubernetesingress.ingressendpoint.ip=${TRAEFIK_SERVICE_ADDR}"
+      #- "--providers.kubernetesingress.ingressendpoint.hostname=${SECRET_DOMAIN}"
+      - --serverstransport.insecureskipverify=true
+      - --providers.kubernetesingress.ingressclass=traefik
+      - --providers.kubernetesingress.allowexternalnameservices=true
+      - --providers.kubernetescrd.allowexternalnameservices=true
+    tlsOptions:
+      default:
+        # cipherSuites:
+        #   - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        #   - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        #   - TLS_AES_256_GCM_SHA384
+        #   - TLS_CHACHA20_POLY1305_SHA256
+        # curvePreferences:
+        #   - CurveP521
+        #   - CurveP384
+        minVersion: VersionTLS12
+        maxVersion: VersionTLS13
+        sniStrict: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 50Mi
+      limits:
+        cpu: 4000m
+        memory: 500Mi
+  # tlsStore:
+    #   default:
+    #     defaultCertificate:
+    #       secretName: ${SECRET_DOMAIN}-prod-tls

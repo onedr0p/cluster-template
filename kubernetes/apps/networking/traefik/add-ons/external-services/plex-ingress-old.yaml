@@ -1,0 +1,58 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plex
+  namespace: networking
+  labels:
+    app.kubernetes.io/name: plex
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`plex.${SECRET_DOMAIN}`)
+      services:
+        - name: plex
+          port: 32400
+          namespace: networking
+          serversTransport: plex
+          passHostHeader: true
+      # middlewares:
+      #   - name: traefik-middleware-chains-default
+      #     namespace: networking
+  tls:
+    secretName: "plex-${SECRET_DOMAIN/./-}-tls"
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: plex
+  labels:
+    app.kubernetes.io/name: plex
+spec:
+  insecureSkipVerify: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 32400
+      targetPort: https
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: plex
+subsets:
+  - addresses:
+      - ip: ${PLEX_ADDR}
+    ports:
+      - name: https
+        port: 32400
+        protocol: TCP

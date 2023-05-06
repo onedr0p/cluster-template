@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./secret.sops.yaml
   - ./issuers.yaml
+  - ./certs.yaml
