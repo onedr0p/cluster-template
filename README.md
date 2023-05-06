@@ -383,7 +383,7 @@ You can also try debugging with the command `dig`, e.g. `dig @${BOOTSTRAP_METALL
 
 #### Making internal DNS work with conditional forwarding
 
-There are many guides out there on how to set up conditional DNS forwarding (also know as split-horizon DNS or split DNS) for Opnsense, Pi-Hole, Adguard Home and other DNS solutions. What is recommended is to have your `${SECRET_DOMAIN}` point to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` load balancer IP address. This will ensure only DNS requests for `${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server. 
+There are many guides out there on how to set up conditional DNS forwarding (also know as split-horizon DNS or split DNS) for Opnsense, Pi-Hole, Adguard Home and other DNS solutions. What is recommended is to have your `${SECRET_DOMAIN}` point to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` load balancer IP address on one of those solutions. This will ensure only DNS requests for `${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server. 
 
 Now if nothing is working, that is expected. This is DNS after all!
 
