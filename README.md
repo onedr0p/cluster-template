@@ -8,7 +8,7 @@ There are some limitations or nuances to bring up before you would want to take 
 2. You **MUST** have a domain you can manage on Cloudflare.
 3. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
 4. By default your domain name will **NOT** be visable to the public.
-5. To reach internal-only apps you **MUST** have a DNS server that supports split-dns (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside the cluster **ON** your home network.
+5. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside the cluster **ON** your home network.
 
 With that out of the way please continue on if you are still interested...
 
@@ -383,15 +383,11 @@ task cluster:resources
 
 ### 🌐 DNS
 
-📍 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public domain exposed on your Cloudflare domain. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
+📍 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
 
-`k8s_gateway` is deployed on the IP choosen for `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}`. Inorder to test DNS you can point your clients DNS to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` IP address and load `https://hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` in your browser.
+For split DNS to work it is required to have `ingress.${SECRET_DOMAIN}` point to the `${METALLB_K8S_GATEWAY_ADDR}` load balancer IP address on your home DNS server. This will ensure DNS requests for `*.${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server.
 
-You can also try debugging with the command `dig`, e.g. `dig @${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR} hajimari.${BOOTSTRAP_CLOUDFLARE_DOMAIN}` and you should get a valid answer containing your `${BOOTSTRAP_METALLB_INGRESS_ADDR}` IP address.
-
-#### Making internal DNS work with conditional forwarding
-
-There are many guides out there on how to set up conditional DNS forwarding (also know as split-horizon DNS or split DNS) for Opnsense, Pi-Hole, Adguard Home and other DNS solutions. What is recommended is to have your `${SECRET_DOMAIN}` point to the `${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}` load balancer IP address on one of those solutions. This will ensure only DNS requests for `${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server. 
+If having trouble you can ask for help in [this](https://github.com/onedr0p/flux-cluster-template/discussions/719) Github discussion.
 
 Now if nothing is working, that is expected. This is DNS after all!
 
