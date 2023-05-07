@@ -385,11 +385,20 @@ task cluster:resources
 
 📍 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
 
-For split DNS to work it is required to have `ingress.${SECRET_DOMAIN}` point to the `${METALLB_K8S_GATEWAY_ADDR}` load balancer IP address on your home DNS server. This will ensure DNS requests for `*.${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server.
+For split DNS to work it is required to have `${SECRET_DOMAIN}` point to the `${METALLB_K8S_GATEWAY_ADDR}` load balancer IP address on your home DNS server. This will ensure DNS requests for `${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server.
+
+For and example with Pi-Hole apply the following file and restart dnsmasq:
+
+```sh
+# /etc/dnsmasq.d/99-k8s-gateway-forward.conf
+server=/${SECRET_DOMAIN}/${METALLB_K8S_GATEWAY_ADDR}
+```
+
+Now try to resolve an internal-only domain with `dig @${pi-hole-ip} hajimari.${SECRET_DOMAIN}` it should resolve to your `${METALLB_INGRESS_ADDR}` IP.
 
 If having trouble you can ask for help in [this](https://github.com/onedr0p/flux-cluster-template/discussions/719) Github discussion.
 
-Now if nothing is working, that is expected. This is DNS after all!
+If nothing is working, that is expected. This is DNS after all!
 
 ### 🤖 Renovatebot
 
