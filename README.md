@@ -1,8 +1,16 @@
-# Template for deploying k3s backed by Flux
+# Template for deploying Kubernetes (k3s) backed by Flux
 
-This is a highly opinionated template for deploying a single [k3s](https://k3s.io) cluster with [Ansible](https://www.ansible.com) and [SOPS](https://toolkit.fluxcd.io/guides/mozilla-sops/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
+This is a highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
 
-The purpose here is to showcase how you can deploy an entire Kubernetes cluster and show it off to the world using the [GitOps](https://www.weave.works/blog/what-is-gitops-really) tool [Flux](https://toolkit.fluxcd.io/). When completed, your Git repository will be driving the state of your Kubernetes cluster. In addition with the help of the [Ansible](https://github.com/ansible-collections/community.sops), and [Flux](https://toolkit.fluxcd.io/guides/mozilla-sops/) SOPS integrations you'll be able to commit [Age](https://github.com/FiloSottile/age) encrypted secrets to your public repo.
+There are some limitations or nuaces to mention here before you want to take a dive in trying this out:
+
+1. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
+2. You **MUST** have a domain you can manage on Cloudflare.
+3. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
+4. By default your domain name will **NOT** be visable to the public.
+5. To reach internal-only apps you **MUST** have a DNS server that supports split-dns (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside the cluster **ON** your home network.
+
+With that out of the way please continue on if you are still interested...
 
 ## Overview
 
