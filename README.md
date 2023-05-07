@@ -2,7 +2,7 @@
 
 This is a highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
 
-There are some limitations or nuaces to mention here before you want to take a dive in trying this out:
+There are some limitations or nuances to bring up before you would want to take a dive in trying this out:
 
 1. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
 2. You **MUST** have a domain you can manage on Cloudflare.
