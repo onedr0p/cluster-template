@@ -28,12 +28,14 @@
         public: true
       vars:
         k3s_state: uninstalled
+
     - name: Gather list of CNI files
       ansible.builtin.find:
         paths: /etc/cni/net.d
         patterns: "*"
         hidden: true
       register: directory_contents
+
     - name: Delete CNI files
       ansible.builtin.file:
         path: "{{ item.path }}"
