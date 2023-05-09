@@ -10,11 +10,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
-  healthChecks:
-    - apiVersion: apps/v1
-      kind: DaemonSet
-      name: kube-vip
-      namespace: kube-system
-  interval: 30m
+  wait: true
+  interval: 15m
   retryInterval: 1m
-  timeout: 3m
+  timeout: 30s
