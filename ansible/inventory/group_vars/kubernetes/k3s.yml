@@ -32,7 +32,7 @@ k3s_server_manifests_urls:
   - url: https://raw.githubusercontent.com/kube-vip/kube-vip/main/docs/manifests/rbac.yaml
     filename: custom-kube-vip-rbac.yaml
   # Tigera Operator
-  - url: https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
+  - url: https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml
     filename: custom-calico-tigera-operator.yaml
   # Prometheus Operator
   - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.65.1/example/prometheus-operator-crd/monitoring.coreos.com_alertmanagerconfigs.yaml
