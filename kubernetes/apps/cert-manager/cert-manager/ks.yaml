@@ -11,9 +11,9 @@ spec:
     kind: GitRepository
     name: home-kubernetes
   wait: true
-  interval: 15m
+  interval: 30m
   retryInterval: 1m
-  timeout: 30s
+  timeout: 5m
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -28,6 +28,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
-  interval: 15m
+  interval: 30m
   retryInterval: 1m
-  timeout: 30s
+  timeout: 5m
