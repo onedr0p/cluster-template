@@ -26,6 +26,7 @@ k3s_server:
     - traefik
   disable-network-policy: true
   disable-cloud-controller: true
+  disable-kube-proxy: true
   write-kubeconfig-mode: "644"
   # Network CIDR to use for pod IPs
   cluster-cidr: "10.42.0.0/16"
@@ -34,9 +35,6 @@ k3s_server:
   kube-controller-manager-arg:
     # Required to monitor kube-controller-manager with kube-prometheus-stack
     - "bind-address=0.0.0.0"
-  kube-proxy-arg:
-    # Required to monitor kube-proxy with kube-prometheus-stack
-    - "metrics-bind-address=0.0.0.0"
   kube-scheduler-arg:
     # Required to monitor kube-scheduler with kube-prometheus-stack
     - "bind-address=0.0.0.0"

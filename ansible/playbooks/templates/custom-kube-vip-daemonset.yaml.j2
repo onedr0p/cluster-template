@@ -45,7 +45,7 @@ spec:
             - name: vip_retryperiod
               value: "2"
             - name: address
-              value: "{{ k3s_registration_address }}"
+              value: "{{ kubevip_address }}"
           securityContext:
             capabilities:
               add: ["NET_ADMIN", "NET_RAW"]
