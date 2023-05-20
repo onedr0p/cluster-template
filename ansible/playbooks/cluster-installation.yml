@@ -56,37 +56,19 @@
         wait_sleep: 10
         wait_timeout: 360
       loop:
-        - kind: Deployment
-          name: tigera-operator
-          namespace: tigera-operator
-        - kind: DaemonSet
-          name: kube-vip
+        - name: kube-vip
+          kind: DaemonSet
           namespace: kube-system
-        - kind: Installation
-          name: default
-        - kind: CustomResourceDefinition
-          name: alertmanagerconfigs.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: alertmanagers.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: podmonitors.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: probes.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheuses.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheusrules.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: servicemonitors.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: thanosrulers.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: scrapeconfigs.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheusagents.monitoring.coreos.com
+        - name: cilium
+          kind: HelmChart
+          namespace: kube-system
+        - name: podmonitors.monitoring.coreos.com
+          kind: CustomResourceDefinition
+        - name: prometheusrules.monitoring.coreos.com
+          kind: CustomResourceDefinition
+        - name: servicemonitors.monitoring.coreos.com
+          kind: CustomResourceDefinition
       when:
-        - k3s_server_manifests_templates | length > 0
-            or k3s_server_manifests_urls | length > 0
         - k3s_control_node is defined
         - k3s_control_node
 
