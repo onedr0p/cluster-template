@@ -10,6 +10,18 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
+    - name: Check if cluster is installed
+      ansible.builtin.stat:
+        path: /etc/rancher/k3s/config.yaml
+      register: k3s_check_installed
+      check_mode: false
+
+    - name: Ignore manifests templates and urls if the cluster is already installed
+      ansible.builtin.set_fact:
+        k3s_server_manifests_templates: []
+        k3s_server_manifests_urls: []
+      when: k3s_check_installed.stat.exists
+
     - name: Install Kubernetes
       ansible.builtin.include_role:
         name: xanmanning.k3s
@@ -56,34 +68,20 @@
         wait_sleep: 10
         wait_timeout: 360
       loop:
-        - kind: Deployment
-          name: tigera-operator
+        - name: tigera-operator
+          kind: Deployment
           namespace: tigera-operator
-        - kind: DaemonSet
-          name: kube-vip
+        - name: kube-vip
+          kind: DaemonSet
           namespace: kube-system
         - kind: Installation
           name: default
-        - kind: CustomResourceDefinition
-          name: alertmanagerconfigs.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: alertmanagers.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: podmonitors.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: probes.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheuses.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheusrules.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: servicemonitors.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: thanosrulers.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: scrapeconfigs.monitoring.coreos.com
-        - kind: CustomResourceDefinition
-          name: prometheusagents.monitoring.coreos.com
+        - name: podmonitors.monitoring.coreos.com
+          kind: CustomResourceDefinition
+        - name: prometheusrules.monitoring.coreos.com
+          kind: CustomResourceDefinition
+        - name: servicemonitors.monitoring.coreos.com
+          kind: CustomResourceDefinition
       when:
         - k3s_server_manifests_templates | length > 0
             or k3s_server_manifests_urls | length > 0
@@ -95,14 +93,16 @@
     # is needed because k3s has an awesome "feature" to always re-deploy them when the k3s
     # service is restarted. Removing them does not uninstall the manifests from your cluster.
 
-    - name: Remove deployed manifest templates
-      ansible.builtin.file:
-        path: "{{ k3s_server_manifests_dir }}/{{ item | basename | regex_replace('\\.j2$', '') }}"
-        state: absent
-      loop: "{{ k3s_server_manifests_templates | default([]) }}"
+    - name: Get a list of all custom manifest files
+      ansible.builtin.find:
+        paths: "{{ k3s_server_manifests_dir }}"
+        file_type: file
+        use_regex: true
+        patterns: ["^custom-.*"]
+      register: custom_manifest_files
 
-    - name: Remove deployed manifest urls
+    - name: Delete all custom manifest files
       ansible.builtin.file:
-        path: "{{ k3s_server_manifests_dir }}/{{ item.filename }}"
+        path: "{{ item.path }}"
         state: absent
-      loop: "{{ k3s_server_manifests_urls | default([]) }}"
+      loop: "{{ custom_manifest_files }}"
