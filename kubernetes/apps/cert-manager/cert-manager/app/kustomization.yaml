@@ -8,7 +8,7 @@ resources:
 configMapGenerator:
   - name: cert-manager-dashboard
     files:
-      - cert-manager-dashboard.json=https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/cert-manager/dashboards/cert-manager.json
+      - cert-manager-dashboard.json=https://gitlab.com/uneeq-oss/cert-manager-mixin/-/blob/master/dashboards/cert-manager.json
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
