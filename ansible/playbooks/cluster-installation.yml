@@ -99,10 +99,10 @@
         file_type: file
         use_regex: true
         patterns: ["^custom-.*"]
-      register: custom_manifest_files
+      register: custom_manifest
 
     - name: Delete all custom manifest files
       ansible.builtin.file:
         path: "{{ item.path }}"
         state: absent
-      loop: "{{ custom_manifest_files }}"
+      loop: "{{ custom_manifest.files }}"
