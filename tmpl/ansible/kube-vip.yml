@@ -1,3 +1,5 @@
 ---
 # (string) The ARP address kube-vip broadcasts
 kubevip_address: "${BOOTSTRAP_KUBE_VIP_ADDR}"
+cluster_cidr: "${BOOTSTRAP_CLUSTER_CIDR}"
+service_cidr: "${BOOTSTRAP_SERVICE_CIDR}"

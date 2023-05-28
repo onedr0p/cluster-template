@@ -42,7 +42,7 @@ k3s_server_manifests_urls:
 # (list) A flat list of templates to deploy on the primary control plane node
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
-  - cilium-helmchart.yaml.j2
+  - custom-cilium-helmchart.yaml.j2
 
 # (list) A flat list of templates to deploy as static pods on all the control plane nodes
 # /var/lib/rancher/k3s/agent/pod-manifests

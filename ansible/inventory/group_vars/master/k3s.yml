@@ -29,9 +29,9 @@ k3s_server:
   disable-kube-proxy: true
   write-kubeconfig-mode: "644"
   # Network CIDR to use for pod IPs
-  cluster-cidr: "10.42.0.0/16"
+  cluster-cidr: "{{ cluster_cidr }}"
   # Network CIDR to use for service IPs
-  service-cidr: "10.43.0.0/16"
+  service-cidr: "{{ service_cidr }}"
   kube-controller-manager-arg:
     # Required to monitor kube-controller-manager with kube-prometheus-stack
     - "bind-address=0.0.0.0"

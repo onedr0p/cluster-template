@@ -30,6 +30,7 @@ main() {
         verify_ansible_hosts
         verify_metallb
         verify_kubevip
+        verify_cluster_service_cidrs
         verify_addressing
         verify_age
         verify_git_repository
@@ -250,6 +251,12 @@ verify_metallb() {
     _has_valid_ip "$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2)" "BOOTSTRAP_METALLB_LB_RANGE"
     _has_valid_ip "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" "BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR"
     _has_valid_ip "${BOOTSTRAP_METALLB_INGRESS_ADDR}" "BOOTSTRAP_METALLB_INGRESS_ADDR"
+}
+
+verify_cluster_service_cidrs() {
+    #TODO: Validate input is a CIDR range
+    _has_envar "BOOTSTRAP_CLUSTER_CIDR"
+    _has_envar "BOOTSTRAP_SERVICE_CIDR"
 }
 
 verify_git_repository() {
