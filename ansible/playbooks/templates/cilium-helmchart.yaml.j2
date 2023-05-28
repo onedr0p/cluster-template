@@ -1,0 +1,54 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  repo: https://helm.cilium.io/
+  chart: cilium
+  version: 1.13.2
+  targetNamespace: kube-system
+  bootstrap: true
+  valuesContent: |-
+    bpf:
+      masquerade: true
+    cluster:
+      name: home-cluster
+      id: 1
+    containerRuntime:
+      integration: containerd
+      socketPath: /var/run/k3s/containerd/containerd.sock
+    hubble:
+      enabled: true
+      metrics:
+        enabled:
+          - dns:query;ignoreAAAA
+          - drop
+          - tcp
+          - flow
+          - port-distribution
+          - icmp
+          - http
+      relay:
+        enabled: true
+        rollOutPods: true
+      ui:
+        enabled: true
+        rollOutPods: true
+        ingress:
+          enabled: false
+    ipam:
+      mode: cluster-pool
+      operator:
+        clusterPoolIPv4PodCIDRList: ["{{ k3s_server['cluster-cidr'] }}"]
+        clusterPoolIPv4MaskSize: 24
+    k8sServiceHost: "{{ kubevip_address }}"
+    k8sServicePort: 6443
+    kubeProxyReplacement: strict
+    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    operator:
+      enabled: true
+      replicas: 1
+      rollOutPods: true
+    rollOutCiliumPods: true
