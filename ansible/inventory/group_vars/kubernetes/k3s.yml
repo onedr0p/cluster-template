@@ -39,8 +39,12 @@ k3s_server_manifests_urls:
   - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.65.1/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
     filename: custom-prometheus-servicemonitors.yaml
 
-# (list) A flat list of templates to deploy on the primary control plane
+# (list) A flat list of templates to deploy on the primary control plane node
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
-  - custom-kube-vip-daemonset.yaml.j2
   - custom-cilium-helmchart.yaml.j2
+
+# (list) A flat list of templates to deploy as static pods on all the control plane nodes
+# /var/lib/rancher/k3s/agent/pod-manifests
+k3s_server_pod_manifests_templates:
+  - kube-vip-static-pod.yaml.j2
