@@ -41,7 +41,7 @@ spec:
     ipam:
       mode: cluster-pool
       operator:
-        clusterPoolIPv4PodCIDRList: ["{{ k3s_server['cluster-cidr'] }}"]
+        clusterPoolIPv4PodCIDRList: ["{{ cluster_cidr }}"]
         clusterPoolIPv4MaskSize: 24
     k8sServiceHost: "{{ kubevip_address }}"
     k8sServicePort: 6443

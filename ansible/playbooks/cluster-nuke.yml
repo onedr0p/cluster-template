@@ -22,6 +22,11 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
+    - name: Reboot
+      ansible.builtin.reboot:
+        msg: Rebooting nodes
+        reboot_timeout: 3600
+
     - name: Uninstall k3s
       ansible.builtin.include_role:
         name: xanmanning.k3s
