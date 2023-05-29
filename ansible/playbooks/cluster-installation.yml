@@ -99,8 +99,6 @@
           status: true
         wait_timeout: 360
       when:
-        - k3s_server_manifests_templates | length > 0
-            or k3s_server_manifests_urls | length > 0
         - k3s_control_node is defined
         - k3s_control_node
 
