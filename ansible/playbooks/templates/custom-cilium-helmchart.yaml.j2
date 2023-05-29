@@ -5,6 +5,7 @@ metadata:
   name: cilium
   namespace: kube-system
   annotations:
+    # Allows for deletion of HelmChart so Flux can take it over
     helmcharts.helm.cattle.io/unmanaged: "true"
 spec:
   repo: https://helm.cilium.io/
