@@ -60,7 +60,7 @@
     # Unmanaging and removing the Cilium HelmChart is required for 
     # flux to take over managing the lifecycle of Cilium
 
-    - name: Post installation tasks
+    - name: Post installation of custom manifests tasks
       run_once: true
       when:
         - k3s_server_manifests_templates | length > 0
