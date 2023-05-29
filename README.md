@@ -4,11 +4,13 @@ This is a highly opinionated template for deploying a single Kubernetes ([k3s](h
 
 There are some limitations or nuances to bring up before you would want to take a dive in trying this out:
 
-1. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
-2. You **MUST** have a domain you can manage on Cloudflare.
-3. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
-4. By default your domain name will **NOT** be visible to the public.
-5. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside the cluster **ON** your home network.
+1. Bring a positive attitude and be ready to learn and fail a lot. The more you fail, the more you can learn from.
+2. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
+3. You **MUST** have a domain you can manage on Cloudflare.
+4. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
+5. By default your domain name will **NOT** be visible to the public.
+6. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside the cluster **ON** your home network.
+7. In order for this all to work you have to use nodes that have access to the internet. This is not geared towards air-gapped environments.
 
 With that out of the way please continue on if you are still interested...
 
