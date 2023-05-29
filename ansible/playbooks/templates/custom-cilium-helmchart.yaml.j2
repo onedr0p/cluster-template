@@ -4,6 +4,8 @@ kind: HelmChart
 metadata:
   name: cilium
   namespace: kube-system
+  annotations:
+    helmcharts.helm.cattle.io/unmanaged: "true"
 spec:
   repo: https://helm.cilium.io/
   chart: cilium
