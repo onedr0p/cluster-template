@@ -4,31 +4,16 @@
 # ...see https://github.com/PyratLabs/ansible-role-k3s
 #
 
-# (string) Use a specific version of k3s
 # renovate: datasource=github-releases depName=k3s-io/k3s
 k3s_release_version: "v1.27.1+k3s1"
-
-# (bool) Install using hard links rather than symbolic links.
 k3s_install_hard_links: true
-
-# (bool) Escalate user privileges for all tasks
 k3s_become: true
-
-# (bool) Enable debug logging on the k3s service
 k3s_debug: false
-
-# (bool) Enable etcd embedded datastore
 k3s_etcd_datastore: true
-
-# (bool) Allow the use of unsupported configurations in k3s
 k3s_use_unsupported_config: true
-
-# (string) Control Plane registration address
 k3s_registration_address: "{{ kubevip_address }}"
-
-# (list) A list of URLs to deploy on the primary control plane. Read notes below.
 k3s_server_manifests_urls:
-  # Kube-vip
+  # Kube-vip RBAC
   - url: https://raw.githubusercontent.com/kube-vip/kube-vip/main/docs/manifests/rbac.yaml
     filename: custom-kube-vip-rbac.yaml
   # Essential Prometheus Operator CRDs
@@ -38,13 +23,9 @@ k3s_server_manifests_urls:
     filename: custom-prometheus-prometheusrules.yaml
   - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.65.1/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
     filename: custom-prometheus-servicemonitors.yaml
-
-# (list) A flat list of templates to deploy on the primary control plane node
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
-
-# (list) A flat list of templates to deploy as static pods on all the control plane nodes
 # /var/lib/rancher/k3s/agent/pod-manifests
 k3s_server_pod_manifests_templates:
   - kube-vip-static-pod.yaml.j2

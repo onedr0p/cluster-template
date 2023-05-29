@@ -59,8 +59,8 @@ main() {
             > "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
         sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/networking/external-dns/app/secret.sops.yaml"
         # generate ansible settings
-        envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" \
-            > "${PROJECT_DIR}/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
+        envsubst < "${PROJECT_DIR}/tmpl/ansible/supplemental.yml" \
+            > "${PROJECT_DIR}/ansible/inventory/group_vars/kubernetes/supplemental.yml"
         # generate ansible hosts file and secrets
         generate_ansible_hosts
         generate_ansible_host_secrets
