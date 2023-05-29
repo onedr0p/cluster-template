@@ -59,10 +59,11 @@ spec:
         ingress:
           enabled: true
           className: nginx
-          annotations:
-            nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
           hosts:
-            - "hubble.${SECRET_DOMAIN}"
+            - &host "hubble.${SECRET_DOMAIN}"
+          tls:
+            - hosts:
+                - *host
     ipam:
       mode: cluster-pool
       operator:
