@@ -30,6 +30,7 @@ tasks:
       DEPS: >-
         age
         ansible
+        cilium-cli
         cloudflare/cloudflare/cloudflared
         direnv
         fluxcd/tap/flux
