@@ -9,7 +9,7 @@
     - name: nuke
       prompt: |-
         Are you sure you want to nuke this cluster?
-        Type YES I WANT TO DESTROY THIS CLUSTER to proceed
+        Type 'YES I WANT TO DESTROY THIS CLUSTER' to proceed
       default: "n"
       private: false
   pre_tasks:
@@ -22,6 +22,12 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
+    - name: Uninstall Cilium
+      ansible.builtin.shell: |
+        cilium uninstall --wait
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
     - name: Reboot
       ansible.builtin.reboot:
         msg: Rebooting nodes
