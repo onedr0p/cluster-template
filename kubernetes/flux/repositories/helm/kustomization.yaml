@@ -6,6 +6,7 @@ resources:
   - ./bjw-s.yaml
   - ./cilium.yaml
   - ./external-dns.yaml
+  - ./grafana.yaml
   - ./hajimari.yaml
   - ./ingress-nginx.yaml
   - ./jetstack.yaml
@@ -13,5 +14,6 @@ resources:
   - ./kubernetes-dashboard.yaml
   - ./metallb.yaml
   - ./metrics-server.yaml
+  - ./prometheus-community.yaml
   - ./stakater.yaml
   - ./weave-gitops.yaml

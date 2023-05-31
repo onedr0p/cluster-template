@@ -66,6 +66,8 @@ main() {
         generate_ansible_host_secrets
         setup_github_webhook
         setup_weave_gitops
+        setup_grafana_admin
+        setup_prometheus_endpoints
         success
     fi
 }
@@ -474,11 +476,26 @@ generate_ansible_hosts() {
     } > "${PROJECT_DIR}/ansible/inventory/hosts.yml"
 }
 
+setup_prometheus_endpoints() {
+    for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
+        node_id=$(echo "${var}" | awk -F"_" '{print $5}')
+        node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
+        if [[ "${!node_control}" == "true" ]]; then
+            node_addr="BOOTSTRAP_ANSIBLE_HOST_ADDR_${node_id}"
+            _log "INFO(${FUNCNAME[0]})" "Setting up Prometheus endpoint for '${!node_addr}'"
+            yq --inplace 'del(.spec.values.kubeControllerManager.endpoints[])' \
+                "${PROJECT_DIR}/kubernetes/apps/monitoring/kube-prometheus-stack/app/helmrelease.yaml"
+            yq --inplace ".spec.values.kubeControllerManager.endpoints += \"${!node_addr}\"" \
+                "${PROJECT_DIR}/kubernetes/apps/monitoring/kube-prometheus-stack/app/helmrelease.yaml"
+        fi
+    done
+}
+
 setup_github_webhook() {
     _has_envar "BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET"
     WEBHOOK_SECRET="${BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET}"
     if [[ "${WEBHOOK_SECRET}" == "generated" ]]; then
-        WEBHOOK_SECRET="$(openssl rand -base64 30)"
+        WEBHOOK_SECRET="$(openssl rand -hex 12)"
     fi
     export BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET="${WEBHOOK_SECRET}"
     _log "INFO(${FUNCNAME[0]})" "Using GitHub Token '${WEBHOOK_SECRET}' for Flux"
@@ -491,7 +508,7 @@ setup_weave_gitops() {
     _has_envar "BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD"
     WEAVE_GITOPS_ADMIN_PASSWORD="${BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD}"
     if [[ "${WEAVE_GITOPS_ADMIN_PASSWORD}" == "generated" ]]; then
-        WEAVE_GITOPS_ADMIN_PASSWORD="$(openssl rand -base64 30)"
+        WEAVE_GITOPS_ADMIN_PASSWORD="$(openssl rand -hex 12)"
     fi
     export BOOTSTRAP_WEAVE_GITOPS_ADMIN_PASSWORD="${WEAVE_GITOPS_ADMIN_PASSWORD}"
     _log "INFO(${FUNCNAME[0]})" "Using admin password '${WEAVE_GITOPS_ADMIN_PASSWORD}' for Weave Gitops"
@@ -501,6 +518,19 @@ setup_weave_gitops() {
     envsubst < "${PROJECT_DIR}/tmpl/kubernetes/weave-gitops-secret.sops.yaml" \
         > "${PROJECT_DIR}/kubernetes/apps/flux-system/weave-gitops/app/secret.sops.yaml"
     sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/flux-system/weave-gitops/app/secret.sops.yaml"
+}
+
+setup_grafana_admin() {
+    _has_envar "BOOTSTRAP_GRAFANA_ADMIN_PASSWORD"
+    GRAFANA_ADMIN_PASSWORD="${BOOTSTRAP_GRAFANA_ADMIN_PASSWORD}"
+    if [[ "${GRAFANA_ADMIN_PASSWORD}" == "generated" ]]; then
+        GRAFANA_ADMIN_PASSWORD="$(openssl rand -hex 12)"
+    fi
+    export BOOTSTRAP_GRAFANA_ADMIN_PASSWORD="${GRAFANA_ADMIN_PASSWORD}"
+    _log "INFO(${FUNCNAME[0]})" "Using password '${GRAFANA_ADMIN_PASSWORD}' for Grafana"
+    envsubst < "${PROJECT_DIR}/tmpl/kubernetes/grafana-admin-secret.sops.yaml" \
+        > "${PROJECT_DIR}/kubernetes/apps/monitoring/grafana/app/secret.sops.yaml"
+    sops --encrypt --in-place "${PROJECT_DIR}/kubernetes/apps/monitoring/grafana/app/secret.sops.yaml"
 }
 
 success() {
