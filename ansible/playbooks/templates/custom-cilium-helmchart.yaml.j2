@@ -40,10 +40,7 @@ spec:
         ingress:
           enabled: false
     ipam:
-      mode: cluster-pool
-      operator:
-        clusterPoolIPv4PodCIDRList: ["{{ cluster_cidr }}"]
-        clusterPoolIPv4MaskSize: 24
+      mode: kubernetes
     k8sServiceHost: "{{ kubevip_address }}"
     k8sServicePort: 6443
     kubeProxyReplacement: strict
