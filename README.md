@@ -1,18 +1,6 @@
-# Template for deploying Kubernetes (k3s) backed by Flux
+# Template for deploying a Kubernetes cluster backed by Flux
 
-This is a highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
-
-There are some limitations or nuances to bring up before you would want to take a dive in trying this out:
-
-1. Bring a positive attitude and be ready to learn and fail a lot. The more you fail, the more you can learn from.
-2. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
-3. You **MUST** have a domain you can manage on Cloudflare.
-4. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
-5. By default your domain name will **NOT** be visible to the public.
-6. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside the cluster **ON** your home network.
-7. In order for this all to work you have to use nodes that have access to the internet. This is not geared towards air-gapped environments.
-
-With that out of the way please continue on if you are still interested...
+Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
 
 ## Overview
 
@@ -43,9 +31,16 @@ _Additional applications include [hajimari](https://github.com/toboshii/hajimari
 
 ## 📝 Prerequisites
 
-**Note:** _This template has not been tested on cloud providers like AWS EC2, Hetzner, Scaleway etc... Those cloud offerings probably have a better way of provsioning a Kubernetes cluster and it's advisable to use those instead of the Ansible playbooks included here. This repository can still be tweaked for the GitOps/Flux portion if there's a cluster working in one those environments._
+1. Please bring a **positive attitude** and be ready to learn and fail a lot. The more you fail, the more you can learn from.
+2. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
+3. You **MUST** have a domain you can manage on Cloudflare.
+4. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
+5. By default your domain name will **NOT** be visible to the public.
+6. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside your cluster **ON** your home network.
+7. In order for this all to work you have to use nodes that have access to the internet. This is not geared towards air-gapped environments.
+8. Only **amd64** and/or **arm64** nodes are supported.
 
-First and foremost some experience in debugging/troubleshooting problems **and a positive attitude is required** :)
+With that out of the way please continue on if you are still interested...
 
 ### 📚 Reading material
 
