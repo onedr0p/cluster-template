@@ -37,7 +37,7 @@ _Additional applications include [hajimari](https://github.com/toboshii/hajimari
 4. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
 5. By default your domain name will **NOT** be visible to the public.
 6. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside your cluster **ON** your home network.
-7. In order for this all to work you have to use nodes that have access to the internet. This is not geared towards air-gapped environments.
+7. In order for this all to work you have to use nodes that have access to the internet. This is not going to work in air-gapped environments.
 8. Only **amd64** and/or **arm64** nodes are supported.
 
 With that out of the way please continue on if you are still interested...
