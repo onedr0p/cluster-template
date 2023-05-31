@@ -21,24 +21,7 @@ spec:
       integration: containerd
       socketPath: /var/run/k3s/containerd/containerd.sock
     hubble:
-      enabled: true
-      metrics:
-        enabled:
-          - dns:query;ignoreAAAA
-          - drop
-          - tcp
-          - flow
-          - port-distribution
-          - icmp
-          - http
-      relay:
-        enabled: true
-        rollOutPods: true
-      ui:
-        enabled: true
-        rollOutPods: true
-        ingress:
-          enabled: false
+      enabled: false
     ipam:
       mode: kubernetes
     k8sServiceHost: "{{ kubevip_address }}"
@@ -47,5 +30,3 @@ spec:
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
     operator:
       replicas: 1
-      rollOutPods: true
-    rollOutCiliumPods: true
