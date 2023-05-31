@@ -3,4 +3,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
+  - ./grafana/ks.yaml
+  - ./kube-prometheus-stack/ks.yaml
   - ./kubernetes-dashboard/ks.yaml
