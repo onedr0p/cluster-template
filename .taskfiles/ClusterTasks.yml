@@ -26,8 +26,7 @@ tasks:
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
-      - flux reconcile -n flux-system source git home-kubernetes
-      - flux reconcile -n flux-system kustomization cluster
+      - flux reconcile -n flux-system kustomization cluster --with-source
 
   hr-restart:
     desc: Restart all failed Helm Releases
