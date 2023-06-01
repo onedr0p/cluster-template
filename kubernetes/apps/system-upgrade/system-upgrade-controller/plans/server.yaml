@@ -17,6 +17,7 @@ spec:
     - { effect: NoSchedule, operator: Exists }
     - { effect: NoExecute, operator: Exists }
     - { key: node-role.kubernetes.io/control-plane, effect: NoSchedule, operator: Exists }
+    - { key: node-role.kubernetes.io/master, effect: NoSchedule, operator: Exists }
     - { key: node-role.kubernetes.io/etcd, effect: NoExecute, operator: Exists }
     - { key: CriticalAddonsOnly, operator: Exists }
   upgrade:
