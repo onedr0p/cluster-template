@@ -533,8 +533,10 @@ You should be able to access the dashboard at `https://kubernetes.${SECRET_DOMAI
 
 Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state.
 
-1. Start by checking all Flux Kustomizations and verify they are healthy.
+1. Start by checking all Flux Kustomizations & Git Repository & OCI Repository and verify they are healthy.
 
+- `flux get sources oci -A`
+- `flux get sources git -A`
 - `flux get ks -A`
 
 2. Then check all the Flux Helm Releases and verify they are healthy.
