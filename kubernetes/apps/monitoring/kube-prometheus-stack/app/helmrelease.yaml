@@ -28,6 +28,9 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  dependsOn:
+    - name: local-path-provisioner
+      namespace: kube-system
   values:
     cleanPrometheusOperatorObjectNames: true
     alertmanager:

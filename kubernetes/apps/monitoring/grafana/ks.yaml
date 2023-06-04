@@ -5,14 +5,12 @@ metadata:
   name: cluster-apps-grafana
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: cluster-apps-local-path-provisioner
   path: ./kubernetes/apps/monitoring/grafana/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
-  wait: true
+  wait: false # no flux ks dependents
   interval: 30m
   retryInterval: 1m
   timeout: 5m
