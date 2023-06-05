@@ -200,7 +200,7 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 ### ⚡ Preparing Ubuntu Server with Ansible
 
-📍 Here we will be running a Ansible Playbook to Ubuntu Server for running a Kubernetes cluster.
+📍 Here we will be running an Ansible Playbook to prepare Ubuntu server for running a Kubernetes cluster.
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
 
