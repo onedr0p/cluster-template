@@ -21,25 +21,13 @@
         - name: Networking | Set hostname to inventory hostname
           ansible.builtin.hostname:
             name: "{{ inventory_hostname }}"
-        - name: Networking | Update /etc/hosts to include inventory hostname
+        - name: Networking | Update hosts file to include inventory hostname
           ansible.builtin.blockinfile:
             path: /etc/hosts
             block: |
               127.0.1.1   {{ inventory_hostname }}
 
-    - name: Packages | Fedora
-      block:
-        - name: Packages | Install required packages
-          ansible.builtin.dnf:
-            name: "{{ fedora.packages | default([]) }}"
-            state: present
-            update_cache: true
-        - name: Packages | Remove leaf packages
-          ansible.builtin.dnf:
-            autoremove: true
-      when: ansible_facts['distribution'] == 'Fedora'
-
-    - name: Packages | Ubuntu
+    - name: Packages
       block:
         - name: Packages | Install required packages
           ansible.builtin.apt:
@@ -55,7 +43,6 @@
             install_recommends: false
           notify: Reboot
           when: "'raspi' in ansible_kernel"
-      when: ansible_facts['distribution'] == 'Ubuntu'
 
     - name: Packages | Cilium CLI
       ansible.builtin.include_role:
@@ -78,20 +65,12 @@
 
     - name: System Configuration (1)
       block:
-        - name: System Configuration (1) | Disable firewalld | Fedora
-          ansible.builtin.systemd:
-            service: firewalld.service
-            enabled: false
-            masked: true
-            state: stopped
-          when: ansible_facts['distribution'] == 'Fedora'
-        - name: System Configuration (1) | Disable ufw | Ubuntu
+        - name: System Configuration (1) | Disable ufw
           ansible.builtin.systemd:
             service: ufw.service
             enabled: false
             masked: true
             state: stopped
-          when: ansible_facts['distribution'] == 'Ubuntu'
         - name: System Configuration (1) | Enable fstrim
           ansible.builtin.systemd:
             service: fstrim.timer
@@ -128,28 +107,15 @@
               net.bridge.bridge-nf-call-ip6tables: 1
               fs.inotify.max_user_watches: 524288
               fs.inotify.max_user_instances: 512
-        - name: System Configuration (2) | Disable swap | Fedora
-          ansible.builtin.dnf:
-            name: zram-generator-defaults
-            state: absent
-          when: ansible_facts['distribution'] == 'Fedora'
-        - name: System Configuration (2) | Disable swap at runtime | Ubuntu
+        - name: System Configuration (2) | Disable swap at runtime
           ansible.builtin.command: swapoff -a
-          when:
-            - ansible_facts['distribution'] == 'Ubuntu'
-            - ansible_swaptotal_mb > 0
-        - name: System Configuration (2) | Disable swap at boot | Ubuntu
+          when: ansible_swaptotal_mb > 0
+        - name: System Configuration (2) | Disable swap at boot
           ansible.posix.mount:
             name: "{{ item }}"
             fstype: swap
             state: absent
           loop: ["none", "swap"]
-          when: ansible_facts['distribution'] == 'Ubuntu'
-        - name: System Configuration (2) | Permissive SELinux | Fedora
-          ansible.posix.selinux:
-            state: permissive
-            policy: targeted
-          when: ansible_facts['distribution'] == 'Fedora'
       notify: Reboot
 
   handlers:
