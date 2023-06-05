@@ -48,7 +48,7 @@ With that out of the way please continue on if you are still interested...
 
 ### 💻 Systems
 
-- One or more nodes with a fresh install of [Fedora Server 37+](https://getfedora.org/en/server/download/) or [Ubuntu 22.04 Server](https://ubuntu.com/download/server) (not minimal).
+- One or more nodes with a fresh install of [Ubuntu 22.04 Server](https://ubuntu.com/download/server) (not minimal / not raspi edition).
   - These nodes can be ARM64/AMD64 bare metal or VMs.
   - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
 - A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
@@ -198,9 +198,9 @@ In order to expose services to the internet you will need to create a [Cloudflar
    task configure
    ```
 
-### ⚡ Preparing Fedora or Ubuntu Server with Ansible
+### ⚡ Preparing Ubuntu Server with Ansible
 
-📍 Here we will be running a Ansible Playbook to prepare Fedora or Ubuntu Server for running a Kubernetes cluster.
+📍 Here we will be running an Ansible Playbook to prepare Ubuntu server for running a Kubernetes cluster.
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
 
@@ -226,7 +226,7 @@ In order to expose services to the internet you will need to create a [Cloudflar
    task ansible:ping
    ```
 
-5. Run the Fedora/Ubuntu Server Ansible prepare playbook
+5. Run the Ansible prepare playbook
 
    ```sh
    task ansible:prepare
