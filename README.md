@@ -198,6 +198,8 @@ In order to expose services to the internet you will need to create a [Cloudflar
    task configure
    ```
 
+⚠️ This will print out the clear-text passwords for Grafana and Weave Gitops if you had them set to `generated` in your `.config.env`. Take note of these, you'll need them to log into the applications.
+
 ### ⚡ Preparing Ubuntu Server with Ansible
 
 📍 Here we will be running an Ansible Playbook to prepare Ubuntu server for running a Kubernetes cluster.
