@@ -1,0 +1,17 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: olm
+  namespace: olm
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: olm
+      version: v0.24.0
+      sourceRef:
+        kind: HelmRepository
+        name: olm
+        namespace: flux-system
+  maxHistory: 2
