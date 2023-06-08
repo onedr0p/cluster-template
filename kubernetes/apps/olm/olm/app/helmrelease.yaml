@@ -15,3 +15,10 @@ spec:
         name: olm
         namespace: flux-system
   maxHistory: 2
+  values:
+  olm:
+    nodeSelector:
+      kubernetes.io/arch: amd64
+  catalog:
+    nodeSelector:
+      kubernetes.io/arch: amd64
