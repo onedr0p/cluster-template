@@ -84,6 +84,7 @@ spec:
       ingressClassName: nginx
       annotations:
         hajimari.io/icon: simple-icons:grafana
+        external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
       hosts:
         - &host "grafana.${SECRET_DOMAIN}"
       tls:
