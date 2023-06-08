@@ -14,12 +14,3 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
-patches:
-  - target:
-      kind: Deployment
-      name: olm-operator-deployment
-    patch: |-
-      - op: add
-        path: /spec/template/spec/nodeSelector
-        value:
-          kubernetes.io/arch: amd64
