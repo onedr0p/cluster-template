@@ -1,59 +1,4 @@
-# Template for deploying a Kubernetes cluster backed by Flux
-
-Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
-
-## Overview
-
-- [Introduction](https://github.com/onedr0p/flux-cluster-template#-introduction)
-- [Prerequisites](https://github.com/onedr0p/flux-cluster-template#-prerequisites)
-- [Repository structure](https://github.com/onedr0p/flux-cluster-template#-repository-structure)
-- [Lets go!](https://github.com/onedr0p/flux-cluster-template#-lets-go)
-- [Post installation](https://github.com/onedr0p/flux-cluster-template#-post-installation)
-- [Troubleshooting](https://github.com/onedr0p/flux-cluster-template#-troubleshooting)
-- [What's next](https://github.com/onedr0p/flux-cluster-template#-whats-next)
-- [Thanks](https://github.com/onedr0p/flux-cluster-template#-thanks)
-
-## 👋 Introduction
-
-The following components will be installed in your [k3s](https://k3s.io/) cluster by default. Most are only included to get a minimum viable cluster up and running.
-
-- [flux](https://toolkit.fluxcd.io/) - GitOps operator for managing Kubernetes clusters from a Git repository
-- [kube-vip](https://kube-vip.io/) - Load balancer for the Kubernetes control plane nodes
-- [metallb](https://metallb.universe.tf/) - Load balancer for Kubernetes services
-- [cert-manager](https://cert-manager.io/) - Operator to request SSL certificates and store them as Kubernetes resources
-- [cilium](https://cilium.io/) - Container networking interface for inter pod and service networking
-- [external-dns](https://github.com/kubernetes-sigs/external-dns) - Operator to publish DNS records to Cloudflare (and other providers) based on Kubernetes ingresses
-- [k8s_gateway](https://github.com/ori-edge/k8s_gateway) - DNS resolver that provides local DNS to your Kubernetes ingresses
-- [ingress-nginx](https://kubernetes.github.io/ingress-nginx/) - Kubernetes ingress controller used for a HTTP reverse proxy of Kubernetes ingresses
-- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - provision persistent local storage with Kubernetes
-
-_Additional applications include [hajimari](https://github.com/toboshii/hajimari), [echo-server](https://github.com/Ealenn/Echo-Server), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), [reloader](https://github.com/stakater/Reloader), and [kured](https://github.com/weaveworks/kured)_
-
-## 📝 Prerequisites
-
-1. Please bring a **positive attitude** and be ready to learn and fail a lot. The more you fail, the more you can learn from.
-2. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
-3. You **MUST** have a domain you can manage on Cloudflare.
-4. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
-5. By default your domain name will **NOT** be visible to the public.
-6. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside your cluster **ON** your home network.
-7. In order for this all to work you have to use nodes that have access to the internet. This is not going to work in air-gapped environments.
-8. Only **amd64** and/or **arm64** nodes are supported.
-
-With that out of the way please continue on if you are still interested...
-
-### 📚 Reading material
-
-- [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)
-
-### 💻 Systems
-
-- One or more nodes with a fresh install of [Ubuntu 22.04 Server](https://ubuntu.com/download/server) (not minimal / not raspi edition).
-  - These nodes can be ARM64/AMD64 bare metal or VMs.
-  - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
-- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
-
-📍 It is recommended to have 3 master nodes for a highly available control plane.
+# 89t k8s cluster
 
 ## 📂 Repository structure
 
@@ -66,13 +11,6 @@ The Git repository contains the following directories under `kubernetes` and are
 └─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
-## 🚀 Lets go
-
-Very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page.
-
-Clone **your new repo** to you local workstation and `cd` into it.
-
-📍 **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
 ### 🔧 Workstation Tools
 
@@ -199,10 +137,6 @@ In order to expose services to the internet you will need to create a [Cloudflar
    ```
 
 ### ⚡ Preparing Ubuntu Server with Ansible
-
-📍 Here we will be running an Ansible Playbook to prepare Ubuntu server for running a Kubernetes cluster.
-
-📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. This is how Ansible is able to connect to your remote nodes.
 
@@ -366,11 +300,7 @@ task cluster:resources
    task cluster:ingresses
    ```
 
-🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
-
 ☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
-
-🧠 Now it's time to pause and go get some coffee ☕ because next is describing how DNS is handled.
 
 ## 📣 Post installation
 
