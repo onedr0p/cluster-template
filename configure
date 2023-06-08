@@ -295,6 +295,7 @@ verify_cloudflare() {
     local errors=
     local account_zone=
     _has_envar "BOOTSTRAP_CLOUDFLARE_APIKEY" "true"
+    _has_envar "BOOTSTRAP_CLOUDFLARE_API_TOKEN" "true"
     _has_envar "BOOTSTRAP_CLOUDFLARE_DOMAIN" "true"
     _has_envar "BOOTSTRAP_CLOUDFLARE_EMAIL" "true"
     # Try to retrieve zone information from Cloudflare's API

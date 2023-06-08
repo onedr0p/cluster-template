@@ -9,7 +9,7 @@ dotenv: [".config.env"]
 
 env:
   KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
-  SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
+  SOPS_AGE_KEY_FILE: /Users/geoffgolder/.config/sops/age/keys.txt
 
 includes:
   ansible: .taskfiles/AnsibleTasks.yml
