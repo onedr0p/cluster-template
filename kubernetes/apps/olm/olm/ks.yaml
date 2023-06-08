@@ -5,7 +5,7 @@ metadata:
   name: cluster-apps-olm
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/olm/app
+  path: ./kubernetes/apps/olm/olm/app
   prune: true
   sourceRef:
     kind: GitRepository
