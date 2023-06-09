@@ -4,3 +4,4 @@ kind: Kustomization
 namespace: olm
 resources:
   - ./helmrelease.yaml
+  - ./helmrepo.yaml
