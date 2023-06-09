@@ -53,9 +53,6 @@ spec:
             enabled: true
       dashboard:
         enabled: true
-      monitoring:
-        enabled: true
-        metricsDisabled: false
       network:
         connections:
           encryption:
