@@ -42,6 +42,6 @@ parameters:
 # **IMPORTANT**: CephCSI v3.4.0 onwards a volume healer functionality is added to reattach
 # the PVC to application pod if nodeplugin pod restart.
 # Its still in Alpha support. Therefore, this option is not recommended for production use.
-mounter: rbd-nbd
+# mounter: rbd-nbd
 allowVolumeExpansion: true
 reclaimPolicy: Delete
