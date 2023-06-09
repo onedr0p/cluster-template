@@ -8,10 +8,10 @@ spec:
   interval: 15m
   chart:
     spec:
-      chart: operator-lifecycle-manager/olm
+      chart: olm
       sourceRef:
         kind: HelmRepository
-        name: olm-repo
+        name: olm
         namespace: flux-system
   maxHistory: 2
   values:
