@@ -10,3 +10,4 @@ resources:
   - common.yaml
   - kustomization.yaml
   - role.yaml
+  - helmrelease.yaml
