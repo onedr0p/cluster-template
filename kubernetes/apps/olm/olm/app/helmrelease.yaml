@@ -8,12 +8,22 @@ spec:
   interval: 15m
   chart:
     spec:
-      chart: operator-lifecycle-manager/olm
+      chart: ./deploy/chart
       sourceRef:
-        kind: HelmRepository
+        kind: GitRepository
         name: olm
         namespace: flux-system
   maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
   values:
     olm:
       nodeSelector:
