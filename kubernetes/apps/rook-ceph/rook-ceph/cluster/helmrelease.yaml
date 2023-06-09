@@ -72,7 +72,7 @@ spec:
       cleanupPolicy:
         # To destroy all Rook data on hosts during uninstall, confirmation must be set to "yes-really-destroy-data".
         # Rook will immediately stop configuring the cluster and only wait for the delete command.
-        confirmation: ""
+        confirmation: "yes-really-destroy-data"
         # sanitizeDisks represents settings for sanitizing OSD disks on cluster deletion
         sanitizeDisks:
           # possible choices are 'complete' or 'quick' (default)
