@@ -5,7 +5,7 @@ metadata:
   name: cluster-apps-rook
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/rook/rook-ceph/app
+  path: ./kubernetes/apps/rook-ceph/rook/app
   sourceRef:
   kind: GitRepository
   name: home-kubernetes
