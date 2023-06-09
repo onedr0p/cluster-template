@@ -1,0 +1,3 @@
+[submodule "kubernetes/apps/rook-ceph/rook/app/rook"]
+	path = kubernetes/apps/rook-ceph/rook/app/rook
+	url = https://github.com/rook/rook.git
