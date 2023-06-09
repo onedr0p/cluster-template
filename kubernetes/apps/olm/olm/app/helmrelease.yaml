@@ -8,7 +8,7 @@ spec:
   interval: 15m
   chart:
     spec:
-      chart: olm
+      chart: operator-lifecycle-manager/olm
       sourceRef:
         kind: HelmRepository
         name: olm
