@@ -11,7 +11,7 @@ The Git repository contains the following directories under `kubernetes` and are
 └─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
-### 🔧 Workstation Tools
+### Requirements
 
 📍 Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools, **!especially sops AND yq!**.
 
