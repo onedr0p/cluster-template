@@ -3,7 +3,6 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: rook-ceph-operator-config
-  # should be in the namespace of the operator
   namespace: rook-ceph # namespace:operator
 data:
   ROOK_LOG_LEVEL: "INFO"
