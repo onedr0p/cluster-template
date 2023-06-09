@@ -1,3 +1,4 @@
+---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -7,7 +8,11 @@ spec:
   interval: 15m
   chart:
     spec:
-      chart: https://gitlab.com/api/v4/projects/29255838/packages/helm/stable
+      chart: operator-lifecycle-manager/olm
+      sourceRef:
+        kind: HelmRepository
+        name: olm-repo
+        namespace: flux-system
   maxHistory: 2
   values:
     olm:

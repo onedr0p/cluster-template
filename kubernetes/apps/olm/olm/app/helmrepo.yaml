@@ -1,0 +1,9 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: olm-repo
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://gitlab.com/api/v4/projects/29255838/packages/helm/stable
