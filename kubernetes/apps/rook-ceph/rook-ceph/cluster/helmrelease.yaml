@@ -189,7 +189,7 @@ spec:
         onlyApplyOSDPlacement: false
       # The section for configuring management of daemon disruptions during upgrade or fencing.
       disruptionManagement:
-        managePodBudgets: true
+        managePodBudgets: false
         # A duration in minutes that determines how long an entire failureDomain like `region/zone/host` will be held in `noout` (in addition to the
         # default DOWN/OUT interval) when it is draining. This is only relevant when  `managePodBudgets` is `true`. The default value is `30` minutes.
         osdMaintenanceTimeout: 30

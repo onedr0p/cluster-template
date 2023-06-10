@@ -60,7 +60,7 @@ spec:
       enableOMAPGenerator: true
       serviceMonitor:
         enabled: true
-        interval: 5s
+        interval: 30s
       csiAddons:
         enabled: true
 
