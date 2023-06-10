@@ -23,6 +23,8 @@ Configuration has been disabled; it is very useful to significaly reduce the ite
 ### OLM - Operator Lifecycle Manager
 OLM has gone out of their way to not provide a helm chart for installation, insisting that their installation be The One Exception to a gitops flow.  We are following an external chart which tracks the OLM chart repository and installs the OLM operator.
 
+I was having issues (and saw many others having the same issues) with OLM failing on arm64 because the containers are not properly tagged and they end up with x86 architecture binaries that fail.  To "avoid" that, the OLM and any operators under its namespace are bound to amd64 nodes.  Given arm64 is technically supported, you might be okay just removing the affinity. Everything else should support amd64 or arm64 without issue.
+
 ## 📂 Repository structure
 
 The Git repository contains the following directories under `kubernetes` and are ordered below by how Flux will apply them.
