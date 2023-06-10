@@ -158,6 +158,25 @@ spec:
         useAllNodes: false
         useAllDevices: false
         # deviceFilter:
+        nodes:
+          - name: "ctrl-k8s-0"
+            devices: # specific devices to use for storage can be specified for each node
+              - name: "/dev/nvme0n1"
+                osdsPerDevice: "4"
+              - name: "/dev/nvme1n1"
+                osdsPerDevice: "4"
+          - name: "ctrl-k8s-2"
+            devices:
+              - name: "/dev/nvme0n1"
+                osdsPerDevice: "1"
+          - name: "ctrl-k8s-4"
+            devices:
+              - name: "/dev/sda"
+                osdsPerDevice: "1"
+          - name: "k8s-3"
+            devices:
+              - name: "/dev/nvme0n1"
+                osdsPerDevice: "5"
         config:
           # crushRoot: "custom-root" # specify a non-default root label for the CRUSH map
           # metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
@@ -165,24 +184,6 @@ spec:
           encryptedDevice: "true" # the default value for this option is "false"
           # Individual nodes and their config can be specified as well, but 'useAllNodes' above must be set to false. Then, only the named
           # nodes below will be used as storage resources.  Each node's 'name' field should match their 'kubernetes.io/hostname' label.
-          nodes:
-            - name: "ctrl-k8s-0"
-              osdsPerDevice: "4"
-              devices: # specific devices to use for storage can be specified for each node
-                - name: "/dev/nvme0n1"
-                - name: "/dev/nvme1n1"
-            - name: "ctrl-k8s-2"
-              osdsPerDevice: "1"
-              devices:
-                - name: "/dev/nvme0n1"
-            - name: "ctrl-k8s-4"
-              osdsPerDevice: "1"
-              devices:
-                - name: "/dev/sda"
-            - name: "k8s-3"
-              osdsPerDevice: "5"
-              devices:
-                - name: "/dev/nvme0n1"
 
         # when onlyApplyOSDPlacement is false, will merge both placement.All() and placement.osd
         onlyApplyOSDPlacement: false
