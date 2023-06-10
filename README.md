@@ -2,7 +2,24 @@
 
 This cluster is built from this great repo: <https://github.com/onedr0p/flux-cluster-template>.
 
-If you are here because you want a cluster that also has rook-ceph, and the one above isn't quite scratching the itch, please do us both a favor and read my notes, then go through everything at the above repo, then come back here.
+The hardware is a mix of baremetal ARM (arm64 or aarch64) and x86 (arm64) nodes. Originally I had intended to go purely ARM, but a sudden increase in affordability of x86 embedded hardware, and, the fact that many operators (including the postgres operator installed), fail to deploy on ARM.
+
+I was surprised to find out that running a mixed architecture cluster is easier than single architecture when you are primarily trying to orchestrate a bunch of cloud native software.
+
+There are a couple additional kubernetes apps installed:
+
+- rook-ceph
+  - encryption turned on
+  - OSDs are on nvme drives, and configured per device
+  - provides default backing for the following persistent volumes classes:
+    - block
+    - filesystem
+    - object
+- postgres-operator
+  - relies on rook-ceph for persistent storage
+  - node affinity to ensure it runs on x86 nodes
+
+If you are here because you want a cluster that has something this cluster has, and the one above isn't quite scratching the itch, please do us both a favor and read my notes, then go through everything at the above repo, then come back here.
 
 - Baremetal: if you are not on baremetal, you are in the wrong place. [kube-vip](https://kube-vip.io/docs/installation/static/#arp), [MetalLB](https://metallb.universe.tf/concepts/) and to a large extent, [cloudflared](https://github.com/cloudflare/cloudflared) are of no value within a cloud or virtual environment, there are much better solutions.
 
