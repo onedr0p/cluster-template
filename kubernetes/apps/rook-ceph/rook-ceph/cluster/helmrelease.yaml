@@ -6,8 +6,8 @@ metadata:
   name: rook-ceph-cluster
   namespace: rook-ceph
 spec:
-  interval: 30m
-  timeout: 15m
+  interval: 15m
+  timeout: 14m
   chart:
     spec:
       chart: rook-ceph-cluster
@@ -174,7 +174,7 @@ spec:
                   osdsPerDevice: "4"
                 - name: "/dev/nvme1n1"
                   osdsPerDevice: "4"
-            - name: "k8s-2"
+            - name: "ctrl-k8s-2"
               devices:
                 - name: "/dev/nvme0n1"
                   osdsPerDevice: "1"
