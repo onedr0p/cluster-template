@@ -51,6 +51,30 @@ tasks:
       - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yml
       - task: force-reboot
 
+  ceph-nuke:
+    desc: Remove All Ceph Data
+    dir: "{{.ANSIBLE_DIR}}"
+    interactive: true
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/ceph-nuke.yml
+      - task: force-reboot
+
+  rancher-nuke:
+    desc: Remove All Rancher Data (necessary to fully reset ceph)
+    dir: "{{.ANSIBLE_DIR}}"
+    interactive: true
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/rancher-nuke.yml
+      - task: force-reboot
+
+
+  ceph-list:
+    desc: List All Ceph Data
+    dir: "{{.ANSIBLE_DIR}}"
+    interactive: true
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/ceph-list.yml
+
   ping:
     desc: Ping all the hosts
     dir: "{{.ANSIBLE_DIR}}"

@@ -15,3 +15,5 @@ ubuntu:
     - python3-kubernetes
     - python3-yaml
     - ufw
+    - ceph
+    - util-linux

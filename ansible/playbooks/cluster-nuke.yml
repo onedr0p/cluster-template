@@ -60,3 +60,10 @@
         path: "{{ item.path }}"
         state: absent
       loop: "{{ directory_contents.files }}"
+
+    - name: Delete Old Rancher
+      ansible.builtin.file:
+        recurse: true
+        path: "/var/lib/rancher"
+        state: absent
+      loop: "{{ directory_contents.files }}"

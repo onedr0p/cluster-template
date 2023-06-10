@@ -1,0 +1,29 @@
+---
+- hosts:
+    - master
+    - worker
+  become: true
+  gather_facts: true
+  any_errors_fatal: true
+  vars_prompt:
+    - name: nuke
+      prompt: |-
+        Are you sure you want to nuke this rancher?
+        Type 'YES I WANT TO DESTROY THIS RANCHER' to proceed
+      default: "n"
+      private: false
+  pre_tasks:
+    - name: Check for confirmation
+      ansible.builtin.fail:
+        msg: Aborted nuking the cluster
+      when: nuke != 'YES I WANT TO DESTROY THIS RANCHER'
+
+    - name: Pausing for 5 seconds...
+      ansible.builtin.pause:
+        seconds: 5
+
+  tasks:
+    - name: Delete Old Rancher
+      ansible.builtin.file:
+        path: "/var/lib/rancher"
+        state: absent

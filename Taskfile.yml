@@ -56,4 +56,4 @@ tasks:
   configure:
     desc: Configure repository from env settings
     cmds:
-      - ./configure
+      - echo we don't run ./configure because ceph is not configured for it

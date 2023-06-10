@@ -1,0 +1,130 @@
+---
+- hosts:
+    - master
+    - worker
+  become: true
+  gather_facts: true
+  any_errors_fatal: true
+  vars_prompt:
+    - name: nuke
+      prompt: |-
+        Are you sure you want to nuke these ceph disks and the cluster?
+        @@@
+        @@@   THIS WILL DESTROY ANY DATA THAT IS ATTACHED TO ANY DEVICE IN YOUR cluster
+        @@@
+        Type 'YES I FUCKED UP' to proceed
+      default: "n"
+      private: false
+  pre_tasks:
+    - name: Check for confirmation
+      ansible.builtin.fail:
+        msg: Aborted nuking the cluster
+      when: nuke != 'YES I FUCKED UP'
+
+    - name: Pausing for 5 seconds...
+      ansible.builtin.pause:
+        seconds: 2
+
+  tasks:
+    - name: Gather facts from all hosts
+      setup:
+        filter: ansible_devices
+
+    - name: Display NVMe disks
+      debug:
+        msg: "Host: {{ inventory_hostname }}, NVMe Disks: {{ ansible_devices.keys() | select('match', 'nvme.*') | list }}"
+
+    - name: Gather facts
+      setup:
+        filter: ansible_devices
+      register: disk_facts
+
+    - name: Get root device
+      command: df -h /
+      register: root_device
+      changed_when: false
+
+    - name: Parse root device
+      set_fact:
+        root_device: "{{ root_device.stdout.split()[0] }}"
+
+    - name: Get disk information
+      set_fact:
+        disks: >
+          {{
+            disks|default([]) +
+            [{
+              'hostname': ansible_hostname,
+              'host_ip': ansible_default_ipv4.address,
+              'device': item.key,
+              'mounted': (item.value.partitions | length > 0),
+              'root_device': (item.key in root_device),
+              'size': item.value.size
+            }]
+          }}
+      when: "'nvme' in item.key"
+      with_dict: "{{ disk_facts.ansible_facts.ansible_devices }}"
+    - name: Check if Ceph is active
+      shell: ceph health
+      register: ceph_health
+      ignore_errors: true
+
+    - name: Get Ceph OSD IDs
+      shell: "ceph osd ls"
+      register: osd_ids
+      run_once: true
+      ignore_errors: true
+
+    - name: Stop and unmount Ceph OSDs
+      when: ceph_ids.rc == 0
+      block:
+        - name: Stop the Ceph OSD service
+          systemd:
+            name: ceph-osd@{{ item }}
+            state: stopped
+          with_items: "{{ osd_ids.stdout_lines }}"
+        - name: Unmount the Ceph OSD
+          mount:
+            path: "/var/lib/ceph/osd/ceph-{{ item }}"
+            state: unmounted
+          with_items: "{{ osd_ids.stdout_lines }}"
+
+    - name: Reboot
+      ansible.builtin.reboot:
+        msg: Rebooting nodes
+        reboot_timeout: 3600
+
+    - name: Get all unmounted disks
+      set_fact:
+        unmounted_disks: "{{ disks | selectattr('mounted', 'equalto', false) | list }}"
+
+    - name: Remove Crypts
+      block:
+        - name: Find Crypt Fingerprints
+          shell: "dmsetup info -c --noheadings | grep 'CRYPT-' | awk -F: '{{ item.device }}'"
+          register: latent_crypts
+          become: true
+          with_items: "{{ unmounted_disks }}"
+
+        - name: Remove Crypts
+          command: "dmsetup remove '{{ item }}'"
+          become: true
+          with_items: "{{ latent_crypts.stdout }}"
+          when: latent_crylatent_crypts.stdout is defined
+
+    - name: Clean unmounted disks
+      block:
+        - name: Zap disk
+          command: "sgdisk --zap-all /dev/{{ item.device }}"
+          become: true
+          with_items: "{{ unmounted_disks }}"
+
+        - name: Blkdiscard disk
+          command: "blkdiscard /dev/{{ item.device }}"
+          become: true
+          with_items: "{{ unmounted_disks }}"
+
+        - name: Partprobe disk
+          command: "partprobe /dev/{{ item.device }}"
+          become: true
+          with_items: "{{ unmounted_disks }}"
