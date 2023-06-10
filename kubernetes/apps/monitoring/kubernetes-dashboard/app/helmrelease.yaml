@@ -37,6 +37,7 @@ spec:
       enabled: true
       className: nginx
       annotations:
+        external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
         cert-manager.io/cluster-issuer: letsencrypt-staging
         hajimari.io/icon: mdi:kubernetes
       hosts:
