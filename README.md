@@ -1,6 +1,6 @@
 # 89t k8s cluster
 
-This cluster is built from this great repo: https://github.com/onedr0p/flux-cluster-template.
+This cluster is built from this great repo: <https://github.com/onedr0p/flux-cluster-template>.
 
 If you are here because you want a cluster that also has rook-ceph, and the one above isn't quite scratching the itch, please do us both a favor and read my notes, then go through everything at the above repo, then come back here.
 
@@ -425,11 +425,14 @@ The benefits of a public repository include:
   <summary>Expand to read guide on adding Flux SSH authentication</summary>
 
 1. Generate new SSH key:
+
    ```sh
    ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./kubernetes/bootstrap/github-deploy.key -q -P ""
    ```
+
 2. Paste public key in the deploy keys section of your repository settings
 3. Create sops secret in `./kubernetes/bootstrap/github-deploy-key.sops.yaml` with the contents of:
+
    ```yaml
    apiVersion: v1
    kind: Secret
@@ -448,15 +451,21 @@ The benefits of a public repository include:
        github.com ecdsa-sha2-nistp256 ...
        github.com ssh-rsa ...
    ```
+
 4. Encrypt secret:
+
    ```sh
    sops --encrypt --in-place ./kubernetes/bootstrap/github-deploy-key.sops.yaml
    ```
+
 5. Apply secret to cluster:
+
    ```sh
    sops --decrypt ./kubernetes/bootstrap/github-deploy-key.sops.yaml | kubectl apply -f -
    ```
+
 6. Update `./kubernetes/flux/config/cluster.yaml`:
+
    ```yaml
    apiVersion: source.toolkit.fluxcd.io/v1beta2
    kind: GitRepository
@@ -472,16 +481,22 @@ The benefits of a public repository include:
      secretRef:
        name: github-deploy-key
    ```
+
 7. Commit and push changes
 8. Force flux to reconcile your changes
+
    ```sh
    task cluster:reconcile
    ```
+
 9. Verify git repository is now using SSH:
+
    ```sh
    task cluster:gitrepositories
    ```
+
 10. Optionally set your repository to Private in your repository settings.
+
 </details>
 
 ### 💨 Kubernetes Dashboard
