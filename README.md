@@ -11,7 +11,7 @@ Ceph has traditionally been run in its own cluster, and Rook allows us to orches
 
 However, be warned, a default configuration of an OSD (the daemon which manages the disk) with all the monitoring/alerting etc is 4GB in memory requests.  By default there will be a single OSD per configured device; this cluster has a variety; a low memory worker with a 2tb nvme has only a single OSD; while a high memory worker with 2x2tb nvme has 8 OSDs between them.  
 
-If like me, it takes you about 100 iterations before the cluster comes up the way you like; there are many types of fingerprints that can be left behind which will have ceph refuse to provision the disks.  The most common, would be left over partitions, but with encryption enabled, there are other block-device level artifacts that remain after you thought you were starting fresh.
+If like me, it takes you about 100 iterations before the cluster comes up the way you like; there are many types of fingerprints that can be left behind which will have ceph refuse to provision the disks.  The most common are latent partitions, but with encryption enabled; there are other block-device-level artifacts that remain, after you thought you were starting fresh.
 
 As such, there are a couple additional ansible scripts; the primary one I would recommend using is `task ansible:rancher-nuke`; as it will delete the /var/lib/rancher directory which the parent repo of this one chooses not to.  Without removing this directory, many container artifacts stick around between installs, which operators tend to not like.
 
