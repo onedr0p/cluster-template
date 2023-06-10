@@ -19,10 +19,10 @@ spec:
   maxHistory: 2
   install:
     createNamespace: true
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
+  # upgrade:
+  #   cleanupOnFail: true
+  #   remediation:
+  #     retries: 3
   uninstall:
     keepHistory: false
   values:
