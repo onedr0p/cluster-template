@@ -1,9 +1,0 @@
----
-# We add the app version as a "commonLabel" and change it with each release.
-# Remove it from selectors until we use "labels" of Kustomize v4.1.
-# See: https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/commonlabels/
-# See: https://github.com/kubernetes-sigs/kustomize/releases/tag/kustomize%2Fv4.1.0
-- op: remove
-  path: /spec/selector/matchLabels/app.kubernetes.io~1name
-- op: remove
-  path: /spec/selector/matchLabels/app.kubernetes.io~1version
