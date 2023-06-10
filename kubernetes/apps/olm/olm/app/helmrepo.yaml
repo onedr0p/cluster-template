@@ -1,9 +1,0 @@
----
-apiVersion: source.toolkit.fluxcd.io/v1beta1
-kind: HelmRepository
-metadata:
-  name: olm-repo
-  namespace: flux-system
-spec:
-  interval: 1m
-  url: https://gitlab.com/kubitus-project/external-helm-charts/operator-lifecycle-manager
