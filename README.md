@@ -135,6 +135,8 @@ In order to expose services to the internet you will need to create a [Cloudflar
    task configure
    ```
 
+⚠️ This will print out the clear-text passwords for Grafana and Weave Gitops if you had them set to `generated` in your `.config.env`. Take note of these, you'll need them to log into the applications.
+
 ### ⚡ Preparing Ubuntu Server with Ansible
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. This is how Ansible is able to connect to your remote nodes.
