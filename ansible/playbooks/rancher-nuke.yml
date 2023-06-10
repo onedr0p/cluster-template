@@ -27,3 +27,8 @@
       ansible.builtin.file:
         path: "/var/lib/rancher"
         state: absent
+
+    - name: Delete Old Rook
+      ansible.builtin.file:
+        path: "/var/lib/rook"
+        state: absent
