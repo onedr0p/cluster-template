@@ -15,15 +15,15 @@ If like me, it takes you about 100 iterations before the cluster comes up the wa
 
 As such, there are a couple additional ansible scripts; the primary one I would recommend using is `task ansible:rancher-nuke`; as it will delete the /var/lib/rancher directory which the parent repo of this one chooses not to.  Without removing this directory, many container artifacts stick around between installs, which operators tend to not like.
 
-If you are using encryption (which this repo is), you will also need to clean the ceph level artifacts off the block devices, which you can do with `task ansible:ceph-nuke`
+If you are using encryption (which this repo is), you will also need to clean the ceph level artifacts off the block devices, which you can do with `task ansible:ceph-nuke` if you have non-nvme drives that need to be cleaned, this script may not work without manually unmounting them, but look into `sgdisk` to see more about what is going on there.
 
 ### Configuration
-Configuration has been disabled; it is very useful to significaly reduce the iteration speed when getting started, so I do not suggest that you also disable it before you've begun; however, I have slighly cusotmized the ansible yaml in a way that is incompatible with the config generation, and those changes are not going upstream anytime soon.  If you want to follow along with this repository, I suggest starting from the one I started from, and then once the config is generated, just edit the ansible yaml directly as necessary.
+`task ansible:configure` has been disabled; it is very useful to significaly reduce the iteration speed when getting started, so I do not suggest that you also disable it before you've begun; however, I have slighly cusotmized the ansible yaml in a way that would be overwritten by re-running that configuration generation script, and those changes are not going upstream into the configurator.  If you want to follow along with this repository, I suggest starting from the one [I started from](https://github.com/onedr0p/flux-cluster-template), and then once the config is generated, just edit the ansible yaml directly as necessary.
 
 ### OLM - Operator Lifecycle Manager
-OLM has gone out of their way to not provide a helm chart for installation, insisting that their installation be The One Exception to a gitops flow.  We are following an external chart which tracks the OLM chart repository and installs the OLM operator.
+OLM has gone out of their way to not provide a helm chart for installation, insisting that their installation be T[he One Exception](https://github.com/operator-framework/operator-lifecycle-manager/issues/829) declarative config.  We are following an external chart which tracks the OLM chart repository and installs the OLM operator.
 
-I was having issues (and saw many others having the same issues) with OLM failing on arm64 because the containers are not properly tagged and they end up with x86 architecture binaries that fail.  To "avoid" that, the OLM and any operators under its namespace are bound to amd64 nodes.  Given arm64 is technically supported, you might be okay just removing the affinity. Everything else should support amd64 or arm64 without issue.
+I was having issues ([and saw many others having the same issues](https://github.com/operator-framework/operator-lifecycle-manager/issues/1138)) with OLM failing on arm64 because the containers are not properly tagged and they end up with x86 architecture binaries that fail.  To "avoid" that, the OLM and any operators under its namespace are bound to amd64 nodes.  Given arm64 is technically supported, you might be okay just removing the affinity. Everything else should support amd64 and/or arm64 without issue.
 
 ## 📂 Repository structure
 
