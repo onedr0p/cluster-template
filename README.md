@@ -2,9 +2,16 @@
 
 This cluster is built from this great repo: https://github.com/onedr0p/flux-cluster-template.
 
-I would recommend starting there, then coming here, if you are looking to bring on OLM and/or rook-ceph with all the fixins.
+If you are here because you want a cluster that also has rook-ceph or OLM, and the one above isn't quite scratching the itch, please do us both a favor and read my notes, then go through everything at the above repo, then come back here.
 
-It has a couple additions I will briefly talk about.
+ - Baremetal: if you are not on baremetal, you are in the wrong place.  [kube-vip](https://kube-vip.io/docs/installation/static/#arp), [MetalLB](https://metallb.universe.tf/concepts/) and to a large extent, [cloudflared](https://github.com/cloudflare/cloudflared) are of no value within a cloud or virtual environment, there are much better solutions.
+
+ - Networking: Think about what your networking looks like.  I'd suggest setting up your subnet to work with the defaults rather than try and change the network to match your subnet.  I have a "real" interface coming off a switch, which takes the IP 10.10.1.1/24 and serves DHCP.  Each mac address which gets a reservation has its first IP permanently reserved (so it acts like a static IP). I plug directly into that switch to operate on the cluster, but I also have a jump box set up, and allow ingress from the management LAN of my home network.
+
+ - Drives:  You might be excited to run a cluster from a bunch of dev boards; which is how this started out.  Most of these dev boards only have 1 nvme slot.  2 of my control nodes boots from an A2 TF card, one of the workers boots from a usb-c.  The one of the A2 boot is an arm64 which uses XFS (nearly 50% faster than its ext4 counterpart on big writes).  The usb-c is using btrfs.  2 of the three worker nodes are booting from nvme and use it for the whoel filesystem.  I did not do any actual benchmarking, but I built many clusters with just the TF card as boot devices, and I was surprised at how little difference ext4 nvme vs A2 tf cards for root filesystems would be.  Throughput for container syncing was much faster on the nvmes, but they had no problem keeping up with operations.
+  a. Eventually I'd like to have the ETCD cluster be backed by ceph data, but until then I will leave the 2 NVME masters.
+  b. for worker nodes, dedicating 4GB and an m.2 slot to ceph cluster probably makes sense for dev boards, but for your control nodes, its a bit tougher.
+
 
 ### Rook (Ceph)
 Ceph has traditionally been run in its own cluster, and Rook allows us to orchestrate a Ceph cluster within our Kubernetes cluster.  The most important thing to look at when configuring ceph is the device configuration.  The easiest way by far is to just plug in brand new disks and set `useAllNodes` to true; and the cluster will happily slurp everything right up.  
