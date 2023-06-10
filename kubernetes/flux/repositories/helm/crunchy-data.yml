@@ -1,0 +1,19 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: postgres-operator
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: postgres-operator
+      version: "4.6.0"
+      sourceRef:
+        kind: HelmRepository
+        name: crunchydata-charts # This should match the name of your HelmRepository resource.
+        namespace: flux-system # This should match the namespace of your HelmRepository resource.
+    values:
+      global:
+        imageRegistryPrefixOverride: docker.io/crunchydata # Override image registry prefix.
