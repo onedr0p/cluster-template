@@ -167,23 +167,22 @@ spec:
           # nodes below will be used as storage resources.  Each node's 'name' field should match their 'kubernetes.io/hostname' label.
           nodes:
             - name: "ctrl-k8s-0"
+              osdsPerDevice: "4"
               devices: # specific devices to use for storage can be specified for each node
                 - name: "/dev/nvme0n1"
-                  osdsPerDevice: "4"
                 - name: "/dev/nvme1n1"
-                  osdsPerDevice: "4"
             - name: "ctrl-k8s-2"
+              osdsPerDevice: "1"
               devices:
                 - name: "/dev/nvme0n1"
-                  osdsPerDevice: "1"
             - name: "ctrl-k8s-4"
+              osdsPerDevice: "1"
               devices:
                 - name: "/dev/sda"
-                  osdsPerDevice: "1"
             - name: "k8s-3"
+              osdsPerDevice: "5"
               devices:
                 - name: "/dev/nvme0n1"
-                  osdsPerDevice: "5"
 
         # when onlyApplyOSDPlacement is false, will merge both placement.All() and placement.osd
         onlyApplyOSDPlacement: false
