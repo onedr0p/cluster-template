@@ -45,7 +45,7 @@ spec:
       enableRbdDriver: true
       enableCephfsDriver: true
       enableGrpcMetrics: true
-      # -- Enable host networking for CSI CephFS and RBD nodeplugins. This may be necessary
+      # -- Enable host networking for CSI CephFS and RBD nodeplugins. This may be necessary, or not
       # in some network configurations where the SDN does not provide access to an external cluster or
       # there is significant drop in read/write performance
       enableCSIHostNetwork: true
