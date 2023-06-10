@@ -1,0 +1,8 @@
+---
+resources:
+  - service_account.yaml
+  - role.yaml
+  - role_binding.yaml
+  - service_account-upgrade.yaml
+  - role-upgrade.yaml
+  - role_binding-upgrade.yaml
