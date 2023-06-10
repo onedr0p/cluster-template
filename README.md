@@ -1,5 +1,28 @@
 # 89t k8s cluster
 
+This cluster is built from this great repo: https://github.com/onedr0p/flux-cluster-template.
+
+I would recommend starting there, then coming here, if you are looking to bring on OLM and/or rook-ceph with all the fixins.
+
+It has a couple additions I will briefly talk about.
+
+### Rook (Ceph)
+Ceph has traditionally been run in its own cluster, and Rook allows us to orchestrate a Ceph cluster within our Kubernetes cluster.  The most important thing to look at when configuring ceph is the device configuration.  The easiest way by far is to just plug in brand new disks and set `useAllNodes` to true; and the cluster will happily slurp everything right up.  
+
+However, be warned, a default configuration of an OSD (the daemon which manages the disk) with all the monitoring/alerting etc is 4GB in memory requests.  By default there will be a single OSD per configured device; this cluster has a variety; a low memory worker with a 2tb nvme has only a single OSD; while a high memory worker with 2x2tb nvme has 8 OSDs between them.  
+
+If like me, it takes you about 100 iterations before the cluster comes up the way you like; there are many types of fingerprints that can be left behind which will have ceph refuse to provision the disks.  The most common, would be left over partitions, but with encryption enabled, there are other block-device level artifacts that remain after you thought you were starting fresh.
+
+As such, there are a couple additional ansible scripts; the primary one I would recommend using is `task ansible:rancher-nuke`; as it will delete the /var/lib/rancher directory which the parent repo of this one chooses not to.  Without removing this directory, many container artifacts stick around between installs, which operators tend to not like.
+
+If you are using encryption (which this repo is), you will also need to clean the ceph level artifacts off the block devices, which you can do with `task ansible:ceph-nuke`
+
+### Configuration
+Configuration has been disabled; it is very useful to significaly reduce the iteration speed when getting started, so I do not suggest that you also disable it before you've begun; however, I have slighly cusotmized the ansible yaml in a way that is incompatible with the config generation, and those changes are not going upstream anytime soon.  If you want to follow along with this repository, I suggest starting from the one I started from, and then once the config is generated, just edit the ansible yaml directly as necessary.
+
+### OLM - Operator Lifecycle Manager
+OLM has gone out of their way to not provide a helm chart for installation, insisting that their installation be The One Exception to a gitops flow.  We are following an external chart which tracks the OLM chart repository and installs the OLM operator.
+
 ## 📂 Repository structure
 
 The Git repository contains the following directories under `kubernetes` and are ordered below by how Flux will apply them.
