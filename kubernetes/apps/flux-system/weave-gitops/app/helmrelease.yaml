@@ -28,7 +28,7 @@ spec:
   values:
     adminUser:
       create: true
-      createSecret: false
+      createSecret: true
       username: admin
     ingress:
       enabled: true
