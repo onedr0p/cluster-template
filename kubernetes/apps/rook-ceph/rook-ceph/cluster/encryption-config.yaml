@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rook-ceph-csi-kms-config
+  namespace: rook-ceph
+data:
+  config.json: |-
+    {
+      "user-secret-metadata": {
+        "encryptionKMSType": "metadata",
+        "secretName": "storage-encryption-secret"
+      }
+    }
