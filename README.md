@@ -12,6 +12,8 @@ If you are here because you want a cluster that also has rook-ceph, and the one 
   a. Eventually I'd like to have the ETCD cluster be backed by ceph data, but until then I will leave the 2 NVME masters.
   b. for worker nodes, dedicating 4GB and an m.2 slot to ceph cluster probably makes sense for dev boards, but for your control nodes, its a bit tougher.
 
+## Additions
+
 ### Rook (Ceph)
 
 Ceph has traditionally been run in its own cluster, and Rook allows us to orchestrate a Ceph cluster within our Kubernetes cluster. The most important thing to look at when configuring ceph is the device configuration. The easiest way by far is to just plug in brand new disks and set `useAllNodes` to true; and the cluster will happily slurp everything right up.
@@ -421,8 +423,7 @@ The benefits of a public repository include:
 - Debugging or asking for help, you can provide a link to a resource you are having issues with.
 - Adding a topic to your repository of `k8s-at-home` to be included in the [k8s-at-home-search](https://whazor.github.io/k8s-at-home-search/). This search helps people discover different configurations of Helm charts across others Flux based repositories.
 
-<details>
-  <summary>Expand to read guide on adding Flux SSH authentication</summary>
+Adding Flux SSH authentication
 
 1. Generate new SSH key:
 
@@ -497,8 +498,6 @@ The benefits of a public repository include:
 
 10. Optionally set your repository to Private in your repository settings.
 
-</details>
-
 ### 💨 Kubernetes Dashboard
 
 Included in your cluster is the [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/). Inorder to log into this you will have to get the secret token from the cluster using the command below.
@@ -515,21 +514,21 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
 1. Start by checking all Flux Kustomizations & Git Repository & OCI Repository and verify they are healthy.
 
-- `flux get sources oci -A`
-- `flux get sources git -A`
-- `flux get ks -A`
+   - `flux get sources oci -A`
+   - `flux get sources git -A`
+   - `flux get ks -A`
 
 2. Then check all the Flux Helm Releases and verify they are healthy.
 
-- `flux get hr -A`
+   - `flux get hr -A`
 
 3. Then check the if the pod is present.
 
-- `kubectl -n <namespace> get pods`
+   - `kubectl -n <namespace> get pods`
 
 4. Then check the logs of the pod if its there.
 
-- `kubectl -n <namespace> logs <pod-name> -f`
+   - `kubectl -n <namespace> logs <pod-name> -f`
 
 Note: If a resource exists, running `kubectl -n <namespace> describe <resource> <name>` might give you insight into what the problem(s) could be.
 
