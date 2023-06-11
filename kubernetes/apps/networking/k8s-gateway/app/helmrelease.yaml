@@ -70,5 +70,5 @@ spec:
       type: LoadBalancer
       port: 53
       annotations:
-        metallb.universe.tf/loadBalancerIPs: "${METALLB_K8S_GATEWAY_ADDR}"
+        metallb.universe.tf/loadBalancerIPs: "10.10.1.250"
       externalTrafficPolicy: Local
