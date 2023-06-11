@@ -50,9 +50,7 @@ spec:
     txtOwnerId: default
     domainFilters:
       [
-        "monitoring.${SECRET_DOMAIN}",
-        "apps.${SECRET_DOMAIN}",
-        "${SECRET_DOMAIN}",
+        "${SECRET_DOMAIN}"
       ]
     serviceMonitor:
       enabled: true
