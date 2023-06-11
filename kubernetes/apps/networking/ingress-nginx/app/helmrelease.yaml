@@ -27,6 +27,8 @@ spec:
     keepHistory: false
   values:
     controller:
+      enableExternalDNS: true
+      replicaCount: 2
       extraEnvs:
         - name: TZ
           value: "${TIMEZONE}"
@@ -58,6 +60,7 @@ spec:
             any: true
       extraArgs:
         default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
+        default-wildcard-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
       resources:
         requests:
           cpu: 10m
