@@ -33,7 +33,7 @@ spec:
       existingSecret: grafana-admin-secret
     env:
       GF_EXPLORE_ENABLED: true
-      GF_SERVER_ROOT_URL: "https://grafana.${SECRET_DOMAIN}"
+      GF_SERVER_ROOT_URL: "https://grafana.monitoring.${SECRET_DOMAIN}"
     grafana.ini:
       analytics:
         check_for_updates: false
@@ -86,7 +86,10 @@ spec:
         hajimari.io/icon: simple-icons:grafana
         external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
       hosts:
-        - &host "grafana.monitoring.${SECRET_DOMAIN}"
+        - host: &host "grafana.monitoring.${SECRET_DOMAIN}"
+          paths:
+            - path: /
+              pathType: Prefix
       tls:
         - hosts:
             - *host
