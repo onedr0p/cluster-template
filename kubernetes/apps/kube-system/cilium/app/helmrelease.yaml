@@ -57,6 +57,9 @@ spec:
         enabled: true
         rollOutPods: true
         ingress:
+          annotations:
+            external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
+            hajimari.io/icon: video-input-antenna
           enabled: true
           className: nginx
           hosts:
