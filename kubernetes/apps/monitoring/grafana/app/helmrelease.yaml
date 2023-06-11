@@ -90,6 +90,7 @@ spec:
       tls:
         - hosts:
             - *host
+            - "grafana.monitoring.${SECRET_DOMAIN}"
           secretName: vteng-io-production-tls
     persistence:
       enabled: true
