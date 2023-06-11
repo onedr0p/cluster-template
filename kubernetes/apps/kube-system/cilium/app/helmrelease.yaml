@@ -60,7 +60,7 @@ spec:
           enabled: true
           className: nginx
           hosts:
-            - &host "hubble.monitoring.${SECRET_DOMAIN}"
+            - &host "hubble.${SECRET_DOMAIN}"
           tls:
             - hosts:
                 - *host
