@@ -86,10 +86,7 @@ spec:
         hajimari.io/icon: simple-icons:grafana
         external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
       hosts:
-        - host: &host "grafana.monitoring.${SECRET_DOMAIN}"
-          paths:
-            - path: /
-              pathType: Prefix
+        - &host "grafana.monitoring.${SECRET_DOMAIN}"
       tls:
         - hosts:
             - *host
