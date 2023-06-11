@@ -85,6 +85,7 @@ spec:
       annotations:
         hajimari.io/icon: simple-icons:grafana
         external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
+        cert-manager.io/cluster-issuer: letsencrypt-production
       hosts:
         - &host "grafana.monitoring.${SECRET_DOMAIN}"
       tls:
