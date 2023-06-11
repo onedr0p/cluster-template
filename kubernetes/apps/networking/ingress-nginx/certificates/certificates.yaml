@@ -43,6 +43,8 @@ spec:
   dnsNames:
     - "monitoring.${SECRET_DOMAIN}"
     - "*.monitoring.${SECRET_DOMAIN}"
+    - "${SECRET_DOMAIN}"
+    # - "*.${SECRET_DOMAIN}"
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -58,3 +60,5 @@ spec:
   dnsNames:
     - "monitoring.${SECRET_DOMAIN}"
     - "*.monitoring.${SECRET_DOMAIN}"
+    - "${SECRET_DOMAIN}"
+    # - "*.${SECRET_DOMAIN}"
