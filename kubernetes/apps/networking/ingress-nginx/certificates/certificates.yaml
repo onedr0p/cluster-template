@@ -12,6 +12,9 @@ spec:
   commonName: "${SECRET_DOMAIN}"
   dnsNames:
     - "${SECRET_DOMAIN}"
+    - "monitoring.${SECRET_DOMAIN}"
+    - "grafana.monitoring.${SECRET_DOMAIN}"
+    - "*.monitoring.${SECRET_DOMAIN}"
     - "*.${SECRET_DOMAIN}"
 ---
 apiVersion: cert-manager.io/v1

@@ -89,7 +89,6 @@ spec:
       tls:
         - hosts:
             - *host
-          secretName: monitoring-vteng-io-production-tls
     persistence:
       enabled: true
       storageClassName: local-path
