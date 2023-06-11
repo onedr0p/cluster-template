@@ -14,6 +14,9 @@ spec:
         kind: HelmRepository
         name: metallb
         namespace: flux-system
+      spec:
+        controller:
+          replicas: 3
   maxHistory: 2
   install:
     createNamespace: true
