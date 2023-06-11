@@ -6,6 +6,8 @@ metadata:
   name: cluster-apps-postgres-operator
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: cluster-apps-rook-ceph-cluster
   path: ./kubernetes/apps/postgres-operator/postgres-operator/app
   prune: true
   sourceRef:
