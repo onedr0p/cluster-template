@@ -6,6 +6,8 @@ metadata:
   name: cluster-apps-rook-ceph
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: cluster-apps-kube-prometheus-stack
   path: ./kubernetes/apps/rook-ceph/rook-ceph/app
   prune: true
   sourceRef:
