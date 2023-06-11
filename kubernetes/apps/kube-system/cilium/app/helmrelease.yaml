@@ -63,10 +63,10 @@ spec:
             external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
             external-dns.alpha.kubernetes.io/hostname: "hubble.monitoring.${SECRET_DOMAIN}"
           hosts:
-            - &host "hubble.monitoring.${SECRET_DOMAIN}"
+            - "hubble.monitoring.${SECRET_DOMAIN}"
           tls:
             - hosts:
-                - *host
+                - hubble.monitoring.${SECRET_DOMAIN}
     ipam:
       mode: kubernetes
     k8sServiceHost: "${KUBE_VIP_ADDR}"
