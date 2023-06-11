@@ -90,7 +90,8 @@ spec:
         - &host "grafana.${SECRET_DOMAIN}"
       tls:
         - hosts:
-            - *host
+            - &host "grafana.monitoring.${SECRET_DOMAIN}"
+            - &host "grafana.${SECRET_DOMAIN}"
     persistence:
       enabled: true
       storageClassName: local-path
