@@ -22,15 +22,5 @@ images:
 patchesJson6902:
   - target: { group: apps, version: v1, kind: Deployment, name: pgo }
     path: selectors.yaml
-    patch: |-
-      - op: add
-        path: /spec/template/spec/nodeSelector
-        value:
-          beta.kubernetes.io/arch: amd64
   - target: { group: apps, version: v1, kind: Deployment, name: pgo-upgrade }
     path: selectors.yaml
-    patch: |-
-      - op: add
-        path: /spec/template/spec/nodeSelector
-        value:
-          beta.kubernetes.io/arch: amd64
