@@ -17,6 +17,7 @@ spec:
     - "apps.${SECRET_DOMAIN}"
     - "*.apps.${SECRET_DOMAIN}"
     - "echo-server.${SECRET_DOMAIN}"
+    - "ingress.${SECRET_DOMAIN}"
 
 ---
 apiVersion: cert-manager.io/v1
