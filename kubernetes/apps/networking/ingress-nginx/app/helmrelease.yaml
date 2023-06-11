@@ -60,7 +60,6 @@ spec:
             any: true
       extraArgs:
         default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
-        default-wildcard-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
       resources:
         requests:
           cpu: 10m
