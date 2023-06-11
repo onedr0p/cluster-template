@@ -84,13 +84,12 @@ spec:
       ingressClassName: nginx
       annotations:
         external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
-        cert-manager.io/cluster-issuer: letsencrypt-production
       hosts:
         - &host "grafana.monitoring.${SECRET_DOMAIN}"
       tls:
         - hosts:
             - *host
-          secretName: vteng-io-production-tls
+          secretName: monitoring-vteng-io-production-tls
     persistence:
       enabled: true
       storageClassName: local-path

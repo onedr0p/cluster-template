@@ -61,7 +61,7 @@ spec:
           className: nginx
           annotations:
             external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
-            external-dns.alpha.kubernetes.io/hostname: "hubble.monitoring.${SECRET_DOMAIN}"
+            cert-manager.io/cluster-issuer: letsencrypt-production
           hosts:
             - "hubble.monitoring.${SECRET_DOMAIN}"
           tls:
