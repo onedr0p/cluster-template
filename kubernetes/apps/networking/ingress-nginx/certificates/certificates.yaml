@@ -16,6 +16,8 @@ spec:
     - "*.monitoring.${SECRET_DOMAIN}"
     - "apps.${SECRET_DOMAIN}"
     - "*.apps.${SECRET_DOMAIN}"
+    - "echo-server.${SECRET_DOMAIN}"
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -31,37 +33,3 @@ spec:
   dnsNames:
     - "${SECRET_DOMAIN}"
     - "*.${SECRET_DOMAIN}"
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: "monitoring-${SECRET_DOMAIN/./-}-production"
-  namespace: monitoring
-spec:
-  secretName: "monitoring-${SECRET_DOMAIN/./-}-production-tls"
-  issuerRef:
-    name: letsencrypt-production
-    kind: ClusterIssuer
-  commonName: "${SECRET_DOMAIN}"
-  dnsNames:
-    - "monitoring.${SECRET_DOMAIN}"
-    - "*.monitoring.${SECRET_DOMAIN}"
-    - "${SECRET_DOMAIN}"
-    # - "*.${SECRET_DOMAIN}"
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: "monitoring-${SECRET_DOMAIN/./-}-staging"
-  namespace: monitoring
-spec:
-  secretName: "monitoring-${SECRET_DOMAIN/./-}-staging-tls"
-  issuerRef:
-    name: letsencrypt-staging
-    kind: ClusterIssuer
-  commonName: "${SECRET_DOMAIN}"
-  dnsNames:
-    - "monitoring.${SECRET_DOMAIN}"
-    - "*.monitoring.${SECRET_DOMAIN}"
-    - "${SECRET_DOMAIN}"
-    # - "*.${SECRET_DOMAIN}"
