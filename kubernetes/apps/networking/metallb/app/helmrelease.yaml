@@ -18,11 +18,11 @@ spec:
   install:
     createNamespace: true
     remediation:
-      retries: 3
+      retries: 2
   upgrade:
     cleanupOnFail: true
     remediation:
-      retries: 3
+      retries: 2
   uninstall:
     keepHistory: false
   values:
