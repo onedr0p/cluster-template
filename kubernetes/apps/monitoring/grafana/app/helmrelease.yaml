@@ -87,11 +87,9 @@ spec:
         external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
       hosts:
         - &host "grafana.monitoring.${SECRET_DOMAIN}"
-        - &host "grafana.${SECRET_DOMAIN}"
       tls:
         - hosts:
-            - &host "grafana.monitoring.${SECRET_DOMAIN}"
-            - &host "grafana.${SECRET_DOMAIN}"
+            - *host
     persistence:
       enabled: true
       storageClassName: local-path
