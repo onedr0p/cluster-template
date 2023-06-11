@@ -59,14 +59,11 @@ spec:
         ingress:
           enabled: true
           className: nginx
-          annotations:
-            external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
-            cert-manager.io/cluster-issuer: letsencrypt-production
           hosts:
-            - "hubble.monitoring.${SECRET_DOMAIN}"
+            - &host "hubble.monitoring.${SECRET_DOMAIN}"
           tls:
             - hosts:
-                - hubble.monitoring.${SECRET_DOMAIN}
+                - *host
     ipam:
       mode: kubernetes
     k8sServiceHost: "${KUBE_VIP_ADDR}"
