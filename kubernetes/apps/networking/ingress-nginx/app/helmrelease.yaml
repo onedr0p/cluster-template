@@ -27,8 +27,7 @@ spec:
     keepHistory: false
   values:
     controller:
-      enableExternalDNS: true
-      replicaCount: 2
+      replicaCount: 3
       extraEnvs:
         - name: TZ
           value: "${TIMEZONE}"
