@@ -294,13 +294,12 @@ verify_master_count() {
 verify_cloudflare() {
     local errors=
     local account_zone=
-    _has_envar "BOOTSTRAP_CLOUDFLARE_APIKEY" "true"
+    _has_envar "BOOTSTRAP_CLOUDFLARE_APITOKEN" "true"
     _has_envar "BOOTSTRAP_CLOUDFLARE_DOMAIN" "true"
-    _has_envar "BOOTSTRAP_CLOUDFLARE_EMAIL" "true"
+    _has_envar "BOOTSTRAP_ACME_EMAIL" "true"
     # Try to retrieve zone information from Cloudflare's API
     account_zone=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=${BOOTSTRAP_CLOUDFLARE_DOMAIN}&status=active" \
-        -H "X-Auth-Email: ${BOOTSTRAP_CLOUDFLARE_EMAIL}" \
-        -H "X-Auth-Key: ${BOOTSTRAP_CLOUDFLARE_APIKEY}" \
+        -H "Authorization: Bearer ${BOOTSTRAP_CLOUDFLARE_APITOKEN}" \
         -H "Content-Type: application/json"
     )
     if [[ "$(echo "${account_zone}" | jq ".success")" == "true" ]]; then
@@ -316,8 +315,7 @@ verify_cloudflare() {
     _has_envar "BOOTSTRAP_CLOUDFLARE_TUNNEL_ID" "true"
     # Try to retrieve the Cloudflare Tunnel information from Cloudflare's API
     cloudflare_tunnel=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${BOOTSTRAP_CLOUDFLARE_ACCOUNT_TAG}/cfd_tunnel/${BOOTSTRAP_CLOUDFLARE_TUNNEL_ID}" \
-        -H "X-Auth-Email: ${BOOTSTRAP_CLOUDFLARE_EMAIL}" \
-        -H "X-Auth-Key: ${BOOTSTRAP_CLOUDFLARE_APIKEY}" \
+        -H "Authorization: Bearer ${BOOTSTRAP_CLOUDFLARE_APITOKEN}" \
         -H "Content-Type: application/json"
     )
     if [[ "$(echo "${cloudflare_tunnel}" | jq ".success")" == "true" ]]; then
