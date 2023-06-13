@@ -21,6 +21,19 @@
     kustomize
     stern
     yamllint
+    # generic system tools
+    curl
+    dig
+    fd
+    fzf
+    iproute2
+    k9s
+    pwgen
+    socat
+    tcpdump
+    vgrep
+    wget
+
   ];
 
   devcontainer.enable = true;
