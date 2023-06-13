@@ -11,3 +11,8 @@ kubeconfig
 *.key
 # Ansible
 xanmanning.k3s*
+
+# Devenv
+.devenv*
+devenv.local.nix
+
