@@ -1,0 +1,21 @@
+{
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "mkhl.direnv",
+        "albert.TabOut",
+        "britesnow.vscode-toggle-quotes",
+        "fcrespo82.markdown-table-formatter",
+        "mitchdenny.ecdc",
+        "redhat.ansible",
+        "signageos.signageos-vscode-sops",
+        "will-stone.in-any-case",
+        "EditorConfig.editorconfig",
+        "PKief.material-icon-theme"
+      ]
+    }
+  },
+  "image": "ghcr.io/cachix/devenv:latest",
+  "overrideCommand": false,
+  "updateContentCommand": "devenv ci"
+}
