@@ -13,6 +13,6 @@ kubeconfig
 xanmanning.k3s*
 
 # Devenv
-.devenv*
-devenv.local.nix
+**/.devenv*
+**/devenv.local.nix
 
