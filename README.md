@@ -144,17 +144,27 @@ It is advisable to install [pre-commit](https://pre-commit.com/) and the pre-com
 
 4. Fill out the Age public key in the appropriate variable in configuration section below, **note** the public key should start with `age`...
 
-### ☁️ Cloudflare API Key
+### ☁️ Cloudflare API Token
 
-In order to use `cert-manager` with the Cloudflare DNS challenge you will need to create a API key.
+In order to use `cert-manager` with the Cloudflare DNS challenge you will need to create a API Token.
 
-1. Head over to Cloudflare and create a API key by going [here](https://dash.cloudflare.com/profile/api-tokens).
+1. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
 
-2. Under the `API Keys` section, create a global API Key.
+2. Under the `API Tokens` section, click the blue "Create Token" button.
 
-3. Use the API Key in the appropriate variable in configuration section below.
+3. Click the "Use template" blue button for the `Edit zone DNS` template.
 
-📍 You may wish to update this later on to a Cloudflare **API Token** which can be scoped to certain resources. I do not recommend using a Cloudflare **API Key**, however for the purposes of this template it is easier getting started without having to define which scopes and resources are needed. For more information see the [Cloudflare docs on API Keys and Tokens](https://developers.cloudflare.com/api/).
+4. Give your token a name like `home-k8s-cluster`
+
+5. Under `Permissions`, click `+ Add More` and add each permission below:
+
+  ```text
+  Zone - DNS - Edit # should be there already if using the template from the previous step
+  Account - Cloudflare Tunnel - Read
+  ```
+
+Feel free to limit the permissions to a specific account and zone resources.
+6. Use the API Token in the appropriate variable in configuration section below.
 
 ### ☁️ Cloudflare Tunnel
 
@@ -462,11 +472,14 @@ The benefits of a public repository include:
   <summary>Expand to read guide on adding Flux SSH authentication</summary>
 
 1. Generate new SSH key:
+
    ```sh
    ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./kubernetes/bootstrap/github-deploy.key -q -P ""
    ```
+
 2. Paste public key in the deploy keys section of your repository settings
 3. Create sops secret in `./kubernetes/bootstrap/github-deploy-key.sops.yaml` with the contents of:
+
    ```yaml
    apiVersion: v1
    kind: Secret
@@ -485,15 +498,21 @@ The benefits of a public repository include:
        github.com ecdsa-sha2-nistp256 ...
        github.com ssh-rsa ...
    ```
+
 4. Encrypt secret:
+
    ```sh
    sops --encrypt --in-place ./kubernetes/bootstrap/github-deploy-key.sops.yaml
    ```
+
 5. Apply secret to cluster:
+
    ```sh
    sops --decrypt ./kubernetes/bootstrap/github-deploy-key.sops.yaml | kubectl apply -f -
    ```
+
 6. Update `./kubernetes/flux/config/cluster.yaml`:
+
    ```yaml
    apiVersion: source.toolkit.fluxcd.io/v1beta2
    kind: GitRepository
@@ -509,16 +528,22 @@ The benefits of a public repository include:
      secretRef:
        name: github-deploy-key
    ```
+
 7. Commit and push changes
 8. Force flux to reconcile your changes
+
    ```sh
    task cluster:reconcile
    ```
+
 9. Verify git repository is now using SSH:
+
    ```sh
    task cluster:gitrepositories
    ```
+
 10. Optionally set your repository to Private in your repository settings.
+
 </details>
 
 ### 💨 Kubernetes Dashboard
