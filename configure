@@ -475,14 +475,14 @@ generate_ansible_hosts() {
 }
 
 setup_prometheus_endpoints() {
+    yq --inplace 'del(.spec.values.kubeControllerManager.endpoints[])' \
+    "${PROJECT_DIR}/kubernetes/apps/monitoring/kube-prometheus-stack/app/helmrelease.yaml"
     for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
         node_id=$(echo "${var}" | awk -F"_" '{print $5}')
         node_control="BOOTSTRAP_ANSIBLE_CONTROL_NODE_${node_id}"
         if [[ "${!node_control}" == "true" ]]; then
             node_addr="BOOTSTRAP_ANSIBLE_HOST_ADDR_${node_id}"
             _log "INFO(${FUNCNAME[0]})" "Setting up Prometheus endpoint for '${!node_addr}'"
-            yq --inplace 'del(.spec.values.kubeControllerManager.endpoints[])' \
-                "${PROJECT_DIR}/kubernetes/apps/monitoring/kube-prometheus-stack/app/helmrelease.yaml"
             yq --inplace ".spec.values.kubeControllerManager.endpoints += \"${!node_addr}\"" \
                 "${PROJECT_DIR}/kubernetes/apps/monitoring/kube-prometheus-stack/app/helmrelease.yaml"
         fi
