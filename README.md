@@ -163,7 +163,8 @@ In order to use `cert-manager` with the Cloudflare DNS challenge you will need t
   Account - Cloudflare Tunnel - Read
   ```
 
-Feel free to limit the permissions to a specific account and zone resources.
+  📍 Feel free to limit the permissions to a specific account and zone resources.
+
 6. Use the API Token in the appropriate variable in configuration section below.
 
 ### ☁️ Cloudflare Tunnel
