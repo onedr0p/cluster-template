@@ -32,7 +32,7 @@
   },
   "kubernetes": {
     "fileMatch": [
-      "ansible/.+\\.ya?ml.j2$",
+      "ansible/.+\\.ya?ml(\\.j2)?$",
       "kubernetes/.+\\.ya?ml$"
     ]
   },
@@ -40,7 +40,7 @@
     {
       "description": "Process various other dependencies",
       "fileMatch": [
-        "ansible/.+\\.ya?ml$",
+        "ansible/.+\\.ya?ml(\\.j2)?$",
         "kubernetes/.+\\.ya?ml$"
       ],
       "matchStrings": [
