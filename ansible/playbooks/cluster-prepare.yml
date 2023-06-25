@@ -65,12 +65,17 @@
 
     - name: System Configuration (1)
       block:
-        - name: System Configuration (1) | Disable ufw
+        - name: System Configuration (1) | Check if ufw is installed/running
+          ansible.builtin.service_facts:
+        - name: System Configuration (1) | Disable ufw if needed
           ansible.builtin.systemd:
             service: ufw.service
             enabled: false
             masked: true
             state: stopped
+          when:
+            - "'ufw' in ansible_facts.services"
+            - ansible_facts.services['ufw']['state'] == "running"
         - name: System Configuration (1) | Enable fstrim
           ansible.builtin.systemd:
             service: fstrim.timer
