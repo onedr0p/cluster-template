@@ -8,3 +8,7 @@ repos:
           - --config-file
           - .yamllint.yaml
         id: yamllint
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 35.144.0
+    hooks:
+      - id: renovate-config-validator
