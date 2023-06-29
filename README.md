@@ -393,12 +393,54 @@ task cluster:resources
 
 ### 📜 Certificates
 
-By default this template will deploy a wildcard certificate with the Let's Encrypt staging servers. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. Once you have confirmed the certificate is created and valid, make sure to switch to the Let's Encrypt production servers as outlined in the certificate manifest.
+By default this template will deploy a wildcard certificate with the Let's Encrypt staging servers. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. Once you have confirmed the certificate is created and valid, make sure to switch to the Let's Encrypt production servers as outlined below. Do not enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
+
+1. Update the resources to use the production Let's Encrypt server:
+
+    ```patch
+    diff --git a/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml b/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml
+    index e582d4a..0f80700 100644
+    --- a/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml
+    +++ b/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml
+    @@ -60,7 +60,7 @@ spec:
+               namespaceSelector:
+                 any: true
+           extraArgs:
+    -        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-staging-tls"
+    +        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
+           resources:
+             requests:
+               cpu: 10m
+    diff --git a/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml b/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml
+    index d57147d..f58e4a7 100644
+    --- a/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml
+    +++ b/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml
+    @@ -3,4 +3,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
+     kind: Kustomization
+     resources:
+       - ./staging.yaml
+    -  # - ./production.yaml
+    +  - ./production.yaml
+    ```
+
+2. Commit and push your changes:
+
+    ```sh
+    git add -A
+    git commit -m "fix: use production LE certificates"
+    git push
+    ```
+
+3. Force Flux to pick up the changes:
+
+    ```sh
+    task cluster:reconcile
+    ```
 
 - To view the certificate request run `kubectl -n networking get certificaterequests`
 - To verify the certificate is created run `kubectl -n networking get certificates`
 
-📍 Do not enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
+You should start to see your applications using the new certificate.
 
 ### 🌐 DNS
 
