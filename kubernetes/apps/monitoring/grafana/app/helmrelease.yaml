@@ -31,6 +31,8 @@ spec:
     - name: ingress-nginx
       namespace: networking
   values:
+    deploymentStrategy:
+      type: Recreate
     admin:
       existingSecret: grafana-admin-secret
     env:
