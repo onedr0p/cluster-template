@@ -6,7 +6,6 @@
     ":disableRateLimiting",
     ":dependencyDashboard",
     ":semanticCommits",
-    ":enablePreCommit",
     ":automergeDigest",
     ":automergeBranch",
     "github>onedr0p/flux-cluster-template//.github/renovate/autoMerge.json5",
@@ -21,9 +20,6 @@
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
   "schedule": ["every saturday"],
-  "pre-commit": {
-    "enabled": true
-  },
   "flux": {
     "fileMatch": ["kubernetes/.+\\.ya?ml$"]
   },
