@@ -14,7 +14,6 @@ env:
 includes:
   ansible: .taskfiles/AnsibleTasks.yml
   cluster: .taskfiles/ClusterTasks.yml
-  precommit: .taskfiles/PrecommitTasks.yml
 
 tasks:
   init:
@@ -40,12 +39,9 @@ tasks:
         jq
         kubernetes-cli
         kustomize
-        pre-commit
-        prettier
         sops
         stern
         weaveworks/tap/gitops
-        yamllint
         yq
 
   verify:
