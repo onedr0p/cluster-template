@@ -1,0 +1,33 @@
+email: your-email@domain.tld
+timezone: America/New_York
+ageKey: replace-with-age-key
+apps:
+  weavegitops:
+    adminPassword: generated
+  grafana:
+    adminPassword: generated
+network:
+  loadBalancerRange: 192.168.1.220-192.168.1.230
+  kubeVip: 10.20.0.254
+  gateway: 10.20.0.220
+  ingress: 10.20.0.221
+  clusterCidr: 10.102.0.0/16
+  serviceCidr: 10.103.0.0/16
+github:
+  public: true
+  url: https://github.com/username/repo
+  webhook:
+    secret: generated
+cloudflare:
+  domain: replace-with-domain.tld
+  apiToken: replace-with-api-token
+  tunnel:
+    accountTag: replace-with-account-tag
+    secret: replace-with-secret
+    id: replace-with-id
+nodes:
+  - name: node1
+    address: 192.168.1.200
+    username: replace-with-username
+    password: replace-with-password
+    control: true

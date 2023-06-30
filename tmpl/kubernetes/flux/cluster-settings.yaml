@@ -5,10 +5,10 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  TIMEZONE: "${BOOTSTRAP_TIMEZONE}"
-  METALLB_LB_RANGE: "${BOOTSTRAP_METALLB_LB_RANGE}"
-  METALLB_K8S_GATEWAY_ADDR: "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}"
-  METALLB_INGRESS_ADDR: "${BOOTSTRAP_METALLB_INGRESS_ADDR}"
-  KUBE_VIP_ADDR: "${BOOTSTRAP_KUBE_VIP_ADDR}"
-  CLUSTER_CIDR: "${BOOTSTRAP_CLUSTER_CIDR}"
-  SERVICE_CIDR: "${BOOTSTRAP_SERVICE_CIDR}"
+  TIMEZONE: "!{timezone}"
+  METALLB_LB_RANGE: "!{network.loadBalancerRange}"
+  METALLB_K8S_GATEWAY_ADDR: "!{network.gateway}"
+  METALLB_INGRESS_ADDR: "!{network.ingress}"
+  KUBE_VIP_ADDR: "!{network.kubeVip}"
+  CLUSTER_CIDR: "!{network.clusterCidr}"
+  SERVICE_CIDR: "!{network.serviceCidr}"
