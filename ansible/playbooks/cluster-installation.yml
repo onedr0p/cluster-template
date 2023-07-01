@@ -145,6 +145,19 @@
             path: "{{ item.path }}"
             state: absent
           loop: "{{ custom_manifest.files }}"
+        - name: Custom manifests (2) | Get list of custom addons
+          kubernetes.core.k8s_info:
+            kubeconfig: /etc/rancher/k3s/k3s.yaml
+            kind: Addon
+          register: addons_list
+        - name: Custom manifests (2) | Delete addons
+          kubernetes.core.k8s:
+            kubeconfig: /etc/rancher/k3s/k3s.yaml
+            name: "{{ item.metadata.name }}"
+            kind: Addon
+            namespace: kube-system
+            state: absent
+          loop: "{{ addons_list.resources | selectattr('metadata.name', 'match', '^custom-.*') | list }}"
 
     # https://github.com/k3s-io/k3s/issues/1900
     - name: Stale containers

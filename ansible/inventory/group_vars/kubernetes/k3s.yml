@@ -15,7 +15,7 @@ k3s_registration_address: "{{ kubevip_address }}"
 k3s_server_manifests_urls:
   # Kube-vip RBAC
   - url: https://raw.githubusercontent.com/kube-vip/kube-vip/main/docs/manifests/rbac.yaml
-    filename: custom-kube-vip-rbac.yaml
+    filename: kube-vip-rbac.yaml
   # Essential Prometheus Operator CRDs (the rest are installed with the kube-prometheus-stack helm release)
   - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.66.0/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
     filename: custom-prometheus-podmonitors.yaml
