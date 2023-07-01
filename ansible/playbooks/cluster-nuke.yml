@@ -22,41 +22,45 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
-    - name: Uninstall Cilium
-      when:
-        - k3s_control_node is defined
-        - k3s_control_node
-      ansible.builtin.shell: |
-        cilium uninstall --wait
-      environment:
-        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+    - name: Stop Kubernetes
+      ansible.builtin.include_role:
+        name: xanmanning.k3s
+        public: true
+      vars:
+        k3s_state: stopped
 
-    - name: Prevent k3s from starting on reboot
-      ansible.builtin.systemd:
-        name: k3s
-        enabled: false
+    # https://github.com/k3s-io/docs/blob/main/docs/installation/network-options.md
+    - name: Networking
+      block:
+        - name: Networking | Delete Cilium links
+          ansible.builtin.command:
+            cmd: "ip link delete {{ item }}"
+            removes: "/sys/class/net/{{ item }}"
+          loop: ["cilium_host", "cilium_net", "cilium_vxlan"]
+        - name: Networking | Flush iptables
+          ansible.builtin.iptables:
+            table: "{{ item }}"
+            flush: true
+          loop: ["filter", "nat", "mangle", "raw"]
+        - name: Networking | Flush ip6tables
+          ansible.builtin.iptables:
+            table: "{{ item }}"
+            flush: true
+            ip_version: ipv6
+          loop: ["filter", "nat", "mangle", "raw"]
+        - name: Networking | Delete CNI directory
+          ansible.builtin.file:
+            path: /etc/cni/net.d
+            state: absent
 
-    - name: Reboot
-      ansible.builtin.reboot:
-        msg: Rebooting nodes
-        reboot_timeout: 3600
-
-    - name: Uninstall k3s
+    - name: Uninstall Kubernetes
       ansible.builtin.include_role:
         name: xanmanning.k3s
         public: true
       vars:
         k3s_state: uninstalled
 
-    - name: Gather list of CNI files
-      ansible.builtin.find:
-        paths: /etc/cni/net.d
-        patterns: "*"
-        hidden: true
-      register: directory_contents
-
-    - name: Delete CNI files
-      ansible.builtin.file:
-        path: "{{ item.path }}"
-        state: absent
-      loop: "{{ directory_contents.files }}"
+    - name: Reboot
+      ansible.builtin.reboot:
+        msg: Rebooting nodes
+        reboot_timeout: 3600

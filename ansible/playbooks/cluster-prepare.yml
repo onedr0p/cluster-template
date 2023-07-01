@@ -56,17 +56,6 @@
           notify: Reboot
           when: "'raspi' in ansible_kernel"
 
-    - name: Packages | Cilium CLI
-      ansible.builtin.include_role:
-        name: githubixx.cilium_cli
-        public: true
-      vars:
-        cilium_cli_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
-        cilium_cli_tmp_directory: /tmp
-      when:
-        - k3s_control_node is defined
-        - k3s_control_node
-
     - name: User Configuration
       block:
         - name: User Configuration | Add additional SSH public keys
