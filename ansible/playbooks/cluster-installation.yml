@@ -53,13 +53,13 @@
         regexp: https://127.0.0.1:6443
         replace: "https://{{ k3s_registration_address }}:6443"
 
-    - name: Post installation of custom manifests
+    - name: Custom manifests (1)
       when:
         - k3s_primary_control_node
         - (k3s_server_manifests_templates | length > 0
             or k3s_server_manifests_urls | length > 0)
       block:
-        - name: Wait for custom manifests to rollout
+        - name: Custom manifests (1) | Wait for custom manifests to rollout
           kubernetes.core.k8s_info:
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             kind: "{{ item.kind }}"
@@ -78,7 +78,7 @@
               kind: CustomResourceDefinition
             - name: servicemonitors.monitoring.coreos.com
               kind: CustomResourceDefinition
-        - name: Wait for Cilium to rollout
+        - name: Custom manifests (1) | Wait for Cilium to rollout
           kubernetes.core.k8s_info:
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             kind: Job
@@ -91,7 +91,7 @@
             wait_timeout: 360
         # Unmanage and remove the Cilium HelmChart in-order for
         # flux to take over managing the lifecycle of Cilium
-        - name: Patch the Cilium HelmChart to unmanage it
+        - name: Custom manifests (1) | Patch the Cilium HelmChart to unmanage it
           kubernetes.core.k8s_json_patch:
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             name: cilium
@@ -101,21 +101,21 @@
               - op: add
                 path: /metadata/annotations/helmcharts.helm.cattle.io~1unmanaged
                 value: "true"
-        - name: Remove the Cilium HelmChart CR
+        - name: Custom manifests (1) | Delete the Cilium HelmChart CR
           kubernetes.core.k8s:
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             name: cilium
             kind: HelmChart
             namespace: kube-system
             state: absent
-        - name: Check if Cilium HelmChart was deleted
+        - name: Custom manifests (1) | Check if Cilium HelmChart was deleted
           kubernetes.core.k8s_info:
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             name: cilium
             kind: HelmChart
             namespace: kube-system
           register: cilium_helmchart
-        - name: Force delete the Cilium HelmChart
+        - name: Custom manifests (1) | Force delete the Cilium HelmChart
           when: cilium_helmchart.resources | count > 0
           kubernetes.core.k8s:
             kubeconfig: /etc/rancher/k3s/k3s.yaml
@@ -130,18 +130,54 @@
     # Cleaning up certain manifests from the /var/lib/rancher/k3s/server/manifests directory
     # is needed because k3s has an awesome "feature" to always re-deploy them when the k3s
     # service is restarted. Removing them does not uninstall the manifests from your cluster.
-    - name: Delete custom manifests
+    - name: Custom manifests (2)
       when: k3s_primary_control_node
       block:
-        - name: Get a list of all custom manifest files
+        - name: Custom manifests (2) | Get list of custom mantifests
           ansible.builtin.find:
             paths: "{{ k3s_server_manifests_dir }}"
             file_type: file
             use_regex: true
             patterns: ["^custom-.*"]
           register: custom_manifest
-        - name: Delete all custom manifest files
+        - name: Custom manifests (2) | Delete custom mantifests
           ansible.builtin.file:
             path: "{{ item.path }}"
             state: absent
           loop: "{{ custom_manifest.files }}"
+
+    # https://github.com/k3s-io/k3s/issues/1900
+    - name: Stale containers
+      block:
+        - name: Stale containers | Create systemd unit
+          ansible.builtin.blockinfile:
+            path: /etc/systemd/system/stale-containers.service
+            create: true
+            mode: "0644"
+            block: |
+              [Unit]
+              Description=Clean up stale containers
+              [Service]
+              Type=oneshot
+              ExecStart=/usr/local/bin/k3s crictl rmi --prune > /dev/null 2>&1
+        - name: Stale containers | Create systemd timer
+          ansible.builtin.blockinfile:
+            path: /etc/systemd/system/stale-containers.timer
+            create: true
+            mode: "0644"
+            block: |
+              [Unit]
+              Description=Clean up stale containers
+              [Timer]
+              OnCalendar=weekly
+              AccuracySec=1h
+              Persistent=true
+              RandomizedDelaySec=6000
+              [Install]
+              WantedBy=timers.target
+        - name: Stale containers | Start the systemd timer
+          ansible.builtin.systemd:
+            name: stale-containers.timer
+            enabled: true
+            daemon_reload: true
+            state: started
