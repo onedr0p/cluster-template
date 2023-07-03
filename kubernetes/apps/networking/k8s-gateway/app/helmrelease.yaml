@@ -5,7 +5,7 @@ metadata:
   name: k8s-gateway
   namespace: networking
 spec:
-  interval: 15m
+  interval: 30m
   chart:
     spec:
       chart: k8s-gateway
@@ -33,5 +33,5 @@ spec:
       type: LoadBalancer
       port: 53
       annotations:
-        metallb.universe.tf/loadBalancerIPs: "${METALLB_K8S_GATEWAY_ADDR}"
-      externalTrafficPolicy: Local
+        io.cilium/lb-ipam-ips: "${K8S_GATEWAY_ADDR}"
+      externalTrafficPolicy: Cluster

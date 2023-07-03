@@ -6,15 +6,15 @@ k3s_control_node: true
 k3s_server:
   node-ip: "{{ ansible_host }}"
   tls-san:
-    - "{{ kubevip_address }}"
+    - "{{ kube_vip_addr }}"
   docker: false
   flannel-backend: "none"             # This needs to be in quotes
   disable:
-    - coredns                         # Disable coredns                 - replaced with Helm Chart
-    - flannel                         # Disable flannel                 - replaced with Cilium
+    - coredns                         # Disable coredns                 - replaced with Coredns Helm Chart
+    - flannel                         # Disable flannel                 - replaced with Cilium Helm Chart
     - local-storage                   # Disable local-path-provisioner  - installed with Flux
     - metrics-server                  # Disable metrics-server          - installed with Flux
-    - servicelb                       # Disable servicelb               - replaced with metallb and installed with Flux
+    - servicelb                       # Disable servicelb               - replaced with Cilium Helm Chart
     - traefik                         # Disable traefik                 - replaced with ingress-nginx and installed with Flux
   disable-network-policy: true
   disable-cloud-controller: true

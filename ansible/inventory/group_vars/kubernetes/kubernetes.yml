@@ -10,7 +10,7 @@ k3s_install_hard_links: true
 k3s_become: true
 k3s_etcd_datastore: true
 k3s_use_unsupported_config: true
-k3s_registration_address: "{{ kubevip_address }}"
+k3s_registration_address: "{{ kube_vip_addr }}"
 k3s_server_manifests_urls:
   # Kube-vip RBAC
   - url: https://raw.githubusercontent.com/kube-vip/kube-vip/main/docs/manifests/rbac.yaml

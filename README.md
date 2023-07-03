@@ -19,7 +19,6 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 
 - [flux](https://toolkit.fluxcd.io/) - GitOps operator for managing Kubernetes clusters from a Git repository
 - [kube-vip](https://kube-vip.io/) - Load balancer for the Kubernetes control plane nodes
-- [metallb](https://metallb.universe.tf/) - Load balancer for Kubernetes services
 - [cert-manager](https://cert-manager.io/) - Operator to request SSL certificates and store them as Kubernetes resources
 - [cilium](https://cilium.io/) - Container networking interface for inter pod and service networking
 - [external-dns](https://github.com/kubernetes-sigs/external-dns) - Operator to publish DNS records to Cloudflare (and other providers) based on Kubernetes ingresses
@@ -430,16 +429,16 @@ You should start to see your applications using the new certificate.
 
 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
 
-For split DNS to work it is required to have `${SECRET_DOMAIN}` point to the `${METALLB_K8S_GATEWAY_ADDR}` load balancer IP address on your home DNS server. This will ensure DNS requests for `${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server.
+For split DNS to work it is required to have `${SECRET_DOMAIN}` point to the `${K8S_GATEWAY_ADDR}` load balancer IP address on your home DNS server. This will ensure DNS requests for `${SECRET_DOMAIN}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server.
 
 For and example with Pi-Hole apply the following file and restart dnsmasq:
 
 ```sh
 # /etc/dnsmasq.d/99-k8s-gateway-forward.conf
-server=/${SECRET_DOMAIN}/${METALLB_K8S_GATEWAY_ADDR}
+server=/${SECRET_DOMAIN}/${K8S_GATEWAY_ADDR}
 ```
 
-Now try to resolve an internal-only domain with `dig @${pi-hole-ip} hajimari.${SECRET_DOMAIN}` it should resolve to your `${METALLB_INGRESS_ADDR}` IP.
+Now try to resolve an internal-only domain with `dig @${pi-hole-ip} hajimari.${SECRET_DOMAIN}` it should resolve to your `${INGRESS_NGINX_ADDR}` IP.
 
 If having trouble you can ask for help in [this](https://github.com/onedr0p/flux-cluster-template/discussions/719) Github discussion.
 

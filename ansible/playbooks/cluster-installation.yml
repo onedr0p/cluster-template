@@ -47,9 +47,11 @@
       loop:
         - { name: cilium, kind: HelmChart, namespace: kube-system }
         - { name: coredns, kind: HelmChart, namespace: kube-system }
-        - { name: podmonitors.monitoring.coreos.com, kind: CustomResourceDefinition }
-        - { name: prometheusrules.monitoring.coreos.com, kind: CustomResourceDefinition }
-        - { name: servicemonitors.monitoring.coreos.com, kind: CustomResourceDefinition }
+        - { name: policy, kind: CiliumL2AnnouncementPolicy }
+        - { name: pool, kind: CiliumLoadBalancerIPPool }
+        - { name: podmonitors, kind: CustomResourceDefinition }
+        - { name: prometheusrules, kind: CustomResourceDefinition }
+        - { name: servicemonitors, kind: CustomResourceDefinition }
 
     - name: Coredns
       when:
