@@ -34,4 +34,4 @@ spec:
       port: 53
       annotations:
         io.cilium/lb-ipam-ips: "${K8S_GATEWAY_ADDR}"
-      externalTrafficPolicy: Local
+      externalTrafficPolicy: Cluster
