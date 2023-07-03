@@ -28,10 +28,9 @@ main() {
         verify_binaries
         verify_master_count
         verify_ansible_hosts
-        verify_metallb
+        verify_lbs
         verify_kubevip
         verify_cluster_service_cidrs
-        verify_addressing
         verify_age
         verify_git_repository
         verify_cloudflare
@@ -139,66 +138,6 @@ _has_valid_ip() {
     fi
 }
 
-verify_addressing() {
-    local found_kube_vip="false"
-    local found_k8s_gateway="false"
-    local found_ingress="false"
-    # Verify the metallb min and metallb ceiling are in the same network
-    metallb_subnet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f1,2,3)
-    metallb_subnet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f1,2,3)
-    if [[ "${metallb_subnet_min}" != "${metallb_subnet_ceil}" ]]; then
-        _log "ERROR(${FUNCNAME[0]})" "The provided MetalLB IP range '${BOOTSTRAP_METALLB_LB_RANGE}' is not in the same subnet"
-        exit 1
-    fi
-    # Verify the node IP addresses are on the same network as the metallb range
-    for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
-        node_subnet=$(echo "${!var}" | cut -d. -f1,2,3)
-        if [[ "${node_subnet}" != "${metallb_subnet_min}" ]]; then
-            _log "ERROR(${FUNCNAME[0]})" "The subnet for node '${!var}' is not in the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-            exit 1
-        fi
-    done
-    # Verify the kube-vip IP is in the same network as the metallb range
-    kubevip_subnet=$(echo "${BOOTSTRAP_KUBE_VIP_ADDR}" | cut -d. -f1,2,3)
-    if [[ "${kubevip_subnet}" != "${metallb_subnet_min}" ]]; then
-        _log "ERROR(${FUNCNAME[0]})" "The subnet for kupe-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' is not the same subnet as the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-        exit 1
-    fi
-    # Depending on the IP address, verify if it should be in the metallb range or not
-    metallb_octet_min=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1 | cut -d. -f4)
-    metallb_octet_ceil=$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2 | cut -d. -f4)
-    for (( octet=metallb_octet_min; octet<=metallb_octet_ceil; octet++ )); do
-        addr="${metallb_subnet_min}.${octet}"
-        if [[ "${addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
-            found_kube_vip="true"
-        fi
-        if [[ "${addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
-            found_k8s_gateway="true"
-        fi
-        if [[ "${addr}" == "${BOOTSTRAP_METALLB_INGRESS_ADDR}" ]]; then
-            found_ingress="true"
-        fi
-        for var in "${!BOOTSTRAP_ANSIBLE_HOST_ADDR_@}"; do
-            if [[ "${!var}" == "${addr}" ]]; then
-                _log "ERROR(${FUNCNAME[0]})" "The IP for node '${!var}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-                exit 1
-            fi
-        done
-    done
-    if [[ "${found_kube_vip}" == "true" ]]; then
-        _log "ERROR(${FUNCNAME[0]})" "The IP for kube-vip '${BOOTSTRAP_KUBE_VIP_ADDR}' should NOT be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-        exit 1
-    fi
-    if [[ "${found_k8s_gateway}" == "false" ]]; then
-        _log "ERROR(${FUNCNAME[0]})" "The IP for k8s_gateway '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-        exit 1
-    fi
-    if [[ "${found_ingress}" == "false" ]]; then
-        _log "ERROR(${FUNCNAME[0]})" "The IP for ingress '${BOOTSTRAP_METALLB_INGRESS_ADDR}' should be in the provided metallb range '${BOOTSTRAP_METALLB_LB_RANGE}'"
-        exit 1
-    fi
-}
-
 verify_age() {
     _has_envar "BOOTSTRAP_AGE_PUBLIC_KEY"
     _has_envar "SOPS_AGE_KEY_FILE"
@@ -245,14 +184,12 @@ verify_kubevip() {
     _has_valid_ip "${BOOTSTRAP_KUBE_VIP_ADDR}" "BOOTSTRAP_KUBE_VIP_ADDR"
 }
 
-verify_metallb() {
-    _has_envar "BOOTSTRAP_METALLB_LB_RANGE"
-    _has_envar "BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR"
-    _has_envar "BOOTSTRAP_METALLB_INGRESS_ADDR"
-    _has_valid_ip "$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f1)" "BOOTSTRAP_METALLB_LB_RANGE"
-    _has_valid_ip "$(echo "${BOOTSTRAP_METALLB_LB_RANGE}" | cut -d- -f2)" "BOOTSTRAP_METALLB_LB_RANGE"
-    _has_valid_ip "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" "BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR"
-    _has_valid_ip "${BOOTSTRAP_METALLB_INGRESS_ADDR}" "BOOTSTRAP_METALLB_INGRESS_ADDR"
+verify_lbs() {
+    #TODO: Validate IPs aren't already in use with arp
+    _has_envar "BOOTSTRAP_K8S_GATEWAY_ADDR"
+    _has_envar "BOOTSTRAP_INGRESS_NGINX_ADDR"
+    _has_valid_ip "${BOOTSTRAP_K8S_GATEWAY_ADDR}" "BOOTSTRAP_K8S_GATEWAY_ADDR"
+    _has_valid_ip "${BOOTSTRAP_INGRESS_NGINX_ADDR}" "BOOTSTRAP_INGRESS_NGINX_ADDR"
 }
 
 verify_cluster_service_cidrs() {
@@ -352,16 +289,16 @@ verify_ansible_hosts() {
         _has_envar "${node_password}" "true"
         _has_envar "${node_control}"
         _has_optional_envar "${node_hostname}"
-        if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" && "${BOOTSTRAP_KUBE_VIP_ENABLED}" == "true" ]]; then
+        if [[ "${!node_addr}" == "${BOOTSTRAP_KUBE_VIP_ADDR}" ]]; then
             _log "ERROR(${FUNCNAME[0]})" "The kube-vip IP '${BOOTSTRAP_KUBE_VIP_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
-        if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}" ]]; then
-            _log "ERROR(${FUNCNAME[0]})" "The k8s-gateway load balancer IP '${BOOTSTRAP_METALLB_K8S_GATEWAY_ADDR}' should not be the same as the IP for node '${!node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_K8S_GATEWAY_ADDR}" ]]; then
+            _log "ERROR(${FUNCNAME[0]})" "The k8s-gateway load balancer IP '${BOOTSTRAP_K8S_GATEWAY_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
-        if [[ "${!node_addr}" == "${BOOTSTRAP_METALLB_INGRESS_ADDR}" ]]; then
-            _log "ERROR(${FUNCNAME[0]})" "The ingress load balancer IP '${BOOTSTRAP_METALLB_INGRESS_ADDR}' should not be the same as the IP for node '${!node_addr}'"
+        if [[ "${!node_addr}" == "${BOOTSTRAP_INGRESS_NGINX_ADDR}" ]]; then
+            _log "ERROR(${FUNCNAME[0]})" "The ingress load balancer IP '${BOOTSTRAP_INGRESS_NGINX_ADDR}' should not be the same as the IP for node '${!node_addr}'"
             exit 1
         fi
         if ssh -q -o BatchMode=yes -o ConnectTimeout=5 "${!node_username}"@"${!var}" "true"; then
