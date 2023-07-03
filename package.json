@@ -5,11 +5,11 @@
   },
   "name": "lab-tool",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "configure.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "author": "aumer-amr (original author onedr0p)",
+  "license": "MIT",
+  "description": "Rewrite of onedr0p's bash script to configure the template"
 }
