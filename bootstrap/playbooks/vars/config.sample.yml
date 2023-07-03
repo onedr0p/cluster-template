@@ -1,0 +1,55 @@
+---
+#
+# Bootstrap configuration - This file is gitignored
+#
+
+# Github username (e.g. onedr0p)
+bootstrap_github_username:
+# Github repository (e.g. https://github.com/onedr0p/flux-cluster-template)
+bootstrap_github_repository:
+# Age Public Key (e.g. age15uzrw396e67z9wdzsxzdk7ka0g2gr3l460e0slaea563zll3hdfqwqxdta)
+bootstrap_age_public_key:
+# Choose your timezone (e.g. America/New_York)
+bootstrap_timezone: Etc/UTC
+# Email you want to be associated with the ACME account
+bootstrap_acme_email:
+
+# App passwords
+bootstrap_flux_github_webhook_token:
+bootstrap_weave_gitops_admin_password:
+bootstrap_grafana_admin_password:
+
+# Cloudflare domain
+bootstrap_cloudflare_domain:
+# Cloudflare API Token (not API Key)
+bootstrap_cloudflare_token:
+# Cloudflared Account Tag (cat ~/.cloudflared/*.json | jq -r .AccountTag)
+bootstrap_cloudflare_account_tag:
+# Cloudflared Tunnel Secret (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
+bootstrap_cloudflare_tunnel_secret:
+# Cloudflared Tunnel ID (cat ~/.cloudflared/*.json | jq -r .TunnelID)
+bootstrap_cloudflare_tunnel_id:
+
+# CIDR your nodes are on (e.g. 192.168.1.0/24)
+bootstrap_node_cidr:
+# Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
+bootstrap_k8s_gateway_addr:
+# Load balancer IP for ingress-nginx, choose an available IP in your nodes network that is not being used
+bootstrap_ingress_nginx_addr:
+# IP address to use with kube-vip, choose an available IP in your nodes network that is not being used
+bootstrap_kube_vip_addr:
+# Choose your cluster or service cidrs
+# Leave these unchanged unless you know what you are doing
+bootstrap_cluster_cidr: 10.42.0.0/16
+bootstrap_service_cidr: 10.43.0.0/16
+
+# Node information
+bootstap_hosts:
+  # - name: kube1
+  #   ip:
+  #   username:
+  #   password:
+  #   control: true
+
+# There be dragons below - DO NOT CHANGE
+bootstrap_coredns_addr: "{{ bootstrap_service_cidr | ansible.utils.nthhost(10) }}"

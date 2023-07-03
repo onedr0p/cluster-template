@@ -1,0 +1,46 @@
+---
+- name: Cluster Installation
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars/config.yml
+    - defaults/templates.yml
+  tasks:
+    - name: Get absolute path to this Git repository # noqa: command-instead-of-module
+      ansible.builtin.command: git rev-parse --show-toplevel
+      changed_when: false
+      check_mode: false
+      register: repository_path
+      failed_when: repository_path.rc != 0
+
+    - name: Check for required CLI tools
+      ansible.builtin.command: "command -v {{ item }}"
+      loop: [age, flux, git, gitops, pip3, sops, ssh, task]
+      changed_when: false
+      check_mode: false
+      register: result
+      failed_when: result.rc != 0 and result.rc != 127
+
+    - name: Ensure directories exist
+      ansible.builtin.file:
+        path: "/tmp/test/{{ item.dest | dirname }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ templates }}"
+
+    - name: Template out non-encrypted files
+      ansible.builtin.template:
+        src: "templates/{{ item.src }}"
+        # dest: "{{ repository_path.stdout }}/{{ item.dest }}"
+        dest: "/tmp/test/{{ item.dest }}"
+        mode: "0755"
+      loop: "{{ templates | selectattr('encrypt', 'equalto', false) | list }}"
+
+    - name: Template out encrypted files
+      community.sops.sops_encrypt:
+        path: "/tmp/test/{{ item.dest }}"
+        # path: "{{ repository_path.stdout }}/{{ item.dest }}"
+        age_keyfile: /Users/devin/.config/sops/age/keys.txt
+        encrypted_regex: "^(data|stringData)$"
+        content_yaml: "{{ lookup('file', 'templates/' + item.src) | from_yaml }}"
+      loop: "{{ templates | selectattr('encrypt', 'equalto', true) | list }}"
