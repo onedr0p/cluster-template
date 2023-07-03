@@ -24,6 +24,7 @@
     - name: Ensure directories exist
       ansible.builtin.file:
         path: "/tmp/test/{{ item.dest | dirname }}"
+        # path: "{{ repository_path.stdout }}/{{ item.dest | dirname }}"
         state: directory
         mode: "0755"
       loop: "{{ templates }}"
