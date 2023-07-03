@@ -5,6 +5,7 @@ import { parse } from 'yaml'
 import { readFile, writeFile, access, rm, appendFile } from 'fs/promises';
 import * as yaml from 'yaml';
 import * as crypto from 'node:crypto';
+import { log } from 'node:console';
 
 //#region Script Config
 const testing = false;
@@ -15,18 +16,30 @@ const defaultHostPrefix = 'k8s';
 //#endregion
 
 //#region Main
+const loggerFormat = format.combine(
+    format.colorize(),
+    format.simple()
+);
 const logger = createLogger({
     level: 'info',
     format: format.combine(
-        format.colorize(),
-        format.simple(),
+        loggerFormat,
         format.printf(({ level, message }) => {
-            return (level.indexOf('info') > -1 ? message : `${level}: ${message}`);
-        })
+          return (level.indexOf('info') > -1 ? message : `${level}: ${message}`);
+        }),
     ),
     transports: [
         new transports.Console(),
-        new transports.File({ filename: 'configure.log', options: { flags: 'w' } }),
+        new transports.File({
+            filename: 'configure.log', options: { flags: 'w' },
+            format: format.combine(
+                loggerFormat,
+                format.printf(({ level, message }) => {
+                  /(.+?) password: .+/g.test(message) && (message = message.replace(/(.+?) password: .+/g, '$1 password: ********'));
+                  return (level.indexOf('info') > -1 ? message : `${level}: ${message}`);
+                }),
+            ),
+        }),
     ],
 });
 
@@ -518,7 +531,7 @@ async function configureWeaveGitops() {
 
         await writeFile('config.yaml', config.toYaml());
 
-        logger.info(`- Generated weave gitops admin password`);
+        logger.info(`- Generated weave gitops admin password: ${generatedPassword}`);
     }
 
     configureFile(path.join(tmpl, 'kubernetes', 'weave-gitops-secret.sops.yaml'),

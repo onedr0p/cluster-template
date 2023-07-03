@@ -11,3 +11,8 @@ kubeconfig
 *.key
 # Ansible
 xanmanning.k3s*
+# Node
+node_modules
+# Configure
+configure.lock
+configure.log
