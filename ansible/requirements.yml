@@ -3,7 +3,7 @@ collections:
   - name: community.general
     version: 7.1.0
   - name: community.sops
-    version: 1.6.2
+    version: 1.6.4
   - name: ansible.posix
     version: 1.5.4
   - name: ansible.utils
