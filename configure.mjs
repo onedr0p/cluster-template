@@ -5,7 +5,6 @@ import { parse } from 'yaml'
 import { readFile, writeFile, access, rm, appendFile } from 'fs/promises';
 import * as yaml from 'yaml';
 import * as crypto from 'node:crypto';
-import { log } from 'node:console';
 
 //#region Script Config
 const testing = false;
