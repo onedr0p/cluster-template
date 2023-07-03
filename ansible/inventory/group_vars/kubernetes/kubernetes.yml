@@ -8,7 +8,6 @@
 k3s_release_version: "v1.27.3+k3s1"
 k3s_install_hard_links: true
 k3s_become: true
-k3s_debug: false
 k3s_etcd_datastore: true
 k3s_use_unsupported_config: true
 k3s_registration_address: "{{ kubevip_address }}"
@@ -26,6 +25,7 @@ k3s_server_manifests_urls:
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
+  - custom-coredns-helmchart.yaml.j2
 # /var/lib/rancher/k3s/agent/pod-manifests
 k3s_server_pod_manifests_templates:
   - kube-vip-static-pod.yaml.j2

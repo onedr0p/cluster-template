@@ -1,7 +1,6 @@
 ---
-- hosts:
-    - master
-    - worker
+- name: Cluster Upgrade
+  hosts: master
   become: true
   gather_facts: true
   any_errors_fatal: true
@@ -18,9 +17,6 @@
         k3s_state: started
 
     - name: Upgrade kube-vip
-      when:
-        - k3s_control_node is defined
-        - k3s_control_node
       ansible.builtin.template:
         src: templates/kube-vip-static-pod.yaml.j2
         dest: "{{ k3s_server_pod_manifests_dir }}/kube-vip-static-pod.yaml"

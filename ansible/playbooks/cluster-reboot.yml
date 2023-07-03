@@ -1,7 +1,6 @@
 ---
-- hosts:
-    - master
-    - worker
+- name: Reboot
+  hosts: all
   become: true
   gather_facts: true
   any_errors_fatal: true
