@@ -19,4 +19,4 @@ metadata:
   name: pool
 spec:
   cidrs:
-    - cidr: "{{ (ansible_default_ipv4.network + '/' + ansible_default_ipv4.netmask) | ansible.utils.ipaddr('network/prefix') }}"
+    - cidr: "{{ node_cidr }}"
