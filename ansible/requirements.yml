@@ -1,7 +1,5 @@
 ---
 collections:
-  - name: ansible.netcommon
-    version: 5.1.1
   - name: ansible.posix
     version: 1.5.4
   - name: ansible.utils
