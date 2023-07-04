@@ -59,6 +59,3 @@ bootstrap_hosts:
     #   ip:
     #   username:
     #   password:
-
-# There be dragons below - DO NOT CHANGE
-bootstrap_coredns_addr: "{{ bootstrap_service_cidr | ansible.utils.nthhost(10) }}"
