@@ -9,7 +9,7 @@ templates:
     dest: ./ansible/inventory/group_vars/kubernetes/supplemental.yaml
     encrypt: false
   - src: ansible/hosts.yaml.j2
-    dest: ./ansible/hosts.yaml
+    dest: ./ansible/inventory/hosts.yaml
     encrypt: false
   # Kubernetes dir
   - src: kubernetes/kube-prometheus-stack-helmrelease.yaml.j2
