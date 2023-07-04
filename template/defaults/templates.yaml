@@ -1,13 +1,15 @@
 ---
-
 templates:
   # Root
   - src: .sops.yaml.j2
     dest: ./.sops.yaml
     encrypt: false
   # Ansible dir
-  - src: ansible/supplemental.yml.j2
-    dest: ./ansible/inventory/group_vars/kubernetes/supplemental.yml
+  - src: ansible/supplemental.yaml.j2
+    dest: ./ansible/inventory/group_vars/kubernetes/supplemental.yaml
+    encrypt: false
+  - src: ansible/hosts.yaml.j2
+    dest: ./ansible/hosts.yaml
     encrypt: false
   # Kubernetes dir
   - src: kubernetes/kube-prometheus-stack-helmrelease.yaml.j2

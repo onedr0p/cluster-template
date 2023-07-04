@@ -9,6 +9,7 @@
     return_content: true
     body_format: json
   register: result
+
 - name: Check if Cloudflare zone exists
   ansible.builtin.assert:
     that: ["result.json.success == true"]
@@ -25,6 +26,7 @@
     return_content: true
     body_format: json
   register: result
+
 - name: Check if Cloudflared tunnel exists
   ansible.builtin.assert:
     that: ["result.json.success == true"]

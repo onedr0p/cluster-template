@@ -3,6 +3,7 @@
   ansible.builtin.stat:
     path: ~/.config/sops/age/keys.txt
   register: result
+
 - name: Check if age key file exists
   ansible.builtin.assert:
     that: [result.stat.exists]
@@ -12,6 +13,7 @@
 - name: Query age key file contents
   ansible.builtin.set_fact:
     age_contents: "{{ lookup('file', '~/.config/sops/age/keys.txt') }}"
+
 - name: Check if age public keys match
   ansible.builtin.assert:
     that:

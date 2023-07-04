@@ -1,9 +1,7 @@
 ---
 - name: Check for required CLI tools
-  ansible.builtin.command: "command -v {{ tool }}"
+  ansible.builtin.command: "command -v {{ item }}"
   loop: [age, flux, git, gitops, pip3, sops, task]
-  loop_control:
-    loop_var: tool
   changed_when: false
   check_mode: false
   register: result

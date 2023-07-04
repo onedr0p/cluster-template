@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
+  TEMPLATE_DIR: "{{.ROOT_DIR}}/template"
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
 
@@ -11,8 +11,8 @@ env:
   SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
 
 includes:
-  ansible: .taskfiles/AnsibleTasks.yml
-  cluster: .taskfiles/ClusterTasks.yml
+  ansible: .taskfiles/AnsibleTasks.yaml
+  cluster: .taskfiles/ClusterTasks.yaml
 
 tasks:
   init:
@@ -41,7 +41,7 @@ tasks:
         stern
 
   configure:
-    desc: Configure repository from env settings
-    dir: "{{.BOOTSTRAP_DIR}}"
+    desc: Configure repository from Ansible vars
+    dir: "{{.TEMPLATE_DIR}}"
     cmds:
-      - ansible-playbook configure.yml
+      - ansible-playbook configure.yaml

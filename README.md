@@ -283,7 +283,7 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 2. Push you changes to git
 
-   📍 **Verify** all the `*.sops.yaml` and `*.sops.yml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
+   📍 **Verify** all the `*.sops.yaml` and `*.sops.yaml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
 
    ```sh
    git add -A

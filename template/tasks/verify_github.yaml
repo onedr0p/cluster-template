@@ -6,6 +6,7 @@
     return_content: true
     body_format: json
   register: result
+
 - name: Check if username exists
   ansible.builtin.assert:
     that:
@@ -20,6 +21,7 @@
     return_content: true
     body_format: json
   register: result
+
 - name: Check if repo exists
   ansible.builtin.assert:
     that:

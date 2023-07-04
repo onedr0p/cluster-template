@@ -1,13 +1,13 @@
 {
     "files.associations": {
         "*.json5": "jsonc",
-        "**/ansible/**/*.yml": "ansible",
-        "**/ansible/**/*.sops.yml": "yaml",
-        "**/ansible/**/inventory/**/*.yml": "yaml",
+        "**/ansible/**/*.yaml": "ansible",
+        "**/ansible/**/*.sops.yaml": "yaml",
+        "**/ansible/**/inventory/**/*.yaml": "yaml",
         "**/kubernetes/**/*.sops.toml": "plaintext"
     },
     "yaml.schemas": {
-        "ansible": "ansible/*.yml",
+        "ansible": "ansible/*.yaml",
         "Kubernetes": "kubernetes/*.yaml"
     },
     "editor.bracketPairColorization.enabled": true,
