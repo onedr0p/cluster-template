@@ -18,8 +18,8 @@ bootstrap_acme_email:
 bootstrap_flux_github_webhook_token:
 # Grafana admin password (openssl rand -hex 12)
 bootstrap_grafana_admin_password:
-# Weave GitOps dashboard password (update 'changeme')
-bootstrap_weave_gitops_admin_password: "{{ 'changeme' | password_hash('bcrypt') }}"
+# Weave GitOps dashboard password (openssl rand -hex 12)
+bootstrap_weave_gitops_admin_password:
 
 # Cloudflare domain
 bootstrap_cloudflare_domain:
