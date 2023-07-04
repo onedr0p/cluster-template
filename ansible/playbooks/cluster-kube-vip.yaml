@@ -1,5 +1,5 @@
 ---
-- name: Cluster Upgrade
+- name: Cluster kube-vip
   hosts: master
   become: true
   gather_facts: true
