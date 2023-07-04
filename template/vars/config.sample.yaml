@@ -11,7 +11,7 @@ bootstrap_github_repository_name:
 bootstrap_age_public_key:
 # Choose your timezone (e.g. America/New_York)
 bootstrap_timezone: Etc/UTC
-# Email you want to be associated with the ACME account
+# Email you want to be associated with the ACME account (used for TLS certificates via letsencrypt.org)
 bootstrap_acme_email:
 
 # Flux github webhook token (openssl rand -hex 12)
