@@ -64,31 +64,31 @@
 - name: Verify nodes are not the same IPs as k8s_gateway, ingress-nginx or kube-vip
   ansible.builtin.assert:
     that:
-      - "{{ item.ip not in (bootstrap_k8s_gateway_addr, bootstrap_ingress_nginx_addr, bootstrap_kube_vip_addr) }}"
-    success_msg: "Node address {{ item.ip }} is different than k8s_gateway, ingress-nginx or kube-vip."
-    fail_msg: "Node address {{ item.ip }} is not different than k8s_gateway, ingress-nginx or kube-vip."
+      - "{{ item.address not in (bootstrap_k8s_gateway_addr, bootstrap_ingress_nginx_addr, bootstrap_kube_vip_addr) }}"
+    success_msg: "Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or kube-vip."
+    fail_msg: "Node address {{ item.address }} is not different than k8s_gateway, ingress-nginx or kube-vip."
     quiet: true
   loop: "{{ bootstrap_hosts.master + bootstrap_hosts.worker | default([]) }}"
   loop_control:
-     label: "{{ item.ip }}"
+     label: "{{ item.address }}"
 
 - name: Verify nodes are in node CIDR
   ansible.builtin.assert:
-    that: ["{{ bootstrap_node_cidr | ansible.utils.network_in_usable(item.ip) }}"]
-    success_msg: "Node address {{ item.ip }} is within {{ bootstrap_node_cidr }}."
-    fail_msg: "Node address {{ item.ip }} is not within {{ bootstrap_node_cidr }}."
+    that: ["{{ bootstrap_node_cidr | ansible.utils.network_in_usable(item.address) }}"]
+    success_msg: "Node address {{ item.address }} is within {{ bootstrap_node_cidr }}."
+    fail_msg: "Node address {{ item.address }} is not within {{ bootstrap_node_cidr }}."
     quiet: true
   loop: "{{ bootstrap_hosts.master + bootstrap_hosts.worker | default([]) }}"
   loop_control:
-     label: "{{ item.ip }}"
+     label: "{{ item.address }}"
 
 - name: Verify SSH port is reachable
   ansible.builtin.wait_for:
-    host: "{{ item.ip }}"
+    host: "{{ item.address }}"
     port: 22
     search_regex: OpenSSH
     timeout: 10
   connection: local
   loop: "{{ bootstrap_hosts.master + bootstrap_hosts.worker | default([]) }}"
   loop_control:
-     label: "{{ item.ip }}"
+     label: "{{ item.address }}"

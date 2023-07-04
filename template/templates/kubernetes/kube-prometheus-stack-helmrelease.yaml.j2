@@ -90,7 +90,7 @@ spec:
       enabled: true
       endpoints: &cp
       {% for item in bootstrap_hosts.master %}
-        - {{ item.ip }}
+        - {{ item.address }}
       {% endfor %}
       serviceMonitor:
         metricRelabelings:

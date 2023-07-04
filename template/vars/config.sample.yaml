@@ -49,11 +49,11 @@ bootstrap_hosts:
   # Use only 1, 3 or more odd master nodes, recommended is 3
   master:
     # - name: kube0
-    #   ip:
+    #   address:
     #   username:
     #   password:
   worker:
     # - name: kube1
-    #   ip:
+    #   address:
     #   username:
     #   password:
