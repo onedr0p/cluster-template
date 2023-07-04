@@ -8,7 +8,7 @@ spec:
   interval: 30m
   ref:
     branch: main
-  url: "${BOOTSTRAP_GIT_REPOSITORY}"
+  url: "https://github.com/{{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }}.git"
   ignore: |
     # exclude all
     /*

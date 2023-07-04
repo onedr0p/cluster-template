@@ -2,10 +2,9 @@
 version: "3"
 
 vars:
-  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
+  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
-
-dotenv: [".config.env"]
+  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
 
 env:
   KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
@@ -35,21 +34,14 @@ tasks:
         fluxcd/tap/flux
         go-task/tap/go-task
         helm
-        ipcalc
         jq
         kubernetes-cli
         kustomize
         sops
         stern
-        weaveworks/tap/gitops
-        yq
-
-  verify:
-    desc: Verify env settings
-    cmds:
-      - ./configure --verify
 
   configure:
     desc: Configure repository from env settings
+    dir: "{{.BOOTSTRAP_DIR}}"
     cmds:
-      - ./configure
+      - ansible-playbook configure.yml
