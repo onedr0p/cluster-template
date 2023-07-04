@@ -64,6 +64,8 @@ spec:
         ingress:
           enabled: true
           className: nginx
+          annotations:
+            hajimari.io/icon: simple-icons:cilium
           hosts:
             - &host "hubble.${SECRET_DOMAIN}"
           tls:
