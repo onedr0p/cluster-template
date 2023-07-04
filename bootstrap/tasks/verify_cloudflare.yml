@@ -9,9 +9,6 @@
     return_content: true
     body_format: json
   register: result
-# - name: Debug
-#   ansible.builtin.debug:
-#     msg: "{{ result.json }}"
 - name: Check if Cloudflare zone exists
   ansible.builtin.assert:
     that: ["result.json.success == true"]

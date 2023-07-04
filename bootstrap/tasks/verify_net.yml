@@ -1,11 +1,4 @@
 ---
-# bootstrap_node_cidr:
-# bootstrap_k8s_gateway_addr:
-# bootstrap_ingress_nginx_addr:
-# bootstrap_kube_vip_addr:
-# bootstrap_cluster_cidr: 10.42.0.0/16
-# bootstrap_service_cidr: 10.43.0.0/16
-
 - name: Verify node CIDR
   ansible.builtin.assert:
     that: ["{{ bootstrap_node_cidr is ansible.utils.ipv4 }}"]
