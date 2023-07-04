@@ -79,9 +79,9 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 1. Install the following CLI tools on your workstation, if you are **NOT** using [Homebrew](https://brew.sh/) on MacOS or Linux **ignore** steps 4 and 5.
 
-   - Required: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [weave-gitops](https://docs.gitops.weave.works/docs/installation/weave-gitops/), [cloudflared](https://github.com/cloudflare/cloudflared), [cilium-cli](https://github.com/cilium/cilium-cli), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [ipcalc](http://jodies.de/ipcalc), [jq](https://stedolan.github.io/jq/), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python-pip3](https://pypi.org/project/pip/), [sops v3](https://github.com/mozilla/sops), [yq v4](https://github.com/mikefarah/yq)
+   - Required: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [jq](https://stedolan.github.io/jq/), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python-pip3](https://pypi.org/project/pip/), [sops v3](https://github.com/getsops/sops)
 
-   - Recommended: [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [stern](https://github.com/stern/stern), [yamllint](https://github.com/adrienverge/yamllint)
+   - Recommended: [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [stern](https://github.com/stern/stern)
 
 2. This guide heavily relies on [go-task](https://github.com/go-task/task) as a framework for setting things up. It is advised to learn and understand the commands it is running under the hood.
 
@@ -170,29 +170,21 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 ### 📄 Configuration
 
-📍 The `.config.env` file contains necessary configuration that is needed by Ansible and Flux.
+📍 The `template/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux.
 
-1. Copy the `.config.sample.env` to `.config.env` and start filling out all the environment variables.
+1. Copy the configuration file and start filling out all the variables.
 
    **All are required** unless otherwise noted in the comments.
 
    ```sh
-   cp .config.sample.env .config.env
+   cp template/vars/config.sample.yaml template/vars/config.yaml
    ```
 
-2. Once that is done, verify the configuration is correct by running:
-
-   ```sh
-   task verify
-   ```
-
-3. If you do not encounter any errors run start having the script wire up the templated files and place them where they need to be.
+2. Once done run the following command which will verify and generate the files needed to continue
 
    ```sh
    task configure
    ```
-
-⚠️ This will print out the clear-text passwords for Grafana and Weave Gitops if you had them set to `generated` in your `.config.env`. Take note of these, you'll need them to log into the applications.
 
 ### ⚡ Preparing Ubuntu Server with Ansible
 
@@ -276,14 +268,14 @@ In order to expose services to the internet you will need to create a [Cloudflar
    ```sh
    task cluster:verify
    # ► checking prerequisites
-   # ✔ kubectl 1.21.5 >=1.18.0-0
-   # ✔ Kubernetes 1.21.5+k3s1 >=1.16.0-0
+   # ✔ kubectl 1.27.3 >=1.18.0-0
+   # ✔ Kubernetes 1.27.3+k3s1 >=1.16.0-0
    # ✔ prerequisites checks passed
    ```
 
 2. Push you changes to git
 
-   📍 **Verify** all the `*.sops.yaml` and `*.sops.yml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
+   📍 **Verify** all the `*.sops.yaml` and `*.sops.yaml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
 
    ```sh
    git add -A
@@ -456,7 +448,7 @@ To enable Renovate on your repository, click the 'Configure' button over at thei
 
 Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`. In order to configure Github to send `push` events from your repository to the Flux webhook receiver you will need two things:
 
-1. Webhook URL - Your webhook receiver will be deployed on `https://flux-webhook.${BOOTSTRAP_CLOUDFLARE_DOMAIN}/hook/:hookId`. In order to find out your hook id you can run the following command:
+1. Webhook URL - Your webhook receiver will be deployed on `https://flux-webhook.${bootstrap_cloudflare_domain}/hook/:hookId`. In order to find out your hook id you can run the following command:
 
    ```sh
    kubectl -n flux-system get receiver/github-receiver
@@ -476,7 +468,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
    sops -d ./kubernetes/apps/flux-system/addons/webhooks/github/secret.sops.yaml | yq .stringData.token
    ```
 
-   **Note:** Don't forget to update the `BOOTSTRAP_FLUX_GITHUB_WEBHOOK_SECRET` variable in your `.config.env` file so it matches the generated secret if applicable
+   **Note:** Don't forget to update the `bootstrap_flux_github_webhook_token` variable in the `config.yaml` file so it matches the generated secret if applicable
 
 Now that you have the webhook url and secret, it's time to set everything up on the Github repository side. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your secret.
 

@@ -1,0 +1,47 @@
+---
+version: "3"
+
+vars:
+  TEMPLATE_DIR: "{{.ROOT_DIR}}/template"
+  ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
+  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
+
+env:
+  KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
+  SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
+
+includes:
+  ansible: .taskfiles/AnsibleTasks.yaml
+  cluster: .taskfiles/ClusterTasks.yaml
+
+tasks:
+  init:
+    desc: Initialize workstation dependencies with Brew
+    cmds:
+      - brew install {{.DEPS}} {{.CLI_ARGS}}
+    preconditions:
+      - sh: command -v brew
+        msg: |
+          Homebrew is not installed. Using MacOS, Linux or WSL?
+          Head over to https://brew.sh to get up and running.
+    vars:
+      DEPS: >-
+        age
+        ansible
+        cilium-cli
+        cloudflare/cloudflare/cloudflared
+        direnv
+        fluxcd/tap/flux
+        go-task/tap/go-task
+        helm
+        jq
+        kubernetes-cli
+        kustomize
+        sops
+        stern
+
+  configure:
+    desc: Configure repository from Ansible vars
+    dir: "{{.TEMPLATE_DIR}}"
+    cmds:
+      - ansible-playbook configure.yaml

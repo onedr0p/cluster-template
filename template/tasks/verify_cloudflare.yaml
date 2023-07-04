@@ -1,0 +1,34 @@
+---
+- name: Query Cloudflare zone
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones?name={{ bootstrap_cloudflare_domain }}&status=active"
+    headers:
+      Authorization: "Bearer {{ bootstrap_cloudflare_token }}"
+      Content-Type: application/json
+    timeout: 5
+    return_content: true
+    body_format: json
+  register: result
+
+- name: Check if Cloudflare zone exists
+  ansible.builtin.assert:
+    that: ["result.json.success == true"]
+    success_msg: "Cloudflare zone {{ bootstrap_cloudflare_domain }} exists"
+    fail_msg: "Cloudflare zone {{ bootstrap_cloudflare_domain }} does not exist"
+
+- name: Query Cloudflared tunnel
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/accounts/{{ bootstrap_cloudflare_account_tag }}/cfd_tunnel/{{ bootstrap_cloudflare_tunnel_id }}"
+    headers:
+      Authorization: "Bearer {{ bootstrap_cloudflare_token }}"
+      Content-Type: application/json
+    timeout: 5
+    return_content: true
+    body_format: json
+  register: result
+
+- name: Check if Cloudflared tunnel exists
+  ansible.builtin.assert:
+    that: ["result.json.success == true"]
+    success_msg: "Cloudflared tunnel {{ bootstrap_cloudflare_tunnel_id }} exists"
+    fail_msg: "Cloudflared tunnel {{ bootstrap_cloudflare_tunnel_id }} does not exist"

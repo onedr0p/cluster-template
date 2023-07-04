@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-settings
+  namespace: flux-system
+data:
+  TIMEZONE: "{{ bootstrap_timezone }}"
+  COREDNS_ADDR: "{{ bootstrap_coredns_addr }}"
+  K8S_GATEWAY_ADDR: "{{ bootstrap_k8s_gateway_addr }}"
+  INGRESS_NGINX_ADDR: "{{ bootstrap_ingress_nginx_addr }}"
+  KUBE_VIP_ADDR: "{{ bootstrap_kube_vip_addr }}"
+  CLUSTER_CIDR: "{{ bootstrap_cluster_cidr }}"
+  SERVICE_CIDR: "{{ bootstrap_service_cidr }}"

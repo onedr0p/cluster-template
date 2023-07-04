@@ -1,0 +1,30 @@
+---
+- name: Query Github username
+  ansible.builtin.uri:
+    url: "https://api.github.com/users/{{ bootstrap_github_username }}"
+    timeout: 5
+    return_content: true
+    body_format: json
+  register: result
+
+- name: Check if username exists
+  ansible.builtin.assert:
+    that:
+      - "result.json.login == '{{ bootstrap_github_username }}'"
+    success_msg: "Github user {{ bootstrap_github_username }} exists"
+    fail_msg: "Github user {{ bootstrap_github_username }} does not exist"
+
+- name: Query Github repo
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/{{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }}"
+    timeout: 5
+    return_content: true
+    body_format: json
+  register: result
+
+- name: Check if repo exists
+  ansible.builtin.assert:
+    that:
+      - "result.json.full_name == '{{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }}'"
+    success_msg: "Github repo {{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }} exists"
+    fail_msg: "Github repo {{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }} does not exist"

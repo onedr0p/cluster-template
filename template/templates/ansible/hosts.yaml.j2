@@ -1,0 +1,20 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+---
+kubernetes:
+  children:
+    master:
+      hosts:
+      {% for item in bootstrap_hosts.master %}
+        {{ item.name }}:
+          ansible_user: {{ item.username }}
+          ansible_host: {{ item.address }}
+      {% endfor %}
+    {% if bootstrap_hosts.worker | default([]) | length > 0 %}
+    worker:
+      hosts:
+      {% for item in bootstrap_hosts.worker %}
+        {{ item.name }}:
+          ansible_user: {{ item.username }}
+          ansible_host: {{ item.address }}
+      {% endfor %}
+    {% endif %}

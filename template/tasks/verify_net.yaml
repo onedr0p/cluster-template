@@ -1,0 +1,94 @@
+---
+- name: Verify master node count
+  ansible.builtin.assert:
+    that:
+      - "{{ bootstrap_hosts.master | length > 0 }}"
+      - "{{ bootstrap_hosts.master | length is odd }}"
+    success_msg: "Master node count {{ bootstrap_hosts.master | length }} is correct."
+    fail_msg: "Master node count {{ bootstrap_hosts.master | length }} is not greater than 0 or is not odd."
+
+- name: Verify node CIDR
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_node_cidr is ansible.utils.ipv4 }}"]
+    success_msg: "Node CIDR {{ bootstrap_node_cidr }} is valid."
+    fail_msg: "Node CIDR {{ bootstrap_node_cidr }} is invalid."
+
+- name: Verify cluster CIDR
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_cluster_cidr is ansible.utils.ipv4 }}"]
+    success_msg: "Cluster CIDR {{ bootstrap_cluster_cidr }} is valid."
+    fail_msg: "Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid."
+
+- name: Verify service CIDR
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_service_cidr is ansible.utils.ipv4 }}"]
+    success_msg: "Service CIDR {{ bootstrap_service_cidr }} is valid."
+    fail_msg: "Service CIDR {{ bootstrap_service_cidr }} is invalid."
+
+- name: Verify k8s_gateway
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_k8s_gateway_addr is ansible.utils.ipv4 }}"]
+    success_msg: "k8s_gateway address {{ bootstrap_k8s_gateway_addr }} is valid."
+    fail_msg: "k8s_gateway address {{ bootstrap_k8s_gateway_addr }} is invalid."
+
+- name: Verify k8s_gateway in node CIDR
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_k8s_gateway_addr) }}"]
+    success_msg: "k8s_gateway address {{ bootstrap_k8s_gateway_addr }} is within {{ bootstrap_node_cidr }}."
+    fail_msg: "k8s_gateway address {{ bootstrap_k8s_gateway_addr }} is not within {{ bootstrap_node_cidr }}."
+
+- name: Verify ingress-nginx
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_ingress_nginx_addr is ansible.utils.ipv4 }}"]
+    success_msg: "ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is valid."
+    fail_msg: "ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is invalid."
+
+- name: Verify ingress-nginx in node CIDR
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_ingress_nginx_addr) }}"]
+    success_msg: "ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is within {{ bootstrap_node_cidr }}."
+    fail_msg: "ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is not within {{ bootstrap_node_cidr }}."
+
+- name: Verify kube-vip
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_kube_vip_addr is ansible.utils.ipv4 }}"]
+    success_msg: "kube-vip address {{ bootstrap_kube_vip_addr }} is valid."
+    fail_msg: "kube-vip address {{ bootstrap_kube_vip_addr }} is invalid."
+
+- name: Verify kube-vip in node CIDR
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_kube_vip_addr) }}"]
+    success_msg: "kube-vip address {{ bootstrap_kube_vip_addr }} is within {{ bootstrap_node_cidr }}."
+    fail_msg: "kube-vip address {{ bootstrap_kube_vip_addr }} is not within {{ bootstrap_node_cidr }}."
+
+- name: Verify nodes are not the same IPs as k8s_gateway, ingress-nginx or kube-vip
+  ansible.builtin.assert:
+    that:
+      - "{{ item.address not in (bootstrap_k8s_gateway_addr, bootstrap_ingress_nginx_addr, bootstrap_kube_vip_addr) }}"
+    success_msg: "Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or kube-vip."
+    fail_msg: "Node address {{ item.address }} is not different than k8s_gateway, ingress-nginx or kube-vip."
+    quiet: true
+  loop: "{{ bootstrap_hosts.master + bootstrap_hosts.worker | default([]) }}"
+  loop_control:
+     label: "{{ item.address }}"
+
+- name: Verify nodes are in node CIDR
+  ansible.builtin.assert:
+    that: ["{{ bootstrap_node_cidr | ansible.utils.network_in_usable(item.address) }}"]
+    success_msg: "Node address {{ item.address }} is within {{ bootstrap_node_cidr }}."
+    fail_msg: "Node address {{ item.address }} is not within {{ bootstrap_node_cidr }}."
+    quiet: true
+  loop: "{{ bootstrap_hosts.master + bootstrap_hosts.worker | default([]) }}"
+  loop_control:
+     label: "{{ item.address }}"
+
+- name: Verify SSH port is reachable
+  ansible.builtin.wait_for:
+    host: "{{ item.address }}"
+    port: 22
+    search_regex: OpenSSH
+    timeout: 10
+  connection: local
+  loop: "{{ bootstrap_hosts.master + bootstrap_hosts.worker | default([]) }}"
+  loop_control:
+     label: "{{ item.address }}"

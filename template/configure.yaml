@@ -1,0 +1,84 @@
+---
+- name: Cluster Installation
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars/config.yaml
+    - defaults/templates.yaml
+    - defaults/extras.yaml
+  tasks:
+    - name: Get absolute path to this Git repository # noqa: command-instead-of-module
+      ansible.builtin.command: git rev-parse --show-toplevel
+      changed_when: false
+      check_mode: false
+      register: repository_path
+      failed_when: repository_path.rc != 0
+
+    - name: Verify configuration
+      ansible.builtin.include_tasks: tasks/verify_{{ task }}.yaml
+      loop: [age, cli, net, cloudflare, github]
+      loop_control:
+        loop_var: task
+
+    - name: Ensure template directories exist
+      ansible.builtin.file:
+        path: "{{ repository_path.stdout }}/{{ item.dest | dirname }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ templates }}"
+
+    - name: Template out non-encrypted files
+      ansible.builtin.template:
+        src: "templates/{{ item.src }}"
+        dest: "{{ repository_path.stdout }}/{{ item.dest }}"
+        mode: "0755"
+      loop: "{{ templates | selectattr('encrypt', 'equalto', false) | list }}"
+
+    # https://github.com/ansible-collections/community.sops/issues/153
+    - name: Backup sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path.stdout }}/.sops.yaml"
+        dest: "{{ repository_path.stdout }}/.sops.yaml.orig"
+        mode: "0755"
+    - name: Remove sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path.stdout }}/.sops.yaml"
+        state: absent
+
+    - name: Template out encrypted files
+      community.sops.sops_encrypt:
+        path: "{{ repository_path.stdout }}/{{ item.dest }}"
+        encrypted_regex: ^(data|stringData)$
+        age: ["{{ bootstrap_age_public_key }}"]
+        content_yaml: "{{ lookup('ansible.builtin.template', 'templates/' + item.src) | from_yaml }}"
+        mode: "0755"
+        force: true
+      loop: "{{ templates | selectattr('encrypt', 'equalto', true) | list }}"
+
+    - name: Ensure Ansible inventory directory exists
+      ansible.builtin.file:
+        path: "{{ repository_path.stdout }}/ansible/inventory/host_vars"
+        state: directory
+        mode: "0755"
+
+    - name: Template out node secrets
+      community.sops.sops_encrypt:
+        path: "{{ repository_path.stdout }}/ansible/inventory/host_vars/{{ item.name }}.sops.yaml"
+        age: ["{{ bootstrap_age_public_key }}"]
+        content_yaml: "{{ lookup('ansible.builtin.template', 'templates/ansible/node.sops.yaml.j2', template_vars=dict(password=item.password)) | from_yaml }}"
+        mode: "0755"
+        force: true
+      loop: "{{ bootstrap_hosts.master + bootstrap_hosts.worker | default([]) }}"
+      loop_control:
+        label: "{{ item.address }}"
+
+    # https://github.com/ansible-collections/community.sops/issues/153
+    - name: Restore sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path.stdout }}/.sops.yaml.orig"
+        dest: "{{ repository_path.stdout }}/.sops.yaml"
+        mode: "0755"
+    - name: Remove backup sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path.stdout }}/.sops.yaml.orig"
+        state: absent

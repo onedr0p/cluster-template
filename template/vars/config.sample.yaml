@@ -1,0 +1,59 @@
+---
+#
+# Bootstrap configuration - This file is gitignored
+#
+
+# Github username (e.g. onedr0p)
+bootstrap_github_username:
+# Github repository (e.g. flux-cluster-template)
+bootstrap_github_repository_name:
+# Age Public Key (e.g. age15uzrw396e67z9wdzsxzdk7ka0g2gr3l460e0slaea563zll3hdfqwqxdta)
+bootstrap_age_public_key:
+# Choose your timezone (e.g. America/New_York)
+bootstrap_timezone: Etc/UTC
+# Email you want to be associated with the ACME account (used for TLS certificates via letsencrypt.org)
+bootstrap_acme_email:
+
+# Flux github webhook token (openssl rand -hex 12)
+bootstrap_flux_github_webhook_token:
+# Grafana admin password (openssl rand -hex 12)
+bootstrap_grafana_admin_password:
+# Weave GitOps dashboard password (openssl rand -hex 12)
+bootstrap_weave_gitops_admin_password:
+
+# Cloudflare domain
+bootstrap_cloudflare_domain:
+# Cloudflare API Token (not API Key)
+bootstrap_cloudflare_token:
+# Cloudflared Account Tag (cat ~/.cloudflared/*.json | jq -r .AccountTag)
+bootstrap_cloudflare_account_tag:
+# Cloudflared Tunnel Secret (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
+bootstrap_cloudflare_tunnel_secret:
+# Cloudflared Tunnel ID (cat ~/.cloudflared/*.json | jq -r .TunnelID)
+bootstrap_cloudflare_tunnel_id:
+
+# CIDR your nodes are on (e.g. 192.168.1.0/24)
+bootstrap_node_cidr:
+# Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
+bootstrap_k8s_gateway_addr:
+# Load balancer IP for ingress-nginx, choose an available IP in your nodes network that is not being used
+bootstrap_ingress_nginx_addr:
+# IP address to use with kube-vip, choose an available IP in your nodes network that is not being used
+bootstrap_kube_vip_addr:
+# Choose your cluster and service cidrs, leave these unchanged unless you know what you are doing
+bootstrap_cluster_cidr: 10.42.0.0/16
+bootstrap_service_cidr: 10.43.0.0/16
+
+# Node information
+bootstrap_hosts:
+  # Use only 1, 3 or more odd master nodes, recommended is 3
+  master:
+    # - name: kube0
+    #   address:
+    #   username:
+    #   password:
+  worker:
+    # - name: kube1
+    #   address:
+    #   username:
+    #   password:

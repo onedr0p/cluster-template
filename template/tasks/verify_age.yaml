@@ -1,0 +1,22 @@
+---
+- name: Query age key file
+  ansible.builtin.stat:
+    path: ~/.config/sops/age/keys.txt
+  register: result
+
+- name: Check if age key file exists
+  ansible.builtin.assert:
+    that: [result.stat.exists]
+    success_msg: Age file ~/.config/sops/age/keys.txt exists
+    fail_msg: Age file ~/.config/sops/age/keys.txt does not exist
+
+- name: Query age key file contents
+  ansible.builtin.set_fact:
+    age_contents: "{{ lookup('file', '~/.config/sops/age/keys.txt') }}"
+
+- name: Check if age public keys match
+  ansible.builtin.assert:
+    that:
+      - "'{{ bootstrap_age_public_key }}' in age_contents"
+    success_msg: Age public key {{ bootstrap_age_public_key }} exists
+    fail_msg: Age public key {{ bootstrap_age_public_key }} does not exist

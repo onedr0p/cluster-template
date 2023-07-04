@@ -1,0 +1,91 @@
+---
+version: "3"
+
+env:
+  K8S_AUTH_KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
+
+vars:
+  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
+  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
+
+tasks:
+
+  init:
+    desc: Install / Upgrade Ansible galaxy deps
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - pip3 install --user --requirement requirements.txt
+      - ansible-galaxy install -r requirements.yaml --roles-path ~/.ansible/roles --force
+      - ansible-galaxy collection install -r requirements.yaml --collections-path ~/.ansible/collections --force
+
+  list:
+    desc: List all the hosts
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml --list-hosts
+
+  prepare:
+    desc: Prepare all the k8s nodes for running k3s
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yaml
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+  install:
+    desc: Install Kubernetes on the nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yaml
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+  upgrade:
+    desc: Upgrade Kubernetes on the nodes (currently this only upgrades kube-vip)
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-upgrade.yaml
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+  nuke:
+    desc: Uninstall Kubernetes on the nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    interactive: true
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yaml
+      - task: force-reboot
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+  ping:
+    desc: Ping all the hosts
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml --one-line -m 'ping'
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+  uptime:
+    desc: Uptime of all the hosts
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml --one-line -a 'uptime'
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+  force-reboot:
+    desc: Reboot all the k8s nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yaml
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+  force-poweroff:
+    desc: Shutdown all the k8s nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible kubernetes -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml -a '/usr/bin/systemctl poweroff' --become
+    env:
+      ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
