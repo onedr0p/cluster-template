@@ -15,75 +15,81 @@
           community.general.timezone:
             name: "{{ timezone | default('Etc/UTC') }}"
 
-    - name: Networking
+    - name: Packages
+      block:
+        - name: Packages | Install
+          ansible.builtin.apt:
+            name: apt-transport-https,ca-certificates,conntrack,curl,dirmngr,gdisk,gnupg,htop,
+              iptables,iputils-ping,ipvsadm,libseccomp2,lm-sensors,neofetch,net-tools,nfs-common,
+              nvme-cli,open-iscsi,parted,psmisc,python3,python3-apt,python3-kubernetes,python3-yaml,
+              smartmontools,socat,software-properties-common,unzip,util-linux
+            install_recommends: false
+        - name: Packages | Remove
+          ansible.builtin.apt:
+            name: apparmor
+            state: absent
+            purge: true
+            autoremove: true
+
+    - name: User Configuration
+      block:
+        - name: User Configuration | SSH keys
+          ansible.posix.authorized_key:
+            user: "{{ ansible_user }}"
+            key: "https://github.com/{{ github_username }}.keys"
+        - name: User Configuration | Silence login
+          ansible.builtin.file:
+            dest: /root/.hushlogin
+            state: touch
+            owner: "{{ ansible_user }}"
+            mode: "0644"
+            modification_time: preserve
+            access_time: preserve
+
+    - name: Network Configuration
       notify: Restart systemd-networkd
       block:
-        - name: Networking | Set hostname to inventory hostname
+        - name: Network Configuration | Set hostname
           ansible.builtin.hostname:
             name: "{{ inventory_hostname }}"
-        - name: Networking | Update hosts file to include inventory hostname
-          ansible.builtin.blockinfile:
-            path: /etc/hosts
-            block: |
-              127.0.1.1   {{ inventory_hostname }}
         # https://github.com/cilium/cilium/issues/18706
-        - name: Networking | Cilium (1)
+        - name: Network Configuration | Cilium (1)
           ansible.builtin.lineinfile:
             dest: /etc/systemd/networkd.conf
             regexp: ManageForeignRoutingPolicyRules
             line: ManageForeignRoutingPolicyRules=no
-        - name: Networking | Cilium (2)
+        - name: Network Configuration | Cilium (2)
           ansible.builtin.lineinfile:
             dest: /etc/systemd/networkd.conf
             regexp: ManageForeignRoutes
             line: ManageForeignRoutes=no
 
-    - name: Packages
+    - name: System Configuration
+      notify: Reboot
       block:
-        - name: Packages | Install required packages
-          ansible.builtin.apt:
-            name: hdparm,htop,ipvsadm,lm-sensors,nano,nfs-common,nvme-cli,
-              socat,python3-kubernetes,python3-yaml
-            state: present
-            update_cache: true
-        - name: Packages | RasPi packages
-          ansible.builtin.apt:
-            name: ["linux-modules-extra-raspi"]
-            install_recommends: false
-          notify: Reboot
-          when: "'raspi' in ansible_kernel"
-
-    - name: System Configuration (1)
-      block:
-        - name: System Configuration (1) | Disable ufw
-          ansible.builtin.systemd:
-            service: ufw.service
-            enabled: false
-            masked: true
-            state: stopped
-          register: stop_service
-          failed_when:
-            - stop_service.failed == true
-            - '"Could not find the requested service" not in stop_service.msg'
-        - name: System Configuration (1) | Enable fstrim
-          ansible.builtin.systemd:
-            service: fstrim.timer
-            enabled: true
-
-    - name: System Configuration (2)
-      block:
-        - name: System Configuration (2) | Enable kernel modules now
+        - name: System Configuration | Neofetch
+          ansible.builtin.copy:
+            dest: /etc/profile.d/neofetch.sh
+            mode: "0755"
+            content: neofetch --config none
+        - name: System Configuration | Disable swap
+          ansible.posix.mount:
+            name: "{{ item }}"
+            fstype: swap
+            state: absent
+          loop: ["none", "swap"]
+        - name: System Configuration | Kernel modules (1)
           community.general.modprobe:
             name: "{{ item }}"
             state: present
           loop: ["br_netfilter", "ceph", "ip_vs", "ip_vs_rr", "nbd", "overlay", "rbd"]
-        - name: System Configuration (2) | Enable kernel modules on boot
+        - name: System Configuration | Kernel modules (2)
           ansible.builtin.copy:
+            dest: "/etc/modules-load.d/{{ item }}.conf"
             mode: "0644"
             content: "{{ item }}"
-            dest: "/etc/modules-load.d/{{ item }}.conf"
           loop: ["br_netfilter", "ceph", "ip_vs", "ip_vs_rr", "nbd", "overlay", "rbd"]
-        - name: System Configuration (2) | Set sysctls
+        - name: System Configuration | Sysctl
           ansible.posix.sysctl:
             name: "{{ item.key }}"
             value: "{{ item.value }}"
@@ -95,16 +101,6 @@
               fs.inotify.max_queued_events: 65536
               fs.inotify.max_user_watches: 524288
               fs.inotify.max_user_instances: 8192
-        - name: System Configuration (2) | Disable swap at runtime
-          ansible.builtin.command: swapoff -a
-          when: ansible_swaptotal_mb > 0
-        - name: System Configuration (2) | Disable swap at boot
-          ansible.posix.mount:
-            name: "{{ item }}"
-            fstype: swap
-            state: absent
-          loop: ["none", "swap"]
-      notify: Reboot
 
   handlers:
     - name: Restart systemd-networkd

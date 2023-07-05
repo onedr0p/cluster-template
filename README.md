@@ -45,14 +45,50 @@ With that out of the way please continue on if you are still interested...
 
 - [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)
 
-### 💻 Systems
+### 💻 System Preparation
 
-- One or more nodes with a fresh install of [Ubuntu 22.04 Server](https://ubuntu.com/download/server) (not minimal / not raspi edition).
-  - These nodes can be ARM64/AMD64 bare metal or VMs.
-  - An odd number of control plane nodes, greater than or equal to 3 is required if deploying more than one control plane node.
-- A [Cloudflare](https://www.cloudflare.com/) account with a domain, this will be managed by external-dns. You can [register new domains](https://www.cloudflare.com/products/registrar/) directly thru Cloudflare.
+Download [Debian 12](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/) (for raspi/arm64 use the [tested images](https://raspi.debian.net/tested-images/))
 
-📍 It is recommended to have 3 master nodes for a highly available control plane.
+
+#### AMD64
+
+There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step/) on how to get Debian installed.
+
+1. Deviations from that guide
+
+    ```txt
+    - Choose "Guided - use entire disk"
+    - Choose "All files in one partition"
+    - Delete Swap partition
+    - Uncheck all Debian desktop environment options
+    - Keep ssh server checked
+    ```
+
+2. (Post install) Enable SSH for root user
+
+    ```sh
+    sed -i 's/#\?\(PermitRootLogin\s*\).*$/\1yes/' /etc/ssh/sshd_config
+    systemctl restart sshd
+    ```
+
+3. (Post install) Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
+
+    ```sh
+    mkdir -m 700 ~/.ssh
+    curl https://github.com/${github_username}.keys > ~/.ssh/authorized_keys
+    chmod 600 ~/.ssh/authorized_keys
+    ```
+
+4. (Post install) If you cannot run `apt update` without errors, try removing CD/DVD as apt source
+
+    ```sh
+    sed -i '1d' /etc/apt/sources.list
+    apt update
+    ```
+
+#### Raspberry Pi / ARM64
+
+TBD
 
 ## 📂 Repository structure
 
@@ -186,9 +222,9 @@ In order to expose services to the internet you will need to create a [Cloudflar
    task configure
    ```
 
-### ⚡ Preparing Ubuntu Server with Ansible
+### ⚡ Preparing Debian Server with Ansible
 
-📍 Here we will be running an Ansible Playbook to prepare Ubuntu server for running a Kubernetes cluster.
+📍 Here we will be running an Ansible Playbook to prepare Debian server for running a Kubernetes cluster.
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
 
