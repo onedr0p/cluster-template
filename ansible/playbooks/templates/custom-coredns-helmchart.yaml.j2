@@ -14,9 +14,6 @@ spec:
   bootstrap: true
   valuesContent: |-
     fullnameOverride: coredns
-    image:
-      repository: registry.k8s.io/coredns/coredns
-      tag: v1.10.1
     replicaCount: 1
     service:
       # Choose the 10th IP address from the start of the service-cidr

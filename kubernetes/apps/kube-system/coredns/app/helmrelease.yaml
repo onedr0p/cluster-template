@@ -27,9 +27,6 @@ spec:
     keepHistory: false
   values:
     fullnameOverride: coredns
-    image:
-      repository: registry.k8s.io/coredns/coredns
-      tag: v1.10.1
     replicaCount: 1
     service:
       clusterIP: "${COREDNS_ADDR}"
