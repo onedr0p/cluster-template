@@ -96,15 +96,21 @@ This is supported [natively](https://www.raspberrypi.com/documentation/computers
 For SSD hardware, it's common to use the [Kingston A400](https://www.amazon.com/dp/B01N5IB20Q/), with any [USB3.0 USB SATA Adapter](https://www.amazon.com/dp/B011M8YACM).
 
 ##### Installing the OS
-1. Download a [tested Debian 12 Raspberry Pi Image](https://raspi.debian.net/tested-images/).
 
-2. Write the image onto your storage using the [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+There is a decent guide [here](https://raspberrytips.com/install-debian-on-raspberry-pi/) on how to get Debian installed on a Raspberry Pi.
 
-3. When the image has been written, eject and reconnect the USB to your machine so you can access the dir, as you need to modify the `sysconf.txt` file. Add an `root_authorized_key`, `root_pw` and a `hostname`, as per [these](https://raspi.debian.net/defaults-and-settings/) instructions.
+1. Deviations from that guide, as per [these](https://raspi.debian.net/defaults-and-settings/) instructions.
 
-4. Power up the Raspberry Pi, and ssh in from the machine with your SSH key.
+    ```txt
+    - Use an SSD instead of an SD Card
+    - Reinsert the storage media
+    - Open `sysconf.txt` file
+    - Add `root_authorized_key`
+    - Add `root_pw`
+    - add `hostname`
+    ```
 
-5. (Postinstall) I would recommend adding a generic user, so that you can SSH into the RPi from another machine, in case of ssh key loss.
+2. (Post install) I would recommend adding a generic user.
 
    ```
    adduser <username>
