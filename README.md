@@ -94,8 +94,6 @@ If you choose to use a Raspberry Pi for the cluster, I would recommend at minimu
 
 This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4b-and-raspberry-pi-400), however if you have an early Raspberry Pi4, you may need to update the bootloader, like [this](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
 
-For SSD hardware, it's common to use the [Kingston A400](https://pcpartpicker.com/product/btDzK8/kingston-a400-240gb-25-solid-state-drive-sa400s37240g), with any [USB3.0 USB SATA Adapter](https://sabrent.com/products/ec-sshd).
-
 ##### Installing the OS
 
 There is a decent guide [here](https://raspberrytips.com/install-debian-on-raspberry-pi/) on how to get Debian installed on a Raspberry Pi.
