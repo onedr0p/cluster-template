@@ -49,6 +49,9 @@
     - name: Network Configuration
       notify: Restart systemd-networkd
       block:
+        - name: Network Configuration | Set hostname
+          ansible.builtin.hostname:
+            name: "{{ inventory_hostname }}"
         # https://github.com/cilium/cilium/issues/18706
         - name: Network Configuration | Cilium (1)
           ansible.builtin.lineinfile:
