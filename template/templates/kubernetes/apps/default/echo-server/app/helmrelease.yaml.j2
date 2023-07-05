@@ -61,6 +61,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/target: "ingress.${SECRET_DOMAIN}"
           hajimari.io/icon: video-input-antenna
+        {% raw %}
         hosts:
           - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
             paths:
@@ -69,6 +70,7 @@ spec:
         tls:
           - hosts:
               - *host
+        {% endraw %}
     resources:
       requests:
         cpu: 5m

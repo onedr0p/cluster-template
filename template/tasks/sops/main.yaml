@@ -1,0 +1,13 @@
+---
+- name: Get absolute path to this Git repository # noqa: command-instead-of-module
+  ansible.builtin.command: git rev-parse --show-toplevel
+  changed_when: false
+  check_mode: false
+  register: repository_path
+  failed_when: repository_path.rc != 0
+
+- name: Template out sops configuration file
+  ansible.builtin.template:
+    src: "templates/.sops.yaml.j2"
+    dest: "{{ repository_path.stdout }}/.sops.yaml"
+    mode: "0755"
