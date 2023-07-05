@@ -88,23 +88,27 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
 #### Raspberry Pi / ARM64
 
+##### Hardware Considerations
 If you choose to use a Raspberry Pi for the cluster, I would recommend at minimum a Raspberry Pi4 (4GB) and preferably an 8GB model. Additionally, I would recommend booting from and external SSD, rather than the SD card, as slower write times will impact etcd if you use it as a master.
 
 This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4b-and-raspberry-pi-400), however if you have an early Raspberry Pi4, you may need to update the bootloader, like [this](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
 
 For SSD hardware, it's common to use the [Kingston A400](https://www.amazon.com/dp/B01N5IB20Q/), with any [USB3.0 USB SATA Adapter](https://www.amazon.com/dp/B011M8YACM).
 
-Once you have your hardware sorted, download a [tested Debian 12 Raspberry Pi Image](https://raspi.debian.net/tested-images/), and flash it onto your SSD using the [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+##### Installing the OS
+1. Download a [tested Debian 12 Raspberry Pi Image](https://raspi.debian.net/tested-images/).
 
-Once it's verified, you will want to disconnect and reconnect the USB to your machine so you can access the /boot/ dir, as you need to modify the `sysconf.txt` file. You will want to add an `root_authorized_key`, `root_pw` and a `hostname`, as per [these](https://raspi.debian.net/defaults-and-settings/) instructions.
+2. Write the image onto your storage using the [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 
-Once that's complete, you can power up the Raspberry Pi, and ssh in from the machine with your SSH key. I would recommend adding a generic user:
+3. When the image has been written, eject and reconnect the USB to your machine so you can access the dir, as you need to modify the `sysconf.txt` file. Add an `root_authorized_key`, `root_pw` and a `hostname`, as per [these](https://raspi.debian.net/defaults-and-settings/) instructions.
 
-```
-adduser <username>
-```
+4. Power up the Raspberry Pi, and ssh in from the machine with your SSH key.
 
-That way you can SSH into the instance from any machine, and use `su -` in case you lose your ssh key.
+5. (Postinstall) I would recommend adding a generic user, so that you can SSH into the RPi from another machine, in case of ssh key loss.
+
+   ```
+   adduser <username>
+   ```
 
 ## 📂 Repository structure
 
