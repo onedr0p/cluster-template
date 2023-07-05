@@ -17,8 +17,7 @@ includes:
 tasks:
   init:
     desc: Initialize workstation dependencies with Brew
-    cmds:
-      - brew install {{.DEPS}} {{.CLI_ARGS}}
+    cmd: brew install {{.DEPS}} {{.CLI_ARGS}}
     preconditions:
       - sh: command -v brew
         msg: |
@@ -43,5 +42,4 @@ tasks:
   configure:
     desc: Configure repository from Ansible vars
     dir: "{{.TEMPLATE_DIR}}"
-    cmds:
-      - ansible-playbook configure.yaml
+    cmd: ansible-playbook configure.yaml
