@@ -89,6 +89,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 #### Raspberry Pi / ARM64
 
 ##### Hardware Considerations
+
 If you choose to use a Raspberry Pi for the cluster, I would recommend at minimum a Raspberry Pi4 (4GB) and preferably an 8GB model. Additionally, I would recommend booting from and external SSD, rather than the SD card, as slower write times will impact etcd if you use it as a master.
 
 This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4b-and-raspberry-pi-400), however if you have an early Raspberry Pi4, you may need to update the bootloader, like [this](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
