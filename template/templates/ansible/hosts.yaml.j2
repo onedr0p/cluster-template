@@ -4,15 +4,15 @@ kubernetes:
   children:
     master:
       hosts:
-      {% for item in bootstrap_hosts.master %}
+      {% for item in bootstrap_nodes.master %}
         {{ item.name }}:
           ansible_user: {{ item.username }}
           ansible_host: {{ item.address }}
       {% endfor %}
-    {% if bootstrap_hosts.worker | default([]) | length > 0 %}
+    {% if bootstrap_nodes.worker | default([]) | length > 0 %}
     worker:
       hosts:
-      {% for item in bootstrap_hosts.worker %}
+      {% for item in bootstrap_nodes.worker %}
         {{ item.name }}:
           ansible_user: {{ item.username }}
           ansible_host: {{ item.address }}

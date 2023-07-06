@@ -1,5 +1,5 @@
 ---
-- name: Template out sops configuration file
+- name: Template Sops configuration file
   ansible.builtin.template:
     src: "templates/.sops.yaml.j2"
     dest: "{{ repository_path }}/.sops.yaml"
