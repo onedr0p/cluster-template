@@ -29,7 +29,7 @@ spec:
     fullnameOverride: coredns
     replicaCount: 1
     service:
-      clusterIP: "${COREDNS_ADDR}"
+      clusterIP: "{{ bootstrap_coredns_addr }}"
     serviceAccount:
       create: true
     deployment:
