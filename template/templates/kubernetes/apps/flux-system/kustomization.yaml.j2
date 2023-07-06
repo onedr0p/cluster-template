@@ -5,6 +5,6 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./addons/ks.yaml
-  {% if weave_gitops_enabled | default(false) %}
+  {% if weave_gitops.enabled | default(false) %}
   - ./weave-gitops/ks.yaml
   {% endif %}
