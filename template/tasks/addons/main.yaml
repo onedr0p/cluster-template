@@ -1,21 +1,25 @@
 ---
 
+- name: Process addon csi-driver-nfs
+  when: csi_driver_nfs.enabled | default(false)
+  ansible.builtin.include_tasks: csi_driver_nfs.yaml
+
 - name: Process addon hajimari
-  when: hajimari.enabled | default (false)
+  when: hajimari.enabled | default(false)
   ansible.builtin.include_tasks: hajimari.yaml
 
 - name: Process addon grafana
-  when: grafana.enabled | default (false)
+  when: grafana.enabled | default(false)
   ansible.builtin.include_tasks: grafana.yaml
 
 - name: Process addon kubernetes-dashboard
-  when: kubernetes_dashboard.enabled | default (false)
+  when: kubernetes_dashboard.enabled | default(false)
   ansible.builtin.include_tasks: kubernetes_dashboard.yaml
 
 - name: Process addon kube-prometheus-stack
-  when: kube_prometheus_stack.enabled | default (false)
+  when: kube_prometheus_stack.enabled | default(false)
   ansible.builtin.include_tasks: kube_prometheus_stack.yaml
 
 - name: Process addon weave-gitops
-  when: weave_gitops.enabled | default (false)
+  when: weave_gitops.enabled | default(false)
   ansible.builtin.include_tasks: weave_gitops.yaml
