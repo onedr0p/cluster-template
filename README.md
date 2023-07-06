@@ -26,7 +26,7 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 - [ingress-nginx](https://kubernetes.github.io/ingress-nginx/) - Kubernetes ingress controller used for a HTTP reverse proxy of Kubernetes ingresses
 - [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - provision persistent local storage with Kubernetes
 
-_Additional applications include [grafana](https://github.com/grafana/grafana), [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack), [hajimari](https://github.com/toboshii/hajimari), [echo-server](https://github.com/Ealenn/Echo-Server), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), and [reloader](https://github.com/stakater/Reloader)
+_Additional applications can be enabled in the [addons](./template/vars/addons.sample.yaml) configuration file_
 
 ## 📝 Prerequisites
 
