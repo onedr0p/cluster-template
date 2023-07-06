@@ -28,7 +28,9 @@ spec:
   values:
     fullnameOverride: coredns
     replicaCount: 1
+    k8sAppLabelOverride: kube-dns
     service:
+      name: kube-dns
       clusterIP: "{{ bootstrap_coredns_addr }}"
     serviceAccount:
       create: true

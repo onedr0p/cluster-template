@@ -15,7 +15,9 @@ spec:
   valuesContent: |-
     fullnameOverride: coredns
     replicaCount: 1
+    k8sAppLabelOverride: kube-dns
     service:
+      name: kube-dns
       # Choose the 10th IP address from the start of the service-cidr
       clusterIP: {{ k3s_server['service-cidr'] | ansible.utils.nthhost(10) }}
     serviceAccount:
