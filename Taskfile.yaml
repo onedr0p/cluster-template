@@ -23,8 +23,16 @@ tasks:
     desc: Initialize configuration files
     dir: "{{.TEMPLATE_DIR}}"
     cmds:
-      - cp -n vars/addons.sample.yaml vars/addons.yaml
-      - cp -n vars/config.sample.yaml vars/config.yaml
+      - cp --no-clobber vars/addons.sample.yaml vars/addons.yaml
+      - cp --no-clobber vars/config.sample.yaml vars/config.yaml
+      - cmd: echo "=== Configuration files copied ==="
+        silent: true
+      - cmd: echo "Proceed with updating the configuration files..."
+        silent: true
+      - cmd: echo "{{.TEMPLATE_DIR}}/vars/config.yaml"
+        silent: true
+      - cmd: echo "{{.TEMPLATE_DIR}}/vars/addons.yaml"
+        silent: true
     status:
       - test -f "{{.TEMPLATE_DIR}}/vars/addons.yaml"
       - test -f "{{.TEMPLATE_DIR}}/vars/config.yaml"
