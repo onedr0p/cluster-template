@@ -1,0 +1,71 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  namespace: networking
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: 4.7.1
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: cloudflared
+      namespace: networking
+  values:
+    controller:
+      extraEnvs:
+        - name: TZ
+          value: "${TIMEZONE}"
+      service:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: "ingress.${SECRET_DOMAIN}"
+          io.cilium/lb-ipam-ips: "{{ bootstrap_ingress_nginx_addr }}"
+        externalTrafficPolicy: Cluster
+      publishService:
+        enabled: true
+      ingressClassResource:
+        default: true
+      config:
+        client-header-timeout: 120
+        client-body-buffer-size: "100M"
+        client-body-timeout: 120
+        enable-brotli: "true"
+        hsts-max-age: "31449600"
+        keep-alive: 120
+        keep-alive-requests: 10000
+        proxy-body-size: "100M"
+        ssl-protocols: "TLSv1.3 TLSv1.2"
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+          namespace: networking
+          namespaceSelector:
+            any: true
+      extraArgs:
+        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-staging-tls"
+      resources:
+        requests:
+          cpu: 10m
+          memory: 250Mi
+        limits:
+          memory: 500Mi
+    defaultBackend:
+      enabled: false
