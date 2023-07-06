@@ -118,27 +118,21 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ### 🔧 Workstation Tools
 
-📍 Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools, **!especially sops AND yq!**.
+📍 Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`.
 
-1. Install the following CLI tools on your workstation, if you are **NOT** using [Homebrew](https://brew.sh/) on MacOS or Linux **ignore** steps 4 and 5.
+1. Install the following CLI tools on your workstation, if you are **NOT** using [Homebrew](https://brew.sh/) **ignore** steps 2 & 3.
 
-   - Required: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python-pip3](https://pypi.org/project/pip/), [sops](https://github.com/getsops/sops)
+   - **Required**: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python3](https://www.python.org/), [python-pip3](https://pypi.org/project/pip/), [sops](https://github.com/getsops/sops)
 
-   - Recommended: [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [stern](https://github.com/stern/stern)
+   - **Recommended**: [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [stern](https://github.com/stern/stern)
 
-2. This guide heavily relies on [go-task](https://github.com/go-task/task) as a framework for setting things up. It is advised to learn and understand the commands it is running under the hood.
-
-3. Install Python 3 and pip3 using your Linux OS package manager, or Homebrew if using MacOS.
-
-   - Ensure `pip3` is working on your command line by running `pip3 --version`
-
-4. [Homebrew] Install [go-task](https://github.com/go-task/task)
+2. [Homebrew] Install [go-task](https://github.com/go-task/task)
 
    ```sh
    brew install go-task/tap/go-task
    ```
 
-5. [Homebrew] Install workstation dependencies
+3. [Homebrew] Install workstation dependencies
 
    ```sh
    task init
