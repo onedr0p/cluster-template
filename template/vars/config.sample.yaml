@@ -16,10 +16,6 @@ bootstrap_acme_email:
 
 # Flux github webhook token (openssl rand -hex 12)
 bootstrap_flux_github_webhook_token:
-# Grafana admin password (openssl rand -hex 12)
-bootstrap_grafana_admin_password:
-# Weave GitOps dashboard password (openssl rand -hex 12)
-bootstrap_weave_gitops_admin_password:
 
 # Cloudflare domain
 bootstrap_cloudflare_domain:

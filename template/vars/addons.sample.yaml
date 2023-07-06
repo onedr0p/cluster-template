@@ -1,0 +1,13 @@
+---
+
+hajimari_enabled: false
+
+weave_gitops_enabled: false
+weave_gitops_admin_password:
+
+kube_prometheus_stack_enabled: false
+
+grafana_enabled: false
+grafana_admin_password:
+
+kubernetes_dashboard_enabled: false
