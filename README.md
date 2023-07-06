@@ -88,7 +88,30 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
 #### Raspberry Pi / ARM64
 
-TBD
+##### Hardware Considerations
+
+If you choose to use a Raspberry Pi for the cluster, it is recommended to have at minimum a Raspberry Pi4 (4GB) and preferably an 8GB model. Additionally, it is also recommended to boot from an external SSD, rather than the SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early Raspberry Pi4, you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
+
+##### Installing the OS
+
+There is a decent guide [here](https://raspberrytips.com/install-debian-on-raspberry-pi/) on how to get Debian installed on a Raspberry Pi.
+
+1. Deviations from that guide, as per [these](https://raspi.debian.net/defaults-and-settings/) instructions.
+
+    ```txt
+    - Use an SSD instead of an SD Card
+    - Reinsert the storage media
+    - Open `sysconf.txt` file
+    - Add `root_authorized_key`
+    - Add `root_pw`
+    - add `hostname`
+    ```
+
+2. (Post install) I would recommend adding a generic user.
+
+   ```
+   adduser <username>
+   ```
 
 ## 📂 Repository structure
 
