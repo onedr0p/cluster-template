@@ -1,5 +1,9 @@
 ---
 
+- name: Process addon csi-driver-nfs
+  when: csi_driver_nfs.enabled | default (false)
+  ansible.builtin.include_tasks: csi_driver_nfs.yaml
+
 - name: Process addon hajimari
   when: hajimari.enabled | default (false)
   ansible.builtin.include_tasks: hajimari.yaml
