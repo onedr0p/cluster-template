@@ -15,7 +15,7 @@
 - name: area/template
   color: "72ccf3"
   description: >-
-    Changes made in the tmpl directory
+    Changes made in the template directory
 # Renovate
 - name: renovate/ansible
   color: "ffc300"

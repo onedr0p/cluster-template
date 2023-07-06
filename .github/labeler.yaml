@@ -6,4 +6,4 @@ area/github:
 area/kubernetes:
   - "kubernetes/**/*"
 area/templates:
-  - "tmpl/**/*"
+  - "template/**/*"

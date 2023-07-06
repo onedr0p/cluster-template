@@ -88,30 +88,14 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
 #### Raspberry Pi / ARM64
 
-##### Hardware Considerations
-
 If you choose to use a Raspberry Pi for the cluster, it is recommended to have at minimum a Raspberry Pi4 (4GB) and preferably an 8GB model. Additionally, it is also recommended to boot from an external SSD, rather than the SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early Raspberry Pi4, you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
 
-##### Installing the OS
+According to the documentation [here](https://raspi.debian.net/defaults-and-settings/), after you have flashed the image onto a SSD/NVMe you must mount the drive and do the following.
 
-There is a decent guide [here](https://raspberrytips.com/install-debian-on-raspberry-pi/) on how to get Debian installed on a Raspberry Pi.
-
-1. Deviations from that guide, as per [these](https://raspi.debian.net/defaults-and-settings/) instructions.
-
-    ```txt
-    - Use an SSD instead of an SD Card
-    - Reinsert the storage media
-    - Open `sysconf.txt` file
-    - Add `root_authorized_key`
-    - Add `root_pw`
-    - add `hostname`
-    ```
-
-2. (Post install) I would recommend adding a generic user.
-
-   ```
-   adduser <username>
-   ```
+1. Edit the `sysconf.txt`
+2. Add/change `root_authorized_key` to your desired public SSH key
+3. Add/change `root_pw` to your desired root password
+4. Add/change `hostname` to your desired hostname
 
 ## 📂 Repository structure
 
@@ -252,8 +236,6 @@ In order to expose services to the internet you will need to create a [Cloudflar
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. This is how Ansible is able to connect to your remote nodes.
-
-   [How to configure SSH key-based authentication](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server)
 
 2. Install the Ansible deps
 
