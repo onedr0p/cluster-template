@@ -207,7 +207,7 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 ### 📄 Configuration
 
-📍 The `template/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux.
+📍 The `template/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `template/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git.
 
 1. Copy the configuration file and start filling out all the variables.
 
@@ -217,7 +217,13 @@ In order to expose services to the internet you will need to create a [Cloudflar
    cp template/vars/config.sample.yaml template/vars/config.yaml
    ```
 
-2. Once done run the following command which will verify and generate all the files needed to continue.
+2. Copy the addons file and enable any you want included.
+
+   ```sh
+   cp template/vars/addons.sample.yaml template/vars/addons.yaml
+   ```
+
+3. Once done run the following command which will verify and generate all the files needed to continue.
 
    ```sh
    task configure
