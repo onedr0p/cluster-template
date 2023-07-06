@@ -19,7 +19,7 @@
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
-  "schedule": ["every saturday"],
+  "schedule": ["on saturday"],
   "flux": {
     "fileMatch": [
       "kubernetes/.+\\.ya?ml(\\.j2)?$",
