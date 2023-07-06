@@ -89,7 +89,7 @@ spec:
     kubeControllerManager:
       enabled: true
       endpoints: &cp
-      {% for item in bootstrap_hosts.master %}
+      {% for item in bootstrap_nodes.master %}
         - {{ item.address }}
       {% endfor %}
       serviceMonitor:

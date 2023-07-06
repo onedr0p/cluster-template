@@ -5,7 +5,19 @@
   vars_files:
     - defaults/main.yaml
     - vars/config.yaml
+    - vars/addons.yaml
   tasks:
+    - name: Get absolute path to this Git repository # noqa: command-instead-of-module
+      ansible.builtin.command: git rev-parse --show-toplevel
+      changed_when: false
+      check_mode: false
+      register: repository
+      failed_when: repository.rc != 0
+
+    - name: Set facts
+      ansible.builtin.set_fact:
+        repository_path: "{{ repository.stdout }}"
+
     - name: Verify configuration
       ansible.builtin.include_tasks: tasks/validation/main.yaml
 
@@ -17,3 +29,6 @@
 
     - name: Template Kubernetes configuration
       ansible.builtin.include_tasks: tasks/kubernetes/main.yaml
+
+    - name: Template Kubernetes addon configuration
+      ansible.builtin.include_tasks: tasks/addons/main.yaml

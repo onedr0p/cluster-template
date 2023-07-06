@@ -43,3 +43,5 @@ tasks:
     desc: Configure repository from Ansible vars
     dir: "{{.TEMPLATE_DIR}}"
     cmd: ansible-playbook configure.yaml
+    env:
+      ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"

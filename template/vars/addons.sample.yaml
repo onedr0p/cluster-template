@@ -1,0 +1,26 @@
+---
+#
+# Addons configuration - addons.yaml is gitignored
+#
+
+# https://github.com/toboshii/hajimari
+hajimari:
+  enabled: false
+
+# https://github.com/grafana/grafana
+grafana:
+  enabled: false
+  # password:
+
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+kube_prometheus_stack:
+  enabled: false
+
+# https://github.com/kubernetes/dashboard
+kubernetes_dashboard:
+  enabled: false
+
+# https://github.com/weaveworks/weave-gitops
+weave_gitops:
+  enabled: false
+  # password:

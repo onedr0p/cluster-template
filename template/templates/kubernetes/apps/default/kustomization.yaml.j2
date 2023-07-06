@@ -1,7 +1,9 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
-  - ./echo-server/ks.yaml
+  {% if hajimari.enabled | default(false) %}
   - ./hajimari/ks.yaml
+  {% endif %}
