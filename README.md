@@ -64,14 +64,14 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     - Keep ssh server checked
     ```
 
-2. (Post install) Enable SSH for root user
+2. [Post install] Enable SSH for root user
 
     ```sh
     sed -i 's/#\?\(PermitRootLogin\s*\).*$/\1yes/' /etc/ssh/sshd_config
     systemctl restart sshd
     ```
 
-3. (Post install) Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
+3. [Post install] Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
 
     ```sh
     mkdir -m 700 ~/.ssh
@@ -79,7 +79,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-4. (Post install) If you cannot run `apt update` without errors, try removing CD/DVD as apt source
+4. [Post install] If you cannot run `apt update` without errors, try removing CD/DVD as apt source
 
     ```sh
     sed -i '1d' /etc/apt/sources.list
@@ -97,17 +97,6 @@ According to the documentation [here](https://raspi.debian.net/defaults-and-sett
 3. Add/change `root_pw` to your desired root password
 4. Add/change `hostname` to your desired hostname
 
-## 📂 Repository structure
-
-The Git repository contains the following directories under `kubernetes` and are ordered below by how Flux will apply them.
-
-```sh
-📁 kubernetes      # Kubernetes cluster defined as code
-├─📁 bootstrap     # Flux installation
-├─📁 flux          # Main Flux configuration of repository
-└─📁 apps          # Apps deployed into the cluster grouped by namespace
-```
-
 ## 🚀 Lets go
 
 Very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page.
@@ -120,7 +109,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 📍 Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`.
 
-1. Install the following CLI tools on your workstation, if you are **NOT** using [Homebrew](https://brew.sh/) **ignore** steps 2 & 3.
+1. Install the following CLI tools on your workstation, if you are using [Homebrew](https://brew.sh/) skip this step and move onto 2 & 3.
 
    - **Required**: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python3](https://www.python.org/), [python-pip3](https://pypi.org/project/pip/), [sops](https://github.com/getsops/sops)
 
@@ -132,10 +121,10 @@ Clone **your new repo** to you local workstation and `cd` into it.
    brew install go-task/tap/go-task
    ```
 
-3. [Homebrew] Install workstation dependencies
+3. [Homebrew] Install the other workstation dependencies
 
    ```sh
-   task init
+   task brew:deps
    ```
 
 ### 🔐 Setting up Age
@@ -209,25 +198,28 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 📍 The `template/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `template/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git.
 
-1. Copy the configuration file and start filling out all the variables.
-
-   **All are required** unless otherwise noted in the comments.
+1. Copy the configuration and addons files and start filling out all the variables.
 
    ```sh
-   cp template/vars/config.sample.yaml template/vars/config.yaml
+   task init
    ```
 
-2. Copy the addons file and enable any you want included.
-
-   ```sh
-   cp template/vars/addons.sample.yaml template/vars/addons.yaml
-   ```
-
-3. Once done run the following command which will verify and generate all the files needed to continue.
+2. Once done run the following command which will verify and generate all the files needed to continue.
 
    ```sh
    task configure
    ```
+
+### 📂 Repository structure
+
+The configure script will have created the following directories under `./kubernetes`.
+
+```sh
+📁 kubernetes      # Kubernetes cluster defined as code
+├─📁 bootstrap     # Flux installation (not tracked by Flux)
+├─📁 flux          # Main Flux configuration of repository
+└─📁 apps          # Apps deployed into the cluster grouped by namespace
+```
 
 ### ⚡ Preparing Debian Server with Ansible
 
@@ -240,7 +232,7 @@ In order to expose services to the internet you will need to create a [Cloudflar
 2. Install the Ansible deps
 
    ```sh
-   task ansible:init
+   task ansible:deps
    ```
 
 3. Verify Ansible can view your config

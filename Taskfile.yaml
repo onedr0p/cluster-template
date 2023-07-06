@@ -12,32 +12,22 @@ env:
 
 includes:
   ansible: .taskfiles/AnsibleTasks.yaml
+  brew: .taskfiles/BrewTasks.yaml
   cluster: .taskfiles/ClusterTasks.yaml
 
 tasks:
+
+  default: task -l
+
   init:
-    desc: Initialize workstation dependencies with Brew
-    cmd: brew install {{.DEPS}} {{.CLI_ARGS}}
-    preconditions:
-      - sh: command -v brew
-        msg: |
-          Homebrew is not installed. Using MacOS, Linux or WSL?
-          Head over to https://brew.sh to get up and running.
-    vars:
-      DEPS: >-
-        age
-        ansible
-        cilium-cli
-        cloudflare/cloudflare/cloudflared
-        direnv
-        fluxcd/tap/flux
-        go-task/tap/go-task
-        helm
-        kubernetes-cli
-        kustomize
-        python
-        sops
-        stern
+    desc: Initialize configuration files
+    dir: "{{.TEMPLATE_DIR}}"
+    cmds:
+      - cp -n vars/addons.sample.yaml vars/addons.yaml
+      - cp -n vars/config.sample.yaml vars/config.yaml
+    status:
+      - test -f "{{.TEMPLATE_DIR}}/vars/addons.yaml"
+      - test -f "{{.TEMPLATE_DIR}}/vars/config.yaml"
 
   configure:
     desc: Configure repository from Ansible vars

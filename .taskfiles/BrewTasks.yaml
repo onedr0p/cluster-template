@@ -1,0 +1,28 @@
+---
+version: "3"
+
+tasks:
+
+  deps:
+    desc: Install workstation dependencies with Brew
+    cmd: brew install {{.DEPS}} {{.CLI_ARGS}}
+    preconditions:
+      - sh: command -v brew
+        msg: |
+          Homebrew is not installed. Using MacOS, Linux or WSL?
+          Head over to https://brew.sh to get up and running.
+    vars:
+      DEPS: >-
+        age
+        ansible
+        cilium-cli
+        cloudflare/cloudflare/cloudflared
+        direnv
+        fluxcd/tap/flux
+        go-task/tap/go-task
+        helm
+        kubernetes-cli
+        kustomize
+        python
+        sops
+        stern

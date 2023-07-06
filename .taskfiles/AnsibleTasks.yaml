@@ -10,7 +10,7 @@ vars:
 
 tasks:
 
-  init:
+  deps:
     desc: Install / Upgrade Ansible galaxy deps
     dir: "{{.ANSIBLE_DIR}}"
     cmds:
