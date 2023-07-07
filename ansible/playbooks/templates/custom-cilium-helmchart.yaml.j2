@@ -35,8 +35,12 @@ spec:
     k8sServicePort: 6443
     kubeProxyReplacement: strict
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    # https://github.com/cilium/cilium/issues/26586
     l2announcements:
       enabled: true
+      leaseDuration: 30s
+      leaseRenewDeadline: 10s
+      leaseRetryPeriod: 4s
     loadBalancer:
       algorithm: maglev
       mode: dsr

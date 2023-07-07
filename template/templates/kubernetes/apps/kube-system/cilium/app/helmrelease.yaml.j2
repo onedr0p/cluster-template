@@ -89,8 +89,12 @@ spec:
       serviceMonitor:
         enabled: true
     rollOutCiliumPods: true
+    # https://github.com/cilium/cilium/issues/26586
     l2announcements:
       enabled: true
+      leaseDuration: 30s
+      leaseRenewDeadline: 10s
+      leaseRetryPeriod: 4s
     loadBalancer:
       algorithm: maglev
       mode: dsr
