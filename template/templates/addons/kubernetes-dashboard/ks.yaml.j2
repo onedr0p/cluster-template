@@ -5,6 +5,10 @@ metadata:
   name: cluster-apps-kubernetes-dashboard
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: cluster-apps-cert-manager
+    - name: cluster-apps-ingress-nginx
+    - name: cluster-apps-metrics-server
   path: ./kubernetes/apps/monitoring/kubernetes-dashboard/app
   prune: true
   sourceRef:
