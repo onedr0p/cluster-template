@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: kubernetes-dashboard
-      version: 6.0.8
+      version: 7.0.2
       sourceRef:
         kind: HelmRepository
         name: kubernetes-dashboard
@@ -31,24 +31,31 @@ spec:
   values:
     env:
       TZ: "${TIMEZONE}"
-    extraArgs:
-      - --enable-skip-login
-      - --disable-settings-authorizer
-      - --enable-insecure-login
-      - --token-ttl=43200
-    ingress:
-      enabled: true
-      className: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-staging
-        hajimari.io/icon: mdi:kubernetes
-      hosts:
-        - &host "kubernetes.${SECRET_DOMAIN}"
-      tls:
-        - hosts:
-            - *host
-          secretName: kubernetes-dashboard-tls
+    api:
+      containers:
+        args:
+          - --enable-insecure-login=true
+          - --enable-skip-login=true
+          - --disable-settings-authorizer=true
+    app:
+      ingress:
+        enabled: true
+        className: nginx
+        annotations:
+          hajimari.io/icon: mdi:kubernetes
+        hosts:
+          - &host "kubernetes.${SECRET_DOMAIN}"
+        tls:
+          - hosts:
+              - *host
+            secretName: kubernetes-dashboard-tls
     metricsScraper:
       enabled: true
     serviceMonitor:
+      enabled: false
+    cert-manager:
+      enabled: false
+    nginx:
+      enabled: false
+    metrics-server:
       enabled: false
