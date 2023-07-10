@@ -10,7 +10,7 @@ hajimari:
 # https://github.com/grafana/grafana
 grafana:
   enabled: false
-  # password: # admin password
+  # password: # password for `admin` user
 
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 kube_prometheus_stack:
@@ -23,12 +23,13 @@ kubernetes_dashboard:
 # https://github.com/weaveworks/weave-gitops
 weave_gitops:
   enabled: false
-  # password: # admin password
+  # password: # password for `admin` user
 
 # https://github.com/kubernetes-csi/csi-driver-nfs
 csi_driver_nfs:
   enabled: false
-  # storage_class:
-  #   - name: # name of the storage class (lower-kebab-case)
-  #     server: # dns name or ip address of nfs server
-  #     share: # exported share (path)
+  storage_class: []
+    # - name:   # name of the storage class (must match [a-z0-9-]+)
+    #   server: # dns name or ip address of nfs server
+    #   share:  # exported share (path)
+    # ...

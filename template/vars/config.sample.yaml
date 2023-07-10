@@ -44,12 +44,14 @@ bootstrap_service_cidr: 10.43.0.0/16
 bootstrap_nodes:
   # Use only 1, 3 or more odd master nodes, recommended is 3
   master: []
-    # - name: kube0
-    #   address:
-    #   username:
-    #   password:
+    # - name:     # name of the master node (must match [a-z0-9-]+)
+    #   address:  # ip address of the master node
+    #   username: # ssh username of the master node
+    #   password: # password of ssh username for the master node
+    # ...
   worker: []
-    # - name: kube1
-    #   address:
-    #   username:
-    #   password:
+    # - name:     # name of the worker node (must match [a-z0-9-]+)
+    #   address:  # ip address of the worker node
+    #   username: # ssh username of the worker node
+    #   password: # password of ssh username for the worker node
+    # ...
