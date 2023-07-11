@@ -72,7 +72,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     exit
     ```
 
-1. [Post install] Enable sudo for your non-root user
+3. [Post install] Enable sudo for your non-root user
 
     ```sh
     su -
