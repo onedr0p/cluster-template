@@ -84,7 +84,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     sudo apt update
     ```
 
-1. [Post install] Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
+4. [Post install] Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
 
     ```sh
     mkdir -m 700 ~/.ssh
