@@ -77,7 +77,8 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     ```sh
     su -
     apt install sudo
-    adduser ${your-username} sudo
+    usermod -aG sudo ${username}
+    echo "${username}  ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
     exit
     newgrp sudo
     sudo apt update
