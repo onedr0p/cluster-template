@@ -78,6 +78,16 @@ spec:
     ipv4NativeRoutingCIDR: "{{ bootstrap_cluster_cidr }}"
     kubeProxyReplacement: strict
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    # https://github.com/cilium/cilium/issues/26586
+    l2announcements:
+      enabled: true
+      leaseDuration: 30s
+      leaseRenewDeadline: 10s
+      leaseRetryPeriod: 4s
+    loadBalancer:
+      algorithm: maglev
+      mode: dsr
+    localRedirectPolicy: true
     operator:
       replicas: 1
       rollOutPods: true
@@ -90,15 +100,6 @@ spec:
       serviceMonitor:
         enabled: true
     rollOutCiliumPods: true
-    # https://github.com/cilium/cilium/issues/26586
-    l2announcements:
-      enabled: true
-      leaseDuration: 30s
-      leaseRenewDeadline: 10s
-      leaseRetryPeriod: 4s
-    loadBalancer:
-      algorithm: maglev
-      mode: dsr
     securityContext:
       privileged: true
     tunnel: disabled
