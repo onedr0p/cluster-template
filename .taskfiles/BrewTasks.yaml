@@ -26,3 +26,4 @@ tasks:
         python
         sops
         stern
+        yq
