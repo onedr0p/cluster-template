@@ -63,26 +63,34 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     - Keep ssh server checked
     ```
 
-2. [Post install] Enable SSH for root user
+2. [Post install] Remove CD/DVD as apt source
 
     ```sh
-    sed -i 's/#\?\(PermitRootLogin\s*\).*$/\1yes/' /etc/ssh/sshd_config
-    systemctl restart sshd
+    su -
+    sed -i '/deb cdrom/d' /etc/apt/sources.list
+    apt update
+    exit
     ```
 
-3. [Post install] Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
+3. [Post install] Enable sudo for your non-root user
+
+    ```sh
+    su -
+    apt install sudo
+    usermod -aG sudo ${username}
+    echo "${username}  ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
+    exit
+    newgrp sudo
+    sudo apt update
+    ```
+
+4. [Post install] Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
 
     ```sh
     mkdir -m 700 ~/.ssh
+    sudo apt install curl
     curl https://github.com/${github_username}.keys > ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
-    ```
-
-4. [Post install] If you cannot run `apt update` without errors, try removing CD/DVD as apt source
-
-    ```sh
-    sed -i '1d' /etc/apt/sources.list
-    apt update
     ```
 
 #### Raspberry Pi / ARM64
