@@ -63,7 +63,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     - Keep ssh server checked
     ```
 
-1. [Post install] Remove CD/DVD as apt source
+2. [Post install] Remove CD/DVD as apt source
 
     ```sh
     su -
