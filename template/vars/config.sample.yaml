@@ -30,12 +30,12 @@ bootstrap_cloudflare_tunnel_id:
 
 # CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_cidr:
-# Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
-bootstrap_k8s_gateway_addr:
-# Load balancer IP for ingress-nginx, choose an available IP in your nodes network that is not being used
-bootstrap_ingress_nginx_addr:
-# IP address to use with kube-vip, choose an available IP in your nodes network that is not being used
+# The IP address to use with kube-vip, choose an available IP in your nodes network that is not being used
 bootstrap_kube_vip_addr:
+# The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
+bootstrap_k8s_gateway_addr:
+# The Load balancer IP for ingress-nginx, choose an available IP in your nodes network that is not being used
+bootstrap_ingress_nginx_addr:
 # Choose your cluster and service cidrs, leave these unchanged unless you know what you are doing
 bootstrap_cluster_cidr: 10.42.0.0/16
 bootstrap_service_cidr: 10.43.0.0/16

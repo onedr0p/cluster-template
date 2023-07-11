@@ -38,9 +38,9 @@ spec:
     # https://github.com/cilium/cilium/issues/26586
     l2announcements:
       enabled: true
-      leaseDuration: 30s
-      leaseRenewDeadline: 10s
-      leaseRetryPeriod: 4s
+      leaseDuration: 120s
+      leaseRenewDeadline: 60s
+      leaseRetryPeriod: 1s
     loadBalancer:
       algorithm: maglev
       mode: dsr

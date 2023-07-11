@@ -49,7 +49,6 @@ With that out of the way please continue on if you are still interested...
 
 Download [Debian 12](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/) (for raspi/arm64 use the [tested images](https://raspi.debian.net/tested-images/))
 
-
 #### AMD64
 
 There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step/) on how to get Debian installed.
