@@ -19,7 +19,7 @@
       block:
         - name: Packages | Install
           ansible.builtin.apt:
-            name: apt-transport-https,ca-certificates,conntrack,curl,dirmngr,gdisk,gnupg,htop,
+            name: apt-transport-https,ca-certificates,conntrack,curl,dirmngr,gdisk,gnupg,hdparm,htop,
               iptables,iputils-ping,ipvsadm,libseccomp2,lm-sensors,neofetch,net-tools,nfs-common,
               nvme-cli,open-iscsi,parted,psmisc,python3,python3-apt,python3-kubernetes,python3-yaml,
               smartmontools,socat,software-properties-common,unzip,util-linux
@@ -33,9 +33,10 @@
             key: "https://github.com/{% raw %}{{ github_username }}{% endraw %}.keys"
         - name: User Configuration | Silence login
           ansible.builtin.file:
-            dest: /root/.hushlogin
+            dest: "{% raw %}{{ '/home/' + ansible_user if ansible_user != 'root' else '/root' }}{% endraw %}/.hushlogin"
             state: touch
             owner: "{% raw %}{{ ansible_user }}{% endraw %}"
+            group: "{% raw %}{{ ansible_user }}{% endraw %}"
             mode: "0644"
             modification_time: preserve
             access_time: preserve
