@@ -26,7 +26,7 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 - [ingress-nginx](https://kubernetes.github.io/ingress-nginx/) - Kubernetes ingress controller used for a HTTP reverse proxy of Kubernetes ingresses
 - [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - provision persistent local storage with Kubernetes
 
-_Additional applications can be enabled in the [addons](./template/vars/addons.sample.yaml) configuration file_
+_Additional applications can be enabled in the [addons](./bootstrap/vars/addons.sample.yaml) configuration file_
 
 ## 📝 Prerequisites
 
@@ -203,7 +203,7 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 ### 📄 Configuration
 
-📍 The `template/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `template/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git.
+📍 The `bootstrap/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `bootstrap/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git.
 
 1. Copy the configuration and addons files and start filling out all the variables.
 

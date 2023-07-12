@@ -5,5 +5,5 @@ area/github:
   - ".github/**/*"
 area/kubernetes:
   - "kubernetes/**/*"
-area/templates:
-  - "template/**/*"
+area/bootstrap:
+  - "bootstrap/**/*"

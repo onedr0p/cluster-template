@@ -1,0 +1,121 @@
+---
+- name: Ensure Kubernetes directories exist
+  when: item.state == 'directory'
+  ansible.builtin.file:
+    path: "{{ repository_path }}/ansible/{{ item.path }}"
+    state: directory
+    mode: "0755"
+  with_community.general.filetree: ["../templates/ansible/"]
+
+- name: Template Ansible unencrypted files
+  when: item.state == 'file' and 'sops' not in item.path and '.DS_Store' not in item.path
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ repository_path }}/ansible/{{ item.path | regex_replace('.j2$', '') }}"
+    mode: "0755"
+  with_community.general.filetree: ["../templates/ansible/"]
+
+# https://github.com/ansible-collections/community.sops/issues/153
+- name: Template Ansible encrypted files
+  block:
+    - name: Rename Sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path }}/.sops.yaml"
+        dest: "{{ repository_path }}/.sops.yaml.orig"
+        mode: "0755"
+    - name: Remove Sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path }}/.sops.yaml"
+        state: absent
+    - name: Template Ansible encrypted files
+      when: item.state == 'file' and 'sops' in item.path
+      community.sops.sops_encrypt:
+        path: "{{ repository_path }}/ansible/{{ item.path | replace('.j2', '') }}"
+        encrypted_regex: ^(data|stringData)$
+        age: ["{{ bootstrap_age_public_key }}"]
+        content_yaml: "{{ lookup('ansible.builtin.template', item.src) | from_yaml }}"
+        mode: "0755"
+        force: true
+      with_community.general.filetree: ["../templates/ansible/"]
+    - name: Template encrypted node secrets
+      community.sops.sops_encrypt:
+        path: "{{ repository_path }}/ansible/inventory/host_vars/{{ item.name }}.sops.yaml"
+        age: ["{{ bootstrap_age_public_key }}"]
+        content_yaml: "{{ lookup('ansible.builtin.template', 'templates/node.sops.yaml.j2', template_vars=dict(password=item.password)) | from_yaml }}"
+        mode: "0755"
+        force: true
+      loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+      loop_control:
+        label: "{{ item.address }}"
+    - name: Restore Sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path }}/.sops.yaml.orig"
+        dest: "{{ repository_path }}/.sops.yaml"
+        mode: "0755"
+    - name: Remove backed up Sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path }}/.sops.yaml.orig"
+        state: absent
+  rescue:
+    - name: Restore Sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path }}/.sops.yaml.orig"
+        dest: "{{ repository_path }}/.sops.yaml"
+        mode: "0755"
+    - name: Remove backed up Sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path }}/.sops.yaml.orig"
+        state: absent
+
+# - name: Template Ansible configuration
+#   ansible.builtin.template:
+#     src: "{{ item.src }}"
+#     dest: "{{ repository_path }}/{{ item.dest }}"
+#     mode: "0755"
+#   loop:
+#     - src: templates/ansible/supplemental.yaml.j2
+#       dest: ./ansible/inventory/group_vars/kubernetes/supplemental.yaml
+#     - src: templates/ansible/hosts.yaml.j2
+#       dest: ./ansible/inventory/hosts.yaml
+
+# # https://github.com/ansible-collections/community.sops/issues/153
+# - name: Template Ansible encrypted files
+#   block:
+#     - name: Rename Sops configuration file
+#       ansible.builtin.copy:
+#         src: "{{ repository_path }}/.sops.yaml"
+#         dest: "{{ repository_path }}/.sops.yaml.orig"
+#         mode: "0755"
+#     - name: Remove Sops configuration file
+#       ansible.builtin.file:
+#         path: "{{ repository_path }}/.sops.yaml"
+#         state: absent
+#     - name: Template encrypted node secrets
+#       community.sops.sops_encrypt:
+#         path: "{{ repository_path }}/ansible/inventory/host_vars/{{ item.name }}.sops.yaml"
+#         age: ["{{ bootstrap_age_public_key }}"]
+#         content_yaml: "{{ lookup('ansible.builtin.template', 'templates/ansible/node.sops.yaml.j2', template_vars=dict(password=item.password)) | from_yaml }}"
+#         mode: "0755"
+#         force: true
+#       loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+#       loop_control:
+#         label: "{{ item.address }}"
+#     - name: Restore Sops configuration file
+#       ansible.builtin.copy:
+#         src: "{{ repository_path }}/.sops.yaml.orig"
+#         dest: "{{ repository_path }}/.sops.yaml"
+#         mode: "0755"
+#     - name: Remove backed up Sops configuration file
+#       ansible.builtin.file:
+#         path: "{{ repository_path }}/.sops.yaml.orig"
+#         state: absent
+#   rescue:
+#     - name: Restore Sops configuration file
+#       ansible.builtin.copy:
+#         src: "{{ repository_path }}/.sops.yaml.orig"
+#         dest: "{{ repository_path }}/.sops.yaml"
+#         mode: "0755"
+#     - name: Remove backed up Sops configuration file
+#       ansible.builtin.file:
+#         path: "{{ repository_path }}/.sops.yaml.orig"
+#         state: absent

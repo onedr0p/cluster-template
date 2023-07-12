@@ -1,0 +1,58 @@
+---
+- name: Ensure Kubernetes directories exist
+  when: item.state == 'directory'
+  ansible.builtin.file:
+    path: "{{ repository_path }}/kubernetes/{{ item.path }}"
+    state: directory
+    mode: "0755"
+  with_community.general.filetree: ["../templates/kubernetes/"]
+
+- name: Template Kubernetes unencrypted files
+  when: item.state == 'file' and 'sops' not in item.path and '.DS_Store' not in item.path
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ repository_path }}/kubernetes/{{ item.path | regex_replace('.j2$', '') }}"
+    mode: "0755"
+  with_community.general.filetree: ["../templates/kubernetes/"]
+
+# https://github.com/ansible-collections/community.sops/issues/153
+- name: Template Kubernetes encrypted files
+  block:
+    - name: Rename Sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path }}/.sops.yaml"
+        dest: "{{ repository_path }}/.sops.yaml.orig"
+        mode: "0755"
+    - name: Remove Sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path }}/.sops.yaml"
+        state: absent
+    - name: Template Kubernetes encrypted files
+      when: item.state == 'file' and 'sops' in item.path
+      community.sops.sops_encrypt:
+        path: "{{ repository_path }}/kubernetes/{{ item.path | replace('.j2', '') }}"
+        encrypted_regex: ^(data|stringData)$
+        age: ["{{ bootstrap_age_public_key }}"]
+        content_yaml: "{{ lookup('ansible.builtin.template', item.src) | from_yaml }}"
+        mode: "0755"
+        force: true
+      with_community.general.filetree: ["../templates/kubernetes/"]
+    - name: Restore Sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path }}/.sops.yaml.orig"
+        dest: "{{ repository_path }}/.sops.yaml"
+        mode: "0755"
+    - name: Remove backed up Sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path }}/.sops.yaml.orig"
+        state: absent
+  rescue:
+    - name: Restore Sops configuration file
+      ansible.builtin.copy:
+        src: "{{ repository_path }}/.sops.yaml.orig"
+        dest: "{{ repository_path }}/.sops.yaml"
+        mode: "0755"
+    - name: Remove backed up Sops configuration file
+      ansible.builtin.file:
+        path: "{{ repository_path }}/.sops.yaml.orig"
+        state: absent

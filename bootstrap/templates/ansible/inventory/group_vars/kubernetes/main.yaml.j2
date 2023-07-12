@@ -1,0 +1,32 @@
+---
+#
+# Below vars are for the xanmanning.k3s role
+# ...see https://github.com/PyratLabs/ansible-role-k3s
+#
+
+# renovate: datasource=github-releases depName=k3s-io/k3s
+k3s_release_version: "v1.27.3+k3s1"
+k3s_install_hard_links: true
+k3s_become: true
+k3s_etcd_datastore: true
+k3s_use_unsupported_config: true
+k3s_registration_address: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
+k3s_server_manifests_urls:
+  # Kube-vip RBAC
+  - url: https://raw.githubusercontent.com/kube-vip/kube-vip/main/docs/manifests/rbac.yaml
+    filename: kube-vip-rbac.yaml
+  # Essential Prometheus Operator CRDs (the rest are installed with the kube-prometheus-stack helm release)
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.66.0/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+    filename: custom-prometheus-podmonitors.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.66.0/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+    filename: custom-prometheus-prometheusrules.yaml
+  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.66.0/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+    filename: custom-prometheus-servicemonitors.yaml
+# /var/lib/rancher/k3s/server/manifests
+k3s_server_manifests_templates:
+  - custom-cilium-helmchart.yaml.j2
+  - custom-cilium-l2.yaml.j2
+  - custom-coredns-helmchart.yaml.j2
+# /var/lib/rancher/k3s/agent/pod-manifests
+k3s_server_pod_manifests_templates:
+  - kube-vip-static-pod.yaml.j2
