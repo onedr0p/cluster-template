@@ -68,7 +68,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     ```sh
     su -
     sed -i '/deb cdrom/d' /etc/apt/sources.list
-    apt-get update
+    apt update
     exit
     ```
 
@@ -76,7 +76,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
     ```sh
     su -
-    apt-get install sudo
+    apt install sudo
     usermod -aG sudo ${username}
     echo "${username}  ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
     exit
@@ -88,7 +88,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
     ```sh
     mkdir -m 700 ~/.ssh
-    sudo apt-get install curl
+    sudo apt install curl
     curl https://github.com/${github_username}.keys > ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
     ```
