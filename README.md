@@ -68,7 +68,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     ```sh
     su -
     sed -i '/deb cdrom/d' /etc/apt/sources.list
-    apt update
+    apt-get update
     exit
     ```
 
@@ -76,7 +76,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
     ```sh
     su -
-    apt install sudo
+    apt-get install sudo
     usermod -aG sudo ${username}
     echo "${username}  ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
     exit
@@ -88,7 +88,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
     ```sh
     mkdir -m 700 ~/.ssh
-    sudo apt install curl
+    sudo apt-get install curl
     curl https://github.com/${github_username}.keys > ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
     ```
@@ -219,7 +219,7 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 ### 📂 Repository structure
 
-The configure script will have created the following directories under `./kubernetes`.
+The configure script will have created a `./ansible` directory and the following directories under `./kubernetes`.
 
 ```sh
 📁 kubernetes      # Kubernetes cluster defined as code
