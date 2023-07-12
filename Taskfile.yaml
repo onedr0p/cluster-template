@@ -2,7 +2,7 @@
 version: "3"
 
 vars:
-  TEMPLATE_DIR: "{{.ROOT_DIR}}/template"
+  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
 
@@ -21,7 +21,7 @@ tasks:
 
   init:
     desc: Initialize configuration files
-    dir: "{{.TEMPLATE_DIR}}"
+    dir: "{{.BOOTSTRAP_DIR}}"
     cmds:
       - cp -n vars/addons.sample.yaml vars/addons.yaml
       - cp -n vars/config.sample.yaml vars/config.yaml
@@ -29,17 +29,17 @@ tasks:
         silent: true
       - cmd: echo "Proceed with updating the configuration files..."
         silent: true
-      - cmd: echo "{{.TEMPLATE_DIR}}/vars/config.yaml"
+      - cmd: echo "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
         silent: true
-      - cmd: echo "{{.TEMPLATE_DIR}}/vars/addons.yaml"
+      - cmd: echo "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
         silent: true
     status:
-      - test -f "{{.TEMPLATE_DIR}}/vars/addons.yaml"
-      - test -f "{{.TEMPLATE_DIR}}/vars/config.yaml"
+      - test -f "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
+      - test -f "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
 
   configure:
     desc: Configure repository from Ansible vars
-    dir: "{{.TEMPLATE_DIR}}"
+    dir: "{{.BOOTSTRAP_DIR}}"
     cmd: ansible-playbook configure.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"

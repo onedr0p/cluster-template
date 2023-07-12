@@ -1,0 +1,36 @@
+---
+
+- name: Verify required bootstrap vars are set
+  ansible.builtin.assert:
+    that:
+      - "{{ item }} | default('', true) | trim != ''"
+    success_msg: "Required bootstrap var {{ item }} exists and is defined"
+    fail_msg: "Required bootstrap var {{ item }} does not exists or is not defined"
+  loop:
+    - bootstrap_github_username
+    - bootstrap_github_repository_name
+    - bootstrap_age_public_key
+    - bootstrap_timezone
+    - bootstrap_acme_email
+    - bootstrap_flux_github_webhook_token
+    - bootstrap_cloudflare_domain
+    - bootstrap_cloudflare_token
+    - bootstrap_cloudflare_account_tag
+    - bootstrap_cloudflare_tunnel_secret
+    - bootstrap_cloudflare_tunnel_id
+    - bootstrap_node_cidr
+    - bootstrap_k8s_gateway_addr
+    - bootstrap_ingress_nginx_addr
+    - bootstrap_kube_vip_addr
+    - bootstrap_cluster_cidr
+    - bootstrap_service_cidr
+
+- name: Verify bootstrap node names are valid
+  ansible.builtin.assert:
+    that:
+      - "item.name is match('^[a-z0-9-]+$')"
+    success_msg: "Node name {{ item.name }} is valid"
+    fail_msg: "Node name {{ item.name }} is not valid"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop_control:
+     label: "{{ item.name }}"

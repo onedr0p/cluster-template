@@ -1,6 +1,0 @@
----
-- name: Verify configuration
-  ansible.builtin.include_tasks: "{{ task }}.yaml"
-  loop: [age, cli, net, cloudflare, github]
-  loop_control:
-    loop_var: task
