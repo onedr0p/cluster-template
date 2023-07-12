@@ -1,6 +1,6 @@
 ---
 
-- name: Check if required bootstrap vars are set
+- name: Verify required bootstrap vars are set
   ansible.builtin.assert:
     that:
       - "{{ item }} | default('', true) | trim != ''"
@@ -24,3 +24,13 @@
     - bootstrap_kube_vip_addr
     - bootstrap_cluster_cidr
     - bootstrap_service_cidr
+
+- name: Verify bootstrap node names are valid
+  ansible.builtin.assert:
+    that:
+      - "item.name is match('^[a-z0-9-]+$')"
+    success_msg: "Node name {{ item.name }} is valid"
+    fail_msg: "Node name {{ item.name }} is not valid"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop_control:
+     label: "{{ item.name }}"
