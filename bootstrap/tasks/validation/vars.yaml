@@ -4,7 +4,7 @@
   ansible.builtin.assert:
     that:
       - "{{ item }} | default('', true) | trim != ''"
-    success_msg: "Required bootstrap var {{ item }} exists and defined"
+    success_msg: "Required bootstrap var {{ item }} exists and is defined"
     fail_msg: "Required bootstrap var {{ item }} does not exists or is not defined"
   loop:
     - bootstrap_github_username
