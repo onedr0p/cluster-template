@@ -292,7 +292,7 @@ The configure script will have created a `./ansible` directory and the following
 4. Verify the nodes are online
 
    ```sh
-   task cluster:nodes
+   kubectl get nodes -o wide
    # NAME           STATUS   ROLES                       AGE     VERSION
    # k8s-0          Ready    control-plane,etcd,master   1h      v1.27.3+k3s1
    # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
@@ -305,7 +305,7 @@ The configure script will have created a `./ansible` directory and the following
 1. Verify Flux can be installed
 
    ```sh
-   task cluster:verify
+   flux check --pre
    # ► checking prerequisites
    # ✔ kubectl 1.27.3 >=1.18.0-0
    # ✔ Kubernetes 1.27.3+k3s1 >=1.16.0-0
@@ -334,7 +334,7 @@ The configure script will have created a `./ansible` directory and the following
 4. Verify Flux components are running in the cluster
 
    ```sh
-   task cluster:pods -- -n flux-system
+  kubectl -n flux-system get pods -o wide
    # NAME                                       READY   STATUS    RESTARTS   AGE
    # helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
    # kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
@@ -351,9 +351,9 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 task cluster:resources
 ```
 
-_Feel free to use the provided [cluster tasks](.taskfiles/ClusterTasks.yaml) for validation or start to get familiar with  the `kubectl` and `flux` CLI tools._
+_Feel free to use the provided [cluster tasks](.taskfiles/ClusterTasks.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
 
-🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster. If you run into problems, you can run `task ansible:nuke` to destroy your Kubernetes cluster and start over.
+🏆 **Congratulations** if all goes smooth you will have a Kubernetes cluster managed by Flux and your Git repository is driving the state of your cluster. If you run into problems, you can run `task ansible:nuke` to destroy your Kubernetes cluster and start over.
 
 🧠 Now it's time to pause and go get some coffee ☕ and admire you made it this far!
 
@@ -501,13 +501,13 @@ The benefits of a public repository include:
 8. Force flux to reconcile your changes
 
    ```sh
-   task cluster:reconcile
+   flux reconcile -n flux-system kustomization cluster --with-source
    ```
 
 9. Verify git repository is now using SSH:
 
    ```sh
-   task cluster:gitrepositories
+   flux get sources git -A
    ```
 
 10. Optionally set your repository to Private in your repository settings.
@@ -520,23 +520,37 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
 1. Start by checking all Flux Kustomizations & Git Repository & OCI Repository and verify they are healthy.
 
-- `flux get sources oci -A`
-- `flux get sources git -A`
-- `flux get ks -A`
+    ```sh
+    flux get sources oci -A
+    flux get sources git -A
+    flux get ks -A
+    ```
 
 2. Then check all the Flux Helm Releases and verify they are healthy.
 
-- `flux get hr -A`
+    ```sh
+    flux get hr -A
+    ```
 
 3. Then check the if the pod is present.
 
-- `kubectl -n <namespace> get pods`
+    ```sh
+    kubectl -n <namespace> get pods -o wide
+    ```
 
 4. Then check the logs of the pod if its there.
 
-- `kubectl -n <namespace> logs <pod-name> -f`
+    ```sh
+    kubectl -n <namespace> logs <pod-name> -f
+    # or
+    stern -n <namespace> <fuzzy-name>
+    ```
 
-Note: If a resource exists, running `kubectl -n <namespace> describe <resource> <name>` might give you insight into what the problem(s) could be.
+5. If a resource exists try to describe it to see what problems it might have.
+
+    ```sh
+    kubectl -n <namespace> describe <resource> <name>
+    ```
 
 Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
 
