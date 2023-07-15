@@ -503,15 +503,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
    https://flux-webhook.onedr0p.com/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
    ```
 
-2. Webhook secret - Your webhook secret can be found by decrypting the `secret.sops.yaml` using the following command:
-
-   ```sh
-   sops -d ./kubernetes/apps/flux-system/addons/webhooks/github/secret.sops.yaml | yq .stringData.token
-   ```
-
-   **Note:** Don't forget to update the `bootstrap_flux_github_webhook_token` variable in the `config.yaml` file so it matches the generated secret if applicable
-
-Now that you have the webhook url and secret, it's time to set everything up on the Github repository side. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your secret.
+Now that you have the webhook url and secret, it's time to set everything up on the Github repository side. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret.
 
 ### 💾 Storage
 
@@ -613,16 +605,6 @@ The benefits of a public repository include:
 10. Optionally set your repository to Private in your repository settings.
 
 </details>
-
-### 💨 Kubernetes Dashboard
-
-Included in your cluster is the [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/). Inorder to log into this you will have to get the secret token from the cluster using the command below.
-
-```sh
-kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}' | base64 -d
-```
-
-You should be able to access the dashboard at `https://kubernetes.${SECRET_DOMAIN}`
 
 ## 🐛 Debugging
 
