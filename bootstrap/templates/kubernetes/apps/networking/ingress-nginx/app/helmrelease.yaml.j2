@@ -1,3 +1,4 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
@@ -60,7 +61,11 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
+        {% if bootstrap_acme_enable_production_certs | default(false) %}
+        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
+        {% else %}
         default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-staging-tls"
+        {% endif %}
       resources:
         requests:
           cpu: 10m

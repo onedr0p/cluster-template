@@ -1,6 +1,9 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./staging.yaml
-  # - ./production.yaml
+  {% if bootstrap_acme_enable_production_certs | default(false) %}
+  - ./production.yaml
+  {% endif %}

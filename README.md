@@ -295,9 +295,7 @@ The configure script will have created a `./ansible` directory and the following
    task cluster:nodes
    # NAME           STATUS   ROLES                       AGE     VERSION
    # k8s-0          Ready    control-plane,etcd,master   1h      v1.27.3+k3s1
-   # k8s-1          Ready    control-plane,etcd,master   1h      v1.27.3+k3s1
-   # k8s-2          Ready    control-plane,etcd,master   1h      v1.27.3+k3s1
-   # k8s-3          Ready    worker                      1h      v1.27.3+k3s1
+   # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
    ```
 
 ### 🔹 GitOps with Flux
@@ -330,6 +328,7 @@ The configure script will have created a `./ansible` directory and the following
    task cluster:install
    # namespace/flux-system configured
    # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
+   # ...
    ```
 
 4. Verify Flux components are running in the cluster
@@ -428,54 +427,7 @@ If nothing is working, that is expected. This is DNS after all!
 
 ### 📜 Certificates
 
-By default this template will deploy a wildcard certificate with the Let's Encrypt staging servers. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. Once you have confirmed the certificate is created and valid, make sure to switch to the Let's Encrypt production servers as outlined below. Do not enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
-
-1. Update the resources to use the production Let's Encrypt server:
-
-    ```patch
-    diff --git a/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml b/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml
-    index e582d4a..0f80700 100644
-    --- a/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml
-    +++ b/kubernetes/apps/networking/ingress-nginx/app/helmrelease.yaml
-    @@ -60,7 +60,7 @@ spec:
-               namespaceSelector:
-                 any: true
-           extraArgs:
-    -        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-staging-tls"
-    +        default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
-           resources:
-             requests:
-               cpu: 10m
-    diff --git a/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml b/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml
-    index d57147d..f58e4a7 100644
-    --- a/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml
-    +++ b/kubernetes/apps/networking/ingress-nginx/certificates/kustomization.yaml
-    @@ -3,4 +3,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
-     kind: Kustomization
-     resources:
-       - ./staging.yaml
-    -  # - ./production.yaml
-    +  - ./production.yaml
-    ```
-
-2. Commit and push your changes:
-
-    ```sh
-    git add -A
-    git commit -m "fix: use production LE certificates"
-    git push
-    ```
-
-3. Force Flux to pick up the changes:
-
-    ```sh
-    task cluster:reconcile
-    ```
-
-- To view the certificate request run `kubectl -n networking get certificaterequests`
-- To verify the certificate is created run `kubectl -n networking get certificates`
-
-You should start to see your applications using the new certificate.
+By default this template will deploy a wildcard certificate with the Let's Encrypt staging servers. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. If you had `bootstrap_acme_enable_production_certs` set to `false` in your `bootstrap/vars/config.yaml`, make sure to switch to the Let's Encrypt production servers as outlined in that file. Do not enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
 
 ### 🤖 Renovatebot
 
@@ -487,23 +439,22 @@ To enable Renovate on your repository, click the 'Configure' button over at thei
 
 ### 🪝 Github Webhook
 
-Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`. In order to configure Github to send `push` events from your repository to the Flux webhook receiver you will need two things:
+Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`. In order to configure Github to send `push` events from your repository you must find your hook id that is already generated.
 
-1. Webhook URL - Your webhook receiver will be deployed on `https://flux-webhook.${bootstrap_cloudflare_domain}/hook/:hookId`. In order to find out your hook id you can run the following command:
+1. Obtain the hook id and path
 
-   ```sh
-   kubectl -n flux-system get receiver/github-receiver
-   # NAME              AGE    READY   STATUS
-   # github-receiver   6h8m   True    Receiver initialized with URL: /hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
-   ```
+    ```sh
+    kubectl -n flux-system get receiver github-receiver -o jsonpath='{.status.webhookPath}'
+    /hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    ```
 
-   So if my domain was `onedr0p.com` the full url would look like this:
+2. Piece your full URL with the hook path appended
 
-   ```text
-   https://flux-webhook.onedr0p.com/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
-   ```
+    ```text
+    https://flux-webhook.${bootstrap_cloudflare_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    ```
 
-Now that you have the webhook url and secret, it's time to set everything up on the Github repository side. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret.
+3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret.
 
 ### 💾 Storage
 

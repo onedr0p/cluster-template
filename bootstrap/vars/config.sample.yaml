@@ -13,6 +13,12 @@ bootstrap_age_public_key:
 bootstrap_timezone: Etc/UTC
 # Email you want to be associated with the ACME account (used for TLS certificates via letsencrypt.org)
 bootstrap_acme_email:
+# Use ACME production servers when requesting the wildcard certificate
+# The default here is `false` which means ACME staging certs will be used instead
+# This is to prevent being rate-limited. Update this option to `true` when you
+# have verified the staging certificate works and then re-run `task configure`
+# and push your changes to Github.
+bootstrap_acme_enable_production_certs: false
 
 # Flux github webhook token (openssl rand -hex 12)
 bootstrap_flux_github_webhook_token:
