@@ -3,4 +3,4 @@
   ansible.builtin.template:
     src: "templates/.sops.yaml.j2"
     dest: "{{ repository_path }}/.sops.yaml"
-    mode: "0755"
+    mode: "0644"
