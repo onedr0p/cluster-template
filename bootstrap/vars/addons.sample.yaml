@@ -33,3 +33,10 @@ csi_driver_nfs:
     #   server: # dns name or ip address of nfs server
     #   share:  # exported share (path)
     # ...
+
+# https://github.com/rancher/system-upgrade-controller
+system_upgrade_controller:
+  # WARNING: Only enable this if you also track the version of k3s in the
+  # ansible configuration files. Running ansible against an already provisioned
+  # cluster with this enabled might cause your cluster to be downgraded.
+  enabled: false
