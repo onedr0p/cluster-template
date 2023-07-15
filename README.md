@@ -60,7 +60,6 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     - Choose "All files in one partition"
     - Delete Swap partition
     - Uncheck all Debian desktop environment options
-    - Keep ssh server checked
     ```
 
 2. [Post install] Remove CD/DVD as apt source
@@ -78,7 +77,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     su -
     apt install sudo
     usermod -aG sudo ${username}
-    echo "${username}  ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
+    echo "${username} ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
     exit
     newgrp sudo
     sudo apt update
@@ -99,10 +98,10 @@ If you choose to use a Raspberry Pi for the cluster, it is recommended to have a
 
 According to the documentation [here](https://raspi.debian.net/defaults-and-settings/), after you have flashed the image onto a SSD/NVMe you must mount the drive and do the following.
 
-1. Edit the `sysconf.txt`
-2. Add/change `root_authorized_key` to your desired public SSH key
-3. Add/change `root_pw` to your desired root password
-4. Add/change `hostname` to your desired hostname
+1. Edit `sysconf.txt`
+2. Change `root_authorized_key` to your desired public SSH key.
+3. Change `root_pw` to your desired root password.
+4. Change `hostname` to your desired hostname.
 
 ## 🚀 Lets go
 
@@ -136,15 +135,15 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ### 🔐 Setting up Age
 
-📍 Here we will create a Age Private and Public key. Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
+📍 Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
 
-1. Create a Age Private / Public Key
+1. Create a Age private / public key
 
    ```sh
    age-keygen -o age.agekey
    ```
 
-2. Set up the directory for the Age key and move the Age file to it
+2. Create the directory for the Age key and move the Age file to it
 
    ```sh
    mkdir -p ~/.config/sops/age
