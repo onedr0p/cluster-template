@@ -344,61 +344,18 @@ The configure script will have created a `./ansible` directory and the following
 
 ### 🎤 Verification Steps
 
-_Mic check, 1, 2_ - In a few moments applications should be lighting up like a Christmas tree 🎄
-
-You are able to run all the commands below with one task
+_Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
 ```sh
+# Output the common resources in your cluster
 task cluster:resources
 ```
 
-1. View the Flux Git Repositories
+_Feel free to use the provided [cluster tasks](.taskfiles/ClusterTasks.yaml) for validation or start to get familiar with  the `kubectl` and `flux` CLI tools._
 
-   ```sh
-   task cluster:gitrepositories
-   ```
+🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster. If you run into problems, you can run `task ansible:nuke` to destroy your Kubernetes cluster and start over.
 
-2. View the Flux kustomizations
-
-   ```sh
-   task cluster:kustomizations
-   ```
-
-3. View all the Flux Helm Releases
-
-   ```sh
-   task cluster:helmreleases
-   ```
-
-4. View all the Flux Helm Repositories
-
-   ```sh
-   task cluster:helmrepositories
-   ```
-
-5. View all the Pods
-
-   ```sh
-   task cluster:pods
-   ```
-
-6. View all the certificates and certificate requests
-
-   ```sh
-   task cluster:certificates
-   ```
-
-7. View all the ingresses
-
-   ```sh
-   task cluster:ingresses
-   ```
-
-🏆 **Congratulations** if all goes smooth you'll have a Kubernetes cluster managed by Flux, your Git repository is driving the state of your cluster.
-
-☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
-
-🧠 Now it's time to pause and go get some coffee ☕ because next is describing additional things like how DNS is handled.
+🧠 Now it's time to pause and go get some coffee ☕ and admire you made it this far!
 
 ## 📣 Post installation
 
