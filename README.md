@@ -123,15 +123,15 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 2. [Homebrew] Install [go-task](https://github.com/go-task/task)
 
-   ```sh
-   brew install go-task/tap/go-task
-   ```
+    ```sh
+    brew install go-task/tap/go-task
+    ```
 
 3. [Homebrew] Install the other workstation dependencies
 
-   ```sh
-   task brew:deps
-   ```
+    ```sh
+    task brew:deps
+    ```
 
 ### 🔐 Setting up Age
 
@@ -139,23 +139,23 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 1. Create a Age private / public key
 
-   ```sh
-   age-keygen -o age.agekey
-   ```
+    ```sh
+    age-keygen -o age.agekey
+    ```
 
 2. Create the directory for the Age key and move the Age file to it
 
-   ```sh
-   mkdir -p ~/.config/sops/age
-   mv age.agekey ~/.config/sops/age/keys.txt
-   ```
+    ```sh
+    mkdir -p ~/.config/sops/age
+    mv age.agekey ~/.config/sops/age/keys.txt
+    ```
 
 3. Export the `SOPS_AGE_KEY_FILE` variable in your `bashrc`, `zshrc` or `config.fish` and source it, e.g.
 
-   ```sh
-   export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
-   source ~/.bashrc
-   ```
+    ```sh
+    export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+    source ~/.bashrc
+    ```
 
 4. Fill out the Age public key in the appropriate variable in configuration section below, **note** the public key should start with `age`...
 
@@ -173,10 +173,10 @@ In order to use `cert-manager` with the Cloudflare DNS challenge you will need t
 
 5. Under `Permissions`, click `+ Add More` and add each permission below:
 
-  ```text
-  Zone - DNS - Edit # should be there already if using the template from the previous step
-  Account - Cloudflare Tunnel - Read
-  ```
+    ```text
+    Zone - DNS - Edit # should be there already if using the template from the previous step
+    Account - Cloudflare Tunnel - Read
+    ```
 
   📍 Feel free to limit the permissions to a specific account and zone resources.
 
@@ -188,15 +188,15 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 1. Authenticate cloudflared to your domain
 
-   ```sh
-   cloudflared tunnel login
-   ```
+    ```sh
+    cloudflared tunnel login
+    ```
 
 2. Create the tunnel
 
-   ```sh
-   cloudflared tunnel create k8s
-   ```
+    ```sh
+    cloudflared tunnel create k8s
+    ```
 
 3. In the `~/.cloudflared` directory there will be a json file with details you need to populate in configuration section below. You can ignore the `cert.pem` file.
 
@@ -206,15 +206,15 @@ In order to expose services to the internet you will need to create a [Cloudflar
 
 1. Copy the configuration and addons files and start filling out all the variables.
 
-   ```sh
-   task init
-   ```
+    ```sh
+    task init
+    ```
 
 2. Once done run the following command which will verify and generate all the files needed to continue.
 
-   ```sh
-   task configure
-   ```
+    ```sh
+    task configure
+    ```
 
 ### 📂 Repository structure
 
@@ -237,33 +237,33 @@ The configure script will have created a `./ansible` directory and the following
 
 2. Install the Ansible deps
 
-   ```sh
-   task ansible:deps
-   ```
+    ```sh
+    task ansible:deps
+    ```
 
 3. Verify Ansible can view your config
 
-   ```sh
-   task ansible:list
-   ```
+    ```sh
+    task ansible:list
+    ```
 
 4. Verify Ansible can ping your nodes
 
-   ```sh
-   task ansible:ping
-   ```
+    ```sh
+    task ansible:ping
+    ```
 
 5. Run the Ansible prepare playbook
 
-   ```sh
-   task ansible:prepare
-   ```
+    ```sh
+    task ansible:prepare
+    ```
 
 6. Reboot the nodes (if not done in step 5)
 
-   ```sh
-   task ansible:force-reboot
-   ```
+    ```sh
+    task ansible:force-reboot
+    ```
 
 ### ⛵ Installing k3s with Ansible
 
@@ -273,30 +273,30 @@ The configure script will have created a `./ansible` directory and the following
 
 1. Verify Ansible can view your config
 
-   ```sh
-   task ansible:list
-   ```
+    ```sh
+    task ansible:list
+    ```
 
 2. Verify Ansible can ping your nodes
 
-   ```sh
-   task ansible:ping
-   ```
+    ```sh
+    task ansible:ping
+    ```
 
 3. Install k3s with Ansible
 
-   ```sh
-   task ansible:install
-   ```
+    ```sh
+    task ansible:install
+    ```
 
 4. Verify the nodes are online
 
-   ```sh
-   kubectl get nodes -o wide
-   # NAME           STATUS   ROLES                       AGE     VERSION
-   # k8s-0          Ready    control-plane,etcd,master   1h      v1.27.3+k3s1
-   # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
-   ```
+    ```sh
+    kubectl get nodes -o wide
+    # NAME           STATUS   ROLES                       AGE     VERSION
+    # k8s-0          Ready    control-plane,etcd,master   1h      v1.27.3+k3s1
+    # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
+    ```
 
 ### 🔹 GitOps with Flux
 
@@ -304,43 +304,43 @@ The configure script will have created a `./ansible` directory and the following
 
 1. Verify Flux can be installed
 
-   ```sh
-   flux check --pre
-   # ► checking prerequisites
-   # ✔ kubectl 1.27.3 >=1.18.0-0
-   # ✔ Kubernetes 1.27.3+k3s1 >=1.16.0-0
-   # ✔ prerequisites checks passed
-   ```
+    ```sh
+    flux check --pre
+    # ► checking prerequisites
+    # ✔ kubectl 1.27.3 >=1.18.0-0
+    # ✔ Kubernetes 1.27.3+k3s1 >=1.16.0-0
+    # ✔ prerequisites checks passed
+    ```
 
 2. Push you changes to git
 
    📍 **Verify** all the `*.sops.yaml` and `*.sops.yaml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
 
-   ```sh
-   git add -A
-   git commit -m "Initial commit :rocket:"
-   git push
-   ```
+    ```sh
+    git add -A
+    git commit -m "Initial commit :rocket:"
+    git push
+    ```
 
 3. Install Flux and sync the cluster to the Git repository
 
-   ```sh
-   task cluster:install
-   # namespace/flux-system configured
-   # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
-   # ...
-   ```
+    ```sh
+    task cluster:install
+    # namespace/flux-system configured
+    # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
+    # ...
+    ```
 
 4. Verify Flux components are running in the cluster
 
-   ```sh
-  kubectl -n flux-system get pods -o wide
-   # NAME                                       READY   STATUS    RESTARTS   AGE
-   # helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
-   # kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
-   # notification-controller-7c46575844-k4bvr   1/1     Running   0          1h
-   # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
-   ```
+    ```sh
+    kubectl -n flux-system get pods -o wide
+    # NAME                                       READY   STATUS    RESTARTS   AGE
+    # helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
+    # kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
+    # notification-controller-7c46575844-k4bvr   1/1     Running   0          1h
+    # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
+    ```
 
 ### 🎤 Verification Steps
 
@@ -441,9 +441,9 @@ The benefits of a public repository include:
 
 1. Generate new SSH key:
 
-   ```sh
-   ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./kubernetes/bootstrap/github-deploy.key -q -P ""
-   ```
+    ```sh
+    ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f ./kubernetes/bootstrap/github-deploy.key -q -P ""
+    ```
 
 2. Paste public key in the deploy keys section of your repository settings
 3. Create sops secret in `./kubernetes/bootstrap/github-deploy-key.sops.yaml` with the contents of:
@@ -469,46 +469,46 @@ The benefits of a public repository include:
 
 4. Encrypt secret:
 
-   ```sh
-   sops --encrypt --in-place ./kubernetes/bootstrap/github-deploy-key.sops.yaml
-   ```
+    ```sh
+    sops --encrypt --in-place ./kubernetes/bootstrap/github-deploy-key.sops.yaml
+    ```
 
 5. Apply secret to cluster:
 
-   ```sh
-   sops --decrypt ./kubernetes/bootstrap/github-deploy-key.sops.yaml | kubectl apply -f -
-   ```
+    ```sh
+    sops --decrypt ./kubernetes/bootstrap/github-deploy-key.sops.yaml | kubectl apply -f -
+    ```
 
 6. Update `./kubernetes/flux/config/cluster.yaml`:
 
-   ```yaml
-   apiVersion: source.toolkit.fluxcd.io/v1beta2
-   kind: GitRepository
-   metadata:
-     name: home-kubernetes
-     namespace: flux-system
-   spec:
-     interval: 10m
-     # 6a: Change this to your user and repo names
-     url: ssh://git@github.com/$user/$repo
-     ref:
-       branch: main
-     secretRef:
-       name: github-deploy-key
-   ```
+    ```yaml
+    apiVersion: source.toolkit.fluxcd.io/v1beta2
+    kind: GitRepository
+    metadata:
+      name: home-kubernetes
+      namespace: flux-system
+    spec:
+      interval: 10m
+      # 6a: Change this to your user and repo names
+      url: ssh://git@github.com/$user/$repo
+      ref:
+        branch: main
+      secretRef:
+        name: github-deploy-key
+    ```
 
 7. Commit and push changes
 8. Force flux to reconcile your changes
 
-   ```sh
-   flux reconcile -n flux-system kustomization cluster --with-source
-   ```
+    ```sh
+    flux reconcile -n flux-system kustomization cluster --with-source
+    ```
 
 9. Verify git repository is now using SSH:
 
-   ```sh
-   flux get sources git -A
-   ```
+    ```sh
+    flux get sources git -A
+    ```
 
 10. Optionally set your repository to Private in your repository settings.
 
