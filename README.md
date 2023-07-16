@@ -233,7 +233,7 @@ The configure script will have created a `./ansible` directory and the following
 
 📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
 
-1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. This is how Ansible is able to connect to your remote nodes.
+1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. For example using a SSH agent. This is how Ansible is able to connect to your remote nodes.
 
 2. Install the Ansible deps
 
