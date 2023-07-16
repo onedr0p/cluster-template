@@ -2,17 +2,6 @@
 
 Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
 
-## Overview
-
-- [Introduction](https://github.com/onedr0p/flux-cluster-template#-introduction)
-- [Prerequisites](https://github.com/onedr0p/flux-cluster-template#-prerequisites)
-- [Repository structure](https://github.com/onedr0p/flux-cluster-template#-repository-structure)
-- [Lets go!](https://github.com/onedr0p/flux-cluster-template#-lets-go)
-- [Post installation](https://github.com/onedr0p/flux-cluster-template#-post-installation)
-- [Troubleshooting](https://github.com/onedr0p/flux-cluster-template#-troubleshooting)
-- [What's next](https://github.com/onedr0p/flux-cluster-template#-whats-next)
-- [Thanks](https://github.com/onedr0p/flux-cluster-template#-thanks)
-
 ## 👋 Introduction
 
 The following components will be installed in your [k3s](https://k3s.io/) cluster by default. Most are only included to get a minimum viable cluster up and running.
@@ -28,38 +17,36 @@ The following components will be installed in your [k3s](https://k3s.io/) cluste
 
 _Additional applications can be enabled in the [addons](./bootstrap/vars/addons.sample.yaml) configuration file_
 
-## 📝 Prerequisites
+## 📝 Pre-start checklist
 
-1. Please bring a **positive attitude** and be ready to learn and fail a lot. The more you fail, the more you can learn from.
-2. This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
-3. You **MUST** have a domain you can manage on Cloudflare.
-4. Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
-5. By default your domain name will **NOT** be visible to the public.
-6. To reach internal-only apps you **MUST** have a DNS server that supports split DNS (Pi-Hole, Blocky, Dnsmasq, Unbound, etc...) deployed somewhere outside your cluster **ON** your home network.
-7. In order for this all to work you have to use nodes that have access to the internet. This is not going to work in air-gapped environments.
-8. Only **amd64** and/or **arm64** nodes are supported.
+Before we get started, everything below must be taken into consideration.
+
+- [ ] Bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
+- [ ] This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
+- [ ] You **MUST** have a domain you can manage on Cloudflare.
+- [ ] Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
+- [ ] Your domain name will **NOT** be visible to the public.
+- [ ] You **MUST** have a DNS server that supports split DNS (e.g. Pi-Hole or Dnsmasq) deployed somewhere outside your cluster **ON** your home network.
+- [ ] You have to use nodes that have access to the internet. _This is not going to work in air-gapped environments._
+- [ ] Only **amd64** and/or **arm64** nodes are supported.
 
 With that out of the way please continue on if you are still interested...
 
-### 📚 Reading material
+## 💻 System Preparation
 
-- [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/)
+Download [Debian 12](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/) (or if using ARM64 / Raspberry Pi use the [tested images](https://raspi.debian.net/tested-images/))
 
-### 💻 System Preparation
-
-Download [Debian 12](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/) (for raspi/arm64 use the [tested images](https://raspi.debian.net/tested-images/))
-
-#### AMD64
+### AMD64
 
 There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step/) on how to get Debian installed.
 
 1. Deviations from that guide
 
     ```txt
-    - Choose "Guided - use entire disk"
-    - Choose "All files in one partition"
-    - Delete Swap partition
-    - Uncheck all Debian desktop environment options
+    Choose "Guided - use entire disk"
+    Choose "All files in one partition"
+    Delete Swap partition
+    Uncheck all Debian desktop environment options
     ```
 
 2. [Post install] Remove CD/DVD as apt source
@@ -92,7 +79,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-#### Raspberry Pi / ARM64
+### ARM64 / Raspberry Pi
 
 If you choose to use a Raspberry Pi for the cluster, it is recommended to have at minimum a Raspberry Pi4 (4GB) and preferably an 8GB model. Additionally, it is also recommended to boot from an external SSD, rather than the SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early Raspberry Pi4, you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
 
@@ -109,11 +96,11 @@ Very first step will be to create a new **public** repository by clicking the bi
 
 Clone **your new repo** to you local workstation and `cd` into it.
 
-📍 **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
+**All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
 ### 🔧 Workstation Tools
 
-📍 Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`.
+📍 _Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`._
 
 1. Install the following CLI tools on your workstation, if you are using [Homebrew](https://brew.sh/) skip this step and move onto 2 & 3.
 
@@ -133,92 +120,100 @@ Clone **your new repo** to you local workstation and `cd` into it.
     task brew:deps
     ```
 
-### 🔐 Setting up Age
+### 🌱 Environment
 
-📍 Using [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
-
-1. Create a Age private / public key
-
-    ```sh
-    age-keygen -o age.agekey
-    ```
-
-2. Create the directory for the Age key and move the Age file to it
-
-    ```sh
-    mkdir -p ~/.config/sops/age
-    mv age.agekey ~/.config/sops/age/keys.txt
-    ```
-
-3. Export the `SOPS_AGE_KEY_FILE` variable in your `bashrc`, `zshrc` or `config.fish` and source it, e.g.
-
-    ```sh
-    export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
-    source ~/.bashrc
-    ```
-
-4. Fill out the Age public key in the appropriate variable in configuration section below, **note** the public key should start with `age`...
-
-### ☁️ Cloudflare API Token
-
-In order to use `cert-manager` with the Cloudflare DNS challenge you will need to create a API Token.
-
-1. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
-
-2. Under the `API Tokens` section, click the blue "Create Token" button.
-
-3. Click the "Use template" blue button for the `Edit zone DNS` template.
-
-4. Give your token a name like `home-k8s-cluster`
-
-5. Under `Permissions`, click `+ Add More` and add each permission below:
-
-    ```text
-    Zone - DNS - Edit # should be there already if using the template from the previous step
-    Account - Cloudflare Tunnel - Read
-    ```
-
-  📍 Feel free to limit the permissions to a specific account and zone resources.
-
-6. Use the API Token in the appropriate variable in configuration section below.
-
-### ☁️ Cloudflare Tunnel
-
-In order to expose services to the internet you will need to create a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
-
-1. Authenticate cloudflared to your domain
-
-    ```sh
-    cloudflared tunnel login
-    ```
-
-2. Create the tunnel
-
-    ```sh
-    cloudflared tunnel create k8s
-    ```
-
-3. In the `~/.cloudflared` directory there will be a json file with details you need to populate in configuration section below. You can ignore the `cert.pem` file.
+[direnv](https://direnv.net/) will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
 
 ### 📄 Configuration
 
-📍 The `bootstrap/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `bootstrap/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git.
+📍 _The `bootstrap/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `bootstrap/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git._
 
-1. Copy the configuration and addons files and start filling out all the variables.
+1. Generate `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml`
 
     ```sh
     task init
     ```
 
-2. Once done run the following command which will verify and generate all the files needed to continue.
+2. Setup Age private / public key
+
+    📍 Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
+
+    2a. Create a Age private / public key
+
+      ```sh
+      age-keygen -o age.agekey
+      ```
+
+    2b. Create the directory for the Age key and move the Age file to it
+
+      ```sh
+      mkdir -p ~/.config/sops/age
+      mv age.agekey ~/.config/sops/age/keys.txt
+      ```
+
+    3b. Export the `SOPS_AGE_KEY_FILE` variable in your `bashrc`, `zshrc` or `config.fish` and source it, e.g.
+
+      ```sh
+      export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+      source ~/.bashrc
+      ```
+
+    3c. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+
+3. Create Cloudflare API Token
+
+    📍 _To use `cert-manager` with the Cloudflare DNS challenge you will need to create a API Token._
+
+   3a. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
+
+   3b. Under the `API Tokens` section, click the blue "Create Token" button.
+
+   3c. Click the "Use template" blue button for the `Edit zone DNS` template.
+
+   3d. Give your token a name like `home-kubernetes`
+
+   3e. Under `Permissions`, click `+ Add More` and add each permission below:
+
+    ```text
+    Zone - DNS - Edit
+    Account - Cloudflare Tunnel - Read
+    ```
+
+   3f. Limit the permissions to a specific account and zone resources.
+
+   3g. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+
+4. Create Cloudflare Tunnel
+
+    📍 _To expose services to the internet you will need to create a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)._
+
+    4a. Authenticate cloudflared to your domain
+
+      ```sh
+      cloudflared tunnel login
+      ```
+
+    4b. Create the tunnel
+
+      ```sh
+      cloudflared tunnel create k8s
+      ```
+
+    4c. In the `~/.cloudflared` directory there will be a json file with details you need. Ignore the `cert.pem` file.
+
+    4d. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+
+5. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
+
+    5a. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
+
+7. Once done run the following command which will verify and generate all the files needed to continue.
 
     ```sh
     task configure
     ```
 
-### 📂 Repository structure
-
-The configure script will have created a `./ansible` directory and the following directories under `./kubernetes`.
+📍 _The configure task will create a `./ansible` directory and the following directories under `./kubernetes`._
 
 ```sh
 📁 kubernetes      # Kubernetes cluster defined as code
@@ -227,11 +222,9 @@ The configure script will have created a `./ansible` directory and the following
 └─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
-### ⚡ Preparing Debian Server with Ansible
+### ⚡ Node Preparation
 
-📍 Here we will be running an Ansible Playbook to prepare Debian server for running a Kubernetes cluster.
-
-📍 Nodes are not security hardened by default, you can do this with [dev-sec/ansible-collection-hardening](https://github.com/dev-sec/ansible-collection-hardening) or similar if supported. This is an advanced configuration and generally not recommended unless you want to [DevSecOps](https://www.ibm.com/topics/devsecops) your cluster and nodes.
+📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. For example using a SSH agent. This is how Ansible is able to connect to your remote nodes.
 
@@ -253,23 +246,15 @@ The configure script will have created a `./ansible` directory and the following
     task ansible:ping
     ```
 
-5. Run the Ansible prepare playbook
+5. Run the Ansible prepare playbook (nodes wil reboot when done)
 
     ```sh
     task ansible:prepare
     ```
 
-6. Reboot the nodes (if not done in step 5)
+### ⛵ Kubernetes Installation
 
-    ```sh
-    task ansible:force-reboot
-    ```
-
-### ⛵ Installing k3s with Ansible
-
-📍 Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) wonderful k3s Ansible galaxy role. After completion, Ansible will drop a `kubeconfig` in `./kubeconfig` for use with interacting with your cluster with `kubectl`.
-
-☢️ If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over.
+📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over._
 
 1. Verify Ansible can view your config
 
@@ -291,6 +276,8 @@ The configure script will have created a `./ansible` directory and the following
 
 4. Verify the nodes are online
 
+    📍 _If this command **fails** you likely haven't configured direnv as mentioned previously in the guide._
+
     ```sh
     kubectl get nodes -o wide
     # NAME           STATUS   ROLES                       AGE     VERSION
@@ -298,9 +285,11 @@ The configure script will have created a `./ansible` directory and the following
     # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
     ```
 
+5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
+
 ### 🔹 GitOps with Flux
 
-📍 Here we will be installing [flux](https://toolkit.fluxcd.io/) after some quick bootstrap steps.
+📍 Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps.
 
 1. Verify Flux can be installed
 
@@ -359,10 +348,6 @@ _Feel free to use the provided [cluster tasks](.taskfiles/ClusterTasks.yaml) for
 
 ## 📣 Post installation
 
-### 🌱 Environment
-
-[direnv](https://direnv.net/) will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
-
 ### 🌐 DNS
 
 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
@@ -412,18 +397,6 @@ Flux is pull-based by design meaning it will periodically check your git reposit
     ```
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret.
-
-### 💾 Storage
-
-Rancher's `local-path-provisioner` is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. Check out the projects below to read up more on some storage solutions that might work for you.
-
-- [rook-ceph](https://github.com/rook/rook)
-- [longhorn](https://github.com/longhorn/longhorn)
-- [openebs](https://github.com/openebs/openebs)
-- [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
-- [democratic-csi](https://github.com/democratic-csi/democratic-csi)
-- [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)
-- [synology-csi](https://github.com/SynologyOpenSource/synology-csi)
 
 ### 🔏 Authenticate Flux over SSH
 
@@ -513,6 +486,18 @@ The benefits of a public repository include:
 10. Optionally set your repository to Private in your repository settings.
 
 </details>
+
+### 💾 Storage
+
+Rancher's `local-path-provisioner` is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. Check out the projects below to read up more on some storage solutions that might work for you.
+
+- [rook-ceph](https://github.com/rook/rook)
+- [longhorn](https://github.com/longhorn/longhorn)
+- [openebs](https://github.com/openebs/openebs)
+- [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
+- [democratic-csi](https://github.com/democratic-csi/democratic-csi)
+- [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)
+- [synology-csi](https://github.com/SynologyOpenSource/synology-csi)
 
 ## 🐛 Debugging
 
