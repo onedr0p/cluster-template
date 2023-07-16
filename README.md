@@ -134,6 +134,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
     task init
     ```
 
+---
+
 2. Setup Age private / public key
 
     📍 Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
@@ -160,6 +162,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
     3c. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
+---
+
 3. Create Cloudflare API Token
 
     📍 _To use `cert-manager` with the Cloudflare DNS challenge you will need to create a API Token._
@@ -183,6 +187,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
    3g. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
+---
+
 4. Create Cloudflare Tunnel
 
     📍 _To expose services to the internet you will need to create a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)._
@@ -203,15 +209,21 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
     4d. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
+---
+
 5. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
 
     5a. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
+
+---
 
 7. Once done run the following command which will verify and generate all the files needed to continue.
 
     ```sh
     task configure
     ```
+
+---
 
 📍 _The configure task will create a `./ansible` directory and the following directories under `./kubernetes`._
 
