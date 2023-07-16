@@ -36,7 +36,7 @@ With that out of the way please continue on if you are still interested...
 
 Download [Debian 12](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/) (or if using ARM64 / Raspberry Pi use the [tested images](https://raspi.debian.net/tested-images/))
 
-### AMD64
+#### AMD64
 
 There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step/) on how to get Debian installed.
 
@@ -79,7 +79,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-### ARM64 / Raspberry Pi
+#### ARM64 / Raspberry Pi
 
 If you choose to use a Raspberry Pi for the cluster, it is recommended to have at minimum a Raspberry Pi4 (4GB) and preferably an 8GB model. Additionally, it is also recommended to boot from an external SSD, rather than the SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early Raspberry Pi4, you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
 
@@ -100,7 +100,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-### 🔧 Workstation Tools
+#### 🔧 Workstation Tools
 
 📍 _Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`._
 
@@ -124,13 +124,13 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-### 🌱 Environment
+#### 🌱 Environment
 
 [direnv](https://direnv.net/) will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
 
 ---
 
-### 📄 Configuration
+#### 📄 Configuration
 
 📍 _The `bootstrap/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `bootstrap/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git._
 
@@ -230,7 +230,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-### ⚡ Node Preparation
+#### ⚡ Node Preparation
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
@@ -262,7 +262,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-### ⛵ Kubernetes Installation
+#### ⛵ Kubernetes Installation
 
 📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over._
 
@@ -299,7 +299,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-### 🔹 GitOps with Flux
+#### 🔹 GitOps with Flux
 
 📍 Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps.
 
@@ -345,7 +345,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-### 🎤 Verification Steps
+#### 🎤 Verification Steps
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
