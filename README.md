@@ -26,7 +26,7 @@ Before we get started, everything below must be taken into consideration.
 - [ ] You **MUST** have a domain you can manage on Cloudflare.
 - [ ] Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
 - [ ] Your domain name will **NOT** be visible to the public.
-- [ ] You **MUST** have a DNS server that supports split DNS (e.g. Pi-Hole or Dnsmasq) deployed somewhere outside your cluster **ON** your home network.
+- [ ] You **MUST** have a DNS server that supports split DNS (e.g. Pi-Hole) deployed somewhere outside your cluster **ON** your home network.
 - [ ] You have to use nodes that have access to the internet. _This is not going to work in air-gapped environments._
 - [ ] Only **amd64** and/or **arm64** nodes are supported.
 
@@ -92,11 +92,9 @@ According to the documentation [here](https://raspi.debian.net/defaults-and-sett
 
 ## 🚀 First Steps
 
-Very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page.
+The very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page. Next clone **your new repo** to you local workstation and `cd` into it.
 
-Clone **your new repo** to you local workstation and `cd` into it.
-
-**All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
+📍 _**All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes._
 
 ## 🔧 Workstation Tools
 
@@ -122,7 +120,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ## 🌱 Environment
 
-[direnv](https://direnv.net/) will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
+Take a moment and configure [direnv](https://direnv.net/). This tool will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
 
 ## 📄 Configuration
 
@@ -136,7 +134,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 2. Setup Age private / public key
 
-    📍 Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux.
+    📍 _Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux._
 
     2a. Create a Age private / public key
 
@@ -289,8 +287,6 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
----
-
 ## 🔹 GitOps with Flux
 
 📍 _Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps._
@@ -352,7 +348,7 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 3. 🏆 **Congratulations** if all goes smooth you will have a Kubernetes cluster managed by Flux and your Git repository is driving the state of your cluster.
 
-4. 🧠 Now it's time to pause and go get some coffee ☕ and admire you made it this far!
+4. 🧠 Now it's time to pause and go get some motel motor oil ☕ and admire you made it this far!
 
 ## 📣 Post installation
 
@@ -545,7 +541,7 @@ Below is a general guide on trying to debug an issue with an resource or applica
     kubectl -n <namespace> describe <resource> <name>
     ```
 
-6. Check the events
+6. Check the namespace events
 
     ```sh
     kubectl get events -n <namespace> --sort-by='.metadata.creationTimestamp'
