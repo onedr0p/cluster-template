@@ -98,6 +98,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
+---
+
 ### 🔧 Workstation Tools
 
 📍 _Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`._
@@ -120,9 +122,13 @@ Clone **your new repo** to you local workstation and `cd` into it.
     task brew:deps
     ```
 
+---
+
 ### 🌱 Environment
 
 [direnv](https://direnv.net/) will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
+
+---
 
 ### 📄 Configuration
 
@@ -234,6 +240,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
 └─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
+---
+
 ### ⚡ Node Preparation
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
@@ -263,6 +271,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
     ```sh
     task ansible:prepare
     ```
+
+---
 
 ### ⛵ Kubernetes Installation
 
@@ -298,6 +308,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
     ```
 
 5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
+
+---
 
 ### 🔹 GitOps with Flux
 
@@ -342,6 +354,8 @@ Clone **your new repo** to you local workstation and `cd` into it.
     # notification-controller-7c46575844-k4bvr   1/1     Running   0          1h
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
+
+---
 
 ### 🎤 Verification Steps
 
