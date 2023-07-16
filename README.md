@@ -90,7 +90,7 @@ According to the documentation [here](https://raspi.debian.net/defaults-and-sett
 3. Change `root_pw` to your desired root password.
 4. Change `hostname` to your desired hostname.
 
-## 🚀 Lets go
+## 🚀 First Steps
 
 Very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page.
 
@@ -98,11 +98,9 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 **All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes.
 
----
+## 🔧 Workstation Tools
 
-#### 🔧 Workstation Tools
-
-📍 _Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you don't have the most recent version of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`._
+📍 _Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you **don't have the most recent version** of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`._
 
 1. Install the following CLI tools on your workstation, if you are using [Homebrew](https://brew.sh/) skip this step and move onto 2 & 3.
 
@@ -122,19 +120,15 @@ Clone **your new repo** to you local workstation and `cd` into it.
     task brew:deps
     ```
 
----
-
-#### 🌱 Environment
+## 🌱 Environment
 
 [direnv](https://direnv.net/) will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
 
----
-
-#### 📄 Configuration
+## 📄 Configuration
 
 📍 _The `bootstrap/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `bootstrap/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git._
 
-1. Generate `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml`
+1. Generate the `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` configuration files.
 
     ```sh
     task init
@@ -228,9 +222,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 └─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
----
-
-#### ⚡ Node Preparation
+## ⚡ Node Preparation
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
@@ -262,7 +254,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-#### ⛵ Kubernetes Installation
+## ⛵ Kubernetes Installation
 
 📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over from this point._
 
@@ -286,7 +278,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 4. Verify the nodes are online
 
-    📍 _If this command **fails** you likely haven't configured direnv as mentioned previously in the guide._
+    📍 _If this command **fails** you likely haven't configured `direnv` as mentioned previously in the guide._
 
     ```sh
     kubectl get nodes -o wide
@@ -299,7 +291,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ---
 
-#### 🔹 GitOps with Flux
+## 🔹 GitOps with Flux
 
 📍 _Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps._
 
@@ -343,9 +335,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
 
----
-
-#### 🎤 Verification Steps
+## 🎤 Verification Steps
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
