@@ -264,7 +264,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 #### ⛵ Kubernetes Installation
 
-📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over._
+📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over from this point._
 
 1. Verify Ansible can view your config
 
@@ -301,7 +301,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 #### 🔹 GitOps with Flux
 
-📍 Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps.
+📍 _Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps._
 
 1. Verify Flux can be installed
 
@@ -349,20 +349,24 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
-```sh
-# Output the common resources in your cluster
-task cluster:resources
-```
+1. Output all the common resources in your cluster.
 
-_Feel free to use the provided [cluster tasks](.taskfiles/ClusterTasks.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
+    📍 _Feel free to use the provided [cluster tasks](.taskfiles/ClusterTasks.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
 
-🏆 **Congratulations** if all goes smooth you will have a Kubernetes cluster managed by Flux and your Git repository is driving the state of your cluster. If you run into problems, you can run `task ansible:nuke` to destroy your Kubernetes cluster and start over.
 
-🧠 Now it's time to pause and go get some coffee ☕ and admire you made it this far!
+    ```sh
+    task cluster:resources
+    ```
+
+2. ⚠️ It might `cert-manager` awhile to generate certificates, this is normal so be patient.
+
+3. 🏆 **Congratulations** if all goes smooth you will have a Kubernetes cluster managed by Flux and your Git repository is driving the state of your cluster.
+
+4. 🧠 Now it's time to pause and go get some coffee ☕ and admire you made it this far!
 
 ## 📣 Post installation
 
-### 🌐 DNS
+#### 🌐 DNS
 
 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
 
@@ -381,11 +385,11 @@ If having trouble you can ask for help in [this](https://github.com/onedr0p/flux
 
 If nothing is working, that is expected. This is DNS after all!
 
-### 📜 Certificates
+#### 📜 Certificates
 
 By default this template will deploy a wildcard certificate with the Let's Encrypt staging servers. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. If you had `bootstrap_acme_enable_production_certs` set to `false` in your `bootstrap/vars/config.yaml`, make sure to switch to the Let's Encrypt production servers as outlined in that file. Do not enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
 
-### 🤖 Renovatebot
+#### 🤖 Renovatebot
 
 [Renovatebot](https://www.mend.io/free-developer-tools/renovate/) will scan your repository and offer PRs when it finds dependencies out of date. Common dependencies it will discover and update are Flux, Ansible Galaxy Roles, Terraform Providers, Kubernetes Helm Charts, Kubernetes Container Images, and more!
 
@@ -393,7 +397,7 @@ The base Renovate configuration provided in your repository can be view at [.git
 
 To enable Renovate on your repository, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and choose your repository. Over time Renovate will create PRs for out-of-date dependencies it finds. Any merged PRs that are in the kubernetes directory Flux will deploy.
 
-### 🪝 Github Webhook
+#### 🪝 Github Webhook
 
 Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`. In order to configure Github to send `push` events from your repository you must find your hook id that is already generated.
 
@@ -412,7 +416,7 @@ Flux is pull-based by design meaning it will periodically check your git reposit
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret.
 
-### 🔏 Authenticate Flux over SSH
+#### 🔏 Authenticate Flux over SSH
 
 Authenticating Flux to your git repository has a couple benefits like using a private git repository and/or using the Flux [Image Automation Controllers](https://fluxcd.io/docs/components/image/).
 
@@ -501,7 +505,7 @@ The benefits of a public repository include:
 
 </details>
 
-### 💾 Storage
+#### 💾 Storage
 
 Rancher's `local-path-provisioner` is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. Check out the projects below to read up more on some storage solutions that might work for you.
 
@@ -549,6 +553,12 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
     ```sh
     kubectl -n <namespace> describe <resource> <name>
+    ```
+
+6. Check the events
+
+    ```sh
+    kubectl get events -n <namespace> --sort-by='.metadata.creationTimestamp'
     ```
 
 Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
