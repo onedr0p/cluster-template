@@ -126,7 +126,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
 ## 📄 Configuration
 
-📍 _The `bootstrap/vars/config.yaml` file contains necessary configuration that is needed by Ansible and Flux. The `bootstrap/vars/addons.yaml` file allows you to customize which additional apps you want deployed in your cluster. These files are added to the `.gitignore` file and will not be tracked by Git._
+📍 _Both `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` files contain necessary information that is needed by bootstrap process._
 
 1. Generate the `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` configuration files.
 
@@ -166,11 +166,11 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
    3a. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
 
-   3b. Under the `API Tokens` section, click the blue "Create Token" button.
+   3b. Under the `API Tokens` section click the blue `Create Token` button.
 
-   3c. Click the "Use template" blue button for the `Edit zone DNS` template.
+   3c. Click the blue `Use template` button for the `Edit zone DNS` template.
 
-   3d. Give your token a name like `home-kubernetes`
+   3d. Name your token something like `home-kubernetes`
 
    3e. Under `Permissions`, click `+ Add More` and add each permission below:
 
@@ -207,7 +207,7 @@ Clone **your new repo** to you local workstation and `cd` into it.
 
     5a. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
 
-7. Once done run the following command which will verify and generate all the files needed to continue.
+6. Once done run the following command which will verify and generate all the files needed to continue.
 
     ```sh
     task configure
