@@ -72,6 +72,8 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
 4. [Post install] Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
 
+    📍 _First make sure your ssh keys are up-to-date and added to your github account as [instructed](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)._
+
     ```sh
     mkdir -m 700 ~/.ssh
     sudo apt install curl
@@ -411,7 +413,7 @@ By default this template only works on a public GitHub repository, it is advised
 The benefits of a public repository include:
 
 - Debugging or asking for help, you can provide a link to a resource you are having issues with.
-- Adding a topic to your repository of `k8s-at-home` to be included in the [k8s-at-home-search](https://whazor.github.io/k8s-at-home-search/). This search helps people discover different configurations of Helm charts across others Flux based repositories.
+- Adding a topic to your repository of `k8s-at-home` to be included in the [k8s-at-home-search](https://nanne.dev/k8s-at-home-search/). This search helps people discover different configurations of Helm charts across others Flux based repositories.
 
 <details>
   <summary>Expand to read guide on adding Flux SSH authentication</summary>
