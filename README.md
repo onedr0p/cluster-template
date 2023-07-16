@@ -344,7 +344,7 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
     task cluster:resources
     ```
 
-2. ⚠️ It might `cert-manager` awhile to generate certificates, this is normal so be patient.
+2. ⚠️ It might take `cert-manager` awhile to generate certificates, this is normal so be patient.
 
 3. 🏆 **Congratulations** if all goes smooth you will have a Kubernetes cluster managed by Flux and your Git repository is driving the state of your cluster.
 
