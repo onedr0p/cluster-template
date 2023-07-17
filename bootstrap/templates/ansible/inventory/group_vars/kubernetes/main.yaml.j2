@@ -1,3 +1,4 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 #
 # Below vars are for the xanmanning.k3s role
@@ -25,7 +26,9 @@ k3s_server_manifests_urls:
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
+  {% if bootstrap_ipv6_enabled | default(false) %}
   - custom-cilium-l2.yaml.j2
+  {% endif %}
   - custom-coredns-helmchart.yaml.j2
 # /var/lib/rancher/k3s/agent/pod-manifests
 k3s_server_pod_manifests_templates:
