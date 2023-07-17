@@ -32,11 +32,7 @@ spec:
     k8sAppLabelOverride: kube-dns
     service:
       name: kube-dns
-      {% if bootstrap_ipv6_enabled | default(false) %}
-      clusterIP: "{% raw %}{{ k3s_server['service-cidr'].split(',')[0] | ansible.utils.nthhost(10) }}{% endraw %}"
-      {% else %}
-      clusterIP: "{% raw %}{{ k3s_server['service-cidr'] | ansible.utils.nthhost(10) }}{% endraw %}"
-      {% endif %}
+      clusterIP: "{{ bootstrap_coredns_addr }}"
     serviceAccount:
       create: true
     deployment:

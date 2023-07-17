@@ -4,9 +4,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: kube-system
 resources:
-  {% if bootstrap_ipv6_enabled | default(false) %}
-  - ./helmrelease.yaml
-  {% else %}
+  {% if not bootstrap_ipv6_enabled | default(false) %}
   - ./cilium-l2.yaml
-  - ./helmrelease.yaml
   {% endif %}
+  - ./helmrelease.yaml
