@@ -30,7 +30,7 @@ spec:
       enabled: false
     ipam:
       mode: kubernetes
-    {% if ipv6_enabled %}
+    {% if bootstrap_ipv6_enabled %}
     ipv4NativeRoutingCIDR: "{% raw %}{{ cluster_cidr_v4 }}{% endraw %}"
     ipv6NativeRoutingCIDR: "{% raw %}{{ cluster_cidr_v6 }}{% endraw %}"
     ipv6:
@@ -42,12 +42,17 @@ spec:
     k8sServicePort: 6443
     kubeProxyReplacement: strict
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    {% if bootstrap_ipv6_enabled %}
+    l2announcements:
+      enabled: false
+    {% else %}
     # https://github.com/cilium/cilium/issues/26586
     l2announcements:
       enabled: true
       leaseDuration: 120s
       leaseRenewDeadline: 60s
       leaseRetryPeriod: 1s
+    {% endif %}
     loadBalancer:
       algorithm: maglev
       mode: dsr
