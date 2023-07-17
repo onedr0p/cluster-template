@@ -1,10 +1,15 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 # https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/
 # https://github.com/PyratLabs/ansible-role-k3s
 
 k3s_control_node: true
 k3s_server:
+{% if bootstrap_ipv6_enabled | default(false) %}
+  node-ip: "{% raw %}{{ ansible_host }},{{ ansible_default_ipv6.address }}{% endraw %}"
+{% else %}
   node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
+{% endif %}
   tls-san:
     - "{% raw %}{{ kube_vip_addr }}{% endraw %}"
   docker: false

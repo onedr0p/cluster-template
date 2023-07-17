@@ -19,7 +19,11 @@ spec:
     service:
       name: kube-dns
       # Choose the 10th IP address from the start of the service-cidr
+      {% if bootstrap_ipv6_enabled | default(false) %}
+      clusterIP: "{% raw %}{{ k3s_server['service-cidr'].split(',')[0] | ansible.utils.nthhost(10) }}{% endraw %}"
+      {% else %}
       clusterIP: "{% raw %}{{ k3s_server['service-cidr'] | ansible.utils.nthhost(10) }}{% endraw %}"
+      {% endif %}
     serviceAccount:
       create: true
     deployment:

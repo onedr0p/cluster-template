@@ -13,17 +13,47 @@
     success_msg: "Node CIDR {{ bootstrap_node_cidr }} is valid."
     fail_msg: "Node CIDR {{ bootstrap_node_cidr }} is invalid."
 
-- name: Verify cluster CIDR
+- name: Verify cluster CIDR is ipv4 OR ipv6
+  when: not bootstrap_ipv6_enabled | default(false)
   ansible.builtin.assert:
-    that: ["{{ bootstrap_cluster_cidr is ansible.utils.ipv4 }}"]
-    success_msg: "Cluster CIDR {{ bootstrap_cluster_cidr }} is valid."
-    fail_msg: "Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid."
+    that: bootstrap_cluster_cidr is ansible.utils.ipv4 or bootstrap_cluster_cidr is ansible.utils.ipv6
+    success_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is valid.
+    fail_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid.
 
-- name: Verify service CIDR
+- name: Verify service CIDR is ipv4 OR ipv6
+  when: not bootstrap_ipv6_enabled | default(false)
   ansible.builtin.assert:
-    that: ["{{ bootstrap_service_cidr is ansible.utils.ipv4 }}"]
-    success_msg: "Service CIDR {{ bootstrap_service_cidr }} is valid."
-    fail_msg: "Service CIDR {{ bootstrap_service_cidr }} is invalid."
+    that: bootstrap_service_cidr is ansible.utils.ipv4 or bootstrap_service_cidr is ansible.utils.ipv6
+    success_msg: Service CIDR {{ bootstrap_service_cidr }} is valid.
+    fail_msg: Service CIDR {{ bootstrap_service_cidr }} is invalid.
+
+- name: Verify cluster CIDR is ipv4 AND ipv6
+  when: bootstrap_ipv6_enabled | default(false)
+  ansible.builtin.assert:
+    that: >
+      (
+        bootstrap_cluster_cidr.split(',')[0] is ansible.utils.ipv4 or
+          bootstrap_cluster_cidr.split(',')[1] is ansible.utils.ipv4
+      ) and (
+        bootstrap_cluster_cidr.split(',')[1] is ansible.utils.ipv6 or
+          bootstrap_cluster_cidr.split(',')[0] is ansible.utils.ipv6
+      )
+    success_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is valid.
+    fail_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid.
+
+- name: Verify service CIDR is ipv4 AND ipv6
+  when: bootstrap_ipv6_enabled | default(false)
+  ansible.builtin.assert:
+    that: >
+      (
+        bootstrap_service_cidr.split(',')[0] is ansible.utils.ipv4 or
+          bootstrap_service_cidr.split(',')[1] is ansible.utils.ipv4
+      ) and (
+        bootstrap_service_cidr.split(',')[1] is ansible.utils.ipv6 or
+          bootstrap_service_cidr.split(',')[0] is ansible.utils.ipv6
+      )
+    success_msg: Service CIDR {{ bootstrap_service_cidr }} is valid.
+    fail_msg: Service CIDR {{ bootstrap_service_cidr }} is invalid.
 
 - name: Verify k8s_gateway
   ansible.builtin.assert:
@@ -71,6 +101,16 @@
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
      label: "{{ item.address }}"
+
+- name: Verify nodes are ipv4
+  ansible.builtin.assert:
+    that: item.address is ansible.utils.ipv4
+    success_msg: Node address {{ item.address }} is valid.
+    fail_msg: Node address {{ item.address }} is invalid.
+    quiet: true
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop_control:
+    label: "{{ item.address }}"
 
 - name: Verify nodes are in node CIDR
   ansible.builtin.assert:

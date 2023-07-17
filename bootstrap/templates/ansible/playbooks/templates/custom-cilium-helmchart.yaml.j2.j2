@@ -1,3 +1,4 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 # https://docs.k3s.io/helm
 apiVersion: helm.cattle.io/v1
@@ -30,17 +31,29 @@ spec:
       enabled: false
     ipam:
       mode: kubernetes
+    {% if bootstrap_ipv6_enabled | default(false) %}
+    ipv4NativeRoutingCIDR: "{% raw %}{{ k3s_server['cluster-cidr'].split(',')[0] }}{% endraw %}"
+    ipv6NativeRoutingCIDR: "{% raw %}{{ k3s_server['cluster-cidr'].split(',')[1] }}{% endraw %}"
+    ipv6:
+      enabled: true
+    {% else %}
     ipv4NativeRoutingCIDR: "{% raw %}{{ k3s_server['cluster-cidr'] }}{% endraw %}"
+    {% endif %}
     k8sServiceHost: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
     k8sServicePort: 6443
     kubeProxyReplacement: strict
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    {% if bootstrap_ipv6_enabled | default(false) %}
+    l2announcements:
+      enabled: false
+    {% else %}
     # https://github.com/cilium/cilium/issues/26586
     l2announcements:
       enabled: true
       leaseDuration: 120s
       leaseRenewDeadline: 60s
       leaseRetryPeriod: 1s
+    {% endif %}
     loadBalancer:
       algorithm: maglev
       mode: dsr
