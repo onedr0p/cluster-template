@@ -45,6 +45,11 @@ bootstrap_ingress_nginx_addr:
 # Choose your cluster and service cidrs, leave these unchanged unless you know what you are doing
 bootstrap_cluster_cidr: 10.42.0.0/16
 bootstrap_service_cidr: 10.43.0.0/16
+ipv6_enabled: false
+# If you want IPv6 enabled, please uncomment the below vars and comment the ones above
+# bootstrap_cluster_cidr: 10.42.0.0/16,fd7f:8f5:e87c:a::/64
+# bootstrap_service_cidr: 10.43.0.0/16,fd7f:8f5:e87c:e::/112
+# ipv6_enabled: true
 
 # Node information
 bootstrap_nodes:

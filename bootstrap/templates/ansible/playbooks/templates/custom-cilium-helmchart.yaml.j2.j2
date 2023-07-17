@@ -30,7 +30,14 @@ spec:
       enabled: false
     ipam:
       mode: kubernetes
+    {% if ipv6_enabled %}
+    ipv4NativeRoutingCIDR: "{% raw %}{{ cluster_cidr_v4 }}{% endraw %}"
+    ipv6NativeRoutingCIDR: "{% raw %}{{ cluster_cidr_v6 }}{% endraw %}"
+    ipv6:
+      enabled: true
+    {% else %}
     ipv4NativeRoutingCIDR: "{% raw %}{{ k3s_server['cluster-cidr'] }}{% endraw %}"
+    {% endif %}
     k8sServiceHost: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
     k8sServicePort: 6443
     kubeProxyReplacement: strict

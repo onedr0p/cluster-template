@@ -4,4 +4,8 @@
 
 k3s_control_node: false
 k3s_agent:
+  {% if ipv6_enabled %}
+  node-ip: "{% raw %}{{ ansible_host }},{{ ansible_default_ipv6.address }}{% endraw %}"
+  {% else %}
   node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
+  {% endif %}

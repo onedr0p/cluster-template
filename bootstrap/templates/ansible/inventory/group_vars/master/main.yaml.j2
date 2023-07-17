@@ -4,7 +4,11 @@
 
 k3s_control_node: true
 k3s_server:
+  {% if ipv6_enabled %}
+  node-ip: "{% raw %}{{ ansible_host }},{{ ansible_default_ipv6.address }}{% endraw %}"
+  {% else %}
   node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
+  {% endif %}
   tls-san:
     - "{% raw %}{{ kube_vip_addr }}{% endraw %}"
   docker: false
