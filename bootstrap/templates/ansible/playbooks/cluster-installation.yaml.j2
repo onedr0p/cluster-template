@@ -48,7 +48,7 @@
       loop:
         - { name: cilium, kind: HelmChart, namespace: kube-system }
         - { name: coredns, kind: HelmChart, namespace: kube-system }
-        {% if bootstrap_ipv6_enabled | default(false) %}
+        {% if not bootstrap_ipv6_enabled | default(false) %}
         - { name: policy, kind: CiliumL2AnnouncementPolicy }
         - { name: pool, kind: CiliumLoadBalancerIPPool }
         {% endif %}

@@ -26,7 +26,7 @@ k3s_server_manifests_urls:
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
-  {% if bootstrap_ipv6_enabled | default(false) %}
+  {% if not bootstrap_ipv6_enabled | default(false) %}
   - custom-cilium-l2.yaml.j2
   {% endif %}
   - custom-coredns-helmchart.yaml.j2
