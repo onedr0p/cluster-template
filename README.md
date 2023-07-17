@@ -151,14 +151,7 @@ Take a moment and configure [direnv](https://direnv.net/). This tool will make i
       mv age.agekey ~/.config/sops/age/keys.txt
       ```
 
-    3b. Export the `SOPS_AGE_KEY_FILE` variable in your `bashrc`, `zshrc` or `config.fish` and source it, e.g.
-
-      ```sh
-      export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
-      source ~/.bashrc
-      ```
-
-    3c. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    2c. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
 3. Create Cloudflare API Token
 
