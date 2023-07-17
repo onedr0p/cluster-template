@@ -13,19 +13,47 @@
     success_msg: "Node CIDR {{ bootstrap_node_cidr }} is valid."
     fail_msg: "Node CIDR {{ bootstrap_node_cidr }} is invalid."
 
-- name: Verify cluster CIDR
+- name: Verify cluster CIDR is ipv4 OR ipv6
+  when: not bootstrap_ipv6_enabled | default(false)
   ansible.builtin.assert:
-    that:
-     - "{{ bootstrap_cluster_cidr | regex_search('^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/[0-9]{1,2}$') is match('^.*$') or bootstrap_cluster_cidr | regex_search('^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\/[0-9]{1,3}$') is match('^.*$') }}"
-    success_msg: "Cluster CIDR {{ bootstrap_cluster_cidr }} is valid."
-    fail_msg: "Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid."
+    that: bootstrap_cluster_cidr is ansible.utils.ipv4 or bootstrap_cluster_cidr is ansible.utils.ipv6
+    success_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is valid.
+    fail_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid.
 
-- name: Verify service CIDR
+- name: Verify service CIDR is ipv4 OR ipv6
+  when: not bootstrap_ipv6_enabled | default(false)
   ansible.builtin.assert:
-    that:
-     - "{{ bootstrap_service_cidr | regex_search('^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/[0-9]{1,2}$') is match('^.*$') or bootstrap_service_cidr | regex_search('^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\/[0-9]{1,3}$') is match('^.*$') }}"
-    success_msg: "Service CIDR {{ bootstrap_service_cidr }} is valid."
-    fail_msg: "Service CIDR {{ bootstrap_service_cidr }} is invalid."
+    that: bootstrap_service_cidr is ansible.utils.ipv4 or bootstrap_service_cidr is ansible.utils.ipv6
+    success_msg: Service CIDR {{ bootstrap_service_cidr }} is valid.
+    fail_msg: Service CIDR {{ bootstrap_service_cidr }} is invalid.
+
+- name: Verify cluster CIDR is ipv4 AND ipv6
+  when: bootstrap_ipv6_enabled | default(false)
+  ansible.builtin.assert:
+    that: >
+      (
+        bootstrap_cluster_cidr.split(',')[0] is ansible.utils.ipv4 or
+          bootstrap_cluster_cidr.split(',')[1] is ansible.utils.ipv4
+      ) and (
+        bootstrap_cluster_cidr.split(',')[1] is ansible.utils.ipv6 or
+          bootstrap_cluster_cidr.split(',')[0] is ansible.utils.ipv6
+      )
+    success_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is valid.
+    fail_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid.
+
+- name: Verify service CIDR is ipv4 AND ipv6
+  when: bootstrap_ipv6_enabled | default(false)
+  ansible.builtin.assert:
+    that: >
+      (
+        bootstrap_service_cidr.split(',')[0] is ansible.utils.ipv4 or
+          bootstrap_service_cidr.split(',')[1] is ansible.utils.ipv4
+      ) and (
+        bootstrap_service_cidr.split(',')[1] is ansible.utils.ipv6 or
+          bootstrap_service_cidr.split(',')[0] is ansible.utils.ipv6
+      )
+    success_msg: Cluster CIDR {{ bootstrap_service_cidr }} is valid.
+    fail_msg: Cluster CIDR {{ bootstrap_service_cidr }} is invalid.
 
 - name: Verify k8s_gateway
   ansible.builtin.assert:
@@ -94,11 +122,3 @@
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
      label: "{{ item.address }}"
-
-- Name: Verify that nodes have an IPv6 address
-  ansible.builtin.assert:
-    that: ["{{ ansible_default_ipv6.address is ansible.utils.ipv6 }}"]
-    success_msg: "Node address {{ ansible_default_ipv6.address }} is valid IPv6."
-    fail_msg: "Node IPv6 address is not valid or it's missing from node."
-    quiet: true
-  when: ipv6_enabled
