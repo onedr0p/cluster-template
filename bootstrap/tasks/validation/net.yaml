@@ -52,8 +52,8 @@
         bootstrap_service_cidr.split(',')[1] is ansible.utils.ipv6 or
           bootstrap_service_cidr.split(',')[0] is ansible.utils.ipv6
       )
-    success_msg: Cluster CIDR {{ bootstrap_service_cidr }} is valid.
-    fail_msg: Cluster CIDR {{ bootstrap_service_cidr }} is invalid.
+    success_msg: Service CIDR {{ bootstrap_service_cidr }} is valid.
+    fail_msg: Service CIDR {{ bootstrap_service_cidr }} is invalid.
 
 - name: Verify k8s_gateway
   ansible.builtin.assert:
