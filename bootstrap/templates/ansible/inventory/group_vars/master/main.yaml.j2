@@ -5,7 +5,7 @@
 
 k3s_control_node: true
 k3s_server:
-{% if bootstrap_ipv6_enabled %}
+{% if bootstrap_ipv6_enabled | default(false) %}
   node-ip: "{% raw %}{{ ansible_host }},{{ ansible_default_ipv6.address }}{% endraw %}"
 {% else %}
   node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
