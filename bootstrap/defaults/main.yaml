@@ -1,2 +1,2 @@
 ---
-bootstrap_coredns_addr: "{{ bootstrap_service_cidr | ansible.utils.nthhost(10) }}"
+bootstrap_coredns_addr: "{{ bootstrap_service_cidr.split(',')[0] | ansible.utils.nthhost(10) }}"

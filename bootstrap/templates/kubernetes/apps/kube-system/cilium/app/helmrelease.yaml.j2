@@ -1,3 +1,4 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
@@ -75,17 +76,27 @@ spec:
                 - *host
     ipam:
       mode: kubernetes
+    ipv4NativeRoutingCIDR: "{{ bootstrap_cluster_cidr.split(',')[0] }}"
+    {% if bootstrap_ipv6_enabled | default(false) %}
+    ipv6NativeRoutingCIDR: "{{ bootstrap_cluster_cidr.split(',')[1] }}"
+    ipv6:
+      enabled: true
+    {% endif %}
     k8sServiceHost: "{{ bootstrap_kube_vip_addr }}"
     k8sServicePort: 6443
-    ipv4NativeRoutingCIDR: "{{ bootstrap_cluster_cidr }}"
     kubeProxyReplacement: strict
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    {% if bootstrap_ipv6_enabled | default(false) %}
+    l2announcements:
+      enabled: false
+    {% else %}
     # https://github.com/cilium/cilium/issues/26586
     l2announcements:
       enabled: true
       leaseDuration: 120s
       leaseRenewDeadline: 60s
       leaseRetryPeriod: 1s
+    {% endif %}
     loadBalancer:
       algorithm: maglev
       mode: dsr
