@@ -32,8 +32,8 @@ spec:
     ipam:
       mode: kubernetes
     {% if bootstrap_ipv6_enabled %}
-    ipv4NativeRoutingCIDR: "{% raw %}{{ cluster_cidr_v4 }}{% endraw %}"
-    ipv6NativeRoutingCIDR: "{% raw %}{{ cluster_cidr_v6 }}{% endraw %}"
+    ipv4NativeRoutingCIDR: "{% raw %}{{ k3s_server['cluster-cidr'].split(',')[0] }}{% endraw %}"
+    ipv6NativeRoutingCIDR: "{% raw %}{{ k3s_server['cluster-cidr'].split(',')[1] }}{% endraw %}"
     ipv6:
       enabled: true
     {% else %}
