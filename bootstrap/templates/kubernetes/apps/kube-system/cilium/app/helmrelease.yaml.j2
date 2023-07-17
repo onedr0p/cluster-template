@@ -76,13 +76,11 @@ spec:
                 - *host
     ipam:
       mode: kubernetes
-    {% if bootstrap_ipv6_enabled | default(false) %}
     ipv4NativeRoutingCIDR: "{{ bootstrap_cluster_cidr.split(',')[0] }}"
+    {% if bootstrap_ipv6_enabled | default(false) %}
     ipv6NativeRoutingCIDR: "{{ bootstrap_cluster_cidr.split(',')[1] }}"
     ipv6:
       enabled: true
-    {% else %}
-    ipv4NativeRoutingCIDR: "{{ bootstrap_cluster_cidr }}"
     {% endif %}
     k8sServiceHost: "{{ bootstrap_kube_vip_addr }}"
     k8sServicePort: 6443
