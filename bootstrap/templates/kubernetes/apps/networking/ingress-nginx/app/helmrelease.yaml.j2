@@ -61,7 +61,7 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        {% if bootstrap_acme_enable_production_certs | default(false) %}
+        {% if bootstrap_acme_production_enabled | default(false) %}
         default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-production-tls"
         {% else %}
         default-ssl-certificate: "networking/${SECRET_DOMAIN/./-}-staging-tls"
