@@ -66,4 +66,4 @@
           kubernetes.core.k8s_drain:
             state: uncordon
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
-          delegate_to: localhost
+          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
