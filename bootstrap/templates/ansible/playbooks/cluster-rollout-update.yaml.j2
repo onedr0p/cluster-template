@@ -34,7 +34,7 @@
         - name: "Drain {% raw %}{{ inventory_hostname }}{% endraw %}"
           kubernetes.core.k8s_drain:
             state: drain
-            name: {% raw %}{{ inventory_hostname }}{% endraw %}
+            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
             delete_options:
               delete_emptydir_data: true
               ignore_daemonsets: true
