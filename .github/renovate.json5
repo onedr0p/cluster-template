@@ -28,18 +28,21 @@
   },
   "flux": {
     "fileMatch": [
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "helm-values": {
     "fileMatch": [
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "kubernetes": {
     "fileMatch": [
       "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "kustomize": {
@@ -57,7 +60,8 @@
       "description": "Process various other dependencies",
       "fileMatch": [
         "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
+        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$",
+        "(^|/)addons/.+\\.ya?ml(\\.j2)?$"
       ],
       "matchStrings": [
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( registryUrl=(?<registryUrl>\\S+))?\n.*?\"(?<currentValue>.*)\"\n"
