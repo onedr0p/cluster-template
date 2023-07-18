@@ -372,40 +372,105 @@ Nothing working? That is expected, this is DNS after all!
 
 #### 📜 Certificates
 
-By default this template will deploy a wildcard certificate with the Let's Encrypt staging servers. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. If you had `bootstrap_acme_production_enabled` set to `false` in your `bootstrap/vars/config.yaml`, make sure to switch to the Let's Encrypt production servers as outlined in that file. Do not enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
-
-#### 🤖 Renovatebot
-
-[Renovatebot](https://www.mend.io/free-developer-tools/renovate/) will scan your repository and offer PRs when it finds dependencies out of date. Common dependencies it will discover and update are Flux, Ansible Galaxy Roles, Terraform Providers, Kubernetes Helm Charts, Kubernetes Container Images, and more!
-
-The base Renovate configuration provided in your repository can be view at [.github/renovate.json5](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate.json5). If you notice this only runs on weekends and you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/) or simply remove it.
-
-To enable Renovate on your repository, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and choose your repository. Over time Renovate will create PRs for out-of-date dependencies it finds. Any merged PRs that are in the kubernetes directory Flux will deploy.
+By default this template will deploy a **wildcard certificate** with the Let's Encrypt **staging** environment. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. If you had `bootstrap_acme_production_enabled` set to `false` in your `config.yaml`, make sure to switch to the Let's Encrypt production servers as outlined in that file. **Do not** enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
 
 #### 🪝 Github Webhook
 
-Flux is pull-based by design meaning it will periodically check your git repository for changes, using a webhook you can enable Flux to update your cluster on `git push`. In order to configure Github to send `push` events from your repository you must find your hook id that is already generated.
+By default Flux will periodically check your git repository for changes. In order to have Flux reconcile on `git push` you must configure Github to send `push` events.
 
-1. Obtain the hook id and path
+1. Obtain the webhook path
+
+    📍 _Hook id and path should look like `/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123`_
 
     ```sh
     kubectl -n flux-system get receiver github-receiver -o jsonpath='{.status.webhookPath}'
-    /hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-2. Piece your full URL with the hook path appended
+2. Piece together the full URL with the webhook path appended
 
     ```text
     https://flux-webhook.${bootstrap_cloudflare_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret.
+3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret and save.
 
-#### 🔏 Authenticate Flux over SSH
+#### 🤖 Renovatebot
+
+[Renovatebot](https://www.mend.io/renovate/) will scan your repository and offer PRs when it finds dependencies out of date. Common dependencies it will discover and update are Flux, Ansible Galaxy Roles, Terraform Providers, Kubernetes Helm Charts, Kubernetes Container Images, and more!
+
+The base Renovate configuration provided in your repository can be view at [.github/renovate.json5](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate.json5). If you notice this only runs on weekends and you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/) or simply remove it.
+
+To enable Renovate on your repository, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and choose your repository. Renovate will create PRs for out-of-date dependencies it finds and when merged Flux will apply them to your cluster.
+
+## 🐛 Debugging
+
+Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state.
+
+1. Start by checking all Flux Kustomizations & Git Repository & OCI Repository and verify they are healthy.
+
+    ```sh
+    flux get sources oci -A
+    flux get sources git -A
+    flux get ks -A
+    ```
+
+2. Then check all the Flux Helm Releases and verify they are healthy.
+
+    ```sh
+    flux get hr -A
+    ```
+
+3. Then check the if the pod is present.
+
+    ```sh
+    kubectl -n <namespace> get pods -o wide
+    ```
+
+4. Then check the logs of the pod if its there.
+
+    ```sh
+    kubectl -n <namespace> logs <pod-name> -f
+    # or
+    stern -n <namespace> <fuzzy-name>
+    ```
+
+5. If a resource exists try to describe it to see what problems it might have.
+
+    ```sh
+    kubectl -n <namespace> describe <resource> <name>
+    ```
+
+6. Check the namespace events
+
+    ```sh
+    kubectl get events -n <namespace> --sort-by='.metadata.creationTimestamp'
+    ```
+
+Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
+
+## 👉 Help
+
+- Make a post in this repository's Github [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
+- Start a thread in the `support` or `flux-cluster-template` channel in the [k8s@home](https://discord.gg/k8s-at-home) Discord server.
+
+## ❔ What's next
+
+The cluster is your oyster (or something like that). Below are some optional considerations you might want to review.
+
+#### Ship it
+
+To browse or get ideas on applications people are running, community member [@whazor](https://github.com/whazor) created [this website](https://nanne.dev/k8s-at-home-search/) as a creative way to search Flux HelmReleases across Github.
+
+#### Storage
+
+The included CSI (`local-path-provisioner`) is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. If you need any of those features be sure to check out the projects like [rook-ceph](https://github.com/rook/rook), [longhorn](https://github.com/longhorn/longhorn), [openebs](https://github.com/openebs/openebs), [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs),
+and [synology-csi](https://github.com/SynologyOpenSource/synology-csi).
+
+#### Authenticate Flux over SSH
 
 Authenticating Flux to your git repository has a couple benefits like using a private git repository and/or using the Flux [Image Automation Controllers](https://fluxcd.io/docs/components/image/).
 
-By default this template only works on a public GitHub repository, it is advised to keep your repository public.
+By default this template only works on a public Github repository, it is advised to keep your repository public.
 
 The benefits of a public repository include:
 
@@ -490,75 +555,6 @@ The benefits of a public repository include:
 
 </details>
 
-#### 💾 Storage
-
-Rancher's `local-path-provisioner` is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. Check out the projects below to read up more on some storage solutions that might work for you.
-
-- [rook-ceph](https://github.com/rook/rook)
-- [longhorn](https://github.com/longhorn/longhorn)
-- [openebs](https://github.com/openebs/openebs)
-- [nfs-subdir-external-provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
-- [democratic-csi](https://github.com/democratic-csi/democratic-csi)
-- [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)
-- [synology-csi](https://github.com/SynologyOpenSource/synology-csi)
-
-## 🐛 Debugging
-
-Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state.
-
-1. Start by checking all Flux Kustomizations & Git Repository & OCI Repository and verify they are healthy.
-
-    ```sh
-    flux get sources oci -A
-    flux get sources git -A
-    flux get ks -A
-    ```
-
-2. Then check all the Flux Helm Releases and verify they are healthy.
-
-    ```sh
-    flux get hr -A
-    ```
-
-3. Then check the if the pod is present.
-
-    ```sh
-    kubectl -n <namespace> get pods -o wide
-    ```
-
-4. Then check the logs of the pod if its there.
-
-    ```sh
-    kubectl -n <namespace> logs <pod-name> -f
-    # or
-    stern -n <namespace> <fuzzy-name>
-    ```
-
-5. If a resource exists try to describe it to see what problems it might have.
-
-    ```sh
-    kubectl -n <namespace> describe <resource> <name>
-    ```
-
-6. Check the namespace events
-
-    ```sh
-    kubectl get events -n <namespace> --sort-by='.metadata.creationTimestamp'
-    ```
-
-Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
-
-## 👉 Help
-
-- Make a post in this repository's GitHub [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
-- Start a thread in the `support` or `flux-cluster-template` channel in the [k8s@home](https://discord.gg/k8s-at-home) Discord server.
-
-## ❔ What's next
-
-The world is your cluster, have at it!
-
 ## 🤝 Thanks
 
-Big shout out to all the authors and contributors to the projects that we are using in this repository.
-
-[@whazor](https://github.com/whazor) created [this website](https://nanne.dev/k8s-at-home-search/) as a creative way to search Helm Releases across GitHub. You may use it as a means to get ideas on how to configure an applications' Helm values.
+Big shout out to all the contributors, sponsors and everyone else who has helped on this project.
