@@ -32,7 +32,7 @@ spec:
     k8sAppLabelOverride: kube-dns
     service:
       name: kube-dns
-      clusterIP: "{{ bootstrap_coredns_addr }}"
+      clusterIP: "${COREDNS_ADDR}"
     serviceAccount:
       create: true
     deployment:
