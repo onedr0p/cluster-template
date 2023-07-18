@@ -27,8 +27,9 @@
       block:
         - name: "Cordon {% raw %}{{ inventory_hostname }}{% endraw %}"
           kubernetes.core.k8s_drain:
-            state: cordon
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            kubeconfig: /etc/rancher/k3s/k3s.yaml
+            state: cordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
 
         - name: "Drain {% raw %}{{ inventory_hostname }}{% endraw %}"
