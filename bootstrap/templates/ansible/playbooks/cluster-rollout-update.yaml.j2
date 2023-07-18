@@ -40,8 +40,9 @@
             delete_options:
               delete_emptydir_data: true
               ignore_daemonsets: true
-              terminate_grace_period: 300
-              wait_timeout: 600
+              terminate_grace_period: 600
+              wait_timeout: 900
+              force: true
           # Supported feature in upcoming kubernetes.core 2.5.0
           #  pod_selectors:
           #    - app!=rook-ceph-osd
