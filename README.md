@@ -34,9 +34,11 @@ With that out of the way please continue on if you are still interested...
 
 ## 💻 System Preparation
 
-Download [Debian 12](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/) (or if using ARM64 / Raspberry Pi use the [tested images](https://raspi.debian.net/tested-images/))
+This projects supported Linux distro for running Kubernetes is Debian, Ubuntu _might_ work but it is not currently supported due to [these](https://github.com/onedr0p/flux-cluster-template/pull/830) reasons.
 
-#### AMD64
+#### Debian for AMD64
+
+📍 _Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/)_
 
 There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step/) on how to get Debian installed.
 
@@ -81,9 +83,11 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-#### ARM64 / Raspberry Pi
+#### Debian for RasPi4
 
-If you choose to use a Raspberry Pi for the cluster, it is recommended to have at minimum a Raspberry Pi4 (4GB) and preferably an 8GB model. Additionally, it is also recommended to boot from an external SSD, rather than the SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early Raspberry Pi4, you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
+📍 _Download the latest stable release of Debian from [here](https://raspi.debian.net/tested-images/). **Do not** use Raspbian._
+
+If you choose to use a **RasPi4** for the cluster, it is recommended to have a 8GB model (4GB minimum). Most important is to **boot from an external SSD/NVMe**, rather than the SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early RasPi4, you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
 
 According to the documentation [here](https://raspi.debian.net/defaults-and-settings/), after you have flashed the image onto a SSD/NVMe you must mount the drive and do the following.
 
