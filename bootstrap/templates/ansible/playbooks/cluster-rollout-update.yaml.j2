@@ -64,6 +64,7 @@
 
         - name: "Uncordon {% raw %}{{ inventory_hostname }}{% endraw %}"
           kubernetes.core.k8s_drain:
-            state: uncordon
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            kubeconfig: /etc/rancher/k3s/k3s.yaml
+            state: uncordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
