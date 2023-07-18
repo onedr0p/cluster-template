@@ -34,8 +34,9 @@
 
         - name: "Drain {% raw %}{{ inventory_hostname }}{% endraw %}"
           kubernetes.core.k8s_drain:
-            state: drain
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            kubeconfig: /etc/rancher/k3s/k3s.yaml
+            state: drain
             delete_options:
               delete_emptydir_data: true
               ignore_daemonsets: true
