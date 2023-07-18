@@ -25,46 +25,45 @@
         # If spec.unschedulable is defined then the node is cordoned
         - not (kubectl_get_node['stdout'] | from_json).spec.unschedulable is defined
       block:
-        - name: Cordon node
-          ansible.builtin.command: "kubectl cordon {% raw %}{{ inventory_hostname }}{% endraw %}"
+        - name: "Cordon {% raw %}{{ inventory_hostname }}{% endraw %}"
+          kubernetes.core.k8s_drain:
+            state: cordon
+            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
 
-        - name: Wait for node to cordon
-          ansible.builtin.command: "kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
-          register: wait_for_cordon
-          retries: 10
-          delay: 10
+        - name: "Drain {% raw %}{{ inventory_hostname }}{% endraw %}"
+          kubernetes.core.k8s_drain:
+            state: drain
+            name: {% raw %}{{ inventory_hostname }}{% endraw %}
+            delete_options:
+              delete_emptydir_data: true
+              ignore_daemonsets: true
+              terminate_grace_period: 60
+              wait_timeout: 120
+          # Supported feature in upcoming kubernetes.core 2.5.0
+          #  pod_selectors:
+          #    - app!=rook-ceph-osd
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
-          until: (wait_for_cordon['stdout'] | from_json).spec.unschedulable
-
-        - name: Cordon & drain node
-          ansible.builtin.command: "kubectl drain --ignore-daemonsets --delete-emptydir-data --force {% raw %}{{ inventory_hostname }}{% endraw %}"
-          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
 
         - name: Update all packages
           ansible.builtin.apt:
             upgrade: dist
             update_cache: true
 
+        - name: Check if a Reboot is Required
+          ansible.builtin.stat:
+            path: /var/run/reboot-required
+          register: reboot_required
+
         - name: Reboot
           ansible.builtin.reboot:
             msg: Rebooting node
             post_reboot_delay: 60
             reboot_timeout: 3600
+          when: reboot_required.stat.exists
 
-        - name: Uncordon node
-          ansible.builtin.command: "kubectl uncordon {% raw %}{{ inventory_hostname }}{% endraw %}"
-          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
-
-        - name: Wait for node to uncordon
-          ansible.builtin.command: "kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
-          register: wait_for_uncordon
-          retries: 10
-          delay: 10
-          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
-          until: not (kubectl_get_node['stdout'] | from_json).spec.unschedulable is defined
+        - name: "Uncordon {% raw %}{{ inventory_hostname }}{% endraw %}"
+          kubernetes.core.k8s_drain:
+            state: uncordon
+            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+          delegate_to: localhost
