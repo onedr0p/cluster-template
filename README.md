@@ -99,33 +99,47 @@ According to the documentation [here](https://raspi.debian.net/defaults-and-sett
 
 The very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page. Next clone **your new repo** to you local workstation and `cd` into it.
 
-📍 _**All of the below commands** are run on your **local** workstation, **not** on any of your cluster nodes._
+📍 _**All commands** are run on your **local** workstation within your repository directory_
 
 ## 🔧 Workstation Tools
 
-📍 _Install the **most recent version** of the CLI tools below. If you are **having trouble with future steps**, it is very likely you **don't have the most recent version** of these CLI tools. The most troublesome are `ansible`, `go-task`, and `sops`._
+Lets get the required workstation tools installed and configured.
 
-1. Install the following CLI tools on your workstation, if you are using [Homebrew](https://brew.sh/) skip this step and move onto 2 & 3.
+1. Install the most recent version of [task](https://taskfile.dev/)
 
-   - **Required**: [age](https://github.com/FiloSottile/age), [ansible](https://www.ansible.com), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [go-task](https://github.com/go-task/task), [direnv](https://github.com/direnv/direnv), [kubectl](https://kubernetes.io/docs/tasks/tools/), [python3](https://www.python.org/), [python-pip3](https://pypi.org/project/pip/), [sops](https://github.com/getsops/sops)
-
-   - **Recommended**: [helm](https://helm.sh/), [kustomize](https://github.com/kubernetes-sigs/kustomize), [stern](https://github.com/stern/stern)
-
-2. [Homebrew] Install [go-task](https://github.com/go-task/task)
+    📍 _See the task [installation docs](https://taskfile.dev/installation/) for other platforms_
 
     ```sh
-    brew install go-task/tap/go-task
+    # Brew
+    brew install go-task
     ```
 
-3. [Homebrew] Install the other workstation dependencies
+2. Install the most recent version of [direnv](https://direnv.net/)
+
+    📍 _See the direnv [installation docs](https://direnv.net/docs/installation.html) for other platforms_
+
+    📍 _After installing `direnv` be sure to [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done run `direnv allow` while in your repos directory._
 
     ```sh
-    task brew:deps
+    # Brew
+    brew install direnv
     ```
 
-## 🌱 Environment
+3. Setup a Python virual env and install Ansible by running the following task command.
 
-Next take a moment and configure [direnv](https://direnv.net/). This tool will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
+    📍 _This commands requires Python 3.8+ to be installed_
+
+    ```sh
+    # Platform agnostic
+    task deps
+    ```
+
+4. Install the required tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops)
+
+   ```sh
+   # Brew
+   task brew:deps
+   ```
 
 ## 📄 Configuration
 
@@ -141,20 +155,13 @@ Next take a moment and configure [direnv](https://direnv.net/). This tool will m
 
     📍 _Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux._
 
-    2a. Create a Age private / public key
+    2a. Create a Age private / public key (this file is gitignored)
 
       ```sh
-      age-keygen -o age.agekey
+      age-keygen -o age.key
       ```
 
-    2b. Create the directory for the Age key and move the Age file to it
-
-      ```sh
-      mkdir -p ~/.config/sops/age
-      mv age.agekey ~/.config/sops/age/keys.txt
-      ```
-
-    2c. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    2b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
 3. Create Cloudflare API Token
 
@@ -224,25 +231,19 @@ Next take a moment and configure [direnv](https://direnv.net/). This tool will m
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. For example using a SSH agent. This is how Ansible is able to connect to your remote nodes.
 
-2. Install the Ansible deps
-
-    ```sh
-    task ansible:deps
-    ```
-
-3. Verify Ansible can view your config
+2. Verify Ansible can view your config
 
     ```sh
     task ansible:list
     ```
 
-4. Verify Ansible can ping your nodes
+3. Verify Ansible can ping your nodes
 
     ```sh
     task ansible:ping
     ```
 
-5. Run the Ansible prepare playbook (nodes wil reboot when done)
+4. Run the Ansible prepare playbook (nodes wil reboot when done)
 
     ```sh
     task ansible:prepare

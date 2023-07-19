@@ -20,12 +20,6 @@
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
   "schedule": ["on saturday"],
-  "ansible-galaxy": {
-    "fileMatch": [
-      "(^|/)requirements\\.ya?ml(\\.j2)?$",
-      "(^|/)galaxy\\.ya?ml(\\.j2)?$"
-    ]
-  },
   "flux": {
     "fileMatch": [
       "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$",
@@ -48,11 +42,6 @@
   "kustomize": {
     "fileMatch": [
       "(^|/)kustomization\\.ya?ml(\\.j2)?$"
-    ]
-  },
-  "pip_requirements": {
-    "fileMatch": [
-      "(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(\\.j2)?$"
     ]
   },
   "regexManagers": [

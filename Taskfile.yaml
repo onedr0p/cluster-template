@@ -2,13 +2,19 @@
 version: "3"
 
 vars:
+  PYTHON_BIN: python3
   BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
 
 env:
   KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
-  SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
+  SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/age.key"
+  PATH: "{{.ROOT_DIR}}/.venv/bin:$PATH"
+  VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
+  ANSIBLE_COLLECTIONS_PATH: "{{.ROOT_DIR}}/.venv/galaxy"
+  ANSIBLE_ROLES_PATH: "{{.ROOT_DIR}}/.venv/galaxy/ansible_roles"
+  K8S_AUTH_KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
 
 includes:
   ansible: .taskfiles/AnsibleTasks.yaml
@@ -18,6 +24,14 @@ includes:
 tasks:
 
   default: task -l
+
+  deps:
+    desc: Create a Python virtual env and install required packages
+    cmds:
+      - "{{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv"
+      - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
+      - .venv/bin/python3 -m pip install --upgrade --requirement "{{.ROOT_DIR}}/requirements.txt"
+      - .venv/bin/ansible-galaxy install --role-file "{{.ROOT_DIR}}/requirements.yaml" --force
 
   init:
     desc: Initialize configuration files

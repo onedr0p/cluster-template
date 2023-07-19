@@ -2,7 +2,7 @@
 - name: Check for required CLI tools
   ansible.builtin.shell: |
     command -v {{ item }} >/dev/null 2>&1
-  loop: [age, cloudflared, flux, git, pip3, sops, task]
+  loop: [age, cloudflared, flux, sops]
   changed_when: false
   check_mode: false
   register: result
