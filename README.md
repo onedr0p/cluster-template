@@ -1,4 +1,4 @@
-# Template for deploying a Kubernetes cluster backed by Flux
+# Deploy a Kubernetes cluster backed by Flux
 
 Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
 
@@ -28,7 +28,6 @@ Before we get started, everything below must be taken into consideration.
 - [ ] Your domain name will **NOT** be visible to the public.
 - [ ] You **MUST** have a DNS server that supports split DNS (e.g. Pi-Hole) deployed somewhere outside your cluster **ON** your home network.
 - [ ] You have to use nodes that have access to the internet. _This is not going to work in air-gapped environments._
-- [ ] Only **amd64** and/or **arm64** nodes are supported.
 
 With that out of the way please continue on if you are still interested...
 
@@ -126,7 +125,7 @@ The very first step will be to create a new **public** repository by clicking th
 
 ## 🌱 Environment
 
-Take a moment and configure [direnv](https://direnv.net/). This tool will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
+Next take a moment and configure [direnv](https://direnv.net/). This tool will make it so anytime you `cd` to your repo's directory it export the required environment variables (e.g. `KUBECONFIG`). To set this up make sure you [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done, run `direnv allow` while in your repos directory.
 
 ## 📄 Configuration
 
