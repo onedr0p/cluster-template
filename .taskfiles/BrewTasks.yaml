@@ -16,7 +16,7 @@ tasks:
         age
         ansible
         cilium-cli
-        cloudflare/cloudflare/cloudflared
+        cloudflared
         direnv
         fluxcd/tap/flux
         go-task/tap/go-task
