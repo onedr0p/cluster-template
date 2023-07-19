@@ -76,7 +76,7 @@
             reboot_timeout: 3600
           when: reboot_required.stat.exists
 
-        - name: "Uncordon {% raw %}{{ inventory_hostname }}{% endraw %}"
+        - name: Uncordon
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
             kubeconfig: /etc/rancher/k3s/k3s.yaml
