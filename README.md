@@ -231,25 +231,19 @@ Lets get the required workstation tools installed and configured.
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. For example using a SSH agent. This is how Ansible is able to connect to your remote nodes.
 
-2. Install the Ansible deps
-
-    ```sh
-    task ansible:deps
-    ```
-
-3. Verify Ansible can view your config
+2. Verify Ansible can view your config
 
     ```sh
     task ansible:list
     ```
 
-4. Verify Ansible can ping your nodes
+3. Verify Ansible can ping your nodes
 
     ```sh
     task ansible:ping
     ```
 
-5. Run the Ansible prepare playbook (nodes wil reboot when done)
+4. Run the Ansible prepare playbook (nodes wil reboot when done)
 
     ```sh
     task ansible:prepare
