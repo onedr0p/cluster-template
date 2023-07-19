@@ -32,7 +32,7 @@
             state: cordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
 
-        - name: "Drain {% raw %}{{ inventory_hostname }}{% endraw %}"
+        - name: Drain
           ansible.builtin.command: "kubectl drain --pod-selector='app!=rook-ceph-osd,app!=csi-attacher,app!=csi-provisioner' --ignore-daemonsets --delete-emptydir-data --force --grace-period=300 {% raw %}{{ inventory_hostname }}{% endraw %}"
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
           changed_when: false
