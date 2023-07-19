@@ -25,7 +25,7 @@
         # If spec.unschedulable is defined then the node is cordoned
         - not (kubectl_get_node['stdout'] | from_json).spec.unschedulable is defined
       block:
-        - name: "Cordon {% raw %}{{ inventory_hostname }}{% endraw %}"
+        - name: Cordon
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
             kubeconfig: /etc/rancher/k3s/k3s.yaml
