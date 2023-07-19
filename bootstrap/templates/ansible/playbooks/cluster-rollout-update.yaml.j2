@@ -38,7 +38,7 @@
           changed_when: false
     
         ### pod_selectors feature in upcoming kubernetes.core 2.5.0 ###
-        # - name: "Drain {% raw %}{{ inventory_hostname }}{% endraw %}"
+        # - name: Drain
         #   kubernetes.core.k8s_drain:
         #     name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
         #     kubeconfig: /etc/rancher/k3s/k3s.yaml
