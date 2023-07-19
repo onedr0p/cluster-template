@@ -14,16 +14,12 @@ tasks:
     vars:
       DEPS: >-
         age
-        ansible
         cilium-cli
         cloudflared
-        direnv
         fluxcd/tap/flux
-        go-task/tap/go-task
         helm
         kubernetes-cli
         kustomize
-        python
         sops
         stern
         yq

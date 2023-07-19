@@ -41,7 +41,7 @@
 
         - name: Drain
           ansible.builtin.command: "kubectl drain --ignore-daemonsets --delete-emptydir-data --force {% raw %}{{ inventory_hostname }}{% endraw %}"
-          delegate_to: "{{ groups['master'][0] }}"
+          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
           changed_when: false
 
         - name: Update
