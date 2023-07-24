@@ -22,7 +22,7 @@ tasks:
         msg: |
           Age key file is not found. Did you forget to create it?
     vars:
-      SOPS_AGE_KEY_FILE: ~/.config/sops/age/keys.txt
+      SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/age.key"
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
@@ -77,6 +77,5 @@ tasks:
       - task: helmrepositories
       - task: gitrepositories
       - task: certificates
-      - task: certificaterequests
       - task: ingresses
       - task: pods

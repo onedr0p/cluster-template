@@ -11,60 +11,74 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
-    - name: Get the node's details
+    - name: Details
       ansible.builtin.command: "kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
       register: kubectl_get_node
       delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
       failed_when: false
       changed_when: false
 
-    - name: Update node
+    - name: Update
       when:
         # When status.conditions[x].type == Ready then check stats.conditions[x].status for True|False
         - kubectl_get_node['stdout'] | from_json | json_query("status.conditions[?type == 'Ready'].status")
         # If spec.unschedulable is defined then the node is cordoned
         - not (kubectl_get_node['stdout'] | from_json).spec.unschedulable is defined
       block:
-        - name: Cordon node
-          ansible.builtin.command: "kubectl cordon {% raw %}{{ inventory_hostname }}{% endraw %}"
+        - name: Cordon
+          kubernetes.core.k8s_drain:
+            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            kubeconfig: /etc/rancher/k3s/k3s.yaml
+            state: cordon
+          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
+
+        - name: Drain
+          ansible.builtin.command: "kubectl drain --pod-selector='app!=rook-ceph-osd,app!=csi-attacher,app!=csi-provisioner' --ignore-daemonsets --delete-emptydir-data --force --grace-period=300 {% raw %}{{ inventory_hostname }}{% endraw %}"
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
           changed_when: false
+    
+        ### pod_selectors feature in upcoming kubernetes.core 2.5.0 ###
+        # - name: Drain
+        #   kubernetes.core.k8s_drain:
+        #     name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+        #     kubeconfig: /etc/rancher/k3s/k3s.yaml
+        #     state: drain
+        #     delete_options:
+        #       delete_emptydir_data: true
+        #       ignore_daemonsets: true
+        #       terminate_grace_period: 600
+        #       wait_timeout: 900
+        #       force: true
+        #     pod_selectors:
+        #       # Rook Ceph
+        #      - app!=rook-ceph-osd
+        #       # Longhorn
+        #      - app!=csi-attacher
+        #       # Longhorn
+        #      - app!=csi-provisioner
+        #   delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
 
-        - name: Wait for node to cordon
-          ansible.builtin.command: "kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
-          register: wait_for_cordon
-          retries: 10
-          delay: 10
-          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
-          until: (wait_for_cordon['stdout'] | from_json).spec.unschedulable
-
-        - name: Cordon & drain node
-          ansible.builtin.command: "kubectl drain --ignore-daemonsets --delete-emptydir-data --force {% raw %}{{ inventory_hostname }}{% endraw %}"
-          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
-
-        - name: Update all packages
+        - name: Update
           ansible.builtin.apt:
             upgrade: dist
             update_cache: true
 
+        - name: Check if reboot is required
+          ansible.builtin.stat:
+            path: /var/run/reboot-required
+          register: reboot_required
+
         - name: Reboot
+          when: reboot_required.stat.exists
           ansible.builtin.reboot:
             msg: Rebooting node
             post_reboot_delay: 60
             reboot_timeout: 3600
+          when: reboot_required.stat.exists
 
-        - name: Uncordon node
-          ansible.builtin.command: "kubectl uncordon {% raw %}{{ inventory_hostname }}{% endraw %}"
+        - name: Uncordon
+          kubernetes.core.k8s_drain:
+            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            kubeconfig: /etc/rancher/k3s/k3s.yaml
+            state: uncordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
-
-        - name: Wait for node to uncordon
-          ansible.builtin.command: "kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
-          register: wait_for_uncordon
-          retries: 10
-          delay: 10
-          delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
-          changed_when: false
-          until: not (kubectl_get_node['stdout'] | from_json).spec.unschedulable is defined

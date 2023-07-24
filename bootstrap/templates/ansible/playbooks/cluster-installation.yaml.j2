@@ -54,6 +54,7 @@
         {% endif %}
         - { name: podmonitors.monitoring.coreos.com, kind: CustomResourceDefinition }
         - { name: prometheusrules.monitoring.coreos.com, kind: CustomResourceDefinition }
+        - { name: scrapeconfigs.monitoring.coreos.com, kind: CustomResourceDefinition }
         - { name: servicemonitors.monitoring.coreos.com, kind: CustomResourceDefinition }
 
     - name: Coredns
