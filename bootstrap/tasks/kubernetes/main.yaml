@@ -11,7 +11,7 @@
   when:
     - item.state == 'file'
     - 'sops' not in item.path
-    - item.path not is match('cluster-(settings|secrets)-user\.yaml\.j2')
+    - item.path not is regex_match('cluster-(settings|secrets)-user\.yaml\.j2')
     - '.DS_Store' not in item.path
   ansible.builtin.template:
     src: "{{ item.src }}"
