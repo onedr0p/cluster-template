@@ -1,0 +1,9 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-settings-user
+  namespace: flux-system
+data:
+  SETTINGS_PLACEHOLDER: "settings-value"
