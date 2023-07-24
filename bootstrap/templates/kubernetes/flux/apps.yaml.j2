@@ -43,7 +43,9 @@ spec:
               - kind: Secret
                 name: cluster-secrets
               - kind: Secret
-                name: cluster-secrets-extra
+                name: cluster-secrets-user
+              - kind: ConfigMap
+                name: cluster-settings-user
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
