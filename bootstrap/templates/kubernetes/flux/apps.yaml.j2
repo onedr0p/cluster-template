@@ -21,6 +21,10 @@ spec:
         name: cluster-settings
       - kind: Secret
         name: cluster-secrets
+      - kind: ConfigMap
+        name: cluster-settings-user
+      - kind: Secret
+        name: cluster-secrets-user
   patches:
     - patch: |-
         apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -38,6 +42,10 @@ spec:
                 name: cluster-settings
               - kind: Secret
                 name: cluster-secrets
+              - kind: ConfigMap
+                name: cluster-settings-user
+              - kind: Secret
+                name: cluster-secrets-user
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization

@@ -13,7 +13,9 @@ tasks:
       - kubectl apply --kustomize {{.KUBERNETES_DIR}}/bootstrap
       - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
       - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply -f -
+      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml | kubectl apply -f -
       - kubectl apply -f {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml
+      - kubectl apply -f {{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml
       - kubectl apply --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
       - sh: test -f {{.SOPS_AGE_KEY_FILE}}
