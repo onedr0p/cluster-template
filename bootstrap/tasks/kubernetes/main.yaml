@@ -25,7 +25,10 @@
   register: cluster_settings_user
 
 - name: Template Kubernetes user cluster settings
-  when: item.state == 'file' and 'cluster-settings-user.yaml' in item.path and not cluster_settings_user.stat.exists
+  when:
+    - item.state == 'file'
+    - 'cluster-settings-user.yaml' in item.path
+    - not cluster_settings_user.stat.exists
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ repository_path }}/kubernetes/{{ item.path | regex_replace('.j2$', '') }}"
