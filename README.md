@@ -95,6 +95,17 @@ According to the documentation [here](https://raspi.debian.net/defaults-and-sett
 3. Change `root_pw` to your desired root password.
 4. Change `hostname` to your desired hostname.
 
+[Post install] manually install `python3`, otherwise ansible will fail.
+
+    ```sh
+    su -
+    apt update
+    apt install python3
+    exit
+    ```
+
+You will also want to complete the additional steps outlined in [Debian for AMD64](#debian-for-amd64)
+
 ## 🚀 First Steps
 
 The very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page. Next clone **your new repo** to you local workstation and `cd` into it.
