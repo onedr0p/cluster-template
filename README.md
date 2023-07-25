@@ -63,7 +63,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
     ```sh
     su -
-    apt install sudo
+    apt install -y sudo
     usermod -aG sudo ${username}
     echo "${username} ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
     exit
@@ -77,7 +77,7 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
     ```sh
     mkdir -m 700 ~/.ssh
-    sudo apt install curl
+    sudo apt install -y curl
     curl https://github.com/${github_username}.keys > ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
     ```
@@ -94,6 +94,12 @@ According to the documentation [here](https://raspi.debian.net/defaults-and-sett
 2. Change `root_authorized_key` to your desired public SSH key.
 3. Change `root_pw` to your desired root password.
 4. Change `hostname` to your desired hostname.
+6. [Post install] Follow steps 3 & 4 from [Debian for AMD64](#debian-for-amd64) section.
+7. [Post install] Install `python3` which is needed by Ansible.
+
+    ```sh
+    sudo apt install -y python3
+    ```
 
 ## 🚀 First Steps
 
