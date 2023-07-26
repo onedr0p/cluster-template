@@ -5,6 +5,7 @@ area/ansible:
 area/github:
   - ".github/**/*"
 area/kubernetes:
+  - "kubernetes/**/*"
   - "bootstrap/templates/kubernetes/**/*"
   - "bootstrap/tasks/kubernetes/**/*"
 area/bootstrap:
