@@ -1,5 +1,6 @@
 ---
 area/ansible:
+  - "ansible/**/*"
   - "bootstrap/templates/ansible/**/*"
   - "bootstrap/tasks/ansible/**/*"
 area/github:
