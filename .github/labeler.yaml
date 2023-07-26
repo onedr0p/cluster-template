@@ -1,9 +1,18 @@
 ---
 area/ansible:
   - "ansible/**/*"
+  - "bootstrap/templates/ansible/**/*"
+  - "bootstrap/tasks/ansible/**/*"
 area/github:
   - ".github/**/*"
 area/kubernetes:
   - "kubernetes/**/*"
+  - "bootstrap/templates/kubernetes/**/*"
+  - "bootstrap/tasks/kubernetes/**/*"
 area/bootstrap:
   - "bootstrap/**/*"
+  - "bootstrap/configure.yaml"
+area/addons:
+  - "bootstrap/templates/addons/**/*"
+  - "bootstrap/tasks/addons/**/*"
+  - "bootstrap/vars/addons.sample.yaml"
