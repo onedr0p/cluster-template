@@ -1,0 +1,59 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: rss-forwarder
+  namespace: default
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    image:
+      repository: ghcr.io/morphy2k/rss-forwarder
+      tag: 0.6.1
+    env:
+      TZ: "${TIMEZONE}"
+    persistence:
+      data:
+        enabled: true
+        type: secret
+        name: rss-forwarder-secret
+    service:
+      main:
+        enabled: false
+    ingress:
+      main:
+        enabled: false
+    probes:
+      liveness:
+        enabled: false
+      readiness:
+        enabled: false
+      startup:
+        enabled: false
+    resources:
+      requests:
+        cpu: 15m
+        memory: 110M
+      limits:
+        cpu: 15m
+        memory: 110M
