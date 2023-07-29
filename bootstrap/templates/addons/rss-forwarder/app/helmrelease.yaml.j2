@@ -44,12 +44,10 @@ spec:
       main:
         enabled: false
     probes:
-      liveness:
+      liveness: &disableProbe
         enabled: false
-      readiness:
-        enabled: false
-      startup:
-        enabled: false
+      readiness: *disableProbe
+      startup: *disableProbe
     resources:
       requests:
         cpu: 15m
