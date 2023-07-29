@@ -38,16 +38,14 @@ spec:
         type: secret
         name: rss-forwarder-secret
     service:
-      main:
+      main: &disableSvc
         enabled: false
     ingress:
-      main:
-        enabled: false
+      main: *disableSvc
     probes:
-      liveness: &disableProbe
-        enabled: false
-      readiness: *disableProbe
-      startup: *disableProbe
+      liveness: *disableSvc
+      readiness: *disableSvc
+      startup: *disableSvc
     resources:
       requests:
         cpu: 15m
