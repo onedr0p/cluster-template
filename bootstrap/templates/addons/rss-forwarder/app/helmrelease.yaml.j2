@@ -32,11 +32,6 @@ spec:
       tag: 0.6.1
     env:
       TZ: "${TIMEZONE}"
-    persistence:
-      data:
-        enabled: true
-        type: secret
-        name: rss-forwarder-secret
     service:
       main: &disableSvc
         enabled: false
@@ -46,6 +41,11 @@ spec:
       liveness: *disableSvc
       readiness: *disableSvc
       startup: *disableSvc
+    persistence:
+      data:
+        enabled: true
+        type: secret
+        name: rss-forwarder-secret
     resources:
       requests:
         cpu: 15m
