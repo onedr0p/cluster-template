@@ -28,6 +28,6 @@
   when: weave_gitops.enabled | default(false)
   ansible.builtin.include_tasks: weave_gitops.yaml
 
-- name: Process addon rss-forwarder
-  when: rss_fowarder.enabled | default(false)
-  ansible.builtin.include_tasks: rss_forwarder.yaml
+- name: Process addon discord-template-notifier
+  when: discord_template_notifier.enabled | default(false)
+  ansible.builtin.include_tasks: discord_template_notifier.yaml

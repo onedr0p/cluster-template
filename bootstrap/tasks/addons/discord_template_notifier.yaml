@@ -1,7 +1,7 @@
 ---
 - name: Set addon facts
   ansible.builtin.set_fact:
-    addon_name: rss-forwarder
+    addon_name: discord-template-notifier
     addon_namespace: default
 
 - name: Ensure directories exist for {{ addon_namespace }}/{{ addon_name }}

@@ -44,8 +44,8 @@ system_upgrade_controller:
   enabled: false
 
 # https://github.com/morphy2k/rss-forwarder
-rss_fowarder:
+discord_template_notifier:
   # Will post commits from the template repository to the specified discord channel
   # so it's easier to keep track of changes.
   enabled: false
-  discord_webhook_url: # Discord webhook url
+  webhook_url: # Discord webhook url

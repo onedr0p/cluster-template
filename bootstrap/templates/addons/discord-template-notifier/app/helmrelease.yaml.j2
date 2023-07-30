@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: rss-forwarder
+  name: discord-template-notifier
   namespace: default
 spec:
   interval: 15m
@@ -45,7 +45,7 @@ spec:
       data:
         enabled: true
         type: secret
-        name: rss-forwarder-secret
+        name: discord-template-notifier-secret
     resources:
       requests:
         cpu: 15m
