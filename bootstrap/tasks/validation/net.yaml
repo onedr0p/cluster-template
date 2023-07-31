@@ -103,7 +103,19 @@
     success_msg: kube-vip address {{ bootstrap_kube_vip_addr }} is within {{ bootstrap_node_cidr }}.
     fail_msg: kube-vip address {{ bootstrap_kube_vip_addr }} is not within {{ bootstrap_node_cidr }}.
 
-- name: Verify nodes are not the same IPs as k8s_gateway, ingress-nginx or kube-vip
+- name: Verify all IP addresses are unique
+  ansible.builtin.assert:
+    that: >
+      [
+        bootstrap_k8s_gateway_addr,
+        bootstrap_external_nginx_addr,
+        bootstrap_internal_nginx_addr,
+        bootstrap_kube_vip_addr
+      ] | unique | length == 4
+    success_msg: All IP addresses are unique.
+    fail_msg: All IP addresses are not unique.
+
+- name: Verify nodes are not the same IPs as k8s_gateway, nginx external/internal or kube-vip
   ansible.builtin.assert:
     that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_external_nginx_addr, bootstrap_internal_nginx_addr, bootstrap_kube_vip_addr)
     success_msg: Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or kube-vip.
