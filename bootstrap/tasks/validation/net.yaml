@@ -67,17 +67,29 @@
     success_msg: k8s_gateway address {{ bootstrap_k8s_gateway_addr }} is within {{ bootstrap_node_cidr }}.
     fail_msg: k8s_gateway address {{ bootstrap_k8s_gateway_addr }} is not within {{ bootstrap_node_cidr }}.
 
-- name: Verify ingress-nginx
+- name: Verify internal nginx
   ansible.builtin.assert:
-    that: bootstrap_ingress_nginx_addr is ansible.utils.ipv4
-    success_msg: ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is valid.
-    fail_msg: ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is invalid.
+    that: bootstrap_internal_nginx_addr is ansible.utils.ipv4
+    success_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is valid.
+    fail_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is invalid.
 
-- name: Verify ingress-nginx in node CIDR
+- name: Verify internal nginx in node CIDR
   ansible.builtin.assert:
-    that: bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_ingress_nginx_addr)
-    success_msg: ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is within {{ bootstrap_node_cidr }}.
-    fail_msg: ingress-nginx address {{ bootstrap_ingress_nginx_addr }} is not within {{ bootstrap_node_cidr }}.
+    that: bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_internal_nginx_addr)
+    success_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is within {{ bootstrap_node_cidr }}.
+    fail_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is not within {{ bootstrap_node_cidr }}.
+
+- name: Verify external nginx
+  ansible.builtin.assert:
+    that: bootstrap_external_nginx_addr is ansible.utils.ipv4
+    success_msg: external nginx address {{ bootstrap_external_nginx_addr }} is valid.
+    fail_msg: external nginx address {{ bootstrap_external_nginx_addr }} is invalid.
+
+- name: Verify external nginx in node CIDR
+  ansible.builtin.assert:
+    that: bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_external_nginx_addr)
+    success_msg: external nginx address {{ bootstrap_external_nginx_addr }} is within {{ bootstrap_node_cidr }}.
+    fail_msg: external nginx address {{ bootstrap_external_nginx_addr }} is not within {{ bootstrap_node_cidr }}.
 
 - name: Verify kube-vip
   ansible.builtin.assert:
@@ -91,9 +103,21 @@
     success_msg: kube-vip address {{ bootstrap_kube_vip_addr }} is within {{ bootstrap_node_cidr }}.
     fail_msg: kube-vip address {{ bootstrap_kube_vip_addr }} is not within {{ bootstrap_node_cidr }}.
 
-- name: Verify nodes are not the same IPs as k8s_gateway, ingress-nginx or kube-vip
+- name: Verify all IP addresses are unique
   ansible.builtin.assert:
-    that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_ingress_nginx_addr, bootstrap_kube_vip_addr)
+    that: >
+      [
+        bootstrap_k8s_gateway_addr,
+        bootstrap_external_nginx_addr,
+        bootstrap_internal_nginx_addr,
+        bootstrap_kube_vip_addr
+      ] | unique | length == 4
+    success_msg: All IP addresses are unique.
+    fail_msg: All IP addresses are not unique.
+
+- name: Verify nodes are not the same IPs as k8s_gateway, nginx external/internal or kube-vip
+  ansible.builtin.assert:
+    that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_external_nginx_addr, bootstrap_internal_nginx_addr, bootstrap_kube_vip_addr)
     success_msg: Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or kube-vip.
     fail_msg: Node address {{ item.address }} is not different than k8s_gateway, ingress-nginx or kube-vip.
     quiet: true

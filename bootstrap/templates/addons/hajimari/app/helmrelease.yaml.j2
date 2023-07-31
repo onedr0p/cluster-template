@@ -16,7 +16,6 @@ spec:
         namespace: flux-system
   maxHistory: 2
   install:
-    createNamespace: true
     remediation:
       retries: 3
   upgrade:
@@ -25,9 +24,6 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  dependsOn:
-    - name: ingress-nginx
-      namespace: networking
   values:
     hajimari:
       title: Apps
@@ -47,7 +43,7 @@ spec:
     ingress:
       main:
         enabled: true
-        ingressClassName: nginx
+        ingressClassName: internal
         annotations:
           hajimari.io/enable: "false"
         hosts:

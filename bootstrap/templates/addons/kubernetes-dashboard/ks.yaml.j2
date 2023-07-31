@@ -7,14 +7,13 @@ metadata:
 spec:
   dependsOn:
     - name: cluster-apps-cert-manager
-    - name: cluster-apps-ingress-nginx
     - name: cluster-apps-metrics-server
   path: ./kubernetes/apps/monitoring/kubernetes-dashboard/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
-  wait: false # no flux ks dependents
+  wait: false
   interval: 30m
   retryInterval: 1m
   timeout: 5m

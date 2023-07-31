@@ -16,7 +16,6 @@ spec:
         namespace: flux-system
   maxHistory: 2
   install:
-    createNamespace: true
     remediation:
       retries: 3
   upgrade:
@@ -28,8 +27,6 @@ spec:
   dependsOn:
     - name: local-path-provisioner
       namespace: kube-system
-    - name: ingress-nginx
-      namespace: networking
   values:
     deploymentStrategy:
       type: Recreate
@@ -162,7 +159,7 @@ spec:
       enabled: true
     ingress:
       enabled: true
-      ingressClassName: nginx
+      ingressClassName: internal
       annotations:
         hajimari.io/icon: simple-icons:grafana
       hosts:

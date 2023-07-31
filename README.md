@@ -359,7 +359,7 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 #### 🌐 DNS
 
-The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set an ingress annotation (`external-dns.alpha.kubernetes.io/target`) like done in the `HelmRelease` for `echo-server`.
+The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set the correct ingress class name and ingress annotations like done in the `HelmRelease` for `echo-server`.
 
 For split DNS to work it is required to have `${bootstrap_cloudflare_domain}` point to the `${bootstrap_k8s_gateway_addr}` load balancer IP address on your home DNS server. This will ensure DNS requests for `${bootstrap_cloudflare_domain}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server.
 
@@ -370,7 +370,7 @@ For and example with Pi-Hole apply the following file and restart dnsmasq:
 server=/${bootstrap_cloudflare_domain}/${bootstrap_k8s_gateway_addr}
 ```
 
-Now try to resolve an internal-only domain with `dig @${pi-hole-ip} hajimari.${bootstrap_cloudflare_domain}` it should resolve to your `${bootstrap_ingress_nginx_addr}` IP.
+Now try to resolve an internal-only domain with `dig @${pi-hole-ip} hajimari.${bootstrap_cloudflare_domain}` it should resolve to your `${bootstrap_internal_nginx_addr}` IP.
 
 If you're having trouble with DNS be sure to check out these two Github discussions, [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
 
