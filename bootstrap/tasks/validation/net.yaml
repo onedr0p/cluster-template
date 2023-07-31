@@ -70,26 +70,26 @@
 - name: Verify internal nginx
   ansible.builtin.assert:
     that: bootstrap_internal_nginx_addr is ansible.utils.ipv4
-    success_msg: ingress-nginx address {{ bootstrap_internal_nginx_addr }} is valid.
-    fail_msg: ingress-nginx address {{ bootstrap_internal_nginx_addr }} is invalid.
+    success_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is valid.
+    fail_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is invalid.
 
 - name: Verify internal nginx in node CIDR
   ansible.builtin.assert:
     that: bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_internal_nginx_addr)
-    success_msg: ingress-nginx address {{ bootstrap_internal_nginx_addr }} is within {{ bootstrap_node_cidr }}.
-    fail_msg: ingress-nginx address {{ bootstrap_internal_nginx_addr }} is not within {{ bootstrap_node_cidr }}.
+    success_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is within {{ bootstrap_node_cidr }}.
+    fail_msg: internal nginx address {{ bootstrap_internal_nginx_addr }} is not within {{ bootstrap_node_cidr }}.
 
 - name: Verify external nginx
   ansible.builtin.assert:
     that: bootstrap_external_nginx_addr is ansible.utils.ipv4
-    success_msg: ingress-nginx address {{ bootstrap_external_nginx_addr }} is valid.
-    fail_msg: ingress-nginx address {{ bootstrap_external_nginx_addr }} is invalid.
+    success_msg: external nginx address {{ bootstrap_external_nginx_addr }} is valid.
+    fail_msg: external nginx address {{ bootstrap_external_nginx_addr }} is invalid.
 
 - name: Verify external nginx in node CIDR
   ansible.builtin.assert:
     that: bootstrap_node_cidr | ansible.utils.network_in_usable(bootstrap_external_nginx_addr)
-    success_msg: ingress-nginx address {{ bootstrap_external_nginx_addr }} is within {{ bootstrap_node_cidr }}.
-    fail_msg: ingress-nginx address {{ bootstrap_external_nginx_addr }} is not within {{ bootstrap_node_cidr }}.
+    success_msg: external nginx address {{ bootstrap_external_nginx_addr }} is within {{ bootstrap_node_cidr }}.
+    fail_msg: external nginx address {{ bootstrap_external_nginx_addr }} is not within {{ bootstrap_node_cidr }}.
 
 - name: Verify kube-vip
   ansible.builtin.assert:

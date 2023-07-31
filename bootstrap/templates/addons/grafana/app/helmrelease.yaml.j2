@@ -27,8 +27,6 @@ spec:
   dependsOn:
     - name: local-path-provisioner
       namespace: kube-system
-    - name: ingress-nginx
-      namespace: networking
   values:
     deploymentStrategy:
       type: Recreate
