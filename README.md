@@ -1,12 +1,8 @@
 # Deploy a Kubernetes cluster backed by Flux
 
->DRAFTING NOTE: Reference to Cloudflare Tunnel removed from intro as it isn't a core part of the project and mentioning it here gives it undue emphasis. Reasons for its inclusion are given under FAQs.
-
 Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and using [Flux](https://toolkit.fluxcd.io) to manage its state.
 
 ## Table of contents
-
->DRAFTING NOTE: TOC reintroduced given README length.
 
 - [Overview](#overview)
 - [Features](#features)
@@ -23,8 +19,6 @@ Welcome to my highly opinionated template for deploying a single Kubernetes ([k3
 
 ## Overview
 
->DRAFTING NOTE: 'Overview' section added to emphasise that this is for home purposes, and to expand on the opinionated nature of the template.
-
 The goal of this project is to make it easy for people interested in learning Kubernetes to deploy a basic cluster at home and become familiar with the GitOps tool Flux.
 
 This template implements Flux in a way that promotes legibility and ease of use for those who are new (or relatively new) to the technology and GitOps in general. It assumes a typical homelab setup: namely, a single "home prod" cluster running mostly third-party apps.
@@ -32,8 +26,6 @@ This template implements Flux in a way that promotes legibility and ease of use 
 This project is aimed at homelabbers and self-hosting enthusiasts. [Support](#support) is provided accordingly.
 
 ## Features
-
->DRAFTING NOTE: 'Features' section added in place of 'Introduction' in order to better showcase the project.
 
 Features include:
 
@@ -51,8 +43,6 @@ Features include:
 
 ## Prerequisites
 
->DRAFTING NOTE: Pre-start checklist migrated to 'General' and 'Infrastructure' prerequisites for clarity.
-
 ### General
 
 You must:
@@ -66,8 +56,6 @@ You must:
 
 You will need:
 
->IDEA: Regarding the DNS server prerequisite, consider whether to offer an in-cluster solution such as `blocky` and/or advice on how to accomplish the same thing using NextDNS.
-
 - A [Cloudflare](https://cloudflare.com) account with a domain. You can [register new domains](https://www.cloudflare.com/products/registrar) directly through Cloudflare.
 - A DNS server that supports split DNS (eg [Pi-hole](https://pi-hole.net)) **deployed on your home network**.
 - Debian 12 freshly installed on 1 or more AMD64/ARM64 bare metal machines or VMs. Each machine will be either a **control node** or a **worker node** in your cluster.
@@ -76,8 +64,6 @@ You will need:
 ## Machine preparation
 
 ### System requirements
-
->DRAFTING NOTE: 'System requirements' subsection added to address some FAQs.
 
 📍 _k3s default behaviour is that all nodes are able to run workloads, including contol nodes. Worker nodes are therefore optional._
 
@@ -158,11 +144,7 @@ You will need:
     Change `hostname` to your desired hostname
     ```
 
-    >IDEA: Don't invite the user to choose their "desired" public SSH key; instead tell the user how to retrieve their workstation SSH key (with `pbcopy` etc).
-
 4. [Post install] Follow steps 3 and 4 from [Debian installation instructions for AMD64](#debian-installation-instructions-for-amd64).
-
-    >WIP: Steps 3 and 4 of the AMD64 installation instructions assume a non-root user. Need to include `adduser` instructions here.
 
 5. [Post install] Install `python3` which is needed by Ansible.
 
@@ -171,8 +153,6 @@ You will need:
     ```
 
 ## Getting started
-
->DRAFTING NOTE: Moved all setup steps to 'Getting started' to separate those steps from instructions on how to use the project.
 
 Once you have installed Debian on your nodes, there are 6 steps to getting a Flux-managed cluster up and runnning.
 
@@ -217,8 +197,6 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
 
 4. Install the required CLI tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools), [sops](https://github.com/getsops/sops)
 
->DRAFTING NOTE: Why does `task brew:deps` install additional tools to those listed above?
-
    ```sh
    # Brew
    task brew:deps
@@ -247,8 +225,6 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
     2b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
 3. Create a Cloudflare API Token
-
-    >IDEA: Cloudflare domain settings used to be handled by Terraform. People who are unfamiliar with Cloudflare won't necessarily know the correct settings to use (e.g. SSL mode=strict) and might do something that goes against best practice or that breaks things. Query whether to include Terraform as an optional addon (if feasible). This would have the additional advantage of introducing users to Terraform and the Flux tf-controller, and could pave the way for a broader range of addons. If Terraform isn't feasible or desirable, consider providing step-by-step instructions on Cloudflare config.
 
     📍 _To use `cert-manager` with the Cloudflare DNS challenge you will need to create an API Token._
 
@@ -340,8 +316,6 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
 
 📍 _If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over from this point._
 
->DRAFTING NOTE: Query whether steps 1 and 2 are necessary to repeat here given they are part of the previous step?
-
 1. Verify Ansible can view your config
 
     ```sh
@@ -376,8 +350,6 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
 ### 🚀 Step 6: Install Flux in your cluster
 
 📍 _Here we will be installing [Flux](https://fluxcd.io/flux) after some quick bootstrap steps._
-
->DRAFTING NOTE: Query whether step 1 is necessary? All prerequisites will have been checked in earlier steps.
 
 1. Verify Flux can be installed
 
@@ -441,8 +413,6 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 ### 🌐 [Post installation] DNS
 
->DRAFTING NOTE: 'Public' and 'home' DNS terminology adpoted as it seems more apt than 'external' and 'internal' (e.g. "internal DNS" often means internal to the cluster).
-
 #### Public DNS
 
 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must set set the correct ingress class name and ingress annotations like in the HelmRelease for `echo-server`.
@@ -464,21 +434,15 @@ The `external-dns` application created in the `networking` namespace will handle
 
 3. Query an internal-only subdomain from your workstation: `dig @${home-dns-server-ip} hubble.${bootstrap_cloudflare_domain}`. It should resolve to `${bootstrap_internal_nginx_addr}`.
 
->DRAFTING NOTE: Changed internal-only subdomain from `hajimari` to `hubble` as the former is no longer a default app.
-
 If you're having trouble with DNS be sure to check out these two GitHub Discussions: [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
 
 ### 📜 [Post installation] SSL certificates
 
 By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration). Once you are sure you will keep the cluster up for more than a few hours be sure to switch to the production servers as outlined in `config.yaml`.
 
->NIT: Instructions for switching to the production servers results in all secrets being re-encrypted, introducing many unnecessary changes that then get pushed to GitHub (unless the user realizes and intervenes).
-
 📍 _You will need a production certificate to reach internet-exposed applications through `cloudflared`._
 
 ### 🪝 [Post installation] GitHub webhook
-
->DRAFTING NOTE: Check that Flux reconciles every 10 minutes.
 
 By default Flux will check your Git repository for changes every 10 minutes. In order to have Flux reconcile on `git push` you must configure GitHub to send push events.
 
@@ -502,13 +466,9 @@ By default Flux will check your Git repository for changes every 10 minutes. In 
 
 ### 🔹 Flux
 
->IDEA/WIP: Provide an overview of how Flux works in the context of this project, e.g. directory structure, kustomizations and "fluxtomizations", dependencies etc. A bit like [this](https://jjgadgets.tech/pages/flux-repo-structure) but more high level. And maybe a brief how-to for basic operations.
-
 ~
 
 ### 🤖 Renovatebot
-
->DRAFTING NOTE: Subsection reworded given Renovate's importance.
 
 [Renovatebot](https://www.mend.io/renovate/) will scan your repository and create PRs for out-of-date dependencies it finds. Merging a PR will cause Flux to apply the change to your cluster. If a change causes issues it can be easily rolled back by reverting the relevant commit.
 
@@ -518,13 +478,9 @@ The base Renovate configuration in your repository can be viewed at [.github/ren
 
 ### ⚙️ GitHub Actions
 
->IDEA/WIP: Provide examples and instructions on CI using GitHub Actions. Suggest including more CI in the project if feasible (e.g. `actions-runner-controller`, `flux-diff`).
-
 ~
 
 ## What's next
-
->IDEA: Suggest offering a few more addons or community solutions on how to extend the project, as has been done for storage. Core features could be listed here (e.g. replicated storage, backups, authentication, VPN, remote management) and the **recommended** solution put next to each, e.g. "replicated storage: use `rook-ceph` if your nodes have a dedicated data disk and sufficient memory, otherwise use `longhorn`". Slightly reductive, yet helpful for beginners. Simplify comparisons by stating pros and cons briefly and offering a reference implementation for each approach, e.g. "authentication: self-hosted vs cloud, reference implementations being (self-hosted) `authelia` w/ `lldap` and (cloud) Cloudflare Zero Trust w/ GitHub as OIDC provider".
 
 The cluster is your oyster (or something like that). Below are some optional considerations you might want to review.
 
@@ -532,17 +488,11 @@ The cluster is your oyster (or something like that). Below are some optional con
 
 Monitoring tools [Prometheus](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) and [Grafana](https://github.com/grafana/grafana) are recommended if your cluster isn't resource constrained.
 
->WIP: Update `bootstrap/vars/addons.yaml` with advice regarding other addons (or provide it here).
-
 Refer to the notes in `bootstrap/vars/addons.yaml` for further advice regarding addons.
 
 ### 💾 Storage
 
->DRAFTING NOTE: Query whether `csi-driver-nfs` should be more fully explained given its status as an addon?
-
 The included CSI (`local-path-provisioner`) is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. If you need any of those features be sure to check out projects like [rook-ceph](https://github.com/rook/rook), [longhorn](https://github.com/longhorn/longhorn), [openebs](https://github.com/openebs/openebs), [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs), and [synology-csi](https://github.com/SynologyOpenSource/synology-csi).
-
->IDEA: Consider adding a primer (whether here or under 'Usage' or 'FAQs') on managing in-cluster storage with `local-path-provisioner`.
 
 ### 💡 Ship it
 
@@ -596,8 +546,6 @@ Resolving problems could take some tweaking of the YAML manifests in order to ge
 
 ## FAQs
 
->WIP: More FAQs to be added. Community suggestions would be welcome.
-
 ### Why Cloudflare Tunnel?
 
 Because of its many advantages:
@@ -618,13 +566,9 @@ No, and you will likely encounter errors during installation if your nodes run a
 
 ### I want to change my `config.yaml` or `addons.yaml` and have those changes take effect without bringing down my cluster. Is this possible?
 
->WIP: Explain what changes can be made and how. This might need to be broken up into several Q&As (e.g. adding and removing nodes is quite different to enabling an addon). Big picture is how Ansible behaves when it is run against an already provisioned cluster.
-
 ~
 
 ### Why are `kube-vip` pods running in my cluster when I can't see the application under `./kubernetes/apps/`?
-
->DRAFTING NOTE: Added this Q&A because the README no longer lists every default application.
 
 For technical reasons the deployment and lifecycle of `kube-vip` is managed outside of Flux.
 
