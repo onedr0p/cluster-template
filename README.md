@@ -9,10 +9,10 @@ Welcome to my highly opinionated template for deploying a single Kubernetes ([k3
 - [Prerequisites](#prerequisites)
 - [Machine preparation](#machine-preparation)
 - [Getting started](#getting-started)
-- [Usage: GitOps with Flux, Renovate and GitHub Actions](#usage-gitops-with-flux-renovate-and-github-actions) _needs work_
-- [What's next](#whats-next) _needs work_
+- [Usage: GitOps with Flux, Renovate and GitHub Actions](#usage-gitops-with-flux-renovate-and-github-actions)
+- [What's next](#whats-next)
 - [Troubleshooting](#troubleshooting)
-- [FAQs](#faqs) _needs work_
+- [FAQs](#faqs)
 - [Support](#support)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
@@ -434,7 +434,7 @@ The `external-dns` application created in the `networking` namespace will handle
 
 3. Query an internal-only subdomain from your workstation: `dig @${home-dns-server-ip} hubble.${bootstrap_cloudflare_domain}`. It should resolve to `${bootstrap_internal_nginx_addr}`.
 
-If you're having trouble with DNS be sure to check out these two GitHub Discussions: [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
+If you're having trouble with DNS be sure to check out these two GitHub discussions: [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
 
 ### 📜 [Post installation] SSL certificates
 
@@ -468,13 +468,13 @@ By default Flux will check your Git repository for changes every 10 minutes. In 
 
 ~
 
-### 🤖 Renovatebot
+### 🤖 Renovate
 
-[Renovatebot](https://www.mend.io/renovate/) will scan your repository and create PRs for out-of-date dependencies it finds. Merging a PR will cause Flux to apply the change to your cluster. If a change causes issues it can be easily rolled back by reverting the relevant commit.
+[Renovate](https://www.mend.io/renovate) will scan your repository and create PRs for out-of-date dependencies it finds. Merging a PR will cause Flux to apply the change to your cluster.
 
-To enable Renovate, click the 'Configure' button over at their [GitHub App page](https://github.com/apps/renovate) and choose your repository.
+To enable Renovate, click the 'Configure' button over at their [GitHub App page](https://github.com/apps/renovate) and select your repository. Upon activation, Renovate will create a new issue in your repository, which is a "dashboard" where you can get an overview of the status of all updates. The dashboard has interactive checkboxes that let you do things like advance scheduling or reattempting update PRs you closed without merging.
 
-The base Renovate configuration in your repository can be viewed at [.github/renovate.json5](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate.json5). By default it is scheduled to run on weekends only, but you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule/).
+The base Renovate configuration in your repository can be viewed at [.github/renovate.json5](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate.json5). By default it is scheduled to run on weekends only, but you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule) or simply remove it to let Renovate run around the clock. It is also set up to [automerge some updates](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate/autoMerge.json5).
 
 ### ⚙️ GitHub Actions
 
@@ -564,29 +564,25 @@ No.
 
 No, and you will likely encounter errors during installation if your nodes run a different operating system.
 
+### Can I add and remove nodes without bringing down my cluster?
+
+Yes, in most cases &mdash; see [this](https://github.com/onedr0p/flux-cluster-template/discussions/589) GitHub discussion.
+
 ### I want to change my `config.yaml` or `addons.yaml` and have those changes take effect without bringing down my cluster. Is this possible?
 
 ~
 
-### Why are `kube-vip` pods running in my cluster when I can't see the application under `./kubernetes/apps/`?
-
-For technical reasons the deployment and lifecycle of `kube-vip` is managed outside of Flux.
-
 ### The template iterates quickly. Is it important that I keep up to date with commits?
 
-Not really. If you want to keep up to date, one way is to add the template as a new remote and cherry-pick commits from it as it progresses. The best way is not to worry about each and every commit; most important is to branch out from the template and make your cluster **yours**.
+Not really. If you want to keep up to date, one way is to add the template as a new remote and cherry-pick commits from it as it progresses. The best way is not to worry about every single commit; most important is to branch out from the template and make your cluster **yours**. Don't be afraid to experiment!
 
 ### What about new features?
 
 Major updates will be packaged as a new release which you can pull into your repo as you see fit.
 
-### Can I add and remove nodes without bringing down my cluster?
-
-Yes, in most cases &mdash; see [this](https://github.com/onedr0p/flux-cluster-template/discussions/589) GitHub Discussion.
-
 ## Support
 
-- Make a post in this repository's [GitHub Discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
+- Make a post in this repository's [GitHub discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
 - Start a thread in the `support` or `flux-cluster-template` channel in the [k8s@home](https://discord.gg/k8s-at-home) Discord server.
 
 ## License
