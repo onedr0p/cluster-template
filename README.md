@@ -1,35 +1,38 @@
 # Deploy a Kubernetes cluster backed by Flux
 
-Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and managing applications with [Flux](https://toolkit.fluxcd.io/). Upon completion you will be able to expose web applications you choose to the internet with [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
+Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and using [Flux](https://toolkit.fluxcd.io) to manage its state.
 
 ## 👋 Introduction
 
-The following components will be installed in your [k3s](https://k3s.io/) cluster by default. Most are only included to get a minimum viable cluster up and running.
+The goal of this project is to make it easy for people interested in learning Kubernetes to deploy a basic cluster at home and become familiar with the GitOps tool Flux.
 
-- [flux](https://toolkit.fluxcd.io/) - GitOps operator for managing Kubernetes clusters from a Git repository
-- [kube-vip](https://kube-vip.io/) - Load balancer for the Kubernetes control plane nodes
-- [cert-manager](https://cert-manager.io/) - Operator to request SSL certificates and store them as Kubernetes resources
-- [cilium](https://cilium.io/) - Container networking interface for inter pod and service networking
-- [external-dns](https://github.com/kubernetes-sigs/external-dns) - Operator to publish DNS records to Cloudflare (and other providers) based on Kubernetes ingresses
-- [k8s_gateway](https://github.com/ori-edge/k8s_gateway) - DNS resolver that provides local DNS to your Kubernetes ingresses
-- [ingress-nginx](https://kubernetes.github.io/ingress-nginx/) - Kubernetes ingress controller used for a HTTP reverse proxy of Kubernetes ingresses
-- [local-path-provisioner](https://github.com/rancher/local-path-provisioner) - provision persistent local storage with Kubernetes
+This template implements Flux in a way that promotes legibility and ease of use for those who are new (or relatively new) to the technology and GitOps in general. It assumes a typical homelab setup: namely, a single "home prod" cluster running mostly third-party apps.
 
-_Additional applications can be enabled in the [addons](./bootstrap/vars/addons.sample.yaml) configuration file_
+## ✨ Features
+
+- Automated, reproducible, customizable setup through Ansible templates and playbooks
+- Opinionated implementation of Flux with [strong community support](https://github.com/onedr0p/flux-cluster-template#-support)
+- Encrypted secrets thanks to [SOPS](https://github.com/getsops/sops) and [Age](https://github.com/FiloSottile/age)
+- Web application firewall thanks to [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps)
+- SSL certificates thanks to [Cloudflare](https://cloudflare.com) and [cert-manager](https://cert-manager.io)
+- HA control plane capability thanks to [kube-vip](https://kube-vip.io)
+- Next-gen networking thanks to [Cilium](https://cilium.io/)
+- A [Renovate](https://www.mend.io/renovate)-ready repository
+- Integrated [GitHub Actions](https://github.com/features/actions)
+
+... and more!
 
 ## 📝 Pre-start checklist
 
-Before we get started, everything below must be taken into consideration.
+Before we get started everything below must be taken into consideration, you must...
 
-- [ ] Bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
-- [ ] This was designed to run in your home network on bare metal machines or VMs **NOT** in the cloud.
-- [ ] You **MUST** have a domain you can manage on Cloudflare.
-- [ ] Secrets will be commited to your Git repository **AND** they will be encrypted by SOPS.
-- [ ] Your domain name will **NOT** be visible to the public.
-- [ ] You **MUST** have a DNS server that supports split DNS (e.g. Pi-Hole) deployed somewhere outside your cluster **ON** your home network.
-- [ ] You have to use nodes that have access to the internet. _This is not going to work in air-gapped environments._
-
-With that out of the way please continue on if you are still interested...
+- [ ] bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
+- [ ] run the cluster on bare metal machines or VMs within your home network &mdash; **this is NOT designed for cloud environments**.
+- [ ] have Debian 12 freshly installed on 1 or more AMD64/ARM64 bare metal machines or VMs. Each machine will be either a **control node** or a **worker node** in your cluster.
+- [ ] give your nodes unrestricted internet access &mdash; _air-gapped environments won't work_.
+- [ ] have a domain you can manage on Cloudflare.
+- [ ] be willing to commit encrypted secrets to a public GitHub repository.
+- [ ] have a DNS server that supports split DNS (e.g. Pi-Hole) deployed somewhere outside your cluster **ON** your home network.
 
 ## 💻 System Preparation
 
@@ -37,11 +40,7 @@ This projects supported Linux distro for running Kubernetes is Debian, Ubuntu _m
 
 #### Debian for AMD64
 
-📍 _Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/)_
-
-There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step/) on how to get Debian installed.
-
-1. Deviations from that guide
+1. Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd), then follow [this guide](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step) to get it installed. Deviations from the guide:
 
     ```txt
     Choose "Guided - use entire disk"
@@ -84,18 +83,24 @@ There is a decent guide [here](https://www.linuxtechi.com/how-to-install-debian-
 
 #### Debian for RasPi4
 
-📍 _Download the latest stable release of Debian from [here](https://raspi.debian.net/tested-images/). **Do not** use Raspbian._
+📍 _If you choose to use a Raspberry Pi 4 for the cluster, it is recommended to have an 8GB model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first._
 
-If you choose to use a **RasPi4** for the cluster, it is recommended to have a 8GB model (4GB minimum). Most important is to **boot from an external SSD/NVMe**, rather than the SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early RasPi4, you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb).
+1. Download the latest stable release of Debian from [here](https://raspi.debian.net/tested-images). _**Do not** use Raspbian or DietPi or any other flavor Linux OS._
 
-According to the documentation [here](https://raspi.debian.net/defaults-and-settings/), after you have flashed the image onto a SSD/NVMe you must mount the drive and do the following.
+2. Flash the image onto an SSD/NVMe drive.
 
-1. Edit `sysconf.txt`
-2. Change `root_authorized_key` to your desired public SSH key.
-3. Change `root_pw` to your desired root password.
-4. Change `hostname` to your desired hostname.
-6. [Post install] Follow steps 3 & 4 from [Debian for AMD64](#debian-for-amd64) section.
-7. [Post install] Install `python3` which is needed by Ansible.
+3. Re-mount the drive then do the following (per the [official documentation](https://raspi.debian.net/defaults-and-settings)):
+
+    ```txt
+    Open `sysconf.txt` in a text editor
+    Change `root_authorized_key` to your desired public SSH key
+    Change `root_pw` to your desired root password
+    Change `hostname` to your desired hostname
+    ```
+
+4. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
+
+5. [Post install] Install `python3` which is needed by Ansible.
 
     ```sh
     sudo apt install -y python3
@@ -214,7 +219,9 @@ Lets get the required workstation tools installed and configured.
 
 5. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
 
-    5a. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
+    5a. Ensure `bootstrap_acme_production_enabled` is set to `false`.
+
+    5b. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
 
 6. Once done run the following command which will verify and generate all the files needed to continue.
 
@@ -235,7 +242,7 @@ Lets get the required workstation tools installed and configured.
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
-1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase**. For example using a SSH agent. This is how Ansible is able to connect to your remote nodes.
+1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase** (for example using a SSH agent). This lets Ansible interact with your nodes.
 
 2. Verify Ansible can view your config
 
@@ -357,28 +364,36 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 ## 📣 Post installation
 
-#### 🌐 DNS
+#### 🌐 Public DNS
 
-The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only public sub-domains exposed. In order to make additional applications public you must set the correct ingress class name and ingress annotations like done in the `HelmRelease` for `echo-server`.
+The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must set set the correct ingress class name and ingress annotations like in the HelmRelease for `echo-server`.
 
-For split DNS to work it is required to have `${bootstrap_cloudflare_domain}` point to the `${bootstrap_k8s_gateway_addr}` load balancer IP address on your home DNS server. This will ensure DNS requests for `${bootstrap_cloudflare_domain}` will only get routed to your `k8s_gateway` service thus providing **internal** DNS resolution to your cluster applications/ingresses from any device that uses your home DNS server.
+#### 🏠 Home DNS
 
-For and example with Pi-Hole apply the following file and restart dnsmasq:
+`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${bootstrap_cloudflare_domain}` to `${bootstrap_k8s_gateway_addr}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
-```sh
-# /etc/dnsmasq.d/99-k8s-gateway-forward.conf
-server=/${bootstrap_cloudflare_domain}/${bootstrap_k8s_gateway_addr}
-```
+📍 _Below is how to configure a Pi-hole for split DNS. Other platforms should be similar._
 
-Now try to resolve an internal-only domain with `dig @${pi-hole-ip} hajimari.${bootstrap_cloudflare_domain}` it should resolve to your `${bootstrap_internal_nginx_addr}` IP.
+1. Apply this file on the server
 
-If you're having trouble with DNS be sure to check out these two Github discussions, [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
+   ```sh
+   # /etc/dnsmasq.d/99-k8s-gateway-forward.conf
+   server=/${bootstrap_cloudflare_domain}/${bootstrap_k8s_gateway_addr}
+   ```
 
-Nothing working? That is expected, this is DNS after all!
+2. Restart dnsmasq on the server.
+
+3. Query an internal-only subdomain from your workstation: `dig @${home-dns-server-ip} echo-server.${bootstrap_cloudflare_domain}`. It should resolve to `${bootstrap_internal_nginx_addr}`.
+
+If you're having trouble with DNS be sure to check out these two GitHub discussions: [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
+
+... Nothing working? That is expected, this is DNS after all!
 
 #### 📜 Certificates
 
-By default this template will deploy a **wildcard certificate** with the Let's Encrypt **staging** environment. This is to prevent you from getting rate-limited on configuration that might not be valid on bootstrap using the production server. If you had `bootstrap_acme_production_enabled` set to `false` in your `config.yaml`, make sure to switch to the Let's Encrypt production servers as outlined in that file. **Do not** enable the production certificate until you are sure you will keep the cluster up for more than a few hours.
+By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration). Once you are sure you will keep the cluster up for more than a few hours be sure to switch to the production servers as outlined in `config.yaml`.
+
+📍 _You will need a production certificate to reach internet-exposed applications through `cloudflared`._
 
 #### 🪝 Github Webhook
 
@@ -449,7 +464,7 @@ Below is a general guide on trying to debug an issue with an resource or applica
 6. Check the namespace events
 
     ```sh
-    kubectl get events -n <namespace> --sort-by='.metadata.creationTimestamp'
+    kubectl -n <namespace> get events --sort-by='.metadata.creationTimestamp'
     ```
 
 Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.

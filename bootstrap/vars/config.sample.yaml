@@ -54,7 +54,6 @@ bootstrap_cluster_cidr: 10.42.0.0/16
 # (Advanced) For ipv6 use format 10.43.0.0/16,fd78:c889:47fb:e0::/112
 bootstrap_service_cidr: 10.43.0.0/16
 
-
 # Node information
 bootstrap_nodes:
   # Use only 1, 3 or more odd master nodes, recommended is 3
