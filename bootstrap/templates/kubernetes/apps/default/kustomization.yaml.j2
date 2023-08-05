@@ -7,3 +7,6 @@ resources:
   {% if hajimari.enabled | default(false) %}
   - ./hajimari/ks.yaml
   {% endif %}
+  {% if discord_template_notifier.enabled | default(false) %}
+  - ./discord-template-notifier/ks.yaml
+  {% endif %}

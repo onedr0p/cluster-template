@@ -1,0 +1,45 @@
+---
+- name: Set addon facts
+  ansible.builtin.set_fact:
+    addon_name: discord-template-notifier
+    addon_namespace: default
+
+- name: Ensure directories exist for {{ addon_namespace }}/{{ addon_name }}
+  when: item.state == 'directory'
+  ansible.builtin.file:
+    path: "{{ repository_path }}/kubernetes/apps/{{ addon_namespace }}/{{ addon_name }}/{{ item.path }}"
+    state: directory
+    mode: "0755"
+  with_community.general.filetree: ["../templates/addons/{{ addon_name }}/"]
+
+- name: Template unencrypted files for {{ addon_namespace }}/{{ addon_name }}
+  when: item.state == 'file' and 'sops' not in item.path
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ repository_path }}/kubernetes/apps/{{ addon_namespace }}/{{ addon_name }}/{{ item.path | replace('.j2', '') }}"
+    mode: "0644"
+  with_community.general.filetree: ["../templates/addons/{{ addon_name }}/"]
+
+# https://github.com/ansible-collections/community.sops/issues/153
+- name: Template encrypted files for {{ addon_namespace }}/{{ addon_name }}
+  block:
+    - name: Disable Sops config
+      ansible.builtin.include_tasks:
+        file: ../sops/disable.yaml
+    - name: Template encrypted files
+      when: item.state == 'file' and 'sops' in item.path
+      community.sops.sops_encrypt:
+        path: "{{ repository_path }}/kubernetes/apps/{{ addon_namespace }}/{{ addon_name }}/{{ item.path | replace('.j2', '') }}"
+        encrypted_regex: ^(data|stringData)$
+        age: ["{{ bootstrap_age_public_key }}"]
+        content_yaml: "{{ lookup('ansible.builtin.template', item.src) | from_yaml }}"
+        mode: "0644"
+        force: true
+      with_community.general.filetree: ["../templates/addons/{{ addon_name }}/"]
+    - name: Enable Sops config
+      ansible.builtin.include_tasks:
+        file: ../sops/enable.yaml
+  rescue:
+    - name: Enable Sops config
+      ansible.builtin.include_tasks:
+        file: ../sops/enable.yaml

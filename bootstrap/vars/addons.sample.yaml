@@ -42,3 +42,10 @@ system_upgrade_controller:
   # ansible configuration files. Running ansible against an already provisioned
   # cluster with this enabled might cause your cluster to be downgraded.
   enabled: false
+
+# https://github.com/morphy2k/rss-forwarder
+discord_template_notifier:
+  # Will post commits from the template repository to the specified discord channel
+  # so it's easier to keep track of changes.
+  enabled: false
+  webhook_url: # Discord webhook url
