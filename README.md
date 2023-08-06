@@ -62,6 +62,7 @@ This projects supported Linux distro for running Kubernetes is Debian, Ubuntu _m
 
     ```sh
     su -
+    apt update
     apt install -y sudo
     usermod -aG sudo ${username}
     echo "${username} ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
