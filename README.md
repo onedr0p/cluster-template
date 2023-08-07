@@ -126,15 +126,21 @@ Before we get started everything below must be taken into consideration, you mus
     sudo apt install -y python3
     ```
 
-## 🚀 First Steps
+## 🚀 Getting Started
 
-The very first step will be to create a new **public** repository by clicking the big green **Use this template** button on this page. Next clone **your new repo** to you local workstation and `cd` into it.
+Once you have installed Debian on your nodes, there are 6 stages to getting a Flux-managed cluster up and runnning.
 
-📍 _**All commands** are run on your **local** workstation within your repository directory_
+### 🎉 Stage 1: Create a Git repository
 
-## 🔧 Workstation Tools
+1. Create a new **public** repository by clicking the big green "Use this template" button at the top of this page.
 
-Lets get the required workstation tools installed and configured.
+2. Clone **your new repo** to you local workstation and `cd` into it.
+
+📍 _**All commands** during the setup process are run on your **local workstation** within your repository directory_
+
+### 🌱 Stage 2: Set up your local environment
+
+📍 _Let's get the required workstation tools installed and configured._
 
 1. Install the most recent version of [task](https://taskfile.dev/)
 
@@ -172,7 +178,7 @@ Lets get the required workstation tools installed and configured.
    task brew:deps
    ```
 
-## 📄 Configuration
+### 🔧 Stage 3: Do bootstrap configuration
 
 📍 _Both `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` files contain necessary information that is needed by bootstrap process._
 
@@ -258,7 +264,7 @@ Lets get the required workstation tools installed and configured.
 └─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
-## ⚡ Node Preparation
+### ⚡ Stage 4: Prepare your nodes for k3s
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
@@ -282,9 +288,7 @@ Lets get the required workstation tools installed and configured.
     task ansible:prepare
     ```
 
----
-
-## ⛵ Kubernetes Installation
+### ⛵ Stage 5: Use Ansible to install k3s
 
 📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over from this point._
 
@@ -319,7 +323,7 @@ Lets get the required workstation tools installed and configured.
 
 5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
-## 🔹 GitOps with Flux
+### 🔹 Stage 6: Install Flux in your cluster
 
 📍 _Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps._
 
@@ -363,7 +367,7 @@ Lets get the required workstation tools installed and configured.
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
 
-## 🎤 Verification Steps
+### 🎤 Verification Steps
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
