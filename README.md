@@ -128,9 +128,9 @@ Before we get started everything below must be taken into consideration, you mus
 
 ## 🚀 Getting Started
 
-Once you have installed Debian on your nodes, there are 6 steps to getting a Flux-managed cluster up and runnning.
+Once you have installed Debian on your nodes, there are 6 stages to getting a Flux-managed cluster up and runnning.
 
-### 🎉 Step 1: Create a Git repository
+### 🎉 Stage 1: Create a Git repository
 
 1. Create a new **public** repository by clicking the big green "Use this template" button at the top of this page.
 
@@ -138,7 +138,7 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
 
 📍 _**All commands** during the setup process are run on your **local workstation** within your repository directory_
 
-### 🌱 Step 2: Set up your local environment
+### 🌱 Stage 2: Set up your local environment
 
 📍 _Let's get the required workstation tools installed and configured._
 
@@ -178,7 +178,7 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
    task brew:deps
    ```
 
-### 🔧 Step 3: Do bootstrap configuration
+### 🔧 Stage 3: Do bootstrap configuration
 
 📍 _Both `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` files contain necessary information that is needed by bootstrap process._
 
@@ -264,7 +264,7 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
 └─📁 apps          # Apps deployed into the cluster grouped by namespace
 ```
 
-### ⚡ Step 4: Prepare your nodes for k3s
+### ⚡ Stage 4: Prepare your nodes for k3s
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
@@ -288,7 +288,7 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
     task ansible:prepare
     ```
 
-### ⛵ Step 5: Use Ansible to install k3s
+### ⛵ Stage 5: Use Ansible to install k3s
 
 📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over from this point._
 
@@ -323,7 +323,7 @@ Once you have installed Debian on your nodes, there are 6 steps to getting a Flu
 
 5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
-### 🔹 Step 6: Install Flux in your cluster
+### 🔹 Stage 6: Install Flux in your cluster
 
 📍 _Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps._
 
