@@ -105,22 +105,28 @@ Before we get started everything below must be taken into consideration, you mus
 
 📍 _If you choose to use a Raspberry Pi 4 for the cluster, it is recommended to have an 8GB model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first._
 
+📍 _Be sure to check the [power requirements](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply) if using a PoE Hat and a SSD/NVMe dongle.
+
 1. Download the latest stable release of Debian from [here](https://raspi.debian.net/tested-images). _**Do not** use Raspbian or DietPi or any other flavor Linux OS._
 
 2. Flash the image onto an SSD/NVMe drive.
 
-3. Re-mount the drive then do the following (per the [official documentation](https://raspi.debian.net/defaults-and-settings)):
+3. Re-mount the drive to your workstation and then do the following (per the [official documentation](https://raspi.debian.net/defaults-and-settings)):
 
     ```txt
-    Open `sysconf.txt` in a text editor
-    Change `root_authorized_key` to your desired public SSH key
-    Change `root_pw` to your desired root password
-    Change `hostname` to your desired hostname
+    Open 'sysconf.txt' in a text editor and save it upon updating the information below
+      - Change 'root_authorized_key' to your desired public SSH key
+      - Change 'root_pw' to your desired root password
+      - Change 'hostname' to your desired hostname
     ```
 
-4. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
+4. Connect SSD/NVMe drive to the Raspberry Pi 4 and power it on.
 
-5. [Post install] Install `python3` which is needed by Ansible.
+5. [Post install] SSH into the device with the `root` user and then create a normal user account with `adduser ${username}`
+      
+6. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
+
+7. [Post install] Install `python3` which is needed by Ansible.
 
     ```sh
     sudo apt install -y python3
