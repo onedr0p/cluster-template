@@ -44,18 +44,11 @@ Before we get started everything below must be taken into consideration, you mus
 
 📍 _Ideally you will run the cluster on bare metal machines. If you intend to run your cluster on Proxmox VE, my thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/notes/proxmox-considerations.html)._
 
-#### Minimum
-
-| Role      | Memory    | Cores   | Disk        |
-|-----------|-----------|---------|-------------|
-| Control   | 8GB       | 4       | 100GB SSD   |
-| Worker    | 4GB       | 2       | 100GB SSD   |
-
-#### Recommended
-
-| Role      | Memory    | Cores   | System Disk  | Data Disk     | CPU      |
-|-----------|-----------|---------|--------------|---------------|----------|
-| Any       | 32GB      | 8       | 100GB SSD    | 1TB NVMe      | AMD64    |
+| Role    | Cores    | Memory        | System Disk               |
+|---------|----------|---------------|---------------------------|
+| Control | 4 _(6*)_ | 8GB _(24GB*)_ | 100GB _(500GB*)_ SSD/NVMe |
+| Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 100GB _(500GB*)_ SSD/NVMe |
+| _\* recommended_ |
 
 ### Debian for AMD64
 
@@ -123,7 +116,7 @@ Before we get started everything below must be taken into consideration, you mus
 4. Connect SSD/NVMe drive to the Raspberry Pi 4 and power it on.
 
 5. [Post install] SSH into the device with the `root` user and then create a normal user account with `adduser ${username}`
-      
+
 6. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
 
 7. [Post install] Install `python3` which is needed by Ansible.
