@@ -118,9 +118,22 @@ Before we get started everything below must be taken into consideration, you mus
     Change `hostname` to your desired hostname
     ```
 
-4. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
+4. Connect SSD/NVME drive to the Raspberry Pi 4 device and power it on either using the USB-C connector or a PoE HAT ensuring you meet the Amp requirements of the PI4B + the attached SSD/NVME storage (4 Amps is sufficient for a PI4B + the most power hungry NVME which the official PoE HAT supplies).  See [official documentation on power requirements]https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply and factor in your attached USB device(s) power requirments.
 
-5. [Post install] Install `python3` which is needed by Ansible.
+5. Login as root and create your local user account
+
+   ```sh
+   ssh root@hostname
+   adduser ${username}
+   enter desired password
+   confirm desired password
+   remaining values can be left blank or defined
+   confirm by pressing Y
+   ```
+      
+5. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
+
+6. [Post install] Install `python3` which is needed by Ansible.
 
     ```sh
     sudo apt install -y python3
