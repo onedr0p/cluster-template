@@ -9,3 +9,8 @@ creation_rules:
     key_groups:
       - age:
           - "{{ bootstrap_age_public_key }}"
+  # https://github.com/ansible-collections/community.sops/issues/153
+  - path_regex: /dev/stdin
+    key_groups:
+      - age:
+          - "{{ bootstrap_age_public_key }}"

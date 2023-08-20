@@ -54,9 +54,6 @@
 
 - name: Template Kubernetes encrypted files
   block:
-    - name: Disable Sops config
-      ansible.builtin.include_tasks:
-        file: ../sops/disable.yaml
     - name: Template Kubernetes encrypted files
       when: item.state == 'file' and 'sops' in item.path
       community.sops.sops_encrypt:
@@ -67,10 +64,3 @@
         mode: "0644"
         force: true
       with_community.general.filetree: ["../templates/kubernetes/"]
-    - name: Enable Sops config
-      ansible.builtin.include_tasks:
-        file: ../sops/enable.yaml
-  rescue:
-    - name: Enable Sops config
-      ansible.builtin.include_tasks:
-        file: ../sops/enable.yaml

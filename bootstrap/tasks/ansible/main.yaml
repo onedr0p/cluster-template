@@ -17,9 +17,6 @@
 
 - name: Template Ansible encrypted files
   block:
-    - name: Disable Sops config
-      ansible.builtin.include_tasks:
-        file: ../sops/disable.yaml
     - name: Template Ansible encrypted files
       when: item.state == 'file' and 'sops' in item.path
       community.sops.sops_encrypt:
@@ -40,10 +37,3 @@
       loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
       loop_control:
         label: "{{ item.address }}"
-    - name: Enable Sops config
-      ansible.builtin.include_tasks:
-        file: ../sops/enable.yaml
-  rescue:
-    - name: Enable Sops config
-      ansible.builtin.include_tasks:
-        file: ../sops/enable.yaml
