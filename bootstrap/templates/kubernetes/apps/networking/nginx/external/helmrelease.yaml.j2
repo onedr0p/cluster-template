@@ -35,7 +35,7 @@ spec:
       service:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
-          io.cilium/lb-ipam-ips: "{{ bootstrap_external_nginx_addr }}"
+          io.cilium/lb-ipam-ips: "{{ bootstrap_external_ingress_addr }}"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: external

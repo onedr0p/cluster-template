@@ -17,8 +17,8 @@
     - bootstrap_flux_github_webhook_token
     - bootstrap_github_repository_name
     - bootstrap_github_username
-    - bootstrap_external_nginx_addr
-    - bootstrap_internal_nginx_addr
+    - bootstrap_external_ingress_addr
+    - bootstrap_internal_ingress_addr
     - bootstrap_ipv6_enabled
     - bootstrap_k8s_gateway_addr
     - bootstrap_kube_vip_addr
