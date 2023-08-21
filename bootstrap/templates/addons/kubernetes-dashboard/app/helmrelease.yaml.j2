@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: kubernetes-dashboard
-      version: 7.0.3
+      version: 6.0.8
       sourceRef:
         kind: HelmRepository
         name: kubernetes-dashboard
@@ -25,31 +25,20 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    api:
-      containers:
-        args:
-          - --enable-insecure-login=true
-          - --enable-skip-login=true
-          - --disable-settings-authorizer=true
-    app:
-      ingress:
-        enabled: true
-        className: internal
-        annotations:
-          hajimari.io/icon: mdi:kubernetes
-        hosts:
-          - &host "kubernetes.${SECRET_DOMAIN}"
-        tls:
-          - hosts:
-              - *host
-            secretName: kubernetes-dashboard-tls
+    extraArgs:
+      - --enable-insecure-login
+      - --enable-skip-login
+      - --disable-settings-authorizer
+    ingress:
+      enabled: true
+      className: internal
+      annotations:
+        hajimari.io/icon: mdi:kubernetes
+      hosts:
+        - &host "kubernetes.${SECRET_DOMAIN}"
+      tls:
+        - hosts:
+            - *host
+          secretName: kubernetes-dashboard-tls
     metricsScraper:
       enabled: true
-    serviceMonitor:
-      enabled: false
-    cert-manager:
-      enabled: false
-    nginx:
-      enabled: false
-    metrics-server:
-      enabled: false
