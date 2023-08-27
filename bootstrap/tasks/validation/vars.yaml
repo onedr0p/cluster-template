@@ -16,6 +16,7 @@
     - bootstrap_cluster_cidr
     - bootstrap_flux_github_webhook_token
     - bootstrap_github_repository_name
+    - bootstrap_github_repository_branch
     - bootstrap_github_username
     - bootstrap_external_ingress_addr
     - bootstrap_internal_ingress_addr

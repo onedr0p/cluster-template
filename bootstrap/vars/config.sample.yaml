@@ -7,6 +7,8 @@
 bootstrap_github_username:
 # Github repository (e.g. flux-cluster-template)
 bootstrap_github_repository_name:
+# Github repository branch (e.g. main)
+bootstrap_github_repository_branch: main
 # Age Public Key (e.g. age15uzrw396e67z9wdzsxzdk7ka0g2gr3l460e0slaea563zll3hdfqwqxdta)
 bootstrap_age_public_key:
 # Choose your timezone (e.g. America/New_York)
