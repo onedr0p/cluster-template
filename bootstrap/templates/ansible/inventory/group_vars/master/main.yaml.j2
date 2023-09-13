@@ -25,8 +25,13 @@ k3s_server:
   disable-cloud-controller: true
   disable-kube-proxy: true            # Cilium uses eBPF
   write-kubeconfig-mode: "644"
+{% if bootstrap_ipv6_enabled | default(false) %}
+  cluster-cidr: "{% raw %}{{ cluster_cidr }},{{ cluster_cidr_v6 }}{% endraw %}"
+  service-cidr: "{% raw %}{{ service_cidr }},{{ service_cidr_v6 }}{% endraw %}"
+{% else %}
   cluster-cidr: "{% raw %}{{ cluster_cidr }}{% endraw %}"
   service-cidr: "{% raw %}{{ service_cidr }}{% endraw %}"
+{% endif %}
   etcd-expose-metrics: true           # Required to monitor etcd with kube-prometheus-stack
   kube-controller-manager-arg:
     - "bind-address=0.0.0.0"          # Required to monitor kube-controller-manager with kube-prometheus-stack
