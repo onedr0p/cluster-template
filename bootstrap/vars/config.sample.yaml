@@ -62,14 +62,14 @@ bootstrap_nodes:
   master:
     # - name:     # name of the master node (must match [a-z0-9-]+)
     #   address:  # ip address of the master node
-    #   external_address: # ONLY when SSH is not reachable on the IP specified in address field.
+    #   external_address: # USE ONLY when SSH is not reachable on the IP specified in address field.
     #   username: # ssh username of the master node
     #   password: # password of ssh username for the master node
     # ...
   worker: # set to [] or omit if no workers are needed
     # - name:     # name of the worker node (must match [a-z0-9-]+)
     #   address:  # ip address of the worker node
-    #   external_address: # ONLY when SSH is not reachable on the IP specified in address field.
+    #   external_address: # USE ONLY when SSH is not reachable on the IP specified in address field.
     #   username: # ssh username of the worker node
     #   password: # password of ssh username for the worker node
     # ...
