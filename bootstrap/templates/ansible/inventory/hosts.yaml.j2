@@ -7,7 +7,11 @@ kubernetes:
       {% for item in bootstrap_nodes.master %}
         {{ item.name }}:
           ansible_user: {{ item.username }}
+      {% if item.external_address is defined %}
+          ansible_host: {{ item.external_address }}
+      {% else %}
           ansible_host: {{ item.address }}
+      {% endif %}
       {% endfor %}
     {% if bootstrap_nodes.worker | default([]) | length > 0 %}
     worker:
@@ -15,6 +19,10 @@ kubernetes:
       {% for item in bootstrap_nodes.worker %}
         {{ item.name }}:
           ansible_user: {{ item.username }}
+      {% if item.external_address is defined %}
+          ansible_host: {{ item.external_address }}
+      {% else %}
           ansible_host: {{ item.address }}
+      {% endif %}
       {% endfor %}
     {% endif %}

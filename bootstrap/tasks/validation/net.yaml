@@ -1,4 +1,11 @@
 ---
+- name: Set reachable address
+  set_fact:
+    current_address: "{{ item.external_address | default(item.address) }}"
+    loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+    loop_control:
+      label: "{{ item.address }}"
+
 - name: Verify master node count
   ansible.builtin.assert:
     that:
@@ -142,16 +149,17 @@
     fail_msg: Node address {{ item.address }} is not within {{ bootstrap_node_cidr }}.
     quiet: true
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  when: item.external_address is not defined
   loop_control:
      label: "{{ item.address }}"
 
 - name: Verify SSH port is reachable
   ansible.builtin.wait_for:
-    host: "{{ item.address }}"
+    host: "{{ current_address }}"
     port: 22
     search_regex: OpenSSH
     timeout: 10
   connection: local
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
-     label: "{{ item.address }}"
+     label: "{{ current_address }}"
