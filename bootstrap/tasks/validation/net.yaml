@@ -2,9 +2,9 @@
 - name: Set reachable address
   set_fact:
     current_address: "{{ item.external_address | default(item.address) }}"
-    loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
-    loop_control:
-      label: "{{ item.address }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop_control:
+    label: "{{ item.address }}"
 
 - name: Verify master node count
   ansible.builtin.assert:
