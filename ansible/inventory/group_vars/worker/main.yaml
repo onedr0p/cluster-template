@@ -1,0 +1,7 @@
+---
+# https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/
+# https://github.com/PyratLabs/ansible-role-k3s
+
+k3s_control_node: false
+k3s_agent:
+  node-ip: "{{ ansible_host }}"

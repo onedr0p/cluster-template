@@ -1,0 +1,8 @@
+---
+kubernetes:
+  children:
+    master:
+      hosts:
+        swarm-mind-control:
+          ansible_user: jsaveker
+          ansible_host: 192.168.1.173

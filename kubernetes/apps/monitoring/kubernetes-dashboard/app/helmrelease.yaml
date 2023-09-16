@@ -1,0 +1,44 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kubernetes-dashboard
+  namespace: monitoring
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: kubernetes-dashboard
+      version: 6.0.8
+      sourceRef:
+        kind: HelmRepository
+        name: kubernetes-dashboard
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    extraArgs:
+      - --enable-insecure-login
+      - --enable-skip-login
+      - --disable-settings-authorizer
+    ingress:
+      enabled: true
+      className: internal
+      annotations:
+        hajimari.io/icon: mdi:kubernetes
+      hosts:
+        - &host "kubernetes.${SECRET_DOMAIN}"
+      tls:
+        - hosts:
+            - *host
+          secretName: kubernetes-dashboard-tls
+    metricsScraper:
+      enabled: true
