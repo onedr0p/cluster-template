@@ -1,0 +1,91 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: sabnzbd
+  annotations:
+    feature: vpn-1
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: sabnzbd
+      version: 9.4.2
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+
+  values:
+    # https://github.com/k8s-at-home/charts/blob/master/charts/stable/sabnzbd/values.yaml
+    image:
+      repository: linuxserver/sabnzbd
+      tag: version-4.0.3
+
+    # Backup
+    podAnnotations:
+      backup.velero.io/backup-volumes: config
+
+    env:
+      PGID: "1000"
+      PUID: "1000"
+
+    podSecurityContext:
+      # runAsUser: 1000
+      # runAsGroup: 1000
+      supplementalGroups:
+        - 100
+        # - 568
+
+    initContainers:
+      update-config-ownership:
+        image: busybox:1.36.1
+        command: ["sh", "-c", "chown -R 1000:1000 /config"]
+        volumeMounts:
+          - name: config
+            mountPath: /config
+        securityContext:
+          runAsUser: 0
+      update-config-permission:
+        image: busybox:1.36.1
+        command: ["sh", "-c", "chmod -R 774 /config"]
+        volumeMounts:
+          - name: config
+            mountPath: /config
+        securityContext:
+          runAsUser: 0
+
+    # Persistence
+    persistence:
+      # Make sure it has pid/gid 568
+      # and it is pre-populated
+      config:
+        enabled: true
+        existingClaim: sabnzbd
+      downloads:
+        enabled: true
+        existingClaim: download
+        mountPath: /downloads
+
+    # Network
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          coredns.io/hostname: &host "sabnzbd.home.${SECRET_DOMAIN}"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: "download"
+          nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8"
+        hosts:
+          - host: *host
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+            secretName: sabnzbd-tls
