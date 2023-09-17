@@ -1,7 +1,9 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/kustomization.json
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  # Pre Flux-Kustomizations
   - ./namespace.yaml
-  - ./rook-ceph/kustomization-fluxCRD.yaml
+  # Flux-Kustomizations
+  - ./rook-ceph/ks.yaml
