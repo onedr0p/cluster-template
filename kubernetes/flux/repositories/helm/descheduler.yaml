@@ -3,8 +3,8 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: grafana
+  name: descheduler
   namespace: flux-system
 spec:
   interval: 2h
-  url: https://grafana.github.io/helm-charts
+  url: https://kubernetes-sigs.github.io/descheduler
