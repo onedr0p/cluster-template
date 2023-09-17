@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -42,7 +42,7 @@ spec:
       repository: ghcr.io/miniflux/miniflux
       tag: 2.0.48
     env:
-      BASE_URL: https://miniflux.devbu.io
+      BASE_URL: https://miniflux.n3sav.com
       CREATE_ADMIN: "1"
       DEBUG: "1"
       LOG_DATE_TIME: "1"

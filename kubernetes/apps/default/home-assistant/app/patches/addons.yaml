@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -27,7 +27,7 @@ spec:
           enabled: true
           ingressClassName: internal
           hosts:
-            - host: &host hass-code.devbu.io
+            - host: &host hass-code.n3sav.com
               paths:
                 - path: /
                   pathType: Prefix

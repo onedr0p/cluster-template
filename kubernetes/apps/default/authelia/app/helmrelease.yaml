@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -64,7 +64,7 @@ spec:
       AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USERS_FILTER: (&({username_attribute}={input})(objectClass=person))
       AUTHELIA_AUTHENTICATION_BACKEND_PASSWORD_RESET_DISABLE: "true"
       AUTHELIA_AUTHENTICATION_BACKEND_REFRESH_INTERVAL: 1m
-      AUTHELIA_DEFAULT_REDIRECTION_URL: https://auth.devbu.io
+      AUTHELIA_DEFAULT_REDIRECTION_URL: https://auth.n3sav.com
       AUTHELIA_DUO_API_DISABLE: "true"
       AUTHELIA_LOG_LEVEL: info
       AUTHELIA_NOTIFIER_DISABLE_STARTUP_CHECK: "true"
@@ -122,14 +122,14 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.devbu.io
+          external-dns.alpha.kubernetes.io/target: external.n3sav.com
           nginx.ingress.kubernetes.io/configuration-snippet: |
             add_header Cache-Control "no-store";
             add_header Pragma "no-cache";
             add_header X-Frame-Options "SAMEORIGIN";
             add_header X-XSS-Protection "1; mode=block";
         hosts:
-          - host: &host auth.devbu.io
+          - host: &host auth.n3sav.com
             paths:
               - path: /
                 pathType: Prefix
