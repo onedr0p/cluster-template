@@ -50,9 +50,9 @@ spec:
       METRICS_COLLECTOR: "1"
       OAUTH2_CLIENT_ID: miniflux
       OAUTH2_USER_CREATION: "1"
-      OAUTH2_OIDC_DISCOVERY_ENDPOINT: https://auth.devbu.io
+      OAUTH2_OIDC_DISCOVERY_ENDPOINT: https://auth.n3sav.com
       OAUTH2_PROVIDER: oidc
-      OAUTH2_REDIRECT_URL: https://miniflux.devbu.io/oauth2/oidc/callback
+      OAUTH2_REDIRECT_URL: https://miniflux.n3sav.com/oauth2/oidc/callback
       POLLING_SCHEDULER: entry_frequency
       POLLING_FREQUENCY: "15"
       RUN_MIGRATIONS: "1"
@@ -70,9 +70,9 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.devbu.io
+          external-dns.alpha.kubernetes.io/target: external.n3sav.com
         hosts:
-          - host: &host "{{ .Release.Name }}.devbu.io"
+          - host: &host "{{ .Release.Name }}.n3sav.com"
             paths:
               - path: /
                 pathType: Prefix

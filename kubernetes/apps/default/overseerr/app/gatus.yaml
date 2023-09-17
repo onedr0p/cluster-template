@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: overseerr
         group: external
-        url: https://requests.devbu.io
+        url: https://requests.n3sav.com
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

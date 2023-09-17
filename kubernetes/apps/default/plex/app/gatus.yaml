@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: plex
         group: external
-        url: https://plex.devbu.io/web/index.html
+        url: https://plex.n3sav.com/web/index.html
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

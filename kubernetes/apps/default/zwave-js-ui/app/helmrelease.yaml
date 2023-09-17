@@ -69,7 +69,7 @@ spec:
         enabled: true
         ingressClassName: internal
         hosts:
-          - host: &host "zwave.devbu.io"
+          - host: &host "zwave.n3sav.com"
             paths:
               - path: /
                 pathType: Prefix

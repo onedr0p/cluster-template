@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: shlink
         group: external
-        url: https://ln.devbu.io/rest/health
+        url: https://ln.n3sav.com/rest/health
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

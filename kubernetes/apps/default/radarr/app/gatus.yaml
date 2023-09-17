@@ -17,7 +17,7 @@ data:
           hide-hostname: true
           hide-url: true
         dns:
-          query-name: radarr.devbu.io
+          query-name: radarr.n3sav.com
           query-type: A
         conditions:
           - "len([BODY]) == 0"

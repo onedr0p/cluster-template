@@ -38,7 +38,7 @@ spec:
       tag: 2.2.0
     env:
       TZ: America/New_York
-      APP_URL: https://invite.devbu.io
+      APP_URL: https://invite.n3sav.com
       DISABLE_BUILTIN_AUTH: "true"
     service:
       main:
@@ -53,11 +53,11 @@ spec:
           external-dns.alpha.kubernetes.io/target: external.devbu.io
           nginx.ingress.kubernetes.io/auth-method: GET
           nginx.ingress.kubernetes.io/auth-url: http://authelia.default.svc.cluster.local/api/verify
-          nginx.ingress.kubernetes.io/auth-signin: https://auth.devbu.io?rm=$request_method
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.n3sav.com?rm=$request_method
           nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
           nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
         hosts:
-          - host: &host invite.devbu.io
+          - host: &host invite.n3sav.com
             paths:
               - path: /
                 pathType: Prefix

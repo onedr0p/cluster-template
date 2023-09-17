@@ -50,9 +50,9 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.devbu.io
+          external-dns.alpha.kubernetes.io/target: external.n3sav.com
         hosts:
-          - host: &host requests.devbu.io
+          - host: &host requests.n3sav.com
             paths:
               - path: /
                 pathType: Prefix

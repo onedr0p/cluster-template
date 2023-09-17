@@ -17,7 +17,7 @@ data:
           hide-hostname: true
           hide-url: true
         dns:
-          query-name: qb.devbu.io
+          query-name: qb.n3sav.com
           query-type: A
         conditions:
           - "len([BODY]) == 0"

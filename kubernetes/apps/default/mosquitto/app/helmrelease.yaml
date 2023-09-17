@@ -49,7 +49,7 @@ spec:
       main:
         type: LoadBalancer
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: mosquitto.devbu.io
+          external-dns.alpha.kubernetes.io/hostname: mosquitto.n3sav.com
           io.cilium/lb-ipam-ips: 192.168.42.204
         externalTrafficPolicy: Cluster
         ports:

@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: immich
         group: external
-        url: https://photos.devbu.io
+        url: https://photos.n3sav.com
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

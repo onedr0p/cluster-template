@@ -44,7 +44,7 @@ spec:
     env:
       TZ: America/New_York
       LLDAP_HTTP_PORT: &port 80
-      LLDAP_HTTP_URL: https://lldap.devbu.io
+      LLDAP_HTTP_URL: https://lldap.n3sav.com
       LLDAP_LDAP_PORT: &ldapPort 389
       LLDAP_LDAP_BASE_DN: dc=home,dc=arpa
     envFrom: *envFrom
@@ -61,7 +61,7 @@ spec:
         enabled: true
         ingressClassName: internal
         hosts:
-          - host: &host "{{ .Release.Name }}.devbu.io"
+          - host: &host "{{ .Release.Name }}.n3sav.com"
             paths:
               - path: /
                 pathType: Prefix
