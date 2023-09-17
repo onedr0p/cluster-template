@@ -16,6 +16,7 @@
     "helpers:pinGitHubActionDigests"
   ],
   "dependencyDashboard": true,
+  "includeForks": true,
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
   "rebaseWhen": "conflicted",
