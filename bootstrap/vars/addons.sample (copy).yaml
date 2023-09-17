@@ -1,0 +1,51 @@
+---
+#
+# Addons configuration - addons.yaml is gitignored
+#
+
+# https://github.com/toboshii/hajimari
+hajimari:
+  enabled: false
+
+# https://github.com/grafana/grafana
+grafana:
+  enabled: false
+  # password: # password for `admin` user
+
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+kube_prometheus_stack:
+  enabled: false
+
+# https://github.com/kubernetes/dashboard
+kubernetes_dashboard:
+  enabled: false
+  # Password can be obtained by running the following command once it is deployed:
+  # kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}' | base64 -d
+
+# https://github.com/weaveworks/weave-gitops
+weave_gitops:
+  enabled: false
+  # password: # password for `admin` user
+
+# https://github.com/kubernetes-csi/csi-driver-nfs
+csi_driver_nfs:
+  enabled: false
+  storage_class:
+    # - name:   # name of the storage class (must match [a-z0-9-]+)
+    #   server: # dns name or ip address of nfs server
+    #   share:  # exported share (path)
+    # ...
+
+# https://github.com/rancher/system-upgrade-controller
+system_upgrade_controller:
+  # WARNING: Only enable this if you also track the version of k3s in the
+  # ansible configuration files. Running ansible against an already provisioned
+  # cluster with this enabled might cause your cluster to be downgraded.
+  enabled: false
+
+# https://github.com/morphy2k/rss-forwarder
+discord_template_notifier:
+  # Will post commits from the template repository to the specified discord channel
+  # so it's easier to keep track of changes.
+  enabled: false
+  webhook_url: # Discord webhook url
