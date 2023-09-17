@@ -34,7 +34,7 @@ spec:
       dashboard:
         ingressClassName: internal
         host:
-          name: &host rook.devbu.io
+          name: &host rook.n3sav.com
           path: /
         tls:
           - hosts:
