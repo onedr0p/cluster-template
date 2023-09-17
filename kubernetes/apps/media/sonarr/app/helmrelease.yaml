@@ -1,0 +1,117 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: sonarr
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+
+  values:
+    controller:
+      type: statefulset
+
+    image:
+      repository: ghcr.io/onedr0p/sonarr-develop
+      tag: 4.0.0.671@sha256:2a3eae5853ea3119da098c314111e6d2cff700cd3e517150a76377c34cbf4f70
+
+    env:
+      TZ: America/Santiago
+      SONARR__AUTHENTICATION_METHOD: External
+      SONARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+      SONARR__INSTANCE_NAME: Sonarr
+      SONARR__PORT: &port 8989
+      SONARR__APPLICATION_URL: "https://sonarr.donoso.family"
+      SONARR__LOG_LEVEL: info
+      SONARR__API_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: sonarr-secret
+            key: api_key
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+
+    probes:
+      liveness: &probes
+        enabled: true
+        custom: true
+        spec:
+          httpGet:
+            path: /ping
+            port: *port
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
+      readiness: *probes
+      startup:
+        enabled: false
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          external-dns.alpha.kubernetes.io/target: ingress.donoso.family
+          nginx.ingress.kubernetes.io/auth-url: https://auth.donoso.family/oauth2/auth
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.donoso.family/oauth2/start
+        hosts:
+          - host: &host "sonarr.donoso.family"
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - *host
+
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
+      supplementalGroups:
+        - 65539
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        storageClass: ceph-block
+
+    persistence:
+      media:
+        enabled: true
+        type: nfs
+        server: 10.2.1.50
+        path: /volume1/media
+        mountPath: /media
+
+    resources:
+      requests:
+        cpu: 15m
+        memory: 268M
+      limits:
+        memory: 2357M

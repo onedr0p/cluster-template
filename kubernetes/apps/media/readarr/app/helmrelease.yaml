@@ -1,0 +1,94 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: readarr
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+
+  values:
+    controller:
+      type: statefulset
+
+    image:
+      repository: ghcr.io/onedr0p/readarr-develop
+      tag: 0.3.4.2207@sha256:020eb6fdfe8950f3f904e637acba5d4e7315542190b8bd90fc083f9152a67c62
+
+    env:
+      TZ: America/Santiago
+      READARR__INSTANCE_NAME: Readarr
+      READARR__PORT: &port 8787
+      READARR__APPLICATION_URL: "https://readarr.donoso.family"
+      READARR__LOG_LEVEL: info
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          external-dns.alpha.kubernetes.io/target: ingress.donoso.family
+          nginx.ingress.kubernetes.io/auth-url: https://auth.donoso.family/oauth2/auth
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.donoso.family/oauth2/start
+        hosts:
+          - host: &host readarr.donoso.family
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - *host
+
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 65539
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        storageClass: ceph-block
+
+    persistence:
+      media:
+        enabled: true
+        type: nfs
+        server: 10.2.1.50
+        path: /volume1/media
+        mountPath: /media
+
+    resources:
+      requests:
+        cpu: 15m
+        memory: 164M
+      limits:
+        memory: 1408M

@@ -1,0 +1,128 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: home
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync
+  values:
+    controller:
+      type: statefulset
+    image:
+      repository: ghcr.io/onedr0p/home-assistant
+      tag: 2023.9.2
+    env:
+      TZ: America/Santiago
+    envFrom:
+      - secretRef:
+          name: home-assistant-secrets
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: 10.2.1.100
+        ports:
+          http:
+            port: 8123
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: 'nginx'
+        annotations:
+          external-dns.alpha.kubernetes.io/target: ingress.donoso.family
+          hajimari.io/icon: mdi:home-assistant
+        hosts:
+          - host: &host hass.donoso.family
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+    probes:
+      liveness:
+        enabled: false
+      readiness:
+        enabled: false
+      startup:
+        enabled: false
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 4Gi
+        storageClass: ceph-block
+    resources:
+      requests:
+        cpu: 48m
+        memory: 443M
+      limits:
+        memory: 709M
+    addons:
+      codeserver:
+        enabled: true
+        image:
+          repository: ghcr.io/coder/code-server
+          tag: 4.16.1
+        env:
+          TZ: America/Santiago
+          EMAIL: jidonoso@gmail.com
+          GIT_AUTHOR_NAME: Juan Ignacio Donoso
+        workingDir: '/config'
+        args:
+          - --auth
+          - 'none'
+          - --user-data-dir
+          - '/config/.vscode'
+          - --extensions-dir
+          - '/config/.vscode'
+        ingress:
+          enabled: true
+          ingressClassName: 'nginx'
+          annotations:
+            external-dns.alpha.kubernetes.io/target: ingress.donoso.family
+            nginx.ingress.kubernetes.io/auth-url: https://auth.donoso.family/oauth2/auth
+            nginx.ingress.kubernetes.io/auth-signin: https://auth.donoso.family/oauth2/start
+            hajimari.io/appName: 'Hass Config'
+            hajimari.io/icon: cib:visual-studio-code
+          hosts:
+            - host: &hostvs 'hass-vscode.donoso.family'
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - hosts:
+                - *hostvs
+        volumeMounts:
+          - name: config
+            mountPath: /config

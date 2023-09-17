@@ -1,0 +1,64 @@
+---
+# yaml-language-server: $schema=https://frigate.donoso.family/api/config/schema.json
+logger:
+  default: info
+  # logs:
+  #   frigate.record: debug
+
+mqtt:
+  host: emqx.home.svc
+  port: 1883
+  topic_prefix: frigate
+  user: "{FRIGATE_MQTT_USERNAME}"
+  password: "{FRIGATE_MQTT_PASSWORD}"
+
+database:
+  path: /data/frigate.db
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+ffmpeg:
+  global_args: ["-hide_banner", "-loglevel", "warning"]
+  hwaccel_args: ["-hwaccel", "vaapi", "-hwaccel_device", "/dev/dri/renderD128", "-hwaccel_output_format", "yuv420p"]
+  output_args:
+    record: preset-record-ubiquiti
+
+objects:
+  track: ["person", "pet"]
+  filters:
+    person:
+      min_area: 5000
+      max_area: 100000
+      threshold: 0.7
+
+go2rtc:
+  streams:
+    backyard_hq:
+      - rtsp://hass:NsoxTwwvnkTWeUb9F24W@10.0.2.238:554/h264Preview_01_main
+    backyard_lq:
+      - rtsp://hass:NsoxTwwvnkTWeUb9F24W@10.0.2.238:554/h264Preview_01_sub
+
+# Specify camera's
+cameras:
+  living_room:
+    ffmpeg:
+      inputs:
+        - path: "rtsp://wyze-bridge.home.svc.cluster.local:8554/living-room-ceiling"
+          roles:
+            - rtmp
+    rtmp:
+      enabled: True
+  backyard:
+    ffmpeg:
+      inputs:
+        - path: rtsp://localhost:8554/backyard_lq
+          roles: ["detect"]
+        - path: rtsp://localhost:8554/backyard_hq
+          roles: ["record"]
+    detect:
+      width: 640
+      height: 360
+      fps: 10

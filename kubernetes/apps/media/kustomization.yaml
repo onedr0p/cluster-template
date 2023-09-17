@@ -1,0 +1,16 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - bazarr
+  - calibre-web
+  - kavita
+  - overseerr
+  - plex
+  - prowlarr
+  - qbittorrent
+  - radarr
+  - readarr
+  - recyclarr
+  - sonarr
+  - tautilli

@@ -1,0 +1,84 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: calibre-web
+  namespace: media
+spec:
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 30m
+  values:
+    controller:
+      type: statefulset
+
+    image:
+      repository: ghcr.io/bjw-s/calibre-web
+      tag: 0.6.20@sha256:94d6ce520837c9ebd2df3575cae0969cefded753f347ae9fb64966b95de9f0a8
+
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: "OnRootMismatch"
+      supplementalGroups:
+        - 65539
+
+    env:
+      CACHE_DIR: /cache
+
+    service:
+      main:
+        ports:
+          http:
+            port: 8083
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          external-dns.alpha.kubernetes.io/target: ingress.donoso.family
+          nginx.ingress.kubernetes.io/auth-url: https://auth.donoso.family/oauth2/auth
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.donoso.family/oauth2/start
+          nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-email, x-auth-request-groups"
+        ingressClassName: nginx
+        hosts:
+          - host: &host calibre-web.donoso.family
+            paths:
+              - path: /
+        tls:
+          - hosts:
+              - *host
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: ceph-block
+
+    persistence:
+      media:
+        enabled: true
+        type: nfs
+        server: 10.2.1.50
+        path: /volume1/media
+        mountPath: /media
+      cache:
+        enabled: true
+        type: emptyDir
+        mountPath: /cache
+
+    resources:
+      requests:
+        cpu: 5m
+        memory: 470M
+      limits:
+        memory: 470M

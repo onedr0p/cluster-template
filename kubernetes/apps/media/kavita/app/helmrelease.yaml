@@ -1,0 +1,86 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.trux.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: &app kavita
+  namespace: media
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    controller:
+      type: statefulset
+
+    image:
+      repository: kizaing/kavita
+      tag: 0.7.8
+
+    env:
+      TZ: America/Santiago
+
+    service:
+      main:
+        ports:
+          http:
+            port: 5000
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "nginx"
+        annotations:
+          external-dns.alpha.kubernetes.io/target: ingress.donoso.family
+          nginx.ingress.kubernetes.io/auth-url: https://auth.donoso.family/oauth2/auth
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.donoso.family/oauth2/start
+          hajimari.io/icon: "notebook-heart"
+        hosts:
+          - host: &host "{{ .Release.Name }}.donoso.family"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+
+    # podSecurityContext:
+    #   runAsUser: 568
+    #   runAsGroup: 568
+    #   fsGroup: 568
+    #   fsGroupChangePolicy: "OnRootMismatch"
+
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /app/config
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: ceph-block
+
+    persistence:
+      media:
+        enabled: true
+        type: nfs
+        server: 10.2.1.50
+        path: /volume1/media
+        mountPath: /media
+
+    resources:
+      requests:
+        cpu: 20m
+        memory: 100Mi
+      # limits:
+      # memory: 200Mi

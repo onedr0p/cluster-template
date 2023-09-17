@@ -1,0 +1,101 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: zwave-js-ui
+  namespace: home
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controller:
+      type: statefulset
+    image:
+      repository: ghcr.io/zwave-js/zwave-js-ui
+      tag: 8.25.1
+    env:
+      TZ: America/Santiago
+    service:
+      main:
+        ports:
+          http:
+            port: &port 8091
+          websocket:
+            enabled: true
+            port: 3000
+    # serviceMonitor:
+    #   main:
+    #     enabled: true
+    probes:
+      liveness: &probes
+        enabled: true
+        custom: true
+        spec:
+          httpGet:
+            path: /health
+            port: *port
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
+      readiness: *probes
+      startup:
+        enabled: false
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          external-dns.alpha.kubernetes.io/target: ingress.donoso.family
+          nginx.ingress.kubernetes.io/auth-url: "https://auth.donoso.family/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.donoso.family/oauth2/start
+          hajimari.io/icon: mdi:z-wave
+        hosts:
+          - host: &host "zwave.donoso.family"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+    securityContext:
+      privileged: true
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /usr/src/app/store
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: ceph-block
+    persistence:
+      usb:
+        enabled: true
+        type: hostPath
+        hostPath: /dev/serial/by-id/usb-0658_0200-if00
+        hostPathType: CharDevice
+    nodeSelector:
+      aeotec.feature.node.kubernetes.io/zwave: "true"
+    resources:
+      requests:
+        cpu: 10m
+        memory: 100Mi
+      limits:
+        memory: 500Mi
