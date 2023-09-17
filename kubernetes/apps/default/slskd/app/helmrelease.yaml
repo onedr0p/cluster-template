@@ -1,0 +1,109 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: slskd
+  namespace: default
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync
+  values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/slskd/slskd
+      tag: 0.18.2
+    env:
+      TZ: America/New_York
+      SLSKD_HTTP_PORT: &port 80
+      SLSKD_NO_HTTPS: true
+      SLSKD_SLSK_LISTEN_PORT: &soulseekPort 50300
+      SLSKD_APP_DIR: /config
+      SLSKD_REMOTE_CONFIGURATION: true
+      SLSKD_SHARED_DIR: /media/shared
+      SLSKD_NO_AUTH: true
+      SLSKD_METRICS: true
+      SLSKD_METRICS_NO_AUTH: true
+      SLSKD_DOWNLOADS_DIR: /media/complete
+      SLSKD_INCOMPLETE_DIR: /media/incomplete
+      SLSKD_SHARE_FILTER: Thumbs.db$;\.DS_Store$
+    envFrom:
+      - secretRef:
+          name: slskd-secret
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+      soulseek:
+        enabled: true
+        type: LoadBalancer
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.42.207
+        ports:
+          soulseek:
+            enabled: true
+            port: *soulseekPort
+            protocol: TCP
+            targetPort: *soulseekPort
+        externalTrafficPolicy: Cluster
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: internal
+        hosts:
+          - host: &host "{{ .Release.Name }}.devbu.io"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
+      supplementalGroups: [10000]
+    volumeClaimTemplates:
+      - name: config
+        mountPath: /config
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: ceph-block
+    persistence:
+      media:
+        enabled: true
+        existingClaim: slskd
+        mountPath: /media
+    resources:
+      requests:
+        cpu: 10m
+        memory: 250Mi
+      limits:
+        memory: 1500Mi

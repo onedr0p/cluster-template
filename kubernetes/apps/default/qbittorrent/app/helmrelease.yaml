@@ -1,0 +1,111 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: qbittorrent
+  namespace: default
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync
+  values:
+    controller:
+      annotations:
+        configmap.reloader.stakater.com/reload: qbittorrent-scripts
+    image:
+      repository: ghcr.io/onedr0p/qbittorrent
+      tag: 4.5.5@sha256:30dffe7ad04ea0e39db0b50c0bd5e79362f99f7ff6b250526d2f389b58d96f14
+    env:
+      TZ: America/New_York
+      QBITTORRENT__PORT: &port 80
+      QBITTORRENT__BT_PORT: &bittorrentPort 50413
+      QBT_Preferences__WebUI__AlternativeUIEnabled: false
+      QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
+      QBT_Preferences__WebUI__AuthSubnetWhitelist: 10.32.0.0/16
+      QBT_Preferences__WebUI__LocalHostAuth: false
+      QBT_BitTorrent__Session__Interface: eth0
+      QBT_BitTorrent__Session__InterfaceAddress:
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
+      QBT_BitTorrent__Session__InterfaceName: eth0
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+      bittorrent:
+        enabled: true
+        type: LoadBalancer
+        annotations:
+          io.cilium/lb-ipam-ips: 192.168.42.202
+        ports:
+          bittorrent:
+            enabled: true
+            port: *bittorrentPort
+            protocol: TCP
+            targetPort: *bittorrentPort
+        externalTrafficPolicy: Cluster
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: internal
+        hosts:
+          - host: &host qb.devbu.io
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
+      supplementalGroups: [10000]
+    persistence:
+      config:
+        enabled: true
+        existingClaim: qbittorrent-config
+      completed-script:
+        enabled: true
+        type: configMap
+        name: qbittorrent-scripts
+        mountPath: /scripts/completed.sh
+        subPath: completed.sh
+        defaultMode: 0775
+        readOnly: true
+      media:
+        enabled: true
+        existingClaim: media
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"
+    resources:
+      requests:
+        cpu: 10m
+        memory: 250Mi
+      limits:
+        memory: 16Gi
