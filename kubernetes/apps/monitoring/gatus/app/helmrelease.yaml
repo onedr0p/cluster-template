@@ -1,0 +1,124 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: gatus
+  namespace: monitoring
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    initContainers:
+      01-init-db:
+        image: ghcr.io/onedr0p/postgres-init:14.8
+        imagePullPolicy: IfNotPresent
+        envFrom: &envFrom
+          - secretRef:
+              name: gatus-secret
+      02-config-sync:
+        image: ghcr.io/kiwigrid/k8s-sidecar:1.25.1
+        imagePullPolicy: IfNotPresent
+        env:
+          - { name: FOLDER, value: /config }
+          - { name: LABEL, value: gatus.io/enabled }
+          - { name: NAMESPACE, value: ALL }
+          - { name: RESOURCE, value: both }
+          - { name: UNIQUE_FILENAMES, value: "true" }
+          - { name: METHOD, value: LIST }
+        volumeMounts:
+          - { name: config, mountPath: /config }
+    controller:
+      annotations:
+        reloader.stakater.com/auto: "true"
+    image:
+      repository: ghcr.io/twin/gatus
+      tag: v5.5.1
+    env:
+      TZ: America/New_York
+      GATUS_CONFIG_PATH: /config
+      CUSTOM_WEB_PORT: &port 80
+    envFrom: *envFrom
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+    serviceMonitor:
+      main:
+        enabled: true
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: external.n3sav.com
+        hosts:
+          - host: &host status.n3sav.com
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+    serviceAccount:
+      create: true
+      name: gatus
+    podSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
+    persistence:
+      config:
+        enabled: true
+        type: emptyDir
+      config-file:
+        enabled: true
+        type: configMap
+        name: gatus-configmap
+        mountPath: /config/config.yaml
+        subPath: config.yaml
+        readOnly: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        memory: 500Mi
+    sidecars:
+      config-sync:
+        image: ghcr.io/kiwigrid/k8s-sidecar:1.25.1
+        imagePullPolicy: IfNotPresent
+        env:
+          - { name: FOLDER, value: /config }
+          - { name: LABEL, value: gatus.io/enabled }
+          - { name: NAMESPACE, value: ALL }
+          - { name: RESOURCE, value: both }
+          - { name: UNIQUE_FILENAMES, value: "true" }
+          - { name: METHOD, value: WATCH }
+        volumeMounts:
+          - { name: config, mountPath: /config }
