@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.saveker.org/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -45,7 +45,7 @@ spec:
       repository: ghcr.io/shlinkio/shlink
       tag: 3.6.3-non-root
     env:
-      DEFAULT_DOMAIN: &host ln.n3sav.com
+      DEFAULT_DOMAIN: &host ln.saveker.org
       DISABLE_TRACKING_FROM: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
       ENABLE_PERIODIC_VISIT_LOCATE: "true"
       IS_HTTPS_ENABLED: "true"
@@ -82,7 +82,7 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.n3sav.com
+          external-dns.alpha.kubernetes.io/target: external.saveker.org
         hosts:
           - host: *host
             paths:

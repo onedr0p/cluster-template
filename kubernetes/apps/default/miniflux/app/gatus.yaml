@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: miniflux
         group: external
-        url: https://miniflux.n3sav.com/healthcheck
+        url: https://miniflux.saveker.org/healthcheck
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

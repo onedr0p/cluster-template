@@ -17,7 +17,7 @@ data:
           hide-hostname: true
           hide-url: true
         dns:
-          query-name: loki.n3sav.com
+          query-name: loki.saveker.org
           query-type: A
         conditions:
           - "len([BODY]) == 0"

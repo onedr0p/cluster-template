@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.saveker.org/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -50,9 +50,9 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.n3sav.com
+          external-dns.alpha.kubernetes.io/target: external.saveker.org
         hosts:
-          - host: &host requests.n3sav.com
+          - host: &host requests.saveker.org
             paths:
               - path: /
                 pathType: Prefix

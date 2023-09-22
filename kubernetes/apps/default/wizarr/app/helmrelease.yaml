@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.saveker.org/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -38,7 +38,7 @@ spec:
       tag: 3.0.1
     env:
       TZ: America/New_York
-      APP_URL: https://invite.n3sav.com
+      APP_URL: https://invite.saveker.org
       DISABLE_BUILTIN_AUTH: "true"
     service:
       main:
@@ -50,14 +50,14 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.n3sav.com
+          external-dns.alpha.kubernetes.io/target: external.saveker.org
           nginx.ingress.kubernetes.io/auth-method: GET
           nginx.ingress.kubernetes.io/auth-url: http://authelia.default.svc.cluster.local/api/verify
-          nginx.ingress.kubernetes.io/auth-signin: https://auth.n3sav.com?rm=$request_method
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.saveker.org?rm=$request_method
           nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
           nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
         hosts:
-          - host: &host invite.n3sav.com
+          - host: &host invite.saveker.org
             paths:
               - path: /
                 pathType: Prefix

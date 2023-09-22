@@ -17,7 +17,7 @@ data:
           hide-hostname: true
           hide-url: true
         dns:
-          query-name: jellyfin.n3sav.com
+          query-name: jellyfin.saveker.org
           query-type: A
         conditions:
           - "len([BODY]) == 0"

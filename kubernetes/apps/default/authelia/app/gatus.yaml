@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: authelia
         group: external
-        url: https://auth.n3sav.com
+        url: https://auth.saveker.org
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

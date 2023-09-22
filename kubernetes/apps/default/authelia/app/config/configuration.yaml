@@ -18,19 +18,19 @@ access_control:
     - name: internal
       networks: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
   rules:
-    - domain: ["jellyfin.n3sav.com"]
+    - domain: ["jellyfin.saveker.org"]
       resources: ["^/metrics.*$"]
       policy: deny
-    - domain: ["letsblockit.n3sav.com"]
+    - domain: ["letsblockit.saveker.org"]
       resources: ["^/lists.*$"]
       policy: bypass
-    - domain: ["navidrome.n3sav.com"]
+    - domain: ["navidrome.saveker.org"]
       resources: ["^/ping.*$", "^/rest.*$"]
       policy: bypass
-    - domain: ["navidrome.n3sav.com"]
+    - domain: ["navidrome.saveker.org"]
       resources: ["^/metrics.*$"]
       policy: deny
-    - domain: ["invite.n3sav.com"]
+    - domain: ["invite.saveker.org"]
       resources: ["^/join(/.*)?$", "^/j(/.*)?$", "^/setup(/.*)?$", "^/static(/.*)?$"]
       policy: bypass
 
@@ -47,7 +47,7 @@ identity_providers:
         authorization_policy: two_factor
         pre_configured_consent_duration: 1y
         scopes: ["openid", "profile", "groups", "email"]
-        redirect_uris: ["https://grafana.n3sav.com/login/generic_oauth"]
+        redirect_uris: ["https://grafana.saveker.org/login/generic_oauth"]
         userinfo_signing_algorithm: none
       - id: immich
         description: Immich
@@ -56,7 +56,7 @@ identity_providers:
         authorization_policy: two_factor
         pre_configured_consent_duration: 1y
         scopes: ["openid", "profile", "email"]
-        redirect_uris: ["https://photos.n3sav.com/auth/login", "app.immich:/"]
+        redirect_uris: ["https://photos.saveker.org/auth/login", "app.immich:/"]
         userinfo_signing_algorithm: none
       - id: miniflux
         description: Miniflux
@@ -65,5 +65,5 @@ identity_providers:
         authorization_policy: two_factor
         pre_configured_consent_duration: 1y
         scopes: ["openid", "profile", "groups", "email"]
-        redirect_uris: ["https://miniflux.n3sav.com/oauth2/oidc/callback"]
+        redirect_uris: ["https://miniflux.saveker.org/oauth2/oidc/callback"]
         userinfo_signing_algorithm: none

@@ -18,7 +18,7 @@ spec:
   accessModes: ["ReadWriteMany"]
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    server: expanse.n3sav.com
+    server: expanse.saveker.org
     path: /eros/Apps/Immich
   mountOptions:
     - nfsvers=4.2

@@ -17,7 +17,7 @@ data:
           hide-hostname: true
           hide-url: true
         dns:
-          query-name: thelounge.n3sav.com
+          query-name: thelounge.saveker.org
           query-type: A
         conditions:
           - "len([BODY]) == 0"

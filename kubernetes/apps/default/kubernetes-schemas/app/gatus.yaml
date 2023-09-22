@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: kubernetes-schemas
         group: external
-        url: https://kubernetes-schemas.n3sav.com
+        url: https://kubernetes-schemas.saveker.org
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.saveker.org/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -64,7 +64,7 @@ spec:
       AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USERS_FILTER: (&({username_attribute}={input})(objectClass=person))
       AUTHELIA_AUTHENTICATION_BACKEND_PASSWORD_RESET_DISABLE: "true"
       AUTHELIA_AUTHENTICATION_BACKEND_REFRESH_INTERVAL: 1m
-      AUTHELIA_DEFAULT_REDIRECTION_URL: https://auth.n3sav.com
+      AUTHELIA_DEFAULT_REDIRECTION_URL: https://auth.saveker.org
       AUTHELIA_DUO_API_DISABLE: "true"
       AUTHELIA_LOG_LEVEL: info
       AUTHELIA_NOTIFIER_DISABLE_STARTUP_CHECK: "true"
@@ -74,7 +74,7 @@ spec:
       AUTHELIA_NOTIFIER_SMTP_SENDER: Authelia <james@saveker.org>
       AUTHELIA_SERVER_DISABLE_HEALTHCHECK: "true"
       AUTHELIA_SERVER_PORT: &port 80
-      AUTHELIA_SESSION_DOMAIN: n3sav.com
+      AUTHELIA_SESSION_DOMAIN: saveker.org
       AUTHELIA_SESSION_NAME: authelia-home-ops
       AUTHELIA_SESSION_REDIS_DATABASE_INDEX: 14
       AUTHELIA_SESSION_REDIS_HOST: redis.database.svc.cluster.local
@@ -122,14 +122,14 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.n3sav.com
+          external-dns.alpha.kubernetes.io/target: external.saveker.org
           nginx.ingress.kubernetes.io/configuration-snippet: |
             add_header Cache-Control "no-store";
             add_header Pragma "no-cache";
             add_header X-Frame-Options "SAMEORIGIN";
             add_header X-XSS-Protection "1; mode=block";
         hosts:
-          - host: &host auth.n3sav.com
+          - host: &host auth.saveker.org
             paths:
               - path: /
                 pathType: Prefix

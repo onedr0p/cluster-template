@@ -26,7 +26,7 @@ connectivity:
 endpoints:
   - name: status
     group: external
-    url: https://status.n3sav.com
+    url: https://status.saveker.org
     interval: 1m
     client:
       dns-resolver: tcp://1.1.1.1:53

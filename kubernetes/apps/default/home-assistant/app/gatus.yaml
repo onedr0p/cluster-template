@@ -11,7 +11,7 @@ data:
     endpoints:
       - name: home-assistant
         group: external
-        url: https://hass.n3sav.com
+        url: https://hass.saveker.org
         interval: 1m
         client:
           dns-resolver: tcp://1.1.1.1:53

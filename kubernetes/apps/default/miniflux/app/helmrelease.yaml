@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.n3sav.com/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.saveker.org/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -42,7 +42,7 @@ spec:
       repository: ghcr.io/miniflux/miniflux
       tag: 2.0.48
     env:
-      BASE_URL: https://miniflux.n3sav.com
+      BASE_URL: https://miniflux.saveker.org
       CREATE_ADMIN: "1"
       DEBUG: "1"
       LOG_DATE_TIME: "1"
@@ -50,9 +50,9 @@ spec:
       METRICS_COLLECTOR: "1"
       OAUTH2_CLIENT_ID: miniflux
       OAUTH2_USER_CREATION: "1"
-      OAUTH2_OIDC_DISCOVERY_ENDPOINT: https://auth.n3sav.com
+      OAUTH2_OIDC_DISCOVERY_ENDPOINT: https://auth.saveker.org
       OAUTH2_PROVIDER: oidc
-      OAUTH2_REDIRECT_URL: https://miniflux.n3sav.com/oauth2/oidc/callback
+      OAUTH2_REDIRECT_URL: https://miniflux.saveker.org/oauth2/oidc/callback
       POLLING_SCHEDULER: entry_frequency
       POLLING_FREQUENCY: "15"
       RUN_MIGRATIONS: "1"
@@ -70,9 +70,9 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: external.n3sav.com
+          external-dns.alpha.kubernetes.io/target: external.saveker.org
         hosts:
-          - host: &host "{{ .Release.Name }}.n3sav.com"
+          - host: &host "{{ .Release.Name }}.saveker.org"
             paths:
               - path: /
                 pathType: Prefix
