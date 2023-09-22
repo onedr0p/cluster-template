@@ -3,7 +3,6 @@
   hosts: localhost
   connection: local
   vars_files:
-    - defaults/main.yaml
     - vars/config.yaml
     - vars/addons.yaml
   tasks:
