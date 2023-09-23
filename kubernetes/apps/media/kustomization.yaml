@@ -5,7 +5,7 @@ namespace: media
 resources:
   - namespace.yaml
   - calibre
-  - plex # Move to nas
+#  - plex # Move to nas
   - radarr
   - sabnzbd
 #  - shared
