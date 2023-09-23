@@ -49,14 +49,14 @@ spec:
           runAsUser: 0
 
     # Pod
-    resources:
-      requests:
-        cpu: 100m
-        gpu.intel.com/i915: 1
-        memory: 4282M
-      limits:
-        gpu.intel.com/i915: 1
-        memory: 12G
+#    resources:
+#      requests:
+#        cpu: 100m
+#        gpu.intel.com/i915: 1
+#        memory: 4282M
+#      limits:
+#        gpu.intel.com/i915: 1
+#        memory: 12G
 
     # Persistence
     persistence:
