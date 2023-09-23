@@ -163,14 +163,14 @@ spec:
       annotations:
         external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
         hajimari.io/icon: simple-icons:grafana
-      hosts:
-        - &host "grafana.${SECRET_DOMAIN}"
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - hosts:
-            - *host
+        hosts:
+          - host: &host "grafana.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
     persistence:
       enabled: true
       storageClassName: local-path
