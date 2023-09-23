@@ -161,10 +161,10 @@ spec:
       enabled: true
       ingressClassName: external
       annotations:
-        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        external-dns.alpha.kubernetes.io/target: "external.saveker.org"
         hajimari.io/icon: simple-icons:grafana
         hosts:
-          - host: &host "grafana.${SECRET_DOMAIN}"
+          - host: &host "grafana.saveker.org"
             paths:
               - path: /
                 pathType: Prefix
