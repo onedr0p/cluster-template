@@ -161,7 +161,7 @@ spec:
       main:
         ports:
           http:
-            port: &port 8082
+            port: &port 8080
     ingress:
       enabled: true
       ingressClassName: external
