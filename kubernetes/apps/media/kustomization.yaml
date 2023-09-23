@@ -6,10 +6,10 @@ resources:
   - namespace.yaml
   - calibre
 #  - plex # Move to nas
-  - radarr
+#  - radarr
   - sabnzbd
 #  - shared
-  - sonarr
+#  - sonarr
   - bazarr
 
 
