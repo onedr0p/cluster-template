@@ -30,10 +30,10 @@ spec:
 #      backup.velero.io/backup-volumes: config
 
     podSecurityContext: # Plex container runAS plex:plex (1000:1000)
-      # runAsUser: 1000
-      # runAsGroup: 1000
-      # fsGroup: 1000
-      # fsGroupChangePolicy: "OnRootMismatch"
+       runAsUser: 1000
+       runAsGroup: 1000
+       fsGroup: 1000
+       fsGroupChangePolicy: "OnRootMismatch"
       supplementalGroups:
         - 44 # video
         - 100 # users
