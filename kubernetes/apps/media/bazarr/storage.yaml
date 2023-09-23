@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: calibre
+  name: bazarr
   labels:
     app: bazarr
 spec:
