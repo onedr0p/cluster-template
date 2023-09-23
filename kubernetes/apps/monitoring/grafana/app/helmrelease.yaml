@@ -164,6 +164,9 @@ spec:
         hajimari.io/icon: simple-icons:grafana
       hosts:
         - &host "grafana.${SECRET_DOMAIN}"
+          paths:
+            - path: /
+              pathType: Prefix
       tls:
         - hosts:
             - *host
