@@ -18,7 +18,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: calibre
+  name: bazarr
 spec:
   storageClassName: manual
   accessModes:
