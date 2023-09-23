@@ -13,7 +13,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: "/mnt/data/plex"
+    path: "/mnt/plex"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
