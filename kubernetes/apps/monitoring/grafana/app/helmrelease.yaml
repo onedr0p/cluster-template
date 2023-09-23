@@ -27,6 +27,11 @@ spec:
   dependsOn:
     - name: local-path-provisioner
       namespace: kube-system
+    service:
+      main:
+        ports:
+          http:
+            port: &port 8080
   values:
     deploymentStrategy:
       type: Recreate
