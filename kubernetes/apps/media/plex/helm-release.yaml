@@ -26,8 +26,8 @@ spec:
       tag: 1.32.6.7468-07e0d4a7e
 
     # Backup
-    podAnnotations:
-      backup.velero.io/backup-volumes: config
+#    podAnnotations:
+#      backup.velero.io/backup-volumes: config
 
     podSecurityContext: # Plex container runAS plex:plex (1000:1000)
       # runAsUser: 1000
