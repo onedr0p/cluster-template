@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: radarr
+  labels:
+    app: radarr
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  iscsi:
+    targetPortal: ${SECRET_STORAGE_ADDRESS}
+    iqn: ${SECRET_STORAGE_IQN}:kube-radarr
+    lun: 1
+    fsType: ext4
+    readOnly: false
+    chapAuthSession: true
+    secretRef:
+      name: storage-secret
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: radarr
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchLabels:
+      app: radarr

@@ -1,0 +1,133 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: download
+  labels:
+    role: download
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  mountOptions:
+    - nolock
+    - nfsvers=4.1
+  nfs:
+    path: ${SECRET_STORAGE_NFS_PATH}/downloads/
+    server: ${SECRET_STORAGE_NFS_SERVER}
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tv
+  labels:
+    role: tv
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: ${SECRET_STORAGE_NFS_PATH}/tv/
+    server: ${SECRET_STORAGE_NFS_SERVER}
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: movies
+  labels:
+    role: movie
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: ${SECRET_STORAGE_NFS_PATH}/movies/
+    server: ${SECRET_STORAGE_NFS_SERVER}
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: book
+  labels:
+    role: book
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: ${SECRET_STORAGE_NFS_PATH}/books/
+    server: ${SECRET_STORAGE_NFS_SERVER}
+  persistentVolumeReclaimPolicy: Retain
+---
+### Claims
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: download
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  selector:
+    matchLabels:
+      role: download
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: movie
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  selector:
+    matchLabels:
+      role: movie
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: tv
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  selector:
+    matchLabels:
+      role: tv
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: book
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  selector:
+    matchLabels:
+      role: book

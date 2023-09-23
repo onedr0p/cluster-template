@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: storage-secret
+type: kubernetes.io/iscsi-chap
+data:
+    node.session.auth.username: ENC[AES256_GCM,data:4nkBCEu4+WI=,iv:Dquig7mdFfEncGJrC6+ob505jOJTgsOdzA38UAlY/Ls=,tag:ivzdtRsrk2yTiR9LtEbsZA==,type:str]
+    node.session.auth.password: ENC[AES256_GCM,data:Mwq1S/PvucK2rVPa6zu1vw==,iv:IfgzJs6Dx/UIrvtjBNe17XgMHMX5Iue56lwzFmsTaUA=,tag:k4hqg+xyAwJXvYPIEHWnEw==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1wxwc3qnqwcjhkxdkqh0junrysxp6y52uax2nnhtqmy8wg38uhfhqu60x3z
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBlVStsdjBJOXdkNG5UTVFL
+            Qk9GVVc2d2J0dHU0emc5YjJlMmpuSHJRYXl3CmNoS1h6M0JGVHZmK3doWVpWTGd6
+            V25SeHd2Q1l0QmFVcDMxOUQwelg2NlEKLS0tIGJQMU1zS2JMRzJmMXpWYmpPUmlp
+            bzYxandqeHpQVkMzRG1EQmpJcWI2M0kKc/OEWRmPGL3d0tt1keV1ov3Z1YuKF73C
+            /MNdGRoGex6ZDaam8Hqi0/HFRbywS7r6tk4snjv76JG4OvGZj/LMlA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2022-10-11T19:27:01Z"
+    mac: ENC[AES256_GCM,data:OEI7n5tYAalx8+Uv6VTnACx0fEeHecqbBn9yumxhhEfOvM+8k0tb9cedGtMOSD1vG8h3sEUplpe38Niy3eBqtKKdnZqIJst28eExsPErd7WyiM8WB6jbQxvYkPr83GYHnwLEco+q7Uz0oZmQmbA8FzqAhUyrNF8zcyjJTlD3TRc=,iv:DSPgoTaj0REnvXcbjVrd8UYXdWXG7TjDKNdxVbW+y6w=,tag:TwVpyt0/O0IuAMHSUNYQUQ==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.7.3
