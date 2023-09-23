@@ -83,11 +83,11 @@ spec:
       main:
         enabled: true
         type: LoadBalancer
-        loadBalancerIP: 10.0.6.228
+        loadBalancerIP: 192.168.1.179
         externalTrafficPolicy: Local
         annotations:
           metallb.universe.tf/allow-shared-ip: plex
-          coredns.io/hostname: "plex.home.${SECRET_DOMAIN}"
+          coredns.io/hostname: "plex.${SECRET_DOMAIN}"
           hajimari.io/enable: "true"
           hajimari.io/icon: "cast"
         ports:
