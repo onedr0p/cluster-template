@@ -8,7 +8,7 @@ resources:
   - plex # Move to nas
   - radarr
   - sabnzbd
-  - shared
+#  - shared
   - sonarr
   - bazarr
 
