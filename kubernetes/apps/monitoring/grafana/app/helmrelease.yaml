@@ -162,6 +162,9 @@ spec:
       ingressClassName: internal
       annotations:
         hajimari.io/icon: simple-icons:grafana
+        coredns.io/hostname: &host "sonarr.${SECRET_DOMAIN}"
+        external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+        external-dns/is-public: "true"
       hosts:
         - &host "grafana.${SECRET_DOMAIN}"
       tls:
