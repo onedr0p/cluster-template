@@ -157,6 +157,11 @@ spec:
         labelValue: ""
     serviceMonitor:
       enabled: true
+    service:
+      main:
+        ports:
+          http:
+            port: &port 8082
     ingress:
       enabled: true
       ingressClassName: external
