@@ -15,8 +15,8 @@ spec:
   hostPath:
     path: "/mnt/data/bazarr"
 ---
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
   name: bazarr
 spec:
@@ -25,10 +25,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
-  selector:
-    matchLabels:
-      app: bazarr
       storage: 1Gi
   selector:
     matchLabels:
