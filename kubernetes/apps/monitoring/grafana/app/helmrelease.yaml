@@ -159,11 +159,11 @@ spec:
       enabled: true
     ingress:
       enabled: true
-      ingressClassName: internal
+      ingressClassName: external
       annotations:
         hajimari.io/icon: simple-icons:grafana
-        coredns.io/hostname: &host "sonarr.${SECRET_DOMAIN}"
-        external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+        coredns.io/hostname: &host "grafana.${SECRET_DOMAIN}"
+        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
         external-dns/is-public: "true"
       hosts:
         - &host "grafana.${SECRET_DOMAIN}"
