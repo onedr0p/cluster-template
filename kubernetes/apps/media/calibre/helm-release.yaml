@@ -1,4 +1,3 @@
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
@@ -38,12 +37,12 @@ spec:
       config:
         enabled: true
         existingClaim: calibre
-#      books:
-#        enabled: true
-#        type: nfs
-#        server: "${LOCAL_LAN_TRUENAS}"
-#        path: /mnt/storage/home/claude/books
-#        mountPath: /mnt/storage/home/claude/books
+    #  books:
+    #    enabled: true
+    #    type: nfs
+    #    server: "${LOCAL_LAN_TRUENAS}"
+    #    path: /mnt/storage/home/claude/books
+    #    mountPath: /mnt/storage/home/claude/books
     service:
       main:
         ports:
@@ -61,15 +60,15 @@ spec:
     ingress:
       main:
         enabled: true
-        ingressClassName: "nginx"
+        ingressClassName: external
         annotations:
           auth.home.arpa/enabled: "true"
           hajimari.io/icon: mdi:bookshelf
+          coredns.io/hostname: &host "grafana.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
         hosts:
-          - host: &host "calibre.saveker.org"
-            paths:
-              - path: /
-                pathType: Prefix
+          - *host
         tls:
           - hosts:
               - *host
