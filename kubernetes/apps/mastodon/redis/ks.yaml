@@ -5,7 +5,7 @@ metadata:
   name: cluster-apps-redis
   namespace: flux-system
 spec:
-  path: ./kubernetes/apps/mastodon/redis/app
+  path: "./kubernetes/apps/mastodon/redis/app"
   prune: true
   sourceRef:
     kind: GitRepository
