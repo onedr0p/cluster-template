@@ -1,0 +1,42 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: unifi-poller
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+
+  install:
+    remediation:
+      retries: 3
+  values:
+    image:
+      repository: golift/unifi-poller
+      tag: v2.9.2
+    env:
+      TZ: "${TIMEZONE}"
+      UP_UNIFI_DEFAULT_VERIFY_SSL: false
+      UP_UNIFI_DEFAULT_URL: "${SECRET_UNIFI_URL}"
+      UP_UNIFI_DEFAULT_USER: "${SECRET_UNIFI_DEFAULT_USER}"
+      UP_UNIFI_DEFAULT_PASS: "${SECRET_UNIFI_DEFAULT_PASS}"
+      UP_UNIFI_DEFAULT_SAVE_SITES: true
+      UP_UNIFI_DEFAULT_SAVE_DPI: false
+      UP_INFLUXDB_DISABLE: true
+      UP_PROMETHEUS_DISABLE: false
+      UP_PROMETHEUS_NAMESPACE: "unifipoller"
+
+    service:
+      main:
+        enabled: true
+        ports:
+          http:
+            port: 9130
