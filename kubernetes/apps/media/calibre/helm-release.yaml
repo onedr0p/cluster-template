@@ -89,16 +89,13 @@ spec:
       main:
         enabled: true
         annotations:
-          coredns.io/hostname: &host "calibre.home.${SECRET_DOMAIN}"
           hajimari.io/enable: "true"
           hajimari.io/icon: "book"
-          nginx.ingress.kubernetes.io/whitelist-source-range: "192.168.1.0/24"
+          coredns.io/hostname: &host "calibre.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          external-dns/is-public: "true"
         hosts:
-          - host: *host
-            paths:
-              - path: /
-                pathType: Prefix
+          - *host
         tls:
           - hosts:
               - *host
-            secretName: calibre-tls
