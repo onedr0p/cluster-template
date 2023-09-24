@@ -62,7 +62,7 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
-          auth.home.arpa/enabled: "true"
+#          auth.home.arpa/enabled: "true"
           hajimari.io/icon: mdi:bookshelf
           coredns.io/hostname: &host "calibre.${SECRET_DOMAIN}"
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
