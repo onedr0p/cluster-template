@@ -31,74 +31,51 @@ spec:
       repository: ghcr.io/linuxserver/calibre
       tag: version-v6.27.0
     env:
+      TZ: "${TIMEZONE}"
+      PUID: "1026"
       PGID: "1000"
-      PUID: "1000"
-
-    podSecurityContext:
-      # runAsUser: 1000
-      # runAsGroup: 1000
-      supplementalGroups:
-        - 100
-        # - 568
-
-    initContainers:
-      update-config-ownership:
-        image: busybox:1.36.1
-        command: ["sh", "-c", "chown -R 1000:1000 /config"]
-        volumeMounts:
-          - name: config
-            mountPath: /config
-        securityContext:
-          runAsUser: 0
-      update-config-permission:
-        image: busybox:1.36.1
-        command: ["sh", "-c", "chmod -R 774 /config"]
-        volumeMounts:
-          - name: config
-            mountPath: /config
-        securityContext:
-          runAsUser: 0
-
-    # Pod
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "512Mi"
-        cpu: "250m"
-
-    # Persistence
     persistence:
-      # Make sure it has pid/gid 568
-      # and it is pre-populated
       config:
         enabled: true
         existingClaim: calibre
-      books:
-        enabled: true
-        existingClaim: book
-        mountPath: /books
-
-    # Linuxserver's calibre has their port at 8083
+#      books:
+#        enabled: true
+#        type: nfs
+#        server: "${LOCAL_LAN_TRUENAS}"
+#        path: /mnt/storage/home/claude/books
+#        mountPath: /mnt/storage/home/claude/books
     service:
       main:
         ports:
           http:
-            port: 8083
-
-    # Network
+            port: 8080
+      webserver:
+        enabled: true
+        ports:
+          webserver:
+            enabled: true
+            port: 8081
+            protocol: TCP
+            targetPort: 8081
+        type: ClusterIP
     ingress:
       main:
         enabled: true
+        ingressClassName: "nginx"
         annotations:
-          hajimari.io/enable: "true"
-          hajimari.io/icon: "book"
-          coredns.io/hostname: &host "calibre.${SECRET_DOMAIN}"
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-          external-dns/is-public: "true"
+          auth.home.arpa/enabled: "true"
+          hajimari.io/icon: mdi:bookshelf
         hosts:
-          - *host
+          - host: &host "{{ .Release.Name }}.${SECRET_CLUSTER_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
         tls:
           - hosts:
               - *host
+    resources:
+      requests:
+        cpu: 15m
+        memory: 324M
+      limits:
+        memory: 604M
