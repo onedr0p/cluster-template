@@ -66,7 +66,7 @@ spec:
           auth.home.arpa/enabled: "true"
           hajimari.io/icon: mdi:bookshelf
         hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_CLUSTER_DOMAIN}"
+          - host: &host "calibre.saveker.org"
             paths:
               - path: /
                 pathType: Prefix
