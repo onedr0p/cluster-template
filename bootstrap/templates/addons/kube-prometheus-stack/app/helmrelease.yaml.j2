@@ -11,19 +11,17 @@ spec:
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: 48.1.2
+      version: 51.2.0
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
         namespace: flux-system
   maxHistory: 2
   install:
-    crds: CreateReplace
     remediation:
       retries: 3
   upgrade:
     cleanupOnFail: true
-    crds: CreateReplace
     remediation:
       retries: 3
   uninstall:
