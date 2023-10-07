@@ -29,6 +29,6 @@ spec:
     - name: local-path-provisioner
       namespace: kube-system
   valuesFrom:
-    - kind: ConfigMap
-      name: kube-prometheus-stack-values
+    - name: kube-prometheus-stack-values
+      kind: ConfigMap
       valuesKey: values.yaml

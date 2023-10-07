@@ -25,6 +25,6 @@ spec:
   uninstall:
     keepHistory: false
   valuesFrom:
-    - kind: ConfigMap
-      name: cilium-values
+    - name: cilium-values
+      kind: ConfigMap
       valuesKey: values.yaml
