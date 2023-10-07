@@ -159,12 +159,9 @@ spec:
       enabled: true
     ingress:
       enabled: true
-      ingressClassName: external
+      ingressClassName: internal
       annotations:
         hajimari.io/icon: simple-icons:grafana
-        coredns.io/hostname: &host "grafana.${SECRET_DOMAIN}"
-        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-        external-dns/is-public: "true"
       hosts:
         - &host "grafana.${SECRET_DOMAIN}"
       tls:
@@ -174,4 +171,4 @@ spec:
       enabled: true
       storageClassName: local-path
     testFramework:
-      enabled: false 
+      enabled: false

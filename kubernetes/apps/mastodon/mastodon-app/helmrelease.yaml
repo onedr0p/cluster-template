@@ -1,0 +1,156 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: &app mastodon
+  namespace: default
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: mastodon
+      version: 3.0.0 # Update this when mastodon publishes it's own chart
+      sourceRef:
+        kind: HelmRepository
+        name: mastodon
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  values:
+    controller:
+      replicas: 2
+      strategy: RollingUpdate
+    image:
+      repository: ghcr.io/mastodon/mastodon
+    mastodon:
+      ## These are chart defaults
+      # createAdmin:
+      #   enabled: false
+      #   username: ${MASTODON_USERNAME}
+      #   email: ${MASTODON_EMAIL}
+      # cron:
+      #   removeMedia:
+      #     enabled: true
+      #     schedule: "0 0 * * 0"
+
+      # locale: en #default value
+      # local_domain: null #default value
+
+      web_domain: &host mastodon.${SECRET_DOMAIN}
+
+      # singleUserMode: false #default value
+      # authorizedFetch: false #default value
+
+      #limitedFederationMode: false #Not in the current published chart
+
+      ## These are chart defaults
+      # persistence:
+      #   assets:
+      #     accessMode: ReadWriteOnce
+      #     resource:
+      #       requests:
+      #         storage: 10Gi
+      #   system:
+      #     accessMode: ReadWriteOnce
+      #     resources:
+      #       requests:
+      #         storage: 100Gi
+
+    secrets:
+      existingSecret: mastodon-secret
+
+    # # These are chart defaults
+    # sidekiq:
+    #   workers:
+    #     - name: all-queues
+    #       concurrency: 25
+    #       replicas: 1
+    #       queues:
+    #         - default,8
+    #         - push,6
+    #         - ingress,4
+    #         - mailers,2
+    #         - pull
+    #         - scheduler
+
+    # # These are chart defaults
+    # smtp:
+    #   auth_method: plain
+    #   ca_file: /etc/ssl/certs/ca-certificates.crt
+    #   delivery_method: smtp
+    #   domain:
+    #   enable_starttls: 'auto'
+    #   from_address: notifications@example.com
+    #   return_path:
+    #   openssl_verify_mode: peer
+    #   port: 587
+    #   reply_to:
+    #   server: smtp.mailgun.org
+    #   tls: false
+    #   # -- Instead of defining login/password above, you can specify the name of an existing secret here. Login and
+    #   # password must be located in keys named `login` and `password` respectively.
+    #   existingSecret: mastodon-smpt-secret
+
+    # # These are chart defaults
+    # streaming:
+    #   port: 4000
+    #   workers: 1
+    #   base_url: null
+    #   replicas: 1
+
+    # # These are chart defaults
+    # web:
+    #   port: 3000
+    #   replicas: 1
+      # resources: {}
+      # requests:
+      #   cpu: 250m
+      #   memory: 768Mi
+      # limits:
+      #   cpu: "1"
+      #   memory: 1280Mi
+
+
+    ingress:
+      enabled: true
+      annotations:
+        external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+      ingressClassName: external
+      hosts:
+        - host: *host
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - hosts:
+            - *host
+
+    # # These are chart defaults
+    # elasticsearch:
+    #   enabled: true
+
+    postgresql:
+      enabled: false
+      postgresqlHostname: postgres-rw.database.svc.cluster.local
+      postgresqlPort: 5432
+      auth:
+        database: mastodon
+        username: mastodon
+        existingSecret: mastodon-secret
+
+    redis:
+      auth:
+        existingSecret: masstodon-secret
+
+    service:
+      type: ClusterIP
+      port: 80
+
+    # externalAuth:
+    #   oauth_global:
+    #     # -- Automatically redirect to OIDC, CAS or SAML, and don't use local account authentication when clicking on Sign-In
+    #     omniauth_only: false
