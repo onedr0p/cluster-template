@@ -98,7 +98,7 @@ spec:
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
         external-dns:
-          gnetId: 15038 # https://grafana.com/grafana/dashboards/15038?tab=revisions
+          gnetId: 15038 # https://grafana.com/grafana/dashboards/15038?tab=revisionSs
           revision: 1
           datasource: Prometheus
         cert-manager:
