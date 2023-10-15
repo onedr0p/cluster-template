@@ -61,7 +61,7 @@ spec:
       #         storage: 100Gi
 
     secrets:
-      existingSecret: mastodon-secrets
+      existingSecret: mastodon-secret
 
     # # These are chart defaults
     # sidekiq:
@@ -143,11 +143,11 @@ spec:
       auth:
         database: mastodon
         username: mastodon
-        existingSecret: mastodon-secrets
+        existingSecret: mastodon-secret
 
     redis:
       auth:
-        existingSecret: masstodon-secrets
+        existingSecret: mastodon-secret
 
     service:
       type: ClusterIP
