@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: &app mastodon
-  namespace: default
+  namespace: mastodon
 spec:
   interval: 30m
   chart:
@@ -40,7 +40,7 @@ spec:
       # locale: en #default value
       # local_domain: null #default value
 
-      web_domain: &host mastodon.${SECRET_DOMAIN}
+      web_domain: &host toot.${SECRET_DOMAIN}
 
       # singleUserMode: false #default value
       # authorizedFetch: false #default value
@@ -61,7 +61,7 @@ spec:
       #         storage: 100Gi
 
     secrets:
-      existingSecret: mastodon-secret
+      existingSecret: mastodon-secrets
 
     # # These are chart defaults
     # sidekiq:
@@ -118,7 +118,10 @@ spec:
     ingress:
       enabled: true
       annotations:
+        hajimari.io/icon: simple-icons:grafana
+        coredns.io/hostname: &host "toot.${SECRET_DOMAIN}"
         external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        external-dns/is-public: "true"
       ingressClassName: external
       hosts:
         - host: *host
@@ -140,11 +143,11 @@ spec:
       auth:
         database: mastodon
         username: mastodon
-        existingSecret: mastodon-secret
+        existingSecret: mastodon-secrets
 
     redis:
       auth:
-        existingSecret: masstodon-secret
+        existingSecret: masstodon-secrets
 
     service:
       type: ClusterIP
