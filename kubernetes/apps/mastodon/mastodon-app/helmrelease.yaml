@@ -13,7 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: mastodon
-        namespace: flux-system
+        namespace: mastodon
   install:
     remediation:
       retries: 5
