@@ -8,6 +8,8 @@
     - name: Pausing for 5 seconds...
       ansible.builtin.pause:
         seconds: 5
+    - name: Populate service facts
+      service_facts:
   tasks:
     - name: Locale
       block:
@@ -80,6 +82,7 @@
             mode: "0755"
             content: neofetch --config none
         - name: System Configuration | Disable apparmor
+          when: ansible_facts.services['apparmor.service'] is defined
           ansible.builtin.systemd:
             name: apparmor
             state: stopped
