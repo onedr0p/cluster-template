@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 1.5.1
+      version: 2.0.3
       interval: 30m
       sourceRef:
         kind: HelmRepository
@@ -27,29 +27,38 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    image:
-      repository: ghcr.io/morphy2k/rss-forwarder
-      tag: 0.6.1
-    env:
-      TZ: "${TIMEZONE}"
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: ghcr.io/morphy2k/rss-forwarder
+              tag: 0.6.1
+            env:
+              TZ: "${TIMEZONE}"
+            probes:
+              liveness: &disabled
+                enabled: false
+              readiness: *disabled
+              startup: *disabled
+            resources:
+              requests:
+                cpu: 5m
+                memory: 10M
+              limits:
+                memory: 64M
     service:
-      main: &disableSvc
-        enabled: false
+      main: *disabled
     ingress:
-      main: *disableSvc
-    probes:
-      liveness: *disableSvc
-      readiness: *disableSvc
-      startup: *disableSvc
+      main: *disabled
     persistence:
-      data:
+      config:
         enabled: true
         type: secret
         name: discord-template-notifier-secret
-    resources:
-      requests:
-        cpu: 15m
-        memory: 110M
-      limits:
-        cpu: 15m
-        memory: 110M
+        globalMounts:
+          - path: /data/config.toml
+            subPath: config.toml
+            readOnly: true
