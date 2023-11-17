@@ -127,7 +127,9 @@ Before we get started everything below must be taken into consideration, you mus
 
 ## 🚀 Getting Started
 
-Once you have installed Debian on your nodes, there are 6 stages to getting a Flux-managed cluster up and runnning.
+Once you have installed Debian on your nodes, there are six stages to getting a Flux-managed cluster up and runnning.
+
+📍 _For all stages below the commands **MUST** be ran on your personal workstation within your repository directory_
 
 ### 🎉 Stage 1: Create a Git repository
 
@@ -135,9 +137,7 @@ Once you have installed Debian on your nodes, there are 6 stages to getting a Fl
 
 2. Clone **your new repo** to you local workstation and `cd` into it.
 
-📍 _**All commands** during the setup process are run on your **local workstation** within your repository directory_
-
-### 🌱 Stage 2: Set up your local environment
+### 🌱 Stage 2: Setup your local workstation environment
 
 📍 _Let's get the required workstation tools installed and configured._
 
