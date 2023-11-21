@@ -26,6 +26,7 @@ This template implements Flux in a way that promotes legibility and ease of use 
 
 Before we get started everything below must be taken into consideration, you must...
 
+- [ ] have some experiance with 3 of the following: Git/SCM, containers, networking or programming.
 - [ ] bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
 - [ ] run the cluster on bare metal machines or VMs within your home network &mdash; **this is NOT designed for cloud environments**.
 - [ ] have Debian 12 freshly installed on 1 or more AMD64/ARM64 bare metal machines or VMs. Each machine will be either a **control node** or a **worker node** in your cluster.
