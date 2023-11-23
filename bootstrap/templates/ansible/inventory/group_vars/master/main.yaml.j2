@@ -24,8 +24,6 @@ k3s_server:
   disable-network-policy: true
   disable-cloud-controller: true
   disable-kube-proxy: true            # Cilium uses eBPF
-  secrets-encryption: true
-  snapshotter: stargz
   write-kubeconfig-mode: "644"
 {% if bootstrap_ipv6_enabled | default(false) %}
   cluster-cidr: "{% raw %}{{ cluster_cidr }},{{ cluster_cidr_v6 }}{% endraw %}"
