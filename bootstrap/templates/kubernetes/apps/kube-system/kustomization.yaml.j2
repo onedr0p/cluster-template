@@ -9,6 +9,7 @@ resources:
   - ./local-path-provisioner/ks.yaml
   - ./metrics-server/ks.yaml
   - ./reloader/ks.yaml
+  - ./snapshot-controller/ks.yaml
   {% if csi_driver_nfs.enabled | default(false) %}
   - ./csi-driver-nfs/ks.yaml
   {% endif %}
