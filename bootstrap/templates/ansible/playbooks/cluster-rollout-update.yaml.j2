@@ -65,7 +65,6 @@
             msg: Rebooting node
             post_reboot_delay: 60
             reboot_timeout: 3600
-          when: reboot_required.stat.exists
 
         - name: Uncordon
           kubernetes.core.k8s_drain:
