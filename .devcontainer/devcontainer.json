@@ -75,19 +75,7 @@
 				"terminal.integrated.defaultProfile.linux": "bash"
 			},
 			"extensions": [
-				"albert.TabOut",
-				"britesnow.vscode-toggle-quotes",
-				"EditorConfig.editorconfig",
-				"fcrespo82.markdown-table-formatter",
-				"GitHub.copilot",
-				"mikestead.dotenv",
-				"mitchdenny.ecdc",
-				"PKief.material-icon-theme",
-				"redhat.ansible",
-				"signageos.signageos-vscode-sops",
-				"task.vscode-task",
-				"VisualStudioExptTeam.vscodeintellicode",
-				"will-stone.in-any-case"
+				// Add any extetions you always want installed here
 			]
 		}
 	}
