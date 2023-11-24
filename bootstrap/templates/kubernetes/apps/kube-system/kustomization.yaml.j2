@@ -13,3 +13,6 @@ resources:
   {% if csi_driver_nfs.enabled | default(false) %}
   - ./csi-driver-nfs/ks.yaml
   {% endif %}
+  {% if system_upgrade_controller.enabled | default(false) %}
+  - ./system-upgrade-controller/ks.yaml
+  {% endif %}

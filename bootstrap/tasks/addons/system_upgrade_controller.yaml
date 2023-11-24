@@ -2,7 +2,7 @@
 - name: Set addon facts
   ansible.builtin.set_fact:
     addon_name: system-upgrade-controller
-    addon_namespace: system-upgrade
+    addon_namespace: kube-system
 
 - name: Ensure directories exist for {{ addon_namespace }}/{{ addon_name }}
   when: item.state == 'directory'
