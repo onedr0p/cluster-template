@@ -129,6 +129,13 @@
               fs.inotify.max_queued_events: 65536
               fs.inotify.max_user_watches: 524288
               fs.inotify.max_user_instances: 8192
+        - name: Create /etc/pki
+          ansible.builtin.file:
+            path: /etc/pki
+            state: directory
+            owner: root
+            group: root
+            mode: 0755
 
   handlers:
     - name: Reboot
