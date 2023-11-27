@@ -78,7 +78,9 @@
 				"terminal.integrated.defaultProfile.linux": "bash"
 			},
 			"extensions": [
-				// Add any extetions you always want installed here
+				// Add any additional extensions you always want installed here
+				"redhat.ansible",
+				"redhat.vscode-yaml"
 			]
 		}
 	}
