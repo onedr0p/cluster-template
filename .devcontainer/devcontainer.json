@@ -1,0 +1,87 @@
+{
+	"name": "Home Ops",
+	"image": "mcr.microsoft.com/devcontainers/base:debian",
+	"containerEnv": {
+		"KUBECONFIG": "${containerWorkspaceFolder}/kubeconfig",
+		"SOPS_AGE_KEY_FILE": "${containerWorkspaceFolder}/.age.key"
+	},
+	"postCreateCommand": {
+		// Install additional python dependencies for ansible
+		"deps": "task deps"
+	},
+	"features": {
+		// Upgrade OS packages
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"version": "latest",
+			"installZsh": false,
+			"installOhMyZsh": false
+		},
+		// Install go-task
+		"ghcr.io/devcontainers-contrib/features/go-task:1": {
+			"version": "latest"
+		},
+		// Install python and ansible
+		// Not using the python feature because it includes vscode extentions and we don't want that.
+		//  See https://github.com/devcontainers/features/blob/d53b9d1816bac7a62f9ba5f20723eef428042d1f/src/python/devcontainer-feature.json#L64
+		//  One day disable with https://github.com/devcontainers/features/issues/386
+		"ghcr.io/devcontainers-contrib/features/ansible:2": {
+			"version": "latest"
+		},
+		// Install age
+		"ghcr.io/devcontainers-contrib/features/age:1": {
+			"version": "latest"
+		},
+		// Install cilium-cli
+		"ghcr.io/audacioustux/devcontainers/cilium:1": {
+			"version": "latest"
+		},
+		// Install cloudflared
+		"ghcr.io/devcontainers-contrib/features/cloudflared:1": {
+			"version": "latest"
+		},
+		// Install flux-cli
+		"ghcr.io/jsburckhardt/devcontainer-features/flux:1": {
+			"version": "latest"
+		},
+		// Install kubectl and helm
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+			"version": "latest",
+			"helm": "latest",
+			"minikube": "none"
+		},
+		// Install kustomize
+		"ghcr.io/rio/features/kustomize:1": {
+			"version": "latest"
+		},
+		// Install sops
+		"ghcr.io/devcontainers-contrib/features/sops:1": {
+			"version": "latest"
+		},
+		// Install stern
+		"ghcr.io/dhoeric/features/stern:1": {
+			"version": "latest"
+		},
+		// Install jq
+		"ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {
+			"jqVersion": "latest"
+		}
+		// Find more features at https://containers.dev/features
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash"
+					}
+				},
+				"terminal.integrated.defaultProfile.linux": "bash"
+			},
+			"extensions": [
+				// Add any additional extensions you always want installed here
+				"redhat.ansible",
+				"redhat.vscode-yaml"
+			]
+		}
+	}
+}
