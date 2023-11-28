@@ -164,7 +164,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 3. Setup a Python virual env and install Ansible by running the following task command.
 
-    📍 _This commands requires Python 3.8+ to be installed_
+    📍 _This commands requires Python 3.10+ to be installed_
 
     ```sh
     # Platform agnostic
