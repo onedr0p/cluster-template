@@ -54,6 +54,9 @@ tasks:
 
   configure:
     desc: Configure repository from Ansible vars
+    # TODO: Only prompt when directories exist
+    # https://github.com/go-task/task/issues/1330
+    prompt: Any conflicting config in the root kubernetes and ansible directories will be overridden ... continue?
     dir: "{{.BOOTSTRAP_DIR}}"
     cmd: ansible-playbook configure.yaml
     env:
