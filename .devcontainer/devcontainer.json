@@ -15,10 +15,10 @@
     "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
       "minikube": "none"
     },
+    "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/devcontainers-contrib/features/age:1": {},
     "ghcr.io/devcontainers-contrib/features/cloudflared:1": {},
     "ghcr.io/devcontainers-contrib/features/go-task:1": {},
-    "ghcr.io/devcontainers-contrib/features/python:1": {},
     "ghcr.io/devcontainers-contrib/features/sops:1": {},
     "ghcr.io/audacioustux/devcontainers/cilium:1": {},
     "ghcr.io/dhoeric/features/stern:1": {},

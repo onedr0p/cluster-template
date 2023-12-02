@@ -54,11 +54,11 @@ tasks:
       - test -f "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
       - test -f "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
 
+  # TODO: Only prompt when generated directories exist
+  # https://github.com/go-task/task/issues/1330
   configure:
     desc: Configure repository from Ansible vars
     summary: task {{.TASK}}
-    # TODO: Only prompt when directories exist
-    # https://github.com/go-task/task/issues/1330
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     dir: "{{.BOOTSTRAP_DIR}}"
     cmd: ansible-playbook configure.yaml
