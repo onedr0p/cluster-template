@@ -17,7 +17,7 @@ This template implements Flux in a way that promotes legibility and ease of use 
 - SSL certificates thanks to [Cloudflare](https://cloudflare.com) and [cert-manager](https://cert-manager.io)
 - HA control plane capability thanks to [kube-vip](https://kube-vip.io)
 - Next-gen networking thanks to [Cilium](https://cilium.io/)
-- A [Renovate](https://www.mend.io/renovate)-ready repository
+- A [Renovate](https://www.mend.io/renovate)-ready repository with pull request diffs provided by [flux-local](https://github.com/allenporter/flux-local)
 - Integrated [GitHub Actions](https://github.com/features/actions)
 
 ... and more!
