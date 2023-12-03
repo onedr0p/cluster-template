@@ -13,7 +13,7 @@ This template implements Flux in a way that promotes legibility and ease of use 
 - Automated, reproducible, customizable setup through Ansible templates and playbooks
 - Opinionated implementation of Flux with [strong community support](https://github.com/onedr0p/flux-cluster-template#-support)
 - Encrypted secrets thanks to [SOPS](https://github.com/getsops/sops) and [Age](https://github.com/FiloSottile/age)
-- Web application firewall thanks to [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps)
+- Web application firewall thanks to [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
 - SSL certificates thanks to [Cloudflare](https://cloudflare.com) and [cert-manager](https://cert-manager.io)
 - HA control plane capability thanks to [kube-vip](https://kube-vip.io)
 - Next-gen networking thanks to [Cilium](https://cilium.io/)
