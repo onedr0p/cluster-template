@@ -75,9 +75,10 @@
         # https://github.com/onedr0p/flux-cluster-template/discussions/635
         - name: Network Configuration | Remove /etc/resolv.conf
           ansible.builtin.file:
+            attributes: -i
             path: /etc/resolv.conf
             state: absent
-        - name: Network Configuration | Remove search domain
+        - name: Network Configuration | Add custom /etc/resolv.conf
           ansible.builtin.copy:
             attributes: +i
             mode: 644
