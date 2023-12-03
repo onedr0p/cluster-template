@@ -4,16 +4,16 @@ Welcome to my highly opinionated template for deploying a single Kubernetes ([k3
 
 ## 👋 Introduction
 
-The goal of this project is to make it easy for people interested in learning Kubernetes to deploy a basic cluster at home and become familiar with the GitOps tool Flux.
+The goal of this project is to make it easy for people interested in learning Kubernetes to deploy a cluster at home and become familiar with the GitOps tool Flux.
 
-This template implements Flux in a way that promotes legibility and ease of use for those who are new (or relatively new) to the technology and GitOps in general. It assumes a typical homelab setup: namely, a single "home prod" cluster running mostly third-party apps.
+This template implements Flux in a way that promotes legibility and ease of use for those who are new (or relatively new) to the technology and GitOps in general.
 
 ## ✨ Features
 
 - Automated, reproducible, customizable setup through Ansible templates and playbooks
-- Opinionated implementation of Flux with [strong community support](https://github.com/onedr0p/flux-cluster-template#-support)
+- Opinionated implementation of Flux with [strong community support](https://github.com/onedr0p/flux-cluster-template/tree/main#-help)
 - Encrypted secrets thanks to [SOPS](https://github.com/getsops/sops) and [Age](https://github.com/FiloSottile/age)
-- Web application firewall thanks to [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
+- Web application firewall thanks to [Cloudflare Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
 - SSL certificates thanks to [Cloudflare](https://cloudflare.com) and [cert-manager](https://cert-manager.io)
 - HA control plane capability thanks to [kube-vip](https://kube-vip.io)
 - Next-gen networking thanks to [Cilium](https://cilium.io/)
@@ -26,7 +26,7 @@ This template implements Flux in a way that promotes legibility and ease of use 
 
 Before we get started everything below must be taken into consideration, you must...
 
-- [ ] have some experience with 3 of the following: Git/SCM, containers, networking or scripting.
+- [ ] have some experience with the following: Git/SCM, containers, networking and scripting.
 - [ ] bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
 - [ ] run the cluster on bare metal machines or VMs within your home network &mdash; **this is NOT designed for cloud environments**.
 - [ ] have Debian 12 freshly installed on 1 or more AMD64/ARM64 bare metal machines or VMs. Each machine will be either a **control node** or a **worker node** in your cluster.
@@ -496,7 +496,7 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 ## 👉 Help
 
 - Make a post in this repository's Github [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
-- Start a thread in the `support` or `flux-cluster-template` channel in the [k8s@home](https://discord.gg/k8s-at-home) Discord server.
+- Start a thread in the `support` or `flux-cluster-template` channel in the [Home Operations](https://discord.gg/home-operations) Discord server.
 
 ## ❔ What's next
 
