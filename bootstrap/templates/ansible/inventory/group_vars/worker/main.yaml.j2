@@ -10,3 +10,4 @@ k3s_agent:
 {% else %}
   node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
 {% endif %}
+  pause-image: registry.k8s.io/pause:3.9
