@@ -69,6 +69,16 @@
       "separateMinorPatch": true
     },
     {
+      "description": "Local Path Provisioner Group",
+      "groupName": "Local Path Provisioner",
+      "matchPackagePatterns": ["local-path-provisioner"],
+      "matchDatasources": ["docker", "github-tags"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "separateMinorPatch": true
+    },
+    {
       "description": "System Upgrade Controller Group",
       "groupName": "System Upgrade Controller",
       "matchPackagePatterns": ["rancher/system-upgrade-controller"],

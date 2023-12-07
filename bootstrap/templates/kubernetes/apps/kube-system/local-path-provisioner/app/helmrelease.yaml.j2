@@ -23,6 +23,9 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    image:
+      repository: docker.io/rancher/local-path-provisioner
+      tag: v0.0.26
     helperImage:
       repository: public.ecr.aws/docker/library/busybox
       tag: latest
@@ -30,7 +33,7 @@ spec:
       defaultClass: false
     nodePathMap:
       - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
-        paths: ["/var/lib/rancher/k3s/storage"]
+        paths: ["{{ bootstrap_local_path_provisioner_path | default('/var/lib/rancher/k3s/storage', true) }}"]
     # NOTE: Do not enable Flux variable substitution on this HelmRelease
     configmap:
       setup: |-

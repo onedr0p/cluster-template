@@ -56,6 +56,11 @@ bootstrap_cluster_cidr: 10.42.0.0/16
 # (Advanced) For ipv6 use format 10.43.0.0/16,fd78:c889:47fb:e0::/112
 bootstrap_service_cidr: 10.43.0.0/16
 
+# (Advanced) Path for local-path-provisioner to use for storage on ALL nodes
+# If changing this value to anything other than the default
+# make sure the path exists and is owned by root:root with 701 permissions
+bootstrap_local_path_provisioner_path: /var/lib/rancher/k3s/storage
+
 # Node information
 bootstrap_nodes:
   # Use only 1, 3 or more odd master nodes, recommended is 3
