@@ -1,8 +1,9 @@
 ---
-
 - name: Verify required bootstrap vars are set
   ansible.builtin.assert:
-    that: item | default('', true) | trim != ''
+    that:
+      - item in vars
+      - vars[item] != None
     success_msg: Required bootstrap var {{ item }} exists and is defined
     fail_msg: Required bootstrap var {{ item }} does not exists or is not defined
   loop:
