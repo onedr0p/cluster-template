@@ -1,9 +1,8 @@
 ---
+
 - name: Verify required bootstrap vars are set
   ansible.builtin.assert:
-    that:
-      - vars[item] is defined
-      - vars[item] | default('', true) | trim != ''
+    that: item | default('', true) | trim != ''
     success_msg: Required bootstrap var {{ item }} exists and is defined
     fail_msg: Required bootstrap var {{ item }} does not exists or is not defined
   loop:
@@ -35,4 +34,4 @@
     fail_msg: Node name {{ item.name }} is not valid
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
-    label: "{{ item.name }}"
+     label: "{{ item.name }}"
