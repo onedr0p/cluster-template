@@ -24,7 +24,8 @@ This template implements Flux in a way that promotes legibility and ease of use 
 
 ## 📝 Pre-start checklist
 
-Before we get started everything below must be taken into consideration, you must...
+> [!CAUTION]
+> Before we get started everything below must be taken into consideration, you must...
 
 - [ ] have some experience with the following: Git/SCM, containers, networking and scripting.
 - [ ] bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
@@ -39,11 +40,10 @@ Before we get started everything below must be taken into consideration, you mus
 
 ### System requirements
 
-📍 _k3s default behaviour is that all nodes are able to run workloads, including contol nodes. Worker nodes are therefore optional._
-
-📍 _If you have 3 or more nodes it is strongly recommended to make 3 of them control nodes for a highly available control plane._
-
-📍 _Ideally you will run the cluster on bare metal machines. If you intend to run your cluster on Proxmox VE, my thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/notes/proxmox-considerations.html)._
+> [!IMPORTANT]
+> 1. The default behaviour of k3s is that all nodes are able to run workloads, **including** control nodes. Worker nodes are therefore optional.
+> 2. Do you have 3 or more nodes? It is strongly recommended to make 3 of them control nodes for a highly available control plane.
+> 3. Running the cluster on Proxmox VE? My thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/notes/proxmox-considerations.html).
 
 | Role    | Cores    | Memory        | System Disk               |
 |---------|----------|---------------|---------------------------|
@@ -97,9 +97,9 @@ Before we get started everything below must be taken into consideration, you mus
 
 ### Debian for RasPi4
 
-📍 _If you choose to use a Raspberry Pi 4 for the cluster, it is recommended to have an 8GB model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is supported [natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first._
-
-📍 _Be sure to check the [power requirements](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply) if using a PoE Hat and a SSD/NVMe dongle._
+> [!CAUTION]
+> 1. It is recommended to have an 8GB RasPi model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is [supported natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first.
+> 2. Check the [power requirements](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply) if using a PoE Hat and a SSD/NVMe dongle.
 
 1. Download the latest stable release of Debian from [here](https://raspi.debian.net/tested-images). _**Do not** use Raspbian or DietPi or any other flavor Linux OS._
 
@@ -130,7 +130,8 @@ Before we get started everything below must be taken into consideration, you mus
 
 Once you have installed Debian on your nodes, there are six stages to getting a Flux-managed cluster up and runnning.
 
-📍 _For all stages below the commands **MUST** be ran on your personal workstation within your repository directory_
+> [!CAUTION]
+> For all stages below the commands **MUST** be ran on your personal workstation within your repository directory
 
 ### 🎉 Stage 1: Create a Git repository
 
@@ -140,22 +141,16 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 ### 🌱 Stage 2: Setup your local workstation environment
 
-📍 _Let's get the required workstation tools installed and configured._
-
-1. Install the most recent version of [task](https://taskfile.dev/)
-
-    📍 _See the task [installation docs](https://taskfile.dev/installation/) for other platforms_
+1. Install the most recent version of [task](https://taskfile.dev/), see the task [installation docs](https://taskfile.dev/installation/) for other supported platforms.
 
     ```sh
     # Brew
     brew install go-task
     ```
 
-2. Install the most recent version of [direnv](https://direnv.net/)
+2. Install the most recent version of [direnv](https://direnv.net/), see the direnv [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
 
-    📍 _See the direnv [installation docs](https://direnv.net/docs/installation.html) for other platforms_
-
-    📍 _After installing `direnv` be sure to [hook it into your shell](https://direnv.net/docs/hook.html) and after that is done run `direnv allow` while in your repos directory._
+    📍 _After installing `direnv` be sure to **[hook it into your shell](https://direnv.net/docs/hook.html)** and after that is done run `direnv allow` while in your repos' directory._
 
     ```sh
     # Brew
@@ -173,14 +168,16 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 4. Install the required tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops)
 
-   ```sh
-   # Brew
-   task brew:deps
-   ```
+   📍 _Not using brew? Make sure to look up how to install the latest version of each of these CLI tools yourself._
+
+    ```sh
+    # Brew
+    task brew:deps
+    ```
 
 ### 🔧 Stage 3: Do bootstrap configuration
 
-📍 _Both `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` files contain necessary information that is needed by bootstrap process._
+📍 _Both `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` files contain necessary information that is **vital** to the bootstrap process._
 
 1. Generate the `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` configuration files.
 
@@ -255,14 +252,14 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task configure
     ```
 
-📍 _The configure task will create a `./ansible` directory and the following directories under `./kubernetes`._
-
-```sh
-📁 kubernetes      # Kubernetes cluster defined as code
-├─📁 bootstrap     # Flux installation (not tracked by Flux)
-├─📁 flux          # Main Flux configuration of repository
-└─📁 apps          # Apps deployed into the cluster grouped by namespace
-```
+> [!IMPORTANT]
+> The configure task will create a `./ansible` directory and the following directories under `./kubernetes`.
+> ```sh
+> 📁 kubernetes      # Kubernetes cluster defined as code
+> ├─📁 bootstrap     # Flux installation (not tracked by Flux)
+> ├─📁 flux          # Main Flux configuration of repository
+> └─📁 apps          # Apps deployed into the cluster grouped by namespace
+> ```
 
 ### ⚡ Stage 4: Prepare your nodes for k3s
 
@@ -396,18 +393,15 @@ The `external-dns` application created in the `networking` namespace will handle
 
 `k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${bootstrap_cloudflare_domain}` to `${bootstrap_k8s_gateway_addr}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
-📍 _Below is how to configure a Pi-hole for split DNS. Other platforms should be similar._
-
-1. Apply this file on the server
-
-   ```sh
-   # /etc/dnsmasq.d/99-k8s-gateway-forward.conf
-   server=/${bootstrap_cloudflare_domain}/${bootstrap_k8s_gateway_addr}
-   ```
-
-2. Restart dnsmasq on the server.
-
-3. Query an internal-only subdomain from your workstation (any `internal` class ingresses): `dig @${home-dns-server-ip} hubble.${bootstrap_cloudflare_domain}`. It should resolve to `${bootstrap_internal_ingress_addr}`.
+> [!TIP]
+> Below is how to configure a Pi-hole for split DNS. Other platforms should be similar.
+> 1. Apply this file on the server
+> ```sh
+> # /etc/dnsmasq.d/99-k8s-gateway-forward.conf
+> server=/${bootstrap_cloudflare_domain}/${bootstrap_k8s_gateway_addr}
+> ```
+> 2. Restart dnsmasq on the server.
+> 3. Query an internal-only subdomain from your workstation (any `internal` class ingresses): `dig @${home-dns-server-ip} hubble.${bootstrap_cloudflare_domain}`. It should resolve to `${bootstrap_internal_ingress_addr}`.
 
 If you're having trouble with DNS be sure to check out these two GitHub discussions: [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
 
