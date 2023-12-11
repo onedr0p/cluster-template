@@ -9,6 +9,7 @@
   loop:
     - bootstrap_acme_email
     - bootstrap_age_public_key
+    - bootstrap_cilium_loadbalancer_mode
     - bootstrap_cloudflare_account_tag
     - bootstrap_cloudflare_domain
     - bootstrap_cloudflare_token

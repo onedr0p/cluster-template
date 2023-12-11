@@ -79,7 +79,7 @@ data:
       {% endif %}
     loadBalancer:
       algorithm: maglev
-      mode: dsr
+      mode: {{ bootstrap_cilium_loadbalancer_mode | default('dsr', true) }}
     localRedirectPolicy: true
     operator:
       replicas: 1
