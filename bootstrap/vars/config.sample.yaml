@@ -47,7 +47,10 @@ bootstrap_external_ingress_addr:
 # The Load balancer IP for internal ingress, choose an available IP in your nodes network that is not being used
 bootstrap_internal_ingress_addr:
 
-# (Advanced) Cilium load balancer mode, choose either dsr or snat, if you nodes aren't on a network by themselves change this to snat
+# (Advanced) Cilium load balancer mode, choose either 'dsr' or 'snat'
+# Due to unknown reasons some people need this set to 'snat' in order
+# for Cilium L2 announcements to work properly. Keep this dsr unless
+# you have issues with connecting to Cilium L2 announcements.
 bootstrap_cilium_loadbalancer_mode: dsr
 
 # Keep the next three options default unless you know what you are doing
