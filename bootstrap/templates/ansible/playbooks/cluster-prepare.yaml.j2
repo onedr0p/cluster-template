@@ -101,16 +101,15 @@
             state: absent
           loop: ["none", "swap"]
         - name: System Configuration | Kernel modules (1)
-          community.general.modprobe:
-            name: "{% raw %}{{ item }}{% endraw %}"
-            state: present
-          loop: ["br_netfilter", "ceph", "ip_vs", "ip_vs_rr", "nbd", "overlay", "rbd"]
-        - name: System Configuration | Kernel modules (2)
           ansible.builtin.copy:
             dest: "/etc/modules-load.d/{% raw %}{{ item }}{% endraw %}.conf"
             mode: "0644"
             content: "{% raw %}{{ item }}{% endraw %}"
           loop: ["br_netfilter", "ceph", "ip_vs", "ip_vs_rr", "nbd", "overlay", "rbd"]
+        - name: System Configuration | Kernel modules (2)
+          ansible.builtin.systemd:
+            name: systemd-modules-load
+            state: restarted
         - name: System Configuration | Sysctl
           ansible.posix.sysctl:
             name: "{% raw %}{{ item.key }}{% endraw %}"
