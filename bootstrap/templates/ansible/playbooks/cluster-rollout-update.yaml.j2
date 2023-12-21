@@ -43,8 +43,8 @@
               terminate_grace_period: 600
               wait_timeout: 900
             pod_selectors:
-             # Rook Ceph
-             - app!=rook-ceph-osd
+              # Rook Ceph
+              - app!=rook-ceph-osd
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
 
         - name: Update
