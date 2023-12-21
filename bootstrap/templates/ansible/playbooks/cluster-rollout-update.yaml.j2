@@ -45,9 +45,6 @@
             pod_selectors:
              # Rook Ceph
              - app!=rook-ceph-osd
-             # Longhorn
-             - app!=csi-attacher
-             - app!=csi-provisioner
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
 
         - name: Update
