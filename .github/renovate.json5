@@ -1,0 +1,255 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    "docker:enableMajor",
+    ":disableRateLimiting",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":automergeDigest",
+    ":automergeBranch",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dashboard 🤖",
+  "suppressNotifications": ["prIgnoreNotification"],
+  "rebaseWhen": "conflicted",
+  "schedule": ["on saturday"],
+  "flux": {
+    "fileMatch": [
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "helm-values": {
+    "fileMatch": [
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "kubernetes": {
+    "fileMatch": [
+      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "kustomize": {
+    "fileMatch": [
+      "(^|/)kustomization\\.ya?ml(\\.j2)?$"
+    ]
+  },
+  // commit message topics
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "commitMessageSuffix": "",
+  // package rules
+  "packageRules": [
+    // automerge
+    {
+      "description": "Auto merge Github Actions",
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "automergeType": "branch",
+      "ignoreTests": true,
+      "matchUpdateTypes": ["minor", "patch", "digest"]
+    },
+    // groups
+    {
+      "description": "Flux Group",
+      "groupName": "Flux",
+      "matchPackagePatterns": ["flux"],
+      "matchDatasources": ["docker", "github-tags"],
+      "versioning": "semver",
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "separateMinorPatch": true
+    },
+    {
+      "description": "Local Path Provisioner Group",
+      "groupName": "Local Path Provisioner",
+      "matchPackagePatterns": ["local-path-provisioner"],
+      "matchDatasources": ["docker", "github-tags"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "separateMinorPatch": true
+    },
+    {
+      "description": "System Upgrade Controller Group",
+      "groupName": "System Upgrade Controller",
+      "matchPackagePatterns": ["rancher/system-upgrade-controller"],
+      "matchDatasources": ["docker", "github-releases"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "separateMinorPatch": true
+    },
+    // custom versioning
+    {
+      "description": "Use custom versioning for k3s",
+      "matchDatasources": ["github-releases"],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$",
+      "matchPackagePatterns": ["k3s"]
+    },
+    // commit message topics
+    {
+      "matchDatasources": ["helm"],
+      "commitMessageTopic": "chart {{depName}}"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "commitMessageTopic": "image {{depName}}"
+    },
+    // commit messages
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["major"],
+      "commitMessagePrefix": "feat(container)!: "
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor"],
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "container"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "container"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["digest"],
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "container"
+    },
+    {
+      "matchDatasources": ["helm"],
+      "matchUpdateTypes": ["major"],
+      "commitMessagePrefix": "feat(helm)!: "
+    },
+    {
+      "matchDatasources": ["helm"],
+      "matchUpdateTypes": ["minor"],
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "helm"
+    },
+    {
+      "matchDatasources": ["helm"],
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "helm"
+    },
+    {
+      "matchDatasources": ["galaxy", "galaxy-collection"],
+      "matchUpdateTypes": ["major"],
+      "commitMessagePrefix": "feat(ansible)!: "
+    },
+    {
+      "matchDatasources": ["galaxy", "galaxy-collection"],
+      "matchUpdateTypes": ["minor"],
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "ansible"
+    },
+    {
+      "matchDatasources": ["galaxy", "galaxy-collection"],
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "ansible"
+    },
+    {
+      "matchDatasources": ["github-releases", "github-tags"],
+      "matchUpdateTypes": ["major"],
+      "commitMessagePrefix": "feat(github-release)!: "
+    },
+    {
+      "matchDatasources": ["github-releases", "github-tags"],
+      "matchUpdateTypes": ["minor"],
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "github-release"
+    },
+    {
+      "matchDatasources": ["github-releases", "github-tags"],
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "github-release"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"],
+      "commitMessagePrefix": "feat(github-action)!: "
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor"],
+      "semanticCommitType": "feat",
+      "semanticCommitScope": "github-action"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "github-action"
+    },
+    // labels
+    {
+      "matchUpdateTypes": ["major"],
+      "labels": ["type/major"]
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "labels": ["type/minor"]
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "labels": ["type/patch"]
+    },
+    {
+      "matchDatasources": ["docker"],
+      "addLabels": ["renovate/container"]
+    },
+    {
+      "matchDatasources": ["helm"],
+      "addLabels": ["renovate/helm"]
+    },
+    {
+      "matchDatasources": ["galaxy", "galaxy-collection"],
+      "addLabels": ["renovate/ansible"]
+    },
+    {
+      "matchDatasources": ["github-releases", "github-tags"],
+      "addLabels": ["renovate/github-release"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "addLabels": ["renovate/github-action"]
+    }
+  ],
+  // custom managers
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Process various other dependencies",
+      "fileMatch": [
+        "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+        "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      ],
+      "matchStrings": [
+        // Example: `k3s_release_version: "v1.27.3+k3s1"`
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?\"(?<currentValue>.*)\"\n",
+        // Example: `- https://github.com/rancher/system-upgrade-controller/releases/download/v0.11.0/crd.yaml`
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?-\\s(.*?)\/(?<currentValue>[^/]+)\/[^/]+\n",
+        // Example: apiVersion=helm.cattle.io/v1 kind=HelmChart
+        "datasource=(?<datasource>\\S+)\n.*?repo: (?<registryUrl>\\S+)\n.*?chart: (?<depName>\\S+)\n.*?version: (?<currentValue>\\S+)\n"
+      ],
+      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    }
+  ]
+}
