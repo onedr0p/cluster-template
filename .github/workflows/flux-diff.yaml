@@ -1,0 +1,39 @@
+---
+name: "Flux Diff"
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths: ["kubernetes/**.yaml"]
+
+jobs:
+  flux-diff:
+    name: Flux Diff
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    strategy:
+      matrix:
+        path: ["kubernetes"]
+        resource: ["helmrelease", "kustomization"]
+    steps:
+      - name: Diff Resources
+        uses: allenporter/flux-local/action/diff@8a71acacb98e7332b3151f7e33325915f03b8463 # 4.2.0
+        id: diff
+        with:
+          sources: home-kubernetes
+          path: "${{ matrix.path }}"
+          resource: "${{ matrix.resource }}"
+
+      - if: ${{ steps.diff.outputs.diff != '' }}
+        name: Add comment
+        uses: mshick/add-pr-comment@7c0890544fb33b0bdd2e59467fbacb62e028a096 # v2.8.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          message-id: "${{ github.event.pull_request.number }}/${{ matrix.path }}/${{ matrix.resource }}"
+          message-failure: Diff was not successful
+          message: |
+            ```diff
+            ${{ steps.diff.outputs.diff }}
+            ```
