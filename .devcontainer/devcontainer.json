@@ -1,0 +1,45 @@
+{
+  "name": "Home Ops",
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "containerEnv": {
+    "KUBECONFIG": "${containerWorkspaceFolder}/kubeconfig",
+    "SOPS_AGE_KEY_FILE": "${containerWorkspaceFolder}/.age.key"
+  },
+  "postCreateCommand": {
+    "deps": "task deps"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true
+    },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers-contrib/features/age:1": {},
+    "ghcr.io/devcontainers-contrib/features/cloudflared:1": {},
+    "ghcr.io/devcontainers-contrib/features/go-task:1": {},
+    "ghcr.io/devcontainers-contrib/features/sops:1": {},
+    "ghcr.io/audacioustux/devcontainers/cilium:1": {},
+    "ghcr.io/dhoeric/features/stern:1": {},
+    "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
+    "ghcr.io/jsburckhardt/devcontainer-features/flux:1": {},
+    "ghcr.io/rio/features/kustomize:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/zsh"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      },
+      "extensions": [
+        "redhat.ansible",
+        "redhat.vscode-yaml"
+      ]
+    }
+  }
+}

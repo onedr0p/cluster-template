@@ -130,7 +130,7 @@
     quiet: true
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
-     label: "{{ item.address }}"
+    label: "{{ item.address }}"
 
 - name: Verify nodes are ipv4
   ansible.builtin.assert:
@@ -151,7 +151,7 @@
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   when: item.external_address is not defined
   loop_control:
-     label: "{{ item.address }}"
+    label: "{{ item.address }}"
 
 - name: Verify SSH port is reachable
   ansible.builtin.wait_for:
@@ -162,4 +162,4 @@
   connection: local
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
-     label: "{{ current_address }}"
+    label: "{{ current_address }}"

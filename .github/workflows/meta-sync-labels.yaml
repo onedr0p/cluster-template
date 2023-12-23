@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Sync Labels
-        uses: EndBug/label-sync@da00f2c11fdb78e4fae44adac2fdd713778ea3e8 # renovate: tag=v2.3.2
+        uses: EndBug/label-sync@da00f2c11fdb78e4fae44adac2fdd713778ea3e8 # v2.3.2
         with:
           config-file: .github/labels.yaml
           token: "${{ secrets.GITHUB_TOKEN }}"

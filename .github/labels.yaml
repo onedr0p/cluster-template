@@ -1,57 +1,37 @@
 ---
 # Area
-- name: area/ansible
-  color: "72ccf3"
-  description: >-
-    Changes made in the ansible directory
-- name: area/github
-  color: "72ccf3"
-  description: >-
-    Changes made in the github directory
-- name: area/kubernetes
-  color: "72ccf3"
-  description: >-
-    Changes made in the kubernetes directory
 - name: area/addons
-  color: "72ccf3"
-  description: >-
-    Changes made in the addons directory
+  color: "0e8a16"
+- name: area/ansible
+  color: "0e8a16"
 - name: area/bootstrap
-  color: "72ccf3"
-  description: >-
-    Changes made in the bootstrap directory
+  color: "0e8a16"
+- name: area/github
+  color: "0e8a16"
+- name: area/kubernetes
+  color: "0e8a16"
+- name: area/taskfile
+  color: "0e8a16"
 # Renovate
 - name: renovate/ansible
-  color: "ffc300"
+  color: "027fa0"
 - name: renovate/container
-  color: "ffc300"
+  color: "027fa0"
 - name: renovate/github-action
-  color: "ffc300"
+  color: "027fa0"
 - name: renovate/github-release
-  color: "ffc300"
+  color: "027fa0"
 - name: renovate/helm
-  color: "ffc300"
+  color: "027fa0"
 # Semantic Type
 - name: type/patch
-  color: "FFEC19"
+  color: "ffec19"
 - name: type/minor
-  color: "FF9800"
+  color: "ff9800"
 - name: type/major
-  color: "F6412D"
+  color: "f6412d"
 - name: type/break
-  color: "F6412D"
+  color: "f6412d"
 # Uncategorized
-- name: bug
+- name: hold/upstream
   color: "ee0701"
-- name: do-not-merge
-  color: "ee0701"
-- name: docs
-  color: "F4D1B7"
-- name: enhancement
-  color: "84b6eb"
-- name: broken-links
-  color: "7B55D7"
-- name: question
-  color: "cc317c"
-- name: community
-  color: "0e8a16"

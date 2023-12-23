@@ -1,9 +1,8 @@
 ---
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: kubernetes-dashboard
-  namespace: monitoring
 spec:
   interval: 30m
   chart:
@@ -39,6 +38,5 @@ spec:
       tls:
         - hosts:
             - *host
-          secretName: kubernetes-dashboard-tls
     metricsScraper:
       enabled: true
