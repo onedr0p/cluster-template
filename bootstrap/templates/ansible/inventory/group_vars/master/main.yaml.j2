@@ -25,6 +25,8 @@ k3s_server:
   disable-cloud-controller: true
   disable-kube-proxy: true            # Cilium uses eBPF
   write-kubeconfig-mode: "644"
+  pause-image: registry.k8s.io/pause:3.9
+  secrets-encryption: true
 {% if bootstrap_ipv6_enabled | default(false) %}
   cluster-cidr: "{% raw %}{{ cluster_cidr }},{{ cluster_cidr_v6 }}{% endraw %}"
   service-cidr: "{% raw %}{{ service_cidr }},{{ service_cidr_v6 }}{% endraw %}"

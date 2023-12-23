@@ -1,0 +1,107 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cilium-values
+data:
+  values.yaml: |
+    autoDirectNodeRoutes: true
+    bpf:
+      masquerade: true
+    bgp:
+      enabled: false
+    cluster:
+      name: home-cluster
+      id: 1
+    containerRuntime:
+      integration: containerd
+      socketPath: /var/run/k3s/containerd/containerd.sock
+    endpointRoutes:
+      enabled: true
+    hubble:
+      enabled: true
+      metrics:
+        enabled:
+          - dns:query
+          - drop
+          - tcp
+          - flow
+          - port-distribution
+          - icmp
+          - http
+        serviceMonitor:
+          enabled: true
+        dashboards:
+          enabled: true
+          annotations:
+            grafana_folder: Cilium
+      relay:
+        enabled: true
+        rollOutPods: true
+        prometheus:
+          serviceMonitor:
+            enabled: true
+      ui:
+        enabled: true
+        rollOutPods: true
+        ingress:
+          enabled: true
+          className: internal
+          annotations:
+            hajimari.io/icon: simple-icons:cilium
+          hosts:
+            - "hubble.${SECRET_DOMAIN}"
+          tls:
+            - hosts:
+                - "hubble.${SECRET_DOMAIN}"
+    ipam:
+      mode: kubernetes
+    ipv4NativeRoutingCIDR: "${CLUSTER_CIDR}"
+    {% if bootstrap_ipv6_enabled | default(false) %}
+    ipv6NativeRoutingCIDR: "${CLUSTER_CIDR_V6}"
+    ipv6:
+      enabled: true
+    {% endif %}
+    k8sServiceHost: "${KUBE_VIP_ADDR}"
+    k8sServicePort: 6443
+    kubeProxyReplacement: true
+    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    l2announcements:
+      {% if bootstrap_ipv6_enabled | default(false) %}
+      enabled: false
+      {% else %}
+      enabled: true
+      # https://github.com/cilium/cilium/issues/26586
+      leaseDuration: 120s
+      leaseRenewDeadline: 60s
+      leaseRetryPeriod: 1s
+      {% endif %}
+    loadBalancer:
+      algorithm: maglev
+      mode: {{ bootstrap_cilium_loadbalancer_mode | default('dsr', true) }}
+    localRedirectPolicy: true
+    operator:
+      replicas: 1
+      rollOutPods: true
+      prometheus:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      dashboards:
+        enabled: true
+        annotations:
+          grafana_folder: Cilium
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        trustCRDsExist: true
+    dashboards:
+      enabled: true
+      annotations:
+        grafana_folder: Cilium
+    rollOutCiliumPods: true
+    securityContext:
+      privileged: true
+    tunnel: disabled

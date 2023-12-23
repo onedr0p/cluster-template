@@ -28,6 +28,7 @@ tasks:
 
   deps:
     desc: Create a Python virtual env and install required packages
+    summary: task {{.TASK}}
     cmds:
       - "{{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv"
       - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
@@ -36,6 +37,7 @@ tasks:
 
   init:
     desc: Initialize configuration files
+    summary: task {{.TASK}}
     dir: "{{.BOOTSTRAP_DIR}}"
     cmds:
       - cp -n vars/addons.sample.yaml vars/addons.yaml
@@ -52,9 +54,29 @@ tasks:
       - test -f "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
       - test -f "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
 
+  # TODO: Only prompt when generated directories exist
+  # https://github.com/go-task/task/issues/1330
   configure:
     desc: Configure repository from Ansible vars
+    summary: task {{.TASK}}
+    prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     dir: "{{.BOOTSTRAP_DIR}}"
     cmd: ansible-playbook configure.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
+
+  update-template:
+    desc: Update from the upstream flux-cluster-template repository
+    summary: task {{.TASK}}
+    cmds:
+      - mkdir -p $(dirname {{.shafile}})
+      - touch {{.shafile}}
+      - git remote get-url template >/dev/null 2>&1 || git remote add template git@github.com:onedr0p/flux-cluster-template
+      - git fetch --all
+      - git cherry-pick --no-commit --allow-empty $(cat {{.shafile}})..template/main
+      - git ls-remote template HEAD | awk '{ print $1}' > {{.shafile}}
+    vars:
+      shafile: "{{.ROOT_DIR}}/.tasks/.latest-template.sha"
+    preconditions:
+      - { msg: "Git repository not up-to-date", sh: "git diff --exit-code" }
+      - { msg: "Git repository not up-to-date", sh: "git diff --cached --exit-code" }
