@@ -7,12 +7,11 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":automergeDigest",
-    ":automergeBranch",
-    "helpers:pinGitHubActionDigests"
+    ":automergeBranch"
   ],
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
-  "suppressNotifications": ["prIgnoreNotification"],
+  "suppressNotifications": ["prEditedNotification", "prIgnoreNotification"],
   "rebaseWhen": "conflicted",
   "schedule": ["on saturday"],
   "flux": {

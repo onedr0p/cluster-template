@@ -1,0 +1,31 @@
+---
+name: "Lychee"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0"
+
+env:
+  WORKFLOW_ISSUE_NUMBER: 1061
+
+jobs:
+  lychee:
+    name: Lychee
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for broken links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: --verbose --no-progress --exclude-mail './**/*.md'
+          output: /tmp/results.md
+
+      - name: Update Issue
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title: Link Checker Dashboard 🔗
+          issue-number: "${{ env.WORKFLOW_ISSUE_NUMBER }}"
+          content-filepath: /tmp/results.md
