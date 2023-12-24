@@ -3,11 +3,14 @@ name: "Lychee"
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: [".github/workflows/lychee.yaml"]
   schedule:
-    - cron: "0 0 * * 0"
+    - cron: "0 0 * * *"
 
 env:
-  WORKFLOW_ISSUE_NUMBER: 1061
+  WORKFLOW_ISSUE_TITLE: "Link Checker Dashboard 🔗"
 
 jobs:
   lychee:
@@ -23,9 +26,25 @@ jobs:
           args: --verbose --no-progress --exclude-mail './**/*.md'
           output: /tmp/results.md
 
+      - name: Find Link Checker Issue
+        id: find-issue
+        shell: bash
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          issue_number=$( \
+              gh issue list \
+                  --search "in:title ${{ env.WORKFLOW_ISSUE_TITLE }}" \
+                  --state open \
+                  --json number \
+                  | jq --raw-output '.[0].number' \
+          )
+          echo "issue-number=${issue_number}" >> $GITHUB_OUTPUT
+          echo "${issue_number}"
+
       - name: Update Issue
         uses: peter-evans/create-issue-from-file@v4
         with:
-          title: Link Checker Dashboard 🔗
-          issue-number: "${{ env.WORKFLOW_ISSUE_NUMBER }}"
+          title: "${{ env.WORKFLOW_ISSUE_TITLE }}"
+          issue-number: "${{ steps.find-issue.outputs.issue-number || '' }}"
           content-filepath: /tmp/results.md
