@@ -20,11 +20,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Scan for broken links
-        uses: lycheeverse/lychee-action@v1
-        with:
-          args: --verbose --no-progress --exclude-mail './**/*.md'
-          output: /tmp/results.md
+      - name: Setup Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Setup Workflow Tools
+        shell: bash
+        run: brew install lychee
+
+      - name: Scan For Broken Links
+        shell: bash
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          lychee --verbose --no-progress \
+              --format markdown \
+              --output results.md \
+              --exclude-all-private \
+              --exclude-mail \
+              ./**/*.md || true
+
+      - name: Print Output
+        run: cat results.md
 
       - name: Find Link Checker Issue
         id: find-issue
