@@ -62,10 +62,8 @@ bootstrap_cluster_cidr: 10.42.0.0/16
 # (Advanced) For ipv6 use format 10.43.0.0/16,fd78:c889:47fb:e0::/112
 bootstrap_service_cidr: 10.43.0.0/16
 
-# (Advanced) Path for local-path-provisioner to use for storage on ALL nodes
-# If changing this value to anything other than the default
-# make sure the path exists and is owned by root:root with 701 permissions
-bootstrap_local_path_provisioner_path: /var/lib/rancher/k3s/storage
+# (Advanced) Path for democratic-csi local-hostpath to use for storage on ALL nodes
+bootstrap_local_path_provisioner_path: /var/lib/rancher/k3s/local-hostpath
 
 # Node information
 bootstrap_nodes:

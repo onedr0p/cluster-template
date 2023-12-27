@@ -7,12 +7,12 @@ spec:
   interval: 30m
   chart:
     spec:
-      chart: ./deploy/chart/local-path-provisioner
+      chart: democratic-csi
+      version: 0.14.3
       sourceRef:
-        kind: GitRepository
-        name: local-path-provisioner
+        name: democratic-csi
+        kind: HelmRepository
         namespace: flux-system
-  maxHistory: 2
   install:
     remediation:
       retries: 3
@@ -23,51 +23,54 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    image:
-      repository: docker.io/rancher/local-path-provisioner
-      tag: v0.0.26
-    helperImage:
-      repository: public.ecr.aws/docker/library/busybox
-      tag: latest
-    storageClass:
-      defaultClass: false
-    nodePathMap:
-      - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
-        paths: ["{{ bootstrap_local_path_provisioner_path | default('/var/lib/rancher/k3s/storage', true) }}"]
-    # NOTE: Do not enable Flux variable substitution on this HelmRelease
-    configmap:
-      setup: |-
-        #!/bin/sh
-        while getopts "m:s:p:" opt
-        do
-            case $opt in
-                p)
-                absolutePath=$OPTARG
-                ;;
-                s)
-                sizeInBytes=$OPTARG
-                ;;
-                m)
-                volMode=$OPTARG
-                ;;
-            esac
-        done
-        mkdir -m 0777 -p ${absolutePath}
-        chmod 701 ${absolutePath}/..
-      teardown: |-
-        #!/bin/sh
-        while getopts "m:s:p:" opt
-        do
-            case $opt in
-                p)
-                absolutePath=$OPTARG
-                ;;
-                s)
-                sizeInBytes=$OPTARG
-                ;;
-                m)
-                volMode=$OPTARG
-                ;;
-            esac
-        done
-        rm -rf ${absolutePath}
+    fullnameOverride: local-path-provisioner
+    controller:
+      strategy: node
+      externalProvisioner:
+        image: registry.k8s.io/sig-storage/csi-provisioner:v3.6.3
+        extraArgs:
+          - --leader-election=false
+          - --node-deployment=true
+          - --node-deployment-immediate-binding=false
+          - --feature-gates=Topology=true
+          - --strict-topology=true
+          - --enable-capacity=true
+          - --capacity-ownerref-level=1
+      externalResizer:
+        enabled: false
+      externalAttacher:
+        enabled: false
+      externalSnapshotter:
+        enabled: false
+    csiDriver:
+      name: local-hostpath.cluster.local
+      storageCapacity: true
+      attachRequired: false
+      fsGroupPolicy: File
+    storageClasses:
+      - name: local-hostpath
+        defaultClass: false
+        reclaimPolicy: Delete
+        volumeBindingMode: WaitForFirstConsumer
+        allowVolumeExpansion: true
+    driver:
+      config:
+        driver: local-hostpath
+        local-hostpath:
+          shareBasePath: &storagePath "{{ bootstrap_local_path_provisioner_path | default('/var/lib/rancher/k3s/local-hostpath', true) }}"
+          controllerBasePath: *storagePath
+          dirPermissionsMode: "0770"
+          dirPermissionsUser: 0
+          dirPermissionsGroup: 0
+    node:
+      driver:
+        image: ghcr.io/democratic-csi/democratic-csi:v1.8.4
+        extraVolumeMounts:
+          - name: local-hostpath
+            mountPath: *storagePath
+            mountPropagation: Bidirectional
+      extraVolumes:
+        - name: local-hostpath
+          hostPath:
+            path: *storagePath
+            type: DirectoryOrCreate

@@ -17,7 +17,7 @@ k3s_server:
   disable:
     - coredns                         # Disable coredns                 - replaced with Coredns Helm Chart
     - flannel                         # Disable flannel                 - replaced with Cilium Helm Chart
-    - local-storage                   # Disable local-path-provisioner  - installed with Flux
+    - local-storage                   # Disable local-path-provisioner  - replaced with democratic-csi
     - metrics-server                  # Disable metrics-server          - installed with Flux
     - servicelb                       # Disable servicelb               - replaced with Cilium Helm Chart
     - traefik                         # Disable traefik                 - replaced with ingress-nginx and installed with Flux
