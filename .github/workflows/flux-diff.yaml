@@ -19,7 +19,7 @@ jobs:
         resource: ["helmrelease", "kustomization"]
     steps:
       - name: Diff Resources
-        uses: allenporter/flux-local/action/diff@c4c5ce19ed7aa792b4ead75776597a82242866c6 # 4.2.1
+        uses: allenporter/flux-local/action/diff@4.2.1
         id: diff
         with:
           sources: home-kubernetes
@@ -28,7 +28,7 @@ jobs:
 
       - if: ${{ steps.diff.outputs.diff != '' }}
         name: Add comment
-        uses: mshick/add-pr-comment@7c0890544fb33b0bdd2e59467fbacb62e028a096 # v2.8.1
+        uses: mshick/add-pr-comment@v2
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           message-id: "${{ github.event.pull_request.number }}/${{ matrix.path }}/${{ matrix.resource }}"
