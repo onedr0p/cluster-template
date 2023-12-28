@@ -3,7 +3,7 @@
   "image": "mcr.microsoft.com/devcontainers/base:bullseye",
   "containerEnv": {
     "KUBECONFIG": "${containerWorkspaceFolder}/kubeconfig",
-    "SOPS_AGE_KEY_FILE": "${containerWorkspaceFolder}/.age.key"
+    "SOPS_AGE_KEY_FILE": "${containerWorkspaceFolder}/age.key"
   },
   "postCreateCommand": {
     "deps": "task deps"
