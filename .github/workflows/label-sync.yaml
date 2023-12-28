@@ -19,5 +19,4 @@ jobs:
         uses: EndBug/label-sync@v2
         with:
           config-file: .github/labels.yaml
-          token: "${{ secrets.GITHUB_TOKEN }}"
           delete-other-labels: true

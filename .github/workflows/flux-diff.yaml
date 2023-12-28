@@ -4,7 +4,11 @@ name: "Flux Diff"
 on:
   pull_request:
     branches: ["main"]
-    paths: ["kubernetes/**.yaml"]
+    paths: ["kubernetes/**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   flux-diff:
@@ -30,7 +34,6 @@ jobs:
         name: Add comment
         uses: mshick/add-pr-comment@v2
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
           message-id: "${{ github.event.pull_request.number }}/${{ matrix.path }}/${{ matrix.resource }}"
           message-failure: Diff was not successful
           message: |
