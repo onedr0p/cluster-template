@@ -1,6 +1,6 @@
 ---
 - name: Set reachable address
-  set_fact:
+  ansible.builtin.set_fact:
     current_address: "{{ item.external_address | default(item.address) }}"
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
@@ -122,7 +122,19 @@
     success_msg: All IP addresses are unique.
     fail_msg: All IP addresses are not unique.
 
+- name: Verify nodes are not the same IPs as k8s_gateway or ingress external/internal
+  when: not bootstrap_kube_vip_enabled | default(true)
+  ansible.builtin.assert:
+    that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_external_ingress_addr, bootstrap_internal_ingress_addr)
+    success_msg: Node address {{ item.address }} is different than k8s_gateway or ingress-nginx.
+    fail_msg: Node address {{ item.address }} is not different than k8s_gateway or ingress-nginx.
+    quiet: true
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop_control:
+    label: "{{ item.address }}"
+
 - name: Verify nodes are not the same IPs as k8s_gateway, ingress external/internal or kube-vip
+  when: bootstrap_kube_vip_enabled | default(true)
   ansible.builtin.assert:
     that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_external_ingress_addr, bootstrap_internal_ingress_addr, bootstrap_kube_vip_addr)
     success_msg: Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or kube-vip.
@@ -152,6 +164,34 @@
   when: item.external_address is not defined
   loop_control:
     label: "{{ item.address }}"
+
+- name: Verify node IP addresses are unique
+  ansible.builtin.assert:
+    that: >
+      (
+        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='address') | list
+      ) | unique | length
+      ==
+      (
+        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='address') | list
+      ) | length
+    success_msg: All node IP addresses are unique.
+    fail_msg: All node IP addresses are not unique.
+    quiet: true
+
+- name: Verify node names are unique
+  ansible.builtin.assert:
+    that: >
+      (
+        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | list
+      ) | unique | length
+      ==
+      (
+        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | list
+      ) | length
+    success_msg: All node names are unique.
+    fail_msg: All node names are not unique.
+    quiet: true
 
 - name: Verify SSH port is reachable
   ansible.builtin.wait_for:

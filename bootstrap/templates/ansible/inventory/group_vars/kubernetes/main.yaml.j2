@@ -9,13 +9,18 @@
 k3s_release_version: "v1.29.0+k3s1"
 k3s_install_hard_links: true
 k3s_become: true
+{% if bootstrap_nodes.master | length > 1 %}
 k3s_etcd_datastore: true
-k3s_use_unsupported_config: true
+{% else %}
+k3s_etcd_datastore: false
+{% endif %}
 k3s_registration_address: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
 k3s_server_manifests_urls:
+  {% if bootstrap_kube_vip_enabled | default(true) %}
   # Kube-vip RBAC
   - url: https://raw.githubusercontent.com/kube-vip/kube-vip/main/docs/manifests/rbac.yaml
     filename: kube-vip-rbac.yaml
+  {% endif %}
   # Essential Prometheus Operator CRDs (the rest are installed with the kube-prometheus-stack helm release)
   - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.70.0/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
     filename: custom-prometheus-podmonitors.yaml
@@ -32,6 +37,8 @@ k3s_server_manifests_templates:
   - custom-cilium-l2.yaml.j2
   {% endif %}
   - custom-coredns-helmchart.yaml.j2
+{% if bootstrap_kube_vip_enabled | default(true) %}
 # /var/lib/rancher/k3s/agent/pod-manifests
 k3s_server_pod_manifests_templates:
   - kube-vip-static-pod.yaml.j2
+{% endif %}

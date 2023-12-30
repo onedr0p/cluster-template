@@ -39,6 +39,7 @@ bootstrap_cloudflare_tunnel_id:
 # CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_cidr:
 # The IP address to use with kube-vip, choose an available IP in your nodes network that is not being used
+# (Optional) Leave this blank if you are deploying a single master node, this will disable kube-vip and use the master node IP instead
 bootstrap_kube_vip_addr:
 # The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
 bootstrap_k8s_gateway_addr:

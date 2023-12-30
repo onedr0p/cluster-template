@@ -17,6 +17,12 @@
       ansible.builtin.set_fact:
         repository_path: "{{ repository.stdout }}"
 
+    - name: Override kube-vip address when there is a single master node and no address is defined
+      when: bootstrap_nodes.master | length == 1 and not bootstrap_kube_vip_addr
+      ansible.builtin.set_fact:
+        bootstrap_kube_vip_enabled: false
+        bootstrap_kube_vip_addr: "{{ bootstrap_nodes.master[0].address }}"
+
     - name: Verify configuration
       ansible.builtin.include_tasks: tasks/validation/main.yaml
 
