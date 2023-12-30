@@ -417,6 +417,9 @@ By default this template will deploy a wildcard certificate using the Let's Encr
 
 By default Flux will periodically check your git repository for changes. In order to have Flux reconcile on `git push` you must configure Github to send `push` events.
 
+> [!IMPORTANT]
+> This will only work after you have switched over certificates to the Let's Encrypt Production servers. 
+
 1. Obtain the webhook path
 
     📍 _Hook id and path should look like `/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123`_
