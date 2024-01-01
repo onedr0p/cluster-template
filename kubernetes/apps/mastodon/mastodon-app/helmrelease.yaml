@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: mastodon
-      version: 3.0.0 # Update this when mastodon publishes it's own chart
+      version: 3.0.1 # Update this when mastodon publishes it's own chart
       sourceRef:
         kind: HelmRepository
         name: mastodon
