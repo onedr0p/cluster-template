@@ -5,14 +5,14 @@ metadata:
   name: &app kubernetes-dashboard
   namespace: flux-system
 spec:
-  targetNamespace: monitoring
+  targetNamespace: observability
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: cert-manager
     - name: metrics-server
-  path: ./kubernetes/apps/monitoring/kubernetes-dashboard/app
+  path: ./kubernetes/apps/observability/kubernetes-dashboard/app
   prune: true
   sourceRef:
     kind: GitRepository

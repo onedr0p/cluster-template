@@ -5,11 +5,11 @@ metadata:
   name: &app kube-prometheus-stack
   namespace: flux-system
 spec:
-  targetNamespace: monitoring
+  targetNamespace: observability
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/monitoring/kube-prometheus-stack/app
+  path: ./kubernetes/apps/observability/kube-prometheus-stack/app
   prune: true
   sourceRef:
     kind: GitRepository
