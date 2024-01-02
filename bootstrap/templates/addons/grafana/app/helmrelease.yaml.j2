@@ -25,7 +25,7 @@ spec:
     keepHistory: false
   dependsOn:
     - name: local-path-provisioner
-      namespace: kube-system
+      namespace: storage
   values:
     deploymentStrategy:
       type: Recreate
@@ -85,7 +85,7 @@ spec:
             type: prometheus
             uid: prometheus
             access: proxy
-            url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
             jsonData:
               prometheusType: Prometheus
             isDefault: true

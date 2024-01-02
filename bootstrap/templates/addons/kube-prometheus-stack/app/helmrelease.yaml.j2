@@ -28,7 +28,7 @@ spec:
     keepHistory: false
   dependsOn:
     - name: local-path-provisioner
-      namespace: kube-system
+      namespace: storage
   valuesFrom:
     - name: kube-prometheus-stack-values
       kind: ConfigMap

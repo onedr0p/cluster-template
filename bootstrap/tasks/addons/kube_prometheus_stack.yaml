@@ -2,7 +2,7 @@
 - name: Set addon facts
   ansible.builtin.set_fact:
     addon_name: kube-prometheus-stack
-    addon_namespace: monitoring
+    addon_namespace: observability
 
 - name: Ensure directories exist for {{ addon_namespace }}/{{ addon_name }}
   when: item.state == 'directory'
