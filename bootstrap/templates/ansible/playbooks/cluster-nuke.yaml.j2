@@ -90,11 +90,6 @@
         state: absent
       loop: ["kubectl", "crictl", "ctr"]
 
-    - name: Stale Containers
-      ansible.builtin.include_tasks: tasks/stale_containers.yaml
-      vars:
-        stale_containers_state: disabled
-
     - name: Reboot
       ansible.builtin.reboot:
         msg: Rebooting nodes
