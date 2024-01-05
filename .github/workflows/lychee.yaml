@@ -21,13 +21,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: "${{ steps.app-token.outputs.token }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Scan for broken links
         uses: lycheeverse/lychee-action@v1
         id: lychee
         with:
-          token: "${{ steps.app-token.outputs.token }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
           args: --verbose --no-progress --exclude-mail './**/*.md'
           output: "${{ env.LYCHEE_OUTPUT }}"
           debug: true
@@ -36,7 +36,7 @@ jobs:
         id: find-issue
         shell: bash
         env:
-          GH_TOKEN: "${{ steps.app-token.outputs.token }}"
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: |
           issue_number=$( \
               gh issue list \
@@ -51,7 +51,7 @@ jobs:
       - name: Create or Update Issue
         uses: peter-evans/create-issue-from-file@v4
         with:
-          token: "${{ steps.app-token.outputs.token }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
           title: "${{ env.WORKFLOW_ISSUE_TITLE }}"
           issue-number: "${{ steps.find-issue.outputs.issue-number || '' }}"
           content-filepath: "${{ env.LYCHEE_OUTPUT }}"
