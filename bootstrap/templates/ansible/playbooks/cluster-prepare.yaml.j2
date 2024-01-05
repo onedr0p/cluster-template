@@ -77,8 +77,7 @@
             mode: '0644'
             dest: /etc/resolv.conf
             content: |
-              search .
-              nameserver 1.1.1.1
+              nameserver 10.10.11.5
 
     - name: System Configuration
       notify: Reboot
