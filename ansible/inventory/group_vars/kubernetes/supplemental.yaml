@@ -1,0 +1,8 @@
+---
+timezone: "America/New_York"
+github_username: "elibrody"
+coredns_addr: "10.43.0.10"
+kube_vip_addr: "10.10.11.10"
+cluster_cidr: "10.42.0.0/16"
+service_cidr: "10.43.0.0/16"
+node_cidr: "10.10.11.0/24"

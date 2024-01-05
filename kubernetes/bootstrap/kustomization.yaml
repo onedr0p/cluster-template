@@ -1,0 +1,18 @@
+# IMPORTANT: This file is not tracked by flux and should never be. Its
+# purpose is to only install the Flux components and CRDs into your cluster.
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - github.com/fluxcd/flux2/manifests/install?ref=v2.2.2
+patches:
+  # Remove the default network policies
+  - patch: |-
+      $patch: delete
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: not-used
+    target:
+      group: networking.k8s.io
+      kind: NetworkPolicy

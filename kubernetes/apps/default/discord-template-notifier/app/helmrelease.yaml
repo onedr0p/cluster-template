@@ -1,0 +1,63 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: discord-template-notifier
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.4.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: ghcr.io/morphy2k/rss-forwarder
+              tag: 0.6.1
+            env:
+              TZ: "${TIMEZONE}"
+            probes:
+              liveness: &disabled
+                enabled: false
+              readiness: *disabled
+              startup: *disabled
+            resources:
+              requests:
+                cpu: 5m
+                memory: 10M
+              limits:
+                memory: 64M
+    service:
+      main: *disabled
+    ingress:
+      main: *disabled
+    persistence:
+      config:
+        enabled: true
+        type: secret
+        name: discord-template-notifier-secret
+        globalMounts:
+          - path: /data/config.toml
+            subPath: config.toml
+            readOnly: true

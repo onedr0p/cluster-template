@@ -1,0 +1,12 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: unraid-files
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 192.168.1.111
+  share: Files
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions: ["hard", "noatime"]

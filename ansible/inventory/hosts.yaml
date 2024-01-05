@@ -1,0 +1,14 @@
+---
+kubernetes:
+  children:
+    master:
+      hosts:
+        k3s-01:
+          ansible_user: user
+          ansible_host: 10.10.11.111
+        k3s-02:
+          ansible_user: user
+          ansible_host: 10.10.11.112
+        k3s-03:
+          ansible_user: user
+          ansible_host: 10.10.11.113

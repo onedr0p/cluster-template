@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./cluster-settings.yaml
+  - ./cluster-settings-user.yaml
+  - ./cluster-secrets.sops.yaml
+  - ./cluster-secrets-user.sops.yaml

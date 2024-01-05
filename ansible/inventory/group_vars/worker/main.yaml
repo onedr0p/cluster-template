@@ -1,0 +1,12 @@
+---
+# https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/
+# https://github.com/PyratLabs/ansible-role-k3s
+
+k3s_control_node: false
+k3s_agent:
+  node-ip: "{{ ansible_host }}"
+  pause-image: registry.k8s.io/pause:3.9
+  # TODO: Move these options to a kubelet config file
+  kubelet-arg:
+    - "image-gc-high-threshold=55"
+    - "image-gc-low-threshold=50"
