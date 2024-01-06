@@ -1,43 +1,29 @@
 ---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
 vars:
-  PYTHON_BIN: python3
   BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
 
 env:
   KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
-  SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/age.key"
-  PATH: "{{.ROOT_DIR}}/.venv/bin:$PATH"
-  VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
-  ANSIBLE_COLLECTIONS_PATH: "{{.ROOT_DIR}}/.venv/galaxy"
-  ANSIBLE_ROLES_PATH: "{{.ROOT_DIR}}/.venv/galaxy/ansible_roles"
-  ANSIBLE_VARS_ENABLED: "host_group_vars,community.sops.sops"
-  K8S_AUTH_KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
 
 includes:
   ansible: .taskfiles/AnsibleTasks.yaml
   brew: .taskfiles/BrewTasks.yaml
-  cluster: .taskfiles/ClusterTasks.yaml
+  kubernetes:
+    aliases: ["k8s"]
+    taskfile: .taskfiles/KubernetesTasks.yaml
+  flux: .taskfiles/FluxTasks.yaml
 
 tasks:
 
   default: task -l
 
-  deps:
-    desc: Create a Python virtual env and install required packages
-    summary: task {{.TASK}}
-    cmds:
-      - "{{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv"
-      - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
-      - .venv/bin/python3 -m pip install --upgrade --requirement "{{.ROOT_DIR}}/requirements.txt"
-      - .venv/bin/ansible-galaxy install --role-file "{{.ROOT_DIR}}/requirements.yaml" --force
-
   init:
     desc: Initialize configuration files
-    summary: task {{.TASK}}
     dir: "{{.BOOTSTRAP_DIR}}"
     cmds:
       - cp -n vars/addons.sample.yaml vars/addons.yaml
@@ -58,25 +44,8 @@ tasks:
   # https://github.com/go-task/task/issues/1330
   configure:
     desc: Configure repository from Ansible vars
-    summary: task {{.TASK}}
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     dir: "{{.BOOTSTRAP_DIR}}"
     cmd: ansible-playbook configure.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
-
-  update-template:
-    desc: Update from the upstream flux-cluster-template repository
-    summary: task {{.TASK}}
-    cmds:
-      - mkdir -p $(dirname {{.shafile}})
-      - touch {{.shafile}}
-      - git remote get-url template >/dev/null 2>&1 || git remote add template git@github.com:onedr0p/flux-cluster-template
-      - git fetch --all
-      - git cherry-pick --no-commit --allow-empty $(cat {{.shafile}})..template/main
-      - git ls-remote template HEAD | awk '{ print $1}' > {{.shafile}}
-    vars:
-      shafile: "{{.ROOT_DIR}}/.tasks/.latest-template.sha"
-    preconditions:
-      - { msg: "Git repository not up-to-date", sh: "git diff --exit-code" }
-      - { msg: "Git repository not up-to-date", sh: "git diff --cached --exit-code" }

@@ -1,54 +1,63 @@
 ---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-vars:
-  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
-  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
+env:
+  PATH: "{{.ROOT_DIR}}/.venv/bin:$PATH"
+  VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
+  ANSIBLE_COLLECTIONS_PATH: "{{.ROOT_DIR}}/.venv/galaxy"
+  ANSIBLE_ROLES_PATH: "{{.ROOT_DIR}}/.venv/galaxy/ansible_roles"
+  ANSIBLE_VARS_ENABLED: "host_group_vars,community.sops.sops"
 
 tasks:
 
-  prepare:
-    desc: Prepare all the k8s nodes for running k3s
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-prepare.yaml
+  deps:
+    desc: Set up Ansible dependencies for the environment
+    cmds:
+      - task: .venv
 
-  install:
-    desc: Install Kubernetes on the nodes
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yaml
-
-  rollout-update:
-    desc: Preform operating system updates and rollout restart the cluster
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-rollout-update.yaml
-
-  nuke:
-    desc: Uninstall Kubernetes on the nodes
-    dir: "{{.ANSIBLE_DIR}}"
-    interactive: true
-    cmd: ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-nuke.yaml
-
-  reboot:
-    desc: Reboot all the k8s nodes
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-reboot.yaml
+  run:
+    desc: Run an Ansible playbook for configuring a cluster
+    summary: |
+      Args:
+        playbook: Playbook to run (required)
+    prompt: Run Ansible playbook '{{.playbook}}'... continue?
+    deps: ["deps"]
+    cmd: |
+      .venv/bin/ansible-playbook \
+        --inventory {{.ANSIBLE_DIR}}/inventory/hosts.yaml \
+        {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml {{.CLI_ARGS}}
+    preconditions:
+      - { msg: "Argument (playbook) is required", sh: "test -n {{.playbook}}" }
+      - { msg: "Venv not found",                  sh: "test -d {{.ROOT_DIR}}/.venv" }
+      - { msg: "Inventory not found",             sh: "test -f {{.ANSIBLE_DIR}}/inventory/hosts.yaml" }
+      - { msg: "Playbook not found",              sh: "test -f {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml" }
 
   poweroff:
     desc: Shutdown all the k8s nodes
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible kubernetes -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml -a '/usr/bin/systemctl poweroff' --become
+    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml -a '/usr/bin/systemctl poweroff' --become
 
   list:
     desc: List all the hosts
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml --list-hosts
+    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --list-hosts
 
   ping:
     desc: Ping all the hosts
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml --one-line -m 'ping'
+    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -m 'ping'
 
   uptime:
     desc: Uptime of all the hosts
-    dir: "{{.ANSIBLE_DIR}}"
-    cmd: ansible all -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml --one-line -a 'uptime'
+    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -a 'uptime'
+
+  .venv:
+    internal: true
+    cmds:
+      - true && {{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv
+      - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
+      - .venv/bin/python3 -m pip install --upgrade --requirement "{{.ROOT_DIR}}/requirements.txt"
+      - .venv/bin/ansible-galaxy install --role-file "{{.ROOT_DIR}}/requirements.yaml" --force
+    sources:
+      - "{{.ANSIBLE_DIR}}/requirements.txt"
+      - "{{.ANSIBLE_DIR}}/requirements.yaml"
+    generates:
+      - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"

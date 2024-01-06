@@ -1,0 +1,67 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+
+  mount:
+    desc: Mount a PersistentVolumeClaim to a temporary pod for a cluster
+    summary: |
+      Args:
+        ns: Namespace the PVC is in (default: default)
+        claim: PVC to mount (required)
+    interactive: true
+    cmd: |
+      kubectl run -n {{.ns}} debug-{{.claim}} -i --tty --rm --image=null --privileged --overrides='
+        {
+          "apiVersion": "v1",
+          "spec": {
+            "containers": [
+              {
+                "name": "debug",
+                "image": "ghcr.io/onedr0p/alpine:rolling",
+                "command": ["/bin/bash"],
+                "stdin": true,
+                "stdinOnce": true,
+                "tty": true,
+                "volumeMounts": [
+                  {
+                    "name": "config",
+                    "mountPath": "/config"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "config",
+                "persistentVolumeClaim": {
+                  "claimName": "{{.claim}}"
+                }
+              }
+            ],
+            "restartPolicy": "Never"
+          }
+        }'
+    vars:
+      ns: '{{.ns | default "default"}}'
+      claim: '{{ or .claim (fail "Argument (claim) is required") }}'
+    preconditions:
+      - { msg: "PVC not found", sh: "kubectl -n {{.ns}} get persistentvolumeclaim {{.claim}}" }
+
+  resources:
+    desc: Gather common resources in your cluster, useful when asking for support
+    cmds:
+      - for: { var: RESOURCES }
+        cmd: kubectl get {{.ITEM}} {{.CLI_ARGS | default "-A"}}
+    vars:
+      RESOURCES: >-
+        nodes
+        gitrepositories
+        kustomizations
+        helmrepositories
+        helmreleases
+        certificates
+        certificaterequests
+        ingresses
+        pods
