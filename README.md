@@ -142,19 +142,17 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 ### 🌱 Stage 2: Setup your local workstation environment
 
-1. Install the most recent version of [task](https://taskfile.dev/), see the task [installation docs](https://taskfile.dev/installation/) for other supported platforms.
+1. Install the most recent version of [task](https://taskfile.dev/), see the [installation docs](https://taskfile.dev/installation/) for other supported platforms.
 
     ```sh
-    # Brew
     brew install go-task
     ```
 
-2. Install the most recent version of [direnv](https://direnv.net/), see the direnv [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
+2. Install the most recent version of [direnv](https://direnv.net/), see the [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
 
     📍 _After installing `direnv` be sure to **[hook it into your shell](https://direnv.net/docs/hook.html)** and after that is done run `direnv allow` while in your repos' directory._
 
     ```sh
-    # Brew
     brew install direnv
     ```
 
@@ -163,8 +161,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     📍 _This commands requires Python 3.10+ to be installed_
 
     ```sh
-    # Platform agnostic
-    task deps
+    task ansible:deps
     ```
 
 4. Install the required tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops)
@@ -172,7 +169,6 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
    📍 _Not using brew? Make sure to look up how to install the latest version of each of these CLI tools yourself._
 
     ```sh
-    # Brew
     task brew:deps
     ```
 
@@ -283,12 +279,12 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 4. Run the Ansible prepare playbook (nodes wil reboot when done)
 
     ```sh
-    task ansible:prepare
+    task ansible:run playbook=cluster-prepare
     ```
 
 ### ⛵ Stage 5: Use Ansible to install k3s
 
-📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:nuke` to destroy the k3s cluster and start over from this point._
+📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:run playbook=cluster-nuke` to destroy the k3s cluster and start over from this point._
 
 1. Verify Ansible can view your config
 
@@ -305,7 +301,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 3. Install k3s with Ansible
 
     ```sh
-    task ansible:install
+    task ansible:run playbook=cluster-installation
     ```
 
 4. Verify the nodes are online
@@ -348,7 +344,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 3. Install Flux and sync the cluster to the Git repository
 
     ```sh
-    task cluster:install
+    task flux:bootstrap
     # namespace/flux-system configured
     # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
     # ...
@@ -371,11 +367,10 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 1. Output all the common resources in your cluster.
 
-    📍 _Feel free to use the provided [cluster tasks](.taskfiles/ClusterTasks.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
-
+    📍 _Feel free to use the provided [kubernetes tasks](.taskfiles/KubernetesTasks.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
 
     ```sh
-    task cluster:resources
+    task kubernetes:resources
     ```
 
 2. ⚠️ It might take `cert-manager` awhile to generate certificates, this is normal so be patient.
