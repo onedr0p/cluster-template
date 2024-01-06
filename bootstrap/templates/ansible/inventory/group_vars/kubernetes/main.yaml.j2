@@ -15,21 +15,6 @@ k3s_etcd_datastore: true
 k3s_etcd_datastore: false
 {% endif %}
 k3s_registration_address: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
-k3s_server_manifests_urls:
-  {% if bootstrap_kube_vip_enabled | default(true) %}
-  # Kube-vip RBAC
-  - url: https://raw.githubusercontent.com/kube-vip/website/main/content/manifests/rbac.yaml
-    filename: kube-vip-rbac.yaml
-  {% endif %}
-  # Essential Prometheus Operator CRDs (the rest are installed with the kube-prometheus-stack helm release)
-  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.70.0/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
-    filename: custom-prometheus-podmonitors.yaml
-  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.70.0/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
-    filename: custom-prometheus-prometheusrules.yaml
-  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.70.0/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
-    filename: custom-prometheus-scrapeconfigs.yaml
-  - url: https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.70.0/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
-    filename: custom-prometheus-servicemonitors.yaml
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
@@ -38,6 +23,10 @@ k3s_server_manifests_templates:
   {% endif %}
   - custom-coredns-helmchart.yaml.j2
 {% if bootstrap_kube_vip_enabled | default(true) %}
+# /var/lib/rancher/k3s/server/manifests
+k3s_server_manifests_urls:
+  - url: https://raw.githubusercontent.com/kube-vip/website/main/content/manifests/rbac.yaml
+    filename: kube-vip-rbac.yaml
 # /var/lib/rancher/k3s/agent/pod-manifests
 k3s_server_pod_manifests_templates:
   - kube-vip-static-pod.yaml.j2
