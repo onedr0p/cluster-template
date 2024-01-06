@@ -1,38 +1,37 @@
 ---
 version: "3"
 
-tasks:
+vars:
+  # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
+  PROMETHEUS_OPERATOR_VERSION: "v0.70.0"
 
-  verify:
-    desc: Verify flux meets the prerequisites
-    cmd: flux check --pre
+tasks:
 
   install:
     desc: Install Flux into your cluster
     cmds:
-      - kubectl apply --kustomize {{.KUBERNETES_DIR}}/bootstrap
+      # Install essential Prometheus Operator CRDs
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{ .PROMETHEUS_OPERATOR_VERSION }}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{ .PROMETHEUS_OPERATOR_VERSION }}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{ .PROMETHEUS_OPERATOR_VERSION }}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{ .PROMETHEUS_OPERATOR_VERSION }}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+      # Install Flux
+      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap
       - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
-      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply -f -
-      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml | kubectl apply -f -
-      - kubectl apply -f {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml
-      - kubectl apply -f {{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml
-      - kubectl apply --kustomize {{.KUBERNETES_DIR}}/flux/config
+      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply --server-side --filename -
+      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml | kubectl apply --server-side --filename -
+      - kubectl apply --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml
+      - kubectl apply --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml
+      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
       - sh: test -f {{.SOPS_AGE_KEY_FILE}}
-        msg: |
-          Age key file is not found. Did you forget to create it?
+        msg: Age key file is not found. Did you forget to create it?
     vars:
       SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/age.key"
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmd: flux reconcile -n flux-system kustomization cluster --with-source
-
-  hr-restart:
-    desc: Restart all failed Helm Releases
-    cmds:
-      - kubectl get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -L1 bash -c 'flux suspend hr $0 -n $1'
-      - kubectl get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -L1 bash -c 'flux resume hr $0 -n $1'
 
   nodes:
     desc: List all the nodes in your cluster
