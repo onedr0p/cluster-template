@@ -12,3 +12,4 @@ kubeconfig
 .venv*
 # Taskfile
 .tasks
+.idea
