@@ -114,11 +114,7 @@ data:
         storageSpec:
           volumeClaimTemplate:
             spec:
-{% if k0s.enabled | default(false) %}
               storageClassName: openebs-hostpath
-{% else %}
-              storageClassName: local-hostpath
-{% endif %}
               resources:
                 requests:
                   storage: 10Gi

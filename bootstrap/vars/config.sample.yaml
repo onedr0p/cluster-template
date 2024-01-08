@@ -3,6 +3,10 @@
 # Bootstrap configuration - config.yaml is gitignored
 #
 
+# Distribution can either be 'k3s' or 'k0s'
+# Note that changing this to k0s will ignore `system_upgrade_controller` in the addons.
+bootstrap_distribution: k3s
+
 # Github username (e.g. onedr0p)
 bootstrap_github_username:
 # Github repository (e.g. flux-cluster-template)
@@ -65,8 +69,11 @@ bootstrap_cluster_cidr: 10.42.0.0/16
 # (Advanced) For ipv6 use format 10.43.0.0/16,fd78:c889:47fb:e0::/112
 bootstrap_service_cidr: 10.43.0.0/16
 
-# (Advanced) Path for democratic-csi local-hostpath to use for storage on ALL nodes
-bootstrap_local_path_provisioner_path: /var/lib/rancher/k3s/local-hostpath
+# (Advanced) Path for openebs openebs-hostpath to use for storage on ALL nodes
+# for k3s distribution
+#bootstrap_local_storage_path: /var/lib/rancher/k3s/local-hostpath
+# for k0s distribution
+#bootstrap_local_storage_path: /var/openebs/local
 
 # Node information
 bootstrap_nodes:
@@ -75,17 +82,12 @@ bootstrap_nodes:
     # - name:     # name of the master node (must match [a-z0-9-]+)
     #   address:  # ip address of the master node
     #   username: # ssh username of the master node
-    #   password: # password of ssh username for the master node
     #   # external_address: # Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
   worker: # set to [] or omit if no workers are needed
     # - name:     # name of the worker node (must match [a-z0-9-]+)
     #   address:  # ip address of the worker node
     #   username: # ssh username of the worker node
-    #   password: # password of ssh username for the worker node
     #   # external_address: # Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
 
-# set true to modify templates to work in k0s environment
-k0s:
-  enabled: false

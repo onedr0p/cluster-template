@@ -7,6 +7,7 @@
     success_msg: Required bootstrap var {{ item }} exists and is defined
     fail_msg: Required bootstrap var {{ item }} does not exists or is not defined
   loop:
+    - bootstrap_distribution
     - bootstrap_acme_email
     - bootstrap_age_public_key
     - bootstrap_cilium_loadbalancer_mode
@@ -25,7 +26,6 @@
     - bootstrap_ipv6_enabled
     - bootstrap_k8s_gateway_addr
     - bootstrap_kube_vip_addr
-    - bootstrap_local_path_provisioner_path
     - bootstrap_node_cidr
     - bootstrap_service_cidr
     - bootstrap_timezone
