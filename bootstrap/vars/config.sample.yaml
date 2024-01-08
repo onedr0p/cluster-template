@@ -11,6 +11,8 @@ bootstrap_github_repository_name:
 bootstrap_github_repository_branch: main
 # Age Public Key (e.g. age15uzrw396e67z9wdzsxzdk7ka0g2gr3l460e0slaea563zll3hdfqwqxdta)
 bootstrap_age_public_key:
+# Set true if repo is private
+bootstrap_private_github_repo: false
 # Choose your timezone (e.g. America/New_York)
 bootstrap_timezone: Etc/UTC
 # Email you want to be associated with the ACME account (used for TLS certificates via letsencrypt.org)
@@ -83,3 +85,7 @@ bootstrap_nodes:
     #   password: # password of ssh username for the worker node
     #   # external_address: # Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
+
+# set true to modify templates to work in k0s environment
+k0s:
+  enabled: false

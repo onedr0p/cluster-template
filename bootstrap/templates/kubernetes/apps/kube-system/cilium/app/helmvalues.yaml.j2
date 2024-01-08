@@ -16,7 +16,11 @@ data:
       id: 1
     containerRuntime:
       integration: containerd
+{% if k0s.enabled | default(false) %}
+      socketPath: /var/run/k0s/containerd.sock
+{% else %}
       socketPath: /var/run/k3s/containerd/containerd.sock
+{% endif %}
     endpointRoutes:
       enabled: true
     hubble:

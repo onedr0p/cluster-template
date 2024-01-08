@@ -1,0 +1,14 @@
+---
+
+- name: Process optional opendns
+  when: not k0s.enabled | default(false)
+  ansible.builtin.include_tasks: coredns.yaml
+
+- name: Process optional local-path-provisioner
+  when: not k0s.enabled | default(false)
+  ansible.builtin.include_tasks: local_path_provisioner.yaml
+
+- name: Process optional openebs-local-storage
+  when: k0s.enabled | default(false)
+  ansible.builtin.include_tasks: openebs_local_storage.yaml
+

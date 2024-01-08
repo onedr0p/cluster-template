@@ -24,7 +24,11 @@ spec:
   uninstall:
     keepHistory: false
   dependsOn:
+{% if k0s.enabled | default(false) %}
+    - name: openens-local-storage
+{% else %}
     - name: local-path-provisioner
+{% endif %}
       namespace: storage
   values:
     deploymentStrategy:
@@ -168,6 +172,10 @@ spec:
             - *host
     persistence:
       enabled: true
+{% if k0s.enabled | default(false) %}
+      storageClassName: openebs-hostpath
+{% else %}
       storageClassName: local-hostpath
+{% endif %}
     testFramework:
       enabled: false
