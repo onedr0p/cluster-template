@@ -28,9 +28,5 @@ spec:
       hostpathClass:
         enabled: true
         isDefaultClass: false
-{% if bootstrap_distribution == 'k3s' %}
-        basePath: "{{ bootstrap_local_storage_path | default('/var/lib/rancher/k3s/local-hostpath', true) }}"
-{% else %}
-        basePath: "{{ bootstrap_local_storage_path | default('/var/openebs/local', true) }}"
-{% endif %}
+        basePath: "{{ bootstrap_local_storage_path }}"
 
