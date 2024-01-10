@@ -11,7 +11,7 @@ k3s_server:
   node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
 {% endif %}
   tls-san:
-    - "{% raw %}{{ kube_vip_addr }}{% endraw %}"
+    - "{% raw %}{{ kubeapi_addr }}{% endraw %}"
   docker: false
   flannel-backend: "none"             # This needs to be in quotes
   disable:

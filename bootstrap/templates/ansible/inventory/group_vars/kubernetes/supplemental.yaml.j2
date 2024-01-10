@@ -3,7 +3,7 @@
 timezone: "{{ bootstrap_timezone }}"
 github_username: "{{ bootstrap_github_username }}"
 coredns_addr: "{{ bootstrap_service_cidr.split(',')[0] | ansible.utils.nthhost(10) }}"
-kube_vip_addr: "{{ bootstrap_kube_vip_addr }}"
+kubeapi_addr: "{{ bootstrap_kubeapi_addr }}"
 cluster_cidr: "{{ bootstrap_cluster_cidr.split(',')[0] }}"
 service_cidr: "{{ bootstrap_service_cidr.split(',')[0] }}"
 node_cidr: "{{ bootstrap_node_cidr }}"

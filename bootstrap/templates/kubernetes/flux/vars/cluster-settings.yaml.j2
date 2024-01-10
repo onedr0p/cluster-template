@@ -8,7 +8,7 @@ metadata:
 data:
   TIMEZONE: "{{ bootstrap_timezone }}"
   COREDNS_ADDR: "{{ bootstrap_service_cidr.split(',')[0] | ansible.utils.nthhost(10) }}"
-  KUBE_VIP_ADDR: "{{ bootstrap_kube_vip_addr }}"
+  KUBEAPI_ADDR: "{{ bootstrap_kubeapi_addr }}"
   CLUSTER_CIDR: "{{ bootstrap_cluster_cidr.split(',')[0] }}"
   SERVICE_CIDR: "{{ bootstrap_service_cidr.split(',')[0] }}"
   NODE_CIDR: "{{ bootstrap_node_cidr }}"
