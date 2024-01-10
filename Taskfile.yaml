@@ -46,8 +46,6 @@ tasks:
   configure:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
-    dir: "{{.BOOTSTRAP_DIR}}"
-    cmds:
-      - ../.venv/bin/ansible-playbook configure.yaml
+    cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/configure.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"

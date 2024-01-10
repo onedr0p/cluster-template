@@ -134,11 +134,11 @@
     label: "{{ item.address }}"
 
 - name: Verify nodes are not the same IPs as k8s_gateway, ingress external/internal or kubeapi address
-  when: bootstrap_kube_vip_enabled | default(true)
+  when: (bootstrap_distribution == "k3s") and (bootstrap_kube_vip_enabled | default(true))
   ansible.builtin.assert:
     that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_external_ingress_addr, bootstrap_internal_ingress_addr, bootstrap_kubeapi_addr)
-    success_msg: Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or kube-vip.
-    fail_msg: Node address {{ item.address }} is not different than k8s_gateway, ingress-nginx or kube-vip.
+    success_msg: Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or kubeapi.
+    fail_msg: Node address {{ item.address }} is not different than k8s_gateway, ingress-nginx or kubeapi.
     quiet: true
   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
   loop_control:
