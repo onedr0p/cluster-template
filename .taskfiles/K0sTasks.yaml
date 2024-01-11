@@ -25,7 +25,7 @@ tasks:
     desc: Resets the k0s cluster
     cmds:
       - k0sctl reset --config k0s-config.yaml
-      - task: :ansible:run playbook=cluster-nuke
+      - task: :ansible:run
         vars:
           playbook: cluster-nuke
     preconditions:
