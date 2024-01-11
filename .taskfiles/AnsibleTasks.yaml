@@ -2,6 +2,9 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
+vars:
+  PYTHON_BIN: python3
+
 env:
   PATH: "{{.ROOT_DIR}}/.venv/bin:$PATH"
   VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
