@@ -5,9 +5,11 @@ kind: Cluster
 metadata:
   name: k0s-cluster
 spec:
+  telemetry:
+    enabled: false
   hosts:
   {% for item in bootstrap_nodes.master %}
-    - role: {{ item.role | default('controller') }}
+    - role: {{ item.role | default('controller+worker') }}
       ssh:
         address: {{ item.address }}
         user: {{ item.username }}
@@ -114,5 +116,3 @@ spec:
             type: EnvoyProxy
           {% endif %}
           provider: custom
-        telemetry:
-          enabled: false
