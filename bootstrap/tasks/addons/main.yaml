@@ -25,7 +25,9 @@
   ansible.builtin.include_tasks: kube_prometheus_stack.yaml
 
 - name: Process addon system-upgrade-controller
-  when: (bootstrap_distribution == "k3s") and (system_upgrade_controller.enabled | default(false))
+  when:
+    - bootstrap_distribution == "k3s"
+    - system_upgrade_controller.enabled | default(false)
   ansible.builtin.include_tasks: system_upgrade_controller.yaml
 
 - name: Process addon weave-gitops
