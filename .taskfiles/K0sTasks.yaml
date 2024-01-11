@@ -23,6 +23,10 @@ tasks:
 
   reset:
     desc: Resets the k0s cluster
-    cmd: k0sctl reset --config k0s-config.yaml
+    cmds:
+      - k0sctl reset --config k0s-config.yaml
+      - task: :ansible:run playbook=cluster-nuke
+        vars:
+          playbook: cluster-nuke
     preconditions:
       - { msg: "k0s-config.yaml not found", sh: "test -f {{.ROOT_DIR}}/k0s-config.yaml" }

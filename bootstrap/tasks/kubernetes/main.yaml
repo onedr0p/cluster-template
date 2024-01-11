@@ -9,7 +9,7 @@
 
 - name: Template Kubernetes unencrypted files
   when:
-    - item.state == 'file'
+    - "item.state == 'file'"
     - "'.DS_Store' not in item.path"
     - "'sops' not in item.path"
     - "'cluster-settings-user.yaml.j2' not in item.path"
@@ -27,9 +27,9 @@
 
 - name: Template Kubernetes user cluster settings
   when:
-    - item.state == 'file'
+    - "item.state == 'file'"
     - "'cluster-settings-user.yaml' in item.path"
-    - not cluster_settings_user.stat.exists
+    - "not cluster_settings_user.stat.exists"
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ repository_path }}/kubernetes/{{ item.path | regex_replace('.j2$', '') }}"
@@ -43,9 +43,9 @@
 
 - name: Template Kubernetes user cluster secrets
   when:
-    - item.state == 'file'
+    - "item.state == 'file'"
     - "'cluster-secrets-user.yaml' in item.path"
-    - not cluster_secrets_user.stat.exists
+    - "not cluster_secrets_user.stat.exists"
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ repository_path }}/kubernetes/{{ item.path | regex_replace('.j2$', '') }}"
@@ -55,7 +55,9 @@
 - name: Template Kubernetes encrypted files
   block:
     - name: Template Kubernetes encrypted files
-      when: item.state == 'file' and 'sops' in item.path
+      when:
+        - "item.state == 'file'"
+        - "'sops' in item.path"
       community.sops.sops_encrypt:
         path: "{{ repository_path }}/kubernetes/{{ item.path | replace('.j2', '') }}"
         encrypted_regex: ^(data|stringData)$

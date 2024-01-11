@@ -34,6 +34,7 @@
       ansible.builtin.include_tasks: tasks/k0s/main.yaml
 
     - name: Template Ansible configuration
+      when: bootstrap_distribution == "k0s" or bootstrap_distribution == "k3s"
       ansible.builtin.include_tasks: tasks/ansible/main.yaml
 
     - name: Template Kubernetes configuration
