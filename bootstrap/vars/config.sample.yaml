@@ -3,6 +3,10 @@
 # Bootstrap configuration - config.yaml is gitignored
 #
 
+# Distribution can either be 'k3s' or 'k0s'
+# Note that changing this to k0s will ignore `system_upgrade_controller` in the addons.
+bootstrap_distribution: k3s
+
 # Github username (e.g. onedr0p)
 bootstrap_github_username:
 # Github repository (e.g. flux-cluster-template)
@@ -38,9 +42,13 @@ bootstrap_cloudflare_tunnel_id:
 
 # CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_cidr:
-# The IP address to use with kube-vip, choose an available IP in your nodes network that is not being used
-# (Optional) Leave this blank if you are deploying a single master node, this will disable kube-vip and use the master node IP instead
-bootstrap_kube_vip_addr:
+# The IP address of the kubeapi, choose an available IP in your nodes network that is not being used
+# (Optional) Leave this blank if you are deploying a single master node, this will disable kube-vip in k3s
+# or keepalived in k0s and use the master node IP instead
+bootstrap_kubeapi_addr:
+# The hostname of the kubeapi, set this if you intend to call the kubeapi by hostname rather than IP
+# (Optional) This is currently only utilized in k0s and is added to the kubeapi cert sans
+#bootstrap_kubeapi_hostname:
 # The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
 bootstrap_k8s_gateway_addr:
 # The Load balancer IP for external ingress, choose an available IP in your nodes network that is not being used
@@ -63,23 +71,23 @@ bootstrap_cluster_cidr: 10.42.0.0/16
 # (Advanced) For ipv6 use format 10.43.0.0/16,fd78:c889:47fb:e0::/112
 bootstrap_service_cidr: 10.43.0.0/16
 
-# (Advanced) Path for democratic-csi local-hostpath to use for storage on ALL nodes
-bootstrap_local_path_provisioner_path: /var/lib/rancher/k3s/local-hostpath
+# (Advanced) Path for openebs openebs-hostpath to use for storage on ALL nodes
+bootstrap_local_storage_path: /var/openebs/local
 
 # Node information
 bootstrap_nodes:
   # Use only 1, 3 or more odd master nodes, recommended is 3
   master:
-    # - name:     # name of the master node (must match [a-z0-9-]+)
+    # - name:     # name or hostname of the master node (must match [a-z0-9-\.]+)
     #   address:  # ip address of the master node
     #   username: # ssh username of the master node
-    #   password: # password of ssh username for the master node
-    #   # external_address: # Only use when SSH is not reachable on the IP specified in 'address' field
+    #   role:     # (Optional) k0s only: can be controller+worker (default) or controller 
+    #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
   worker: # set to [] or omit if no workers are needed
-    # - name:     # name of the worker node (must match [a-z0-9-]+)
+    # - name:     # name or hostname of the worker node (must match [a-z0-9-\.]+)
     #   address:  # ip address of the worker node
     #   username: # ssh username of the worker node
-    #   password: # password of ssh username for the worker node
-    #   # external_address: # Only use when SSH is not reachable on the IP specified in 'address' field
+    #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
+

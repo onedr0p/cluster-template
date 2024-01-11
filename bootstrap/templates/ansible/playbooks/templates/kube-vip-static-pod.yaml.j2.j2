@@ -15,7 +15,7 @@ spec:
       args: ["manager"]
       env:
         - name: address
-          value: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
+          value: "{% raw %}{{ kubeapi_addr }}{% endraw %}"
         - name: vip_arp
           value: "true"
         - name: lb_enable

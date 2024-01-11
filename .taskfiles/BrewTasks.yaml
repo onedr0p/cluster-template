@@ -20,6 +20,7 @@ tasks:
         fluxcd/tap/flux
         helm
         jq
+        k0sproject/tap/k0sctl
         k9s
         kubernetes-cli
         kustomize

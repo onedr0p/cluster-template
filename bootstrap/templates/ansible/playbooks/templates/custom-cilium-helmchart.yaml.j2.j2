@@ -37,7 +37,7 @@ spec:
     ipv6:
       enabled: true
     {% endif %}
-    k8sServiceHost: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
+    k8sServiceHost: "{% raw %}{{ kubeapi_addr }}{% endraw %}"
     k8sServicePort: 6443
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
@@ -59,6 +59,6 @@ spec:
       replicas: 1
       rollOutPods: true
     rollOutCiliumPods: true
+    routingMode: native
     securityContext:
       privileged: true
-    tunnel: disabled

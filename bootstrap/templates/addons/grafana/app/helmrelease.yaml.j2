@@ -24,7 +24,7 @@ spec:
   uninstall:
     keepHistory: false
   dependsOn:
-    - name: local-path-provisioner
+    - name: openebs
       namespace: storage
   values:
     deploymentStrategy:
@@ -168,6 +168,6 @@ spec:
             - *host
     persistence:
       enabled: true
-      storageClassName: local-hostpath
+      storageClassName: openebs-hostpath
     testFramework:
       enabled: false

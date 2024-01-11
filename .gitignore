@@ -12,3 +12,6 @@ kubeconfig
 .venv*
 # Taskfile
 .tasks
+# intellij
+.idea
+

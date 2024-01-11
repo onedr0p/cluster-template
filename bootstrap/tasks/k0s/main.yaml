@@ -1,0 +1,6 @@
+---
+- name: Template k0s configuration file
+  ansible.builtin.template:
+    src: "templates/k0s-config.yaml.j2"
+    dest: "{{ repository_path }}/k0s-config.yaml"
+    mode: "0644"

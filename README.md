@@ -1,6 +1,6 @@
 # Deploy a Kubernetes cluster backed by Flux
 
-Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io)) cluster with [Ansible](https://www.ansible.com) and using [Flux](https://toolkit.fluxcd.io) to manage its state.
+Welcome to my highly opinionated template for deploying a single Kubernetes ([k3s](https://k3s.io) or [k0s](https://github.com/k0sproject/k0s)) cluster with [Ansible](https://www.ansible.com) and using [Flux](https://toolkit.fluxcd.io) to manage its state.
 
 ## 👋 Introduction
 
@@ -258,7 +258,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 > └─📁 apps          # Apps deployed into the cluster grouped by namespace
 > ```
 
-### ⚡ Stage 4: Prepare your nodes for k3s
+### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
@@ -282,7 +282,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task ansible:run playbook=cluster-prepare
     ```
 
-### ⛵ Stage 5: Use Ansible to install k3s
+### ⛵ Stage 5: Install Kubernetes
 
 📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:run playbook=cluster-nuke` to destroy the k3s cluster and start over from this point._
 
@@ -298,13 +298,16 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task ansible:ping
     ```
 
-3. Install k3s with Ansible
+3. Install Kubernetes
 
     ```sh
+    # k3s
     task ansible:run playbook=cluster-installation
+    # k0s
+    task k0s:apply
     ```
 
-4. Verify the nodes are online
+5. Verify the nodes are online
 
     📍 _If this command **fails** you likely haven't configured `direnv` as mentioned previously in the guide._
 
@@ -315,7 +318,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
     ```
 
-5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
+6. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
 ### 🔹 Stage 6: Install Flux in your cluster
 

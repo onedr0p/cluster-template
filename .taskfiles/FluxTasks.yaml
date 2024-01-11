@@ -26,8 +26,14 @@ tasks:
       - kubectl apply --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml
       - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
-      - { msg: "Flux already appears installed", sh: "exit $(( ! $(kubectl get namespace flux-system) ))" }
+      - { msg: "Flux already appears installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
       - { msg: "Age private key not found",      sh: "test -f {{.ROOT_DIR}}/age.key" }
+
+  github-deploy-key:
+    cmds:
+      - sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply -f -
+    preconditions:
+      - { msg: "Flux is not installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 0 || exit 1" }
 
   apply:
     desc: Apply a Flux Kustomization resource for a cluster

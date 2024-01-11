@@ -1,5 +1,9 @@
 ---
 
+- name: Process optional coredns
+  when: bootstrap_distribution == "k3s"
+  ansible.builtin.include_tasks: coredns.yaml
+
 - name: Process addon csi-driver-nfs
   when: csi_driver_nfs.enabled | default(false)
   ansible.builtin.include_tasks: csi_driver_nfs.yaml
@@ -21,7 +25,9 @@
   ansible.builtin.include_tasks: kube_prometheus_stack.yaml
 
 - name: Process addon system-upgrade-controller
-  when: system_upgrade_controller.enabled | default(false)
+  when:
+    - bootstrap_distribution == "k3s"
+    - system_upgrade_controller.enabled | default(false)
   ansible.builtin.include_tasks: system_upgrade_controller.yaml
 
 - name: Process addon weave-gitops

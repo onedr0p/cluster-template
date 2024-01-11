@@ -16,7 +16,11 @@ data:
       id: 1
     containerRuntime:
       integration: containerd
+      {% if bootstrap_distribution == "k3s" %}
       socketPath: /var/run/k3s/containerd/containerd.sock
+      {% else %}
+      socketPath: /var/run/k0s/containerd.sock
+      {% endif %}
     endpointRoutes:
       enabled: true
     hubble:
@@ -63,7 +67,7 @@ data:
     ipv6:
       enabled: true
     {% endif %}
-    k8sServiceHost: "${KUBE_VIP_ADDR}"
+    k8sServiceHost: "${KUBEAPI_ADDR}"
     k8sServicePort: 6443
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
@@ -102,6 +106,6 @@ data:
       annotations:
         grafana_folder: Cilium
     rollOutCiliumPods: true
+    routingMode: native
     securityContext:
       privileged: true
-    tunnel: disabled

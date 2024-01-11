@@ -17,6 +17,7 @@ includes:
     aliases: ["k8s"]
     taskfile: .taskfiles/KubernetesTasks.yaml
   flux: .taskfiles/FluxTasks.yaml
+  k0s: .taskfiles/K0sTasks.yaml
 
 tasks:
 
@@ -45,7 +46,6 @@ tasks:
   configure:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
-    dir: "{{.BOOTSTRAP_DIR}}"
-    cmd: ansible-playbook configure.yaml
+    cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/configure.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"

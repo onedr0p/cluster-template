@@ -14,7 +14,7 @@ k3s_etcd_datastore: true
 {% else %}
 k3s_etcd_datastore: false
 {% endif %}
-k3s_registration_address: "{% raw %}{{ kube_vip_addr }}{% endraw %}"
+k3s_registration_address: "{% raw %}{{ kubeapi_addr }}{% endraw %}"
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
