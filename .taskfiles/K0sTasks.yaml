@@ -6,7 +6,7 @@ tasks:
   kubeconfig:
     desc: Gets k0s cluster kubeconfig
     cmds:
-      - k0sctl kubeconfig -c k0s-config.yaml > kubeconfig
+      - k0sctl kubeconfig --config k0s-config.yaml > kubeconfig
     preconditions:
       - { msg: "k0s-config.yaml not found", sh: "test -f {{.ROOT_DIR}}/k0s-config.yaml" }
 

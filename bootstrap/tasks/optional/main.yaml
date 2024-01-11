@@ -1,7 +1,0 @@
----
-
-- name: Process optional opendns
-  when: bootstrap_distribution == "k3s"
-  ansible.builtin.include_tasks: coredns.yaml
-
-
