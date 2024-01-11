@@ -97,7 +97,7 @@
 
     - name: Remove local storage path
       ansible.builtin.file:
-        path: "{% raw %}{{ bootstrap_local_storage_path }}{% endraw %}"
+        path: "{{ bootstrap_local_storage_path }}"
         state: absent
 
     - name: Reboot
