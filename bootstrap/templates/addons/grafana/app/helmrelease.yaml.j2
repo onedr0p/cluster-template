@@ -167,8 +167,8 @@ spec:
         gethomepage.dev/group: Observability
         gethomepage.dev/widget.type: grafana
         gethomepage.dev/widget.url: http://grafana.observability
-        gethomepage.dev/widget.username: '{{`{{HOMEPAGE_VAR_GRAFANA_USERNAME}}`}}'
-        gethomepage.dev/widget.password: '{{`{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}`}}'
+        gethomepage.dev/widget.username: '{% raw %}{{`{{ HOMEPAGE_VAR_GRAFANA_USERNAME }}`}}{% endraw %}'
+        gethomepage.dev/widget.password: '{% raw %}{{`{{ HOMEPAGE_VAR_GRAFANA_PASSWORD }}`}}{% endraw %}'
       {% endif %}
       hosts:
         - &host "grafana.${SECRET_DOMAIN}"
