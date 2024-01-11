@@ -6,7 +6,7 @@ metadata:
   name: k0s-cluster
 spec:
   hosts:
-  {% for item in bootstrap_nodes.master %}
+    {% for item in bootstrap_nodes.master %}
     - role: {{ item.role | default('controller+worker') }}
       ssh:
         address: {{ item.address }}
@@ -16,15 +16,15 @@ spec:
         {% if item.role | default('') == 'controller+worker' %}
         - --no-taints
         {% endif %}
-  {% endfor %}
-{% if bootstrap_nodes.worker | default([]) | length > 0 %}
-  {% for item in bootstrap_nodes.worker %}
+    {% endfor %}
+    {% if bootstrap_nodes.worker | default([]) | length > 0 %}
+    {% for item in bootstrap_nodes.worker %}
     - role: worker
       ssh:
         address: {{ item.address }}
         user: {{ item.username }}
-  {% endfor %}
-{% endif %}
+    {% endfor %}
+    {% endif %}
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s
     version: "v1.28.4+k0s.0"
