@@ -90,6 +90,11 @@
         state: absent
       loop: ["kubectl", "crictl", "ctr"]
 
+    - name: Remove local storage path
+      ansible.builtin.file:
+        path: "{% raw %}{{ bootstrap_local_storage_path }}{% endraw %}"
+        state: absent
+
     - name: Reboot
       ansible.builtin.reboot:
         msg: Rebooting nodes
