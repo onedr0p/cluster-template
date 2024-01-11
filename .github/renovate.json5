@@ -80,7 +80,7 @@
     {
       "description": "Use custom versioning for k0s/k3s",
       "matchDatasources": ["github-releases"],
-      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k[0|3]s)(?<build>\\d+)$",
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k.s)\\.?(?<build>\\d+)$",
       "matchPackagePatterns": ["k0s", "k3s"]
     },
     // commit message topics
