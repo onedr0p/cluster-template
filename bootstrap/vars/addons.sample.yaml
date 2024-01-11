@@ -3,8 +3,8 @@
 # Addons configuration - addons.yaml is gitignored
 #
 
-# https://github.com/toboshii/hajimari
-hajimari:
+# https://gethomepage.dev
+homepage:
   enabled: false
 
 # https://github.com/grafana/grafana

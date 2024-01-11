@@ -1,0 +1,89 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  labels:
+    app.kubernetes.io/name: homepage
+data:
+  bookmarks.yaml: |
+    - Communitcate:
+        - Discord:
+            - icon: discord.png # https://github.com/walkxcode/dashboard-icons
+              href: 'https://discord.com/app'
+    - Media:
+        - YouTube:
+            - icon: youtube.png
+              href: 'https://youtube.com/feed/subscriptions'
+    - Reading:
+        - Reddit:
+            - icon: reddit.png
+              href: 'https://reddit.com'
+    - Git:
+        - kubesearch:
+            - icon: kubernetes-dashboard.png
+              href: 'https://kubesearch.dev/'
+        - flux-cluster-template:
+            - icon: github.png
+              href: 'https://github.com/onedr0p/flux-cluster-template'
+  docker.yaml: ""
+  kubernetes.yaml: |
+    mode: cluster
+  services.yaml: |
+    - Network:
+        - Cloudflared:
+            href: https://dash.cloudflare.com/
+            icon: cloudflare-zero-trust.png
+            description: Cloudflared Tunnel
+            widget:
+              type: cloudflared
+              accountid: {{HOMEPAGE_VAR_CLOUDFLARED_ACCOUNTID}}
+              tunnelid: {{HOMEPAGE_VAR_CLOUDFLARED_TUNNELID}}
+              key: {{HOMEPAGE_VAR_CLOUDFLARED_API_TOKEN}}
+  settings.yaml: |
+    title: Dashboard
+    theme: dark
+    color: slate
+    headerStyle: clean
+    layout:
+      Home:
+        style: column
+        icon: mdi-home-analytics
+      Network:
+        style: row
+        columns: 3
+        icon: mdi-server
+      Observability:
+        style: column
+        icon: mdi-chart-line
+  widgets.yaml: |
+    - resources:
+        backend: kubernetes
+        cpu: true
+        expanded: true
+        memory: true
+    - search:
+        provider: [duckduckgo]
+        focus: false
+        target: _blank
+    - greeting:
+        text_size: xl
+        text: "Welcome!"
+    - kubernetes:
+        cluster:
+          cpu: true
+          label: cluster
+          memory: true
+          show: true
+          showLabel: true
+        nodes:
+          cpu: true
+          memory: true
+          show: true
+          showLabel: true
+    - datetime:
+        text_size: l
+        format:
+          dateStyle: long
+          timeStyle: short
+          hourCycle: h23

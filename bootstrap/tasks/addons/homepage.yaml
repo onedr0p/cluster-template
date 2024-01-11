@@ -1,7 +1,7 @@
 ---
 - name: Set addon facts
   ansible.builtin.set_fact:
-    addon_name: hajimari
+    addon_name: homepage
     addon_namespace: default
 
 - name: Ensure directories exist for {{ addon_namespace }}/{{ addon_name }}

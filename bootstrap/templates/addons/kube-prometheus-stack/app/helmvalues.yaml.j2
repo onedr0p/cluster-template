@@ -94,8 +94,11 @@ data:
         enabled: true
         ingressClassName: internal
         annotations:
-          hajimari.io/appName: Prometheus
-          hajimari.io/icon: simple-icons:prometheus
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/icon: prometheus.png
+          gethomepage.dev/name: Prometheus
+          gethomepage.dev/group: Observability
+          gethomepage.dev/widget.type: prometheus
         pathType: Prefix
         hosts:
           - "prometheus.${SECRET_DOMAIN}"
