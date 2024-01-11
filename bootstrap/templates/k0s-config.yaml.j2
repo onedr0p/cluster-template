@@ -7,6 +7,14 @@ metadata:
 spec:
   telemetry:
     enabled: false
+  controllerManager:
+    extraArgs:
+      # Required to monitor kube-controller-manager with kube-prometheus-stack
+      bind-address: "0.0.0.0"
+  scheduler:
+    extraArgs:
+      # Required to monitor kube-scheduler with kube-prometheus-stack
+      bind-address: "0.0.0.0"
   hosts:
   {% for item in bootstrap_nodes.master %}
     - role: {{ item.role | default('controller+worker') }}
