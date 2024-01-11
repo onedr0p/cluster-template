@@ -85,7 +85,7 @@ bootstrap_nodes:
     #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
   worker: # set to [] or omit if no workers are needed
-    # - name:     # hostname of the master node (must match [a-z0-9-\.]+)
+    # - name:     # name or hostname of the worker node (must match [a-z0-9-\.]+)
     #   address:  # ip address of the worker node
     #   username: # ssh username of the worker node
     #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
