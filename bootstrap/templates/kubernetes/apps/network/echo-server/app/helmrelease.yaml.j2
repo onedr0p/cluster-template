@@ -72,7 +72,12 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-          hajimari.io/icon: video-input-antenna
+          {% if homepage.enabled | default(false) %}
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Network
+          gethomepage.dev/name: Echo Server
+          gethomepage.dev/icon: mdi-video-input-antenna
+          {% endif %}
         hosts:
           - host: &host "{% raw %}{{ .Release.Name }}{% endraw %}.${SECRET_DOMAIN}"
             paths:

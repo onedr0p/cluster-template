@@ -8,9 +8,9 @@
   when: csi_driver_nfs.enabled | default(false)
   ansible.builtin.include_tasks: csi_driver_nfs.yaml
 
-- name: Process addon hajimari
-  when: hajimari.enabled | default(false)
-  ansible.builtin.include_tasks: hajimari.yaml
+- name: Process addon homepage
+  when: homepage.enabled | default(false)
+  ansible.builtin.include_tasks: homepage.yaml
 
 - name: Process addon grafana
   when: grafana.enabled | default(false)

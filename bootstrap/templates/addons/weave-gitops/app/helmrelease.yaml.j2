@@ -31,8 +31,13 @@ spec:
     ingress:
       enabled: true
       className: internal
+      {% if homepage.enabled | default(false) %}
       annotations:
-        hajimari.io/icon: sawtooth-wave
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/group: Home
+        gethomepage.dev/name: Weave-gitops
+        gethomepage.dev/icon: flux-cd.png
+      {% endif %}
       hosts:
         - host: &host "gitops.${SECRET_DOMAIN}"
           paths:

@@ -31,8 +31,13 @@ spec:
     ingress:
       enabled: true
       className: internal
-      annotations:
-        hajimari.io/icon: mdi:kubernetes
+        {% if homepage.enabled | default(false) %}
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/icon: kubernetes-dashboard.png
+          gethomepage.dev/name: Kubernetes Dashboard
+          gethomepage.dev/group: Observability
+        {% endif %}
       hosts:
         - &host "kubernetes.${SECRET_DOMAIN}"
       tls:
