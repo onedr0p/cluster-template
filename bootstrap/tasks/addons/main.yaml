@@ -37,3 +37,7 @@
 - name: Process addon discord-template-notifier
   when: discord_template_notifier.enabled | default(false)
   ansible.builtin.include_tasks: discord_template_notifier.yaml
+
+- name: Process addon volsync
+  when: volsync.enabled | default(false)
+  ansible.builtin.include_tasks: volsync.yaml

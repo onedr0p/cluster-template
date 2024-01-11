@@ -50,3 +50,7 @@ discord_template_notifier:
   # so it's easier to keep track of changes.
   enabled: false
   webhook_url: # Discord webhook url
+
+# https://github.com/backube/volsync
+volsync:
+  enabled: false
