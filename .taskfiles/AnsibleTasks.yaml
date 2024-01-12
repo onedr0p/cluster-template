@@ -38,19 +38,23 @@ tasks:
 
   poweroff:
     desc: Shutdown all the k8s nodes
-    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml -a '/usr/bin/systemctl poweroff' --become
+    deps: ["deps"]
+    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml -a '/usr/bin/systemctl poweroff' --become
 
   list:
     desc: List all the hosts
-    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --list-hosts
+    deps: ["deps"]
+    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --list-hosts
 
   ping:
     desc: Ping all the hosts
-    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -m 'ping'
+    deps: ["deps"]
+    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -m 'ping'
 
   uptime:
     desc: Uptime of all the hosts
-    cmd: ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -a 'uptime'
+    deps: ["deps"]
+    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -a 'uptime'
 
   .venv:
     internal: true
