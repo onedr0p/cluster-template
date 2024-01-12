@@ -22,6 +22,7 @@ tasks:
         jq
         k0sproject/tap/k0sctl
         k9s
+        kubeconform
         kubernetes-cli
         kustomize
         sops

@@ -26,10 +26,9 @@ tasks:
 
   init:
     desc: Initialize configuration files
-    dir: "{{.BOOTSTRAP_DIR}}"
     cmds:
-      - cp -n vars/addons.sample.yaml vars/addons.yaml
-      - cp -n vars/config.sample.yaml vars/config.yaml
+      - cp -n {{.BOOTSTRAP_DIR}}vars/addons.sample.yaml {{.BOOTSTRAP_DIR}}/vars/addons.yaml
+      - cp -n {{.BOOTSTRAP_DIR}}/vars/config.sample.yaml {{.BOOTSTRAP_DIR}}/vars/config.yaml
       - cmd: echo "=== Configuration files copied ==="
         silent: true
       - cmd: echo "Proceed with updating the configuration files..."
@@ -47,6 +46,8 @@ tasks:
   configure:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
-    cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/configure.yaml
+    cmds:
+      - ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/configure.yaml
+      - ./scripts/kubeconform.sh {{.KUBERNETES_DIR}}
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"

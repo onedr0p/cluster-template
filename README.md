@@ -164,7 +164,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task ansible:deps
     ```
 
-4. Install the required tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops)
+4. Install the required tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops), [kubeconform](https://github.com/yannh/kubeconform)
 
    📍 _Not using brew? Make sure to look up how to install the latest version of each of these CLI tools yourself._
 

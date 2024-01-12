@@ -1,3 +1,4 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -31,13 +32,13 @@ spec:
     ingress:
       enabled: true
       className: internal
-        {% if homepage.enabled | default(false) %}
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/icon: kubernetes-dashboard.png
-          gethomepage.dev/name: Kubernetes Dashboard
-          gethomepage.dev/group: Observability
-        {% endif %}
+      {% if homepage.enabled | default(false) %}
+      annotations:
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/icon: kubernetes-dashboard.png
+        gethomepage.dev/name: Kubernetes Dashboard
+        gethomepage.dev/group: Observability
+      {% endif %}
       hosts:
         - &host "kubernetes.${SECRET_DOMAIN}"
       tls:
