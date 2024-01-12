@@ -182,7 +182,9 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task init
     ```
 
-2. Setup Age private / public key
+2. Choose between `k3s` or `k0s` for your Kubernetes distribution and fillout the appropriate vars in `bootstrap/vars/config.yaml`
+
+3. Setup Age private / public key
 
     📍 _Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux._
 
@@ -194,7 +196,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
     2b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
-3. Create Cloudflare API Token
+4. Create Cloudflare API Token
 
     📍 _To use `cert-manager` with the Cloudflare DNS challenge you will need to create a API Token._
 
@@ -217,7 +219,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
    3g. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
-4. Create Cloudflare Tunnel
+5. Create Cloudflare Tunnel
 
     📍 _To expose services to the internet you will need to create a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)._
 
@@ -237,13 +239,13 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
     4d. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
-5. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
+6. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
 
     5a. Ensure `bootstrap_acme_production_enabled` is set to `false`.
 
     5b. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
 
-6. Once done run the following command which will verify and generate all the files needed to continue.
+7. Once done run the following command which will verify and generate all the files needed to continue.
 
     ```sh
     task configure
@@ -284,8 +286,6 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 ### ⛵ Stage 5: Install Kubernetes
 
-📍 _Here we will be running a Ansible Playbook to install [k3s](https://k3s.io/) with [this](https://galaxy.ansible.com/xanmanning/k3s) Ansible galaxy role. If you run into problems, you can run `task ansible:run playbook=cluster-nuke` to destroy the k3s cluster and start over from this point._
-
 1. Verify Ansible can view your config
 
     ```sh
@@ -298,16 +298,21 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task ansible:ping
     ```
 
-3. Install Kubernetes
+3. Install Kubernetes depending on the distribution you chose
 
-    ```sh
-    # k3s
-    task ansible:run playbook=cluster-installation
-    # k0s
-    task k0s:apply
-    ```
+    * Install k3s
 
-5. Verify the nodes are online
+      ```sh
+      task ansible:run playbook=cluster-installation
+      ```
+
+    * Install k0s
+
+      ```sh
+      task k0s:apply
+      ```
+
+4. Verify the nodes are online
 
     📍 _If this command **fails** you likely haven't configured `direnv` as mentioned previously in the guide._
 
@@ -318,7 +323,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
     ```
 
-6. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
+5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
@@ -434,6 +439,22 @@ By default Flux will periodically check your git repository for changes. In orde
     ```
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret and save.
+
+#### 💥 Nuke
+
+There might be a situation where you want to destroy your Kubernetes cluster. This will completely clean the OS of all traces of the Kubernetes distribution you chose and then reboot the nodes.
+
+* Nuke k3s
+
+    ```sh
+    task ansible:run playbook=cluster-nuke
+    ```
+
+* Nuke k0s
+
+    ```sh
+    task k0s:reset
+    ```
 
 ### 🤖 Renovate
 
