@@ -8,6 +8,8 @@ kubeconfig
 *.agekey
 *.pub
 *.key
+# Private
+.private
 # Ansible
 .venv*
 # Taskfile

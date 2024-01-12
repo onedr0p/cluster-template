@@ -36,7 +36,7 @@
   },
   "kustomize": {
     "fileMatch": [
-      "(^|/)kustomization\\.ya?ml(\\.j2)?$"
+      "(^|/)kustomization\\.ya?ml(\\.j2)?(\\.j2)?$"
     ]
   },
   // commit message topics
@@ -228,7 +228,7 @@
         "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
         "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
         "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-        "(^|/)k0s/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+        "(^|/)k0s-config.ya?ml(\\.j2)?(\\.j2)?$"
       ],
       "matchStrings": [
         // Example: `k3s_release_version: "v1.27.3+k3s1"`

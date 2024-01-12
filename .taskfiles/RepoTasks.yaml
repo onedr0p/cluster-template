@@ -1,0 +1,36 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+
+  clean:
+    desc: Clean files and directories no longer needed after cluster bootstrap
+    cmds:
+      # Move bootstrap directory to gitignored directory
+      - mkdir -p {{.ROOT}}/.private
+      - mv {{.ROOT}}/bootstrap {{.ROOT}}/.private
+      # Update renovate.json5
+      - sed -i '' 's/(..\.j2)\?(..\.j2)\?//g' {{.ROOT}}/.github/renovate.json5
+      - sed -i '' 's/addons/d' {{.ROOT}}/.github/renovate.json5
+    preconditions:
+      - { msg: "bootstrap dir not found",  sh: "test -d {{.ROOT}}/bootstrap" }
+      - { msg: "renovate.json5 not found", sh: "test -f {{.ROOT_DIR}}/.github/renovate.json5" }
+
+  reset:
+    desc: Remove templated configuration files
+    prompt: Remove templated configuration files... continue?
+    cmds:
+      - rm -rf {{.ROOT}}/.sops.yaml
+      - rm -rf {{.ROOT}}/k0s-config.yaml
+      - rm -rf {{.ROOT}}/ansible
+      - rm -rf {{.ROOT}}/kubernetes
+
+  reset-repo:
+    desc: Set repo back to HEAD
+    prompt: Set repo back to HEAD... continue?
+    cmds:
+      - task: reset
+      - git reset --hard HEAD
+      - git clean -f -d
+      - git pull
