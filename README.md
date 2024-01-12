@@ -188,62 +188,62 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
     📍 _Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux._
 
-    2a. Create a Age private / public key (this file is gitignored)
+    3a. Create a Age private / public key (this file is gitignored)
 
       ```sh
       age-keygen -o age.key
       ```
 
-    2b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    3b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
 4. Create Cloudflare API Token
 
     📍 _To use `cert-manager` with the Cloudflare DNS challenge you will need to create a API Token._
 
-   3a. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
+   4a. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
 
-   3b. Under the `API Tokens` section click the blue `Create Token` button.
+   4b. Under the `API Tokens` section click the blue `Create Token` button.
 
-   3c. Click the blue `Use template` button for the `Edit zone DNS` template.
+   4c. Click the blue `Use template` button for the `Edit zone DNS` template.
 
-   3d. Name your token something like `home-kubernetes`
+   4d. Name your token something like `home-kubernetes`
 
-   3e. Under `Permissions`, click `+ Add More` and add each permission below:
+   4e. Under `Permissions`, click `+ Add More` and add each permission below:
 
     ```text
     Zone - DNS - Edit
     Account - Cloudflare Tunnel - Read
     ```
 
-   3f. Limit the permissions to a specific account and zone resources.
+   4f. Limit the permissions to a specific account and zone resources.
 
-   3g. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+   4g. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
 5. Create Cloudflare Tunnel
 
     📍 _To expose services to the internet you will need to create a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)._
 
-    4a. Authenticate cloudflared to your domain
+    5a. Authenticate cloudflared to your domain
 
       ```sh
       cloudflared tunnel login
       ```
 
-    4b. Create the tunnel
+    5b. Create the tunnel
 
       ```sh
       cloudflared tunnel create k8s
       ```
 
-    4c. In the `~/.cloudflared` directory there will be a json file with details you need. Ignore the `cert.pem` file.
+    5c. In the `~/.cloudflared` directory there will be a json file with details you need. Ignore the `cert.pem` file.
 
-    4d. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    5d. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
 
 6. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
 
-    5a. Ensure `bootstrap_acme_production_enabled` is set to `false`.
+    6a. Ensure `bootstrap_acme_production_enabled` is set to `false`.
 
-    5b. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
+    6b. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
 
 7. Once done run the following command which will verify and generate all the files needed to continue.
 
