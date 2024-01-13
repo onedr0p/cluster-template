@@ -4,7 +4,6 @@ name: "e2e"
 on:
   pull_request:
     branches: ["main"]
-    paths: ["bootstrap/**"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
