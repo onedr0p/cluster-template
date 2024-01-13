@@ -40,10 +40,10 @@ jobs:
       - name: Test Arch dependencies
         shell: bash
         run: >-
-          sudo -u ab -D~ bash -c '
-          cd $GITHUB_WORKSPACE && \
-          echo $(pwd) && \
-          paru -Syu --noconfirm --noprogressbar go-task && \
+          sudo -E -u ab -D~ bash -c '
+          cd $GITHUB_WORKSPACE;
+          echo $(pwd);
+          paru -Syu --noconfirm --noprogressbar go-task;
           go-task workstation:paru
           '
 
