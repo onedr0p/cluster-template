@@ -19,16 +19,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Homebrew
+        id: setup-homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
       - name: Cache homebrew packages
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/cache@v3
-        id: cache-workflow-tools
-        env:
-          cache-name: homebrew-packages
+        id: cache-homebrew-packages
         with:
-          key: homebrew-${{ runner.os }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
+          key: homebrew-${{ runner.os }}-${{ steps.setup-homebrew.outputs.gems-hash }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
           path: $(brew --prefix)
 
       - name: Setup Python
@@ -45,12 +44,12 @@ jobs:
           path: .venv
 
       - name: Setup Workflow Tools
-        if: ${{ github.event_name == 'pull_request' && steps.cache-workflow-tools.outputs.cache-hit != 'true' }}
+        if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
         shell: bash
         run: brew install go-task
 
       - name: Install Brew dependencies
-        if: ${{ github.event_name == 'pull_request' && steps.cache-workflow-tools.outputs.cache-hit != 'true' }}
+        if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
         shell: bash
         run: task workstation:brew
 
