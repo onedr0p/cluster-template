@@ -27,7 +27,7 @@ jobs:
       - name: Cache venv
         uses: actions/cache@v3
         with:
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version}}-${{ hashFiles('requirements.txt') }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt', 'requirements.yaml') }}
           path: .venv
 
       - name: Setup Homebrew
