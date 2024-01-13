@@ -16,7 +16,7 @@ tasks:
 
   paru:
     desc: Install workstation dependencies with Paru
-    cmd: paru -S --needed --noconfirm - < {{.ROOT_DIR}}/.taskfiles/Workstation/ArchPackages
+    cmd: paru -Syu --noconfirm --noprogressbar - < {{.ROOT_DIR}}/.taskfiles/Workstation/ArchPackages
     preconditions:
       - sh: command -v paru
         msg: |
