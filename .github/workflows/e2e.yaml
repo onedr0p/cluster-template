@@ -24,6 +24,7 @@ jobs:
           whoami
           ls -la
           id -u
+          echo $GITHUB_WORKSPACE
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,6 +35,7 @@ jobs:
           whoami
           ls -la
           id -u
+          echo $GITHUB_WORKSPACE
 
       - name: Test Arch dependencies
         shell: bash
