@@ -54,6 +54,10 @@ jobs:
         shell: bash
         run: task --yes configure
 
+      - name: List Hosts
+        shell: bash
+        run: task ansible:list
+
       - name: Run repo clean and reset
         shell: bash
         run: |

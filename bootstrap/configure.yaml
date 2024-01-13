@@ -2,6 +2,7 @@
 - name: Cluster Installation
   hosts: localhost
   connection: local
+  gather_facts: false
   vars_files:
     - vars/config.yaml
     - vars/addons.yaml
