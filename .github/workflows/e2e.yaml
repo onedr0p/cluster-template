@@ -18,6 +18,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Cache homebrew packages
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/cache@v3
+        id: cache-workflow-tools
+        env:
+          cache-name: homebrew-packages
+        with:
+          key: homebrew-${{ runner.os }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
+          path: $(brew --prefix)
+
       - name: Setup Python
         uses: actions/setup-python@v5
         id: setup-python
@@ -25,30 +38,19 @@ jobs:
           python-version: "3.12"
 
       - name: Cache venv
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/cache@v3
         with:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt', 'requirements.yaml') }}
           path: .venv
 
-      - name: Cache Homebrew Packages
-        uses: actions/cache@v3
-        id: cache-workflow-tools
-        env:
-          cache-name: homebrew-packages
-        with:
-          path: $(brew --prefix)
-          key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
-
-      - name: Setup Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-
-      - if: steps.cache-workflow-tools.outputs.cache-hit != 'true'
-        name: Setup Workflow Tools
+      - name: Setup Workflow Tools
+        if: ${{ github.event_name == 'pull_request' && steps.cache-workflow-tools.outputs.cache-hit != 'true' }}
         shell: bash
         run: brew install go-task
 
-      - if: steps.cache-workflow-tools.outputs.cache-hit != 'true'
-        name: Install Brew dependencies
+      - name: Install Brew dependencies
+        if: ${{ github.event_name == 'pull_request' && steps.cache-workflow-tools.outputs.cache-hit != 'true' }}
         shell: bash
         run: task workstation:brew
 

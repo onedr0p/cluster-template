@@ -1,3 +1,6 @@
+tap "fluxcd/tap"
+tap "go-task/tap"
+tap "k0sproject/tap"
 brew "age"
 brew "cilium-cli"
 brew "cloudflared"
