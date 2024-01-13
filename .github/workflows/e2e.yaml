@@ -21,20 +21,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - name: Set Permissions
-      #   shell: bash
-      #   run: |
-      #     sudo chown -R 973:973 $GITHUB_WORKSPACE
-      #     sudo chmod -R 777 $GITHUB_WORKSPACE
-
       - name: Test Arch dependencies
         shell: bash
         run: >-
           sudo -E -u ab -D~ bash -c '
           cd $GITHUB_WORKSPACE;
           paru -Syu --noconfirm --noprogressbar go-task;
-          ls -la;
-          cat .taskfiles/Workstation/ArchPackages;
           go-task workstation:paru
           '
 
