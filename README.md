@@ -618,7 +618,7 @@ The benefits of a public repository include:
 
 </details>
 
-## Related Projects
+## 🙌 Related Projects
 
 If this repo is too hot to handle or too cold to hold check out these following projects.
 
