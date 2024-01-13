@@ -18,24 +18,14 @@ jobs:
       image: greyltc/archlinux-aur:paru
       options: --user root
     steps:
-      - name: Investigate 1
-        run: |
-          pwd
-          whoami
-          ls -la
-          id -u
-          echo $GITHUB_WORKSPACE
-
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Investigate 2
+      - name: Set Permissions
+        shell: bash
         run: |
-          pwd
-          whoami
-          ls -la
-          id -u
-          echo $GITHUB_WORKSPACE
+          sudo chown -R 973:973 $GITHUB_WORKSPACE
+          sudo chmod -R 777 $GITHUB_WORKSPACE
 
       - name: Test Arch dependencies
         shell: bash
