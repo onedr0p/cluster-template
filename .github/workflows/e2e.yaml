@@ -78,6 +78,10 @@ jobs:
         shell: bash
         run: task --yes configure
 
+      - name: Run kubeconform
+        shell: bash
+        run: ./scripts/kubeconform.sh ./kubernetes
+
       - name: List Hosts with Ansible
         shell: bash
         run: task ansible:list
