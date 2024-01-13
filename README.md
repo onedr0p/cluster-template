@@ -169,7 +169,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
    📍 _Not using brew? Make sure to look up how to install the latest version of each of these CLI tools yourself._
 
     ```sh
-    task brew:deps
+    task workstation:brew
     ```
 
 ### 🔧 Stage 3: Do bootstrap configuration

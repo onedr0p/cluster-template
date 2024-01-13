@@ -30,16 +30,27 @@ jobs:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt', 'requirements.yaml') }}
           path: .venv
 
+      - name: Cache Homebrew Packages
+        uses: actions/cache@v3
+        id: cache-workflow-tools
+        env:
+          cache-name: homebrew-packages
+        with:
+          path: $(brew --prefix)
+          key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
+
       - name: Setup Homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Setup Workflow Tools
+      - if: steps.cache-workflow-tools.outputs.cache-hit != 'true'
+        name: Setup Workflow Tools
         shell: bash
         run: brew install go-task
 
-      - name: Install Brew dependencies
+      - if: steps.cache-workflow-tools.outputs.cache-hit != 'true'
+        name: Install Brew dependencies
         shell: bash
-        run: task brew:deps
+        run: task workstation:brew
 
       - name: Initialize Direnv
         shell: bash
