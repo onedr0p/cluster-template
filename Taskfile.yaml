@@ -28,7 +28,7 @@ tasks:
   init:
     desc: Initialize configuration files
     cmds:
-      - cp -n {{.BOOTSTRAP_DIR}}vars/addons.sample.yaml {{.BOOTSTRAP_DIR}}/vars/addons.yaml
+      - cp -n {{.BOOTSTRAP_DIR}}/vars/addons.sample.yaml {{.BOOTSTRAP_DIR}}/vars/addons.yaml
       - cp -n {{.BOOTSTRAP_DIR}}/vars/config.sample.yaml {{.BOOTSTRAP_DIR}}/vars/config.yaml
       - cmd: echo "=== Configuration files copied ==="
         silent: true

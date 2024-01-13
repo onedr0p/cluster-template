@@ -25,13 +25,13 @@ jobs:
         shell: bash
         run: brew install direnv go-task
 
-      - name: Initialize Direnv
-        shell: bash
-        run: direnv allow .
-
       - name: Install Brew dependencies
         shell: bash
         run: task brew:deps
+
+      - name: Initialize Direnv
+        shell: bash
+        run: direnv allow .
 
       - name: Initialize config
         shell: bash
@@ -40,3 +40,7 @@ jobs:
       - name: Create Age key
         shell: bash
         run: task sops:init
+
+      - name: Run configure
+        shell: bash
+        run: task configure
