@@ -19,6 +19,7 @@ includes:
   flux: .taskfiles/FluxTasks.yaml
   k0s: .taskfiles/K0sTasks.yaml
   repo: .taskfiles/RepoTasks.yaml
+  sops: .taskfiles/SopsTasks.yaml
 
 tasks:
 

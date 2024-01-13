@@ -1,0 +1,42 @@
+---
+name: "e2e"
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths: ["bootstrap/**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Setup Workflow Tools
+        shell: bash
+        run: brew install direnv go-task
+
+      - name: Initialize Direnv
+        shell: bash
+        run: direnv allow .
+
+      - name: Install Brew dependencies
+        shell: bash
+        run: task brew:deps
+
+      - name: Initialize config
+        shell: bash
+        run: task init
+
+      - name: Create Age key
+        shell: bash
+        run: task sops:init

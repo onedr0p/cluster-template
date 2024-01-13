@@ -24,9 +24,11 @@
         bootstrap_kubeapi_addr: "{{ bootstrap_nodes.master[0].address }}"
 
     - name: Verify configuration
+      when: not bootstrap_ci_tests | default(false)
       ansible.builtin.include_tasks: tasks/validation/main.yaml
 
     - name: Template Sops configuration
+      when: not bootstrap_ci_tests | default(false)
       ansible.builtin.include_tasks: tasks/sops/main.yaml
 
     - name: Template k0s configuration
