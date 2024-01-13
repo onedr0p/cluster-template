@@ -14,4 +14,5 @@ kustomize
 moreutils
 sops
 stern-bin
+go-task-bin
 go-yq
