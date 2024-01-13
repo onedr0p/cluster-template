@@ -1,5 +1,6 @@
 ---
-bootstrap_ci_test: true
+ci_test: true
+
 bootstrap_distribution: k3s
 bootstrap_github_username: onedr0p
 bootstrap_github_repository_name: flux-cluster-template

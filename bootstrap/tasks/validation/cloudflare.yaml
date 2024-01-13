@@ -1,5 +1,6 @@
 ---
 - name: Query Cloudflare zone
+  when: not ci_test | default(false)
   ansible.builtin.uri:
     url: https://api.cloudflare.com/client/v4/zones?name={{ bootstrap_cloudflare_domain }}&status=active
     headers:
@@ -11,12 +12,14 @@
   register: result
 
 - name: Check if Cloudflare zone exists
+  when: not ci_test | default(false)
   ansible.builtin.assert:
     that: result.json.success is true
     success_msg: Cloudflare zone {{ bootstrap_cloudflare_domain }} exists
     fail_msg: Cloudflare zone {{ bootstrap_cloudflare_domain }} does not exist
 
 - name: Query Cloudflared tunnel
+  when: not ci_test | default(false)
   ansible.builtin.uri:
     url: https://api.cloudflare.com/client/v4/accounts/{{ bootstrap_cloudflare_account_tag }}/cfd_tunnel/{{ bootstrap_cloudflare_tunnel_id }}
     headers:
@@ -28,6 +31,7 @@
   register: result
 
 - name: Check if Cloudflared tunnel exists
+  when: not ci_test | default(false)
   ansible.builtin.assert:
     that: result.json.success is true
     success_msg: Cloudflared tunnel {{ bootstrap_cloudflare_tunnel_id }} exists

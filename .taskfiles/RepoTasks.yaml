@@ -7,6 +7,9 @@ tasks:
   clean:
     desc: Clean files and directories no longer needed after cluster bootstrap
     cmds:
+      # Clean up CI
+      - rm -rf {{.ROOT_DIR}}/.github/tests
+      - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
       # Move bootstrap directory to gitignored directory
       - mkdir -p {{.ROOT_DIR}}/.private
       - mv {{.ROOT_DIR}}/bootstrap {{.ROOT_DIR}}/.private
