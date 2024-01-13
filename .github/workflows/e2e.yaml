@@ -18,7 +18,7 @@ jobs:
       image: greyltc/archlinux-aur:paru
       options: --user root
     steps:
-      - name: investigate
+      - name: Investigate 1
         run: |
           pwd
           whoami
@@ -28,10 +28,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Investigate 2
+        run: |
+          pwd
+          whoami
+          ls -la
+          id -u
+
       - name: Test Arch dependencies
         shell: bash
-        run: |
-          sudo -u ab -D~ bash -c 'paru -Syu --noconfirm --noprogressbar - < ${GITHUB_WORKSPACE}/.taskfiles/Workstation/ArchPackages'
+        run: >-
+          sudo -u ab -D~ bash -c '
+          paru -Syu --noconfirm --noprogressbar - < ${GITHUB_WORKSPACE}/.taskfiles/Workstation/ArchPackages
+          '
 
   e2e-configure:
     name: e2e-configure
