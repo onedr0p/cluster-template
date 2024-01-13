@@ -14,17 +14,15 @@ jobs:
   e2e-paru:
     name: e2e-paru
     runs-on: ubuntu-latest
+    container: greyltc/archlinux-aur:paru
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Test Arch dependencies
-        uses: docker://greyltc/archlinux-aur:paru
-        with:
-          args: >-
-            sudo -u ab -D~ bash -c '
-            paru -Syu --noconfirm --noprogressbar - < .taskfiles/Workstation/ArchPackages
-            '
+        shell: bash
+        run: |
+          sudo -u ab -D~ bash -c 'paru -Syu --noconfirm --noprogressbar - < .taskfiles/Workstation/ArchPackages'
 
   e2e-configure:
     name: e2e-configure
