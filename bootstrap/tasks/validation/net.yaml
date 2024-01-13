@@ -194,6 +194,7 @@
     quiet: true
 
 - name: Verify SSH port is reachable
+  when: not ci_test | default(false)
   ansible.builtin.wait_for:
     host: "{{ current_address }}"
     port: 22

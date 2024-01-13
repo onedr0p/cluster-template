@@ -1,0 +1,77 @@
+---
+name: "e2e"
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths: ["bootstrap/**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: "3.12"
+
+      - name: Cache venv
+        uses: actions/cache@v3
+        with:
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt', 'requirements.yaml') }}
+          path: .venv
+
+      - name: Setup Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Setup Workflow Tools
+        shell: bash
+        run: brew install go-task
+
+      - name: Install Brew dependencies
+        shell: bash
+        run: task brew:deps
+
+      - name: Initialize Direnv
+        shell: bash
+        run: direnv allow .
+
+      - name: Initialize Sops Age key
+        shell: bash
+        run: task sops:init
+
+      - name: Install Ansible dependencies
+        shell: bash
+        run: task ansible:deps
+
+      - name: Initialize config
+        shell: bash
+        run: |
+          task init
+          cp ./.github/tests/config.yaml ./bootstrap/vars/config.yaml
+          cp ./.github/tests/addons.yaml ./bootstrap/vars/addons.yaml
+          export BOOTSTRAP_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
+          envsubst < ./bootstrap/vars/config.yaml | sponge ./bootstrap/vars/config.yaml
+
+      - name: Run configure
+        shell: bash
+        run: task --yes configure
+
+      - name: List Hosts
+        shell: bash
+        run: task ansible:list
+
+      - name: Run repo clean and reset
+        shell: bash
+        run: |
+          task repo:clean
+          task --yes repo:reset
