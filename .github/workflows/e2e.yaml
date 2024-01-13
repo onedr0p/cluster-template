@@ -21,7 +21,7 @@ jobs:
       - name: Test Arch dependencies
         uses: docker://greyltc/archlinux-aur:paru
         with:
-          command: >-
+          args: >-
             sudo -u ab -D~ bash -c '
             paru -Syu --noconfirm --noprogressbar - < .taskfiles/Workstation/ArchPackages
             '
