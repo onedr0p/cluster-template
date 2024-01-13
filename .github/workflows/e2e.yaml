@@ -23,7 +23,9 @@ jobs:
 
       - name: Set Permissions
         shell: bash
-        run: sudo chown -R 973:973 $GITHUB_WORKSPACE
+        run: |
+          sudo chown -R 973:973 $GITHUB_WORKSPACE
+          sudo chmod -R 777 $GITHUB_WORKSPACE
 
       - name: Test Arch dependencies
         shell: bash
