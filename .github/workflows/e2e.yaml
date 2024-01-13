@@ -37,10 +37,10 @@ jobs:
 
       - name: Test Arch dependencies
         shell: bash
-        working-directory: /__w/flux-cluster-template/flux-cluster-template
         run: >-
           sudo -u ab -D~ bash -c '
-          paru -Syu --noconfirm --noprogressbar go-task && go-task --taskfile Taskfile.yaml workstation:paru
+          paru -Syu --noconfirm --noprogressbar go-task;
+          go-task --taskfile /__w/flux-cluster-template/flux-cluster-template/Taskfile.yaml workstation:paru
           '
 
   e2e-configure:
