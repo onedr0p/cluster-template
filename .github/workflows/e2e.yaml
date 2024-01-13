@@ -18,12 +18,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: "3.12"
+
+      - name: Cache venv
+        uses: actions/cache@v3
+        with:
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version}}-${{ hashFiles('requirements.txt') }}
+          path: .venv
+
       - name: Setup Homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
       - name: Setup Workflow Tools
         shell: bash
-        run: brew install direnv go-task
+        run: brew install go-task
 
       - name: Install Brew dependencies
         shell: bash
