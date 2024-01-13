@@ -191,7 +191,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     3a. Create a Age private / public key (this file is gitignored)
 
       ```sh
-      age-keygen -o age.key
+      task sops:age-keygen
       ```
 
     3b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
@@ -616,6 +616,14 @@ The benefits of a public repository include:
 10. Optionally set your repository to Private in your repository settings.
 
 </details>
+
+## Related Projects
+
+If this repo is too hot to handle or too cold to hold check out these following projects.
+
+- [danmanners/aws-argo-cluster-template](https://github.com/danmanners/aws-argo-cluster-template) - _A community opinionated template for deploying Kubernetes clusters on-prem and in AWS using Pulumi, SOPS, Sealed Secrets, GitHub Actions, Renovate, Cilium and more!_
+- [ricsanfre/pi-cluster](https://github.com/ricsanfre/pi-cluster) - _Pi Kubernetes Cluster. Homelab kubernetes cluster automated with Ansible and ArgoCD_
+- [techno-tim/k3s-ansible](https://github.com/techno-tim/k3s-ansible) - _The easiest way to bootstrap a self-hosted High Availability Kubernetes cluster. A fully automated HA k3s etcd install with kube-vip, MetalLB, and more_
 
 ## 🤝 Thanks
 

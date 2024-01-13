@@ -4,14 +4,15 @@ version: "3"
 
 tasks:
 
-  init:
-    desc: Initialize Sops Age Key
+  age-keygen:
+    desc: Initialize Age Key for Sops
     cmd: age-keygen --output {{.ROOT_DIR}}/age.key
     status:
       - test -f "{{.ROOT_DIR}}/age.key"
 
   encrypt:
     desc: Encrypt a secret
+    aliases: ["e"]
     summary: |
       Args:
         file: Path to file to encrypt (required)
@@ -24,6 +25,7 @@ tasks:
 
   decrypt:
     desc: Decrypt a secret
+    aliases: ["d"]
     summary: |
       Args:
         file: Path to file to decrypt (required)

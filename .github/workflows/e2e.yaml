@@ -46,13 +46,13 @@ jobs:
 
       - name: Initialize Sops Age key
         shell: bash
-        run: task sops:init
+        run: task sops:age-keygen
 
       - name: Install Ansible dependencies
         shell: bash
-        run: task ansible:deps
+        run: task ansible:deps force=false
 
-      - name: Initialize config
+      - name: Generate bootstrap config file
         shell: bash
         run: |
           task init
@@ -65,7 +65,7 @@ jobs:
         shell: bash
         run: task --yes configure
 
-      - name: List Hosts
+      - name: List Hosts with Ansible
         shell: bash
         run: task ansible:list
 

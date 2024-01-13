@@ -12,7 +12,7 @@ tasks:
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
       # Move bootstrap directory to gitignored directory
       - mkdir -p {{.ROOT_DIR}}/.private
-      - mv {{.ROOT_DIR}}/bootstrap {{.ROOT_DIR}}/.private
+      - mv {{.ROOT_DIR}}/bootstrap {{.ROOT_DIR}}/.private/bootstrap-{{now | date "150405"}}
       # Update renovate.json5
       - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
       - sed -i {{if eq OS "darwin"}}''{{end}} '/addons/d' {{.ROOT_DIR}}/.github/renovate.json5
