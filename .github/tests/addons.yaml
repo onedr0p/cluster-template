@@ -1,0 +1,34 @@
+---
+homepage:
+  enabled: true
+
+grafana:
+  enabled: true
+  password: fake
+
+kube_prometheus_stack:
+  enabled: true
+
+kubernetes_dashboard:
+  enabled: true
+
+weave_gitops:
+  enabled: true
+  password: fake
+
+csi_driver_nfs:
+  enabled: true
+  storage_class:
+    - name: fake
+      server: fake
+      share: /fake
+
+system_upgrade_controller:
+  enabled: true
+
+discord_template_notifier:
+  enabled: true
+  webhook_url: https://discord.com/api/webhooks/fake/fake
+
+volsync:
+  enabled: true

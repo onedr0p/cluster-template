@@ -25,6 +25,7 @@ tasks:
         kubeconform
         kubernetes-cli
         kustomize
+        moreutils
         sops
         stern
         yq

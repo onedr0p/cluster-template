@@ -43,8 +43,19 @@ jobs:
 
       - name: Initialize config
         shell: bash
-        run: task init
+        run: |
+          task init
+          cp ./.github/tests/config.yaml ./bootstrap/vars/config.yaml
+          cp ./.github/tests/addons.yaml ./bootstrap/vars/addons.yaml
+          export BOOTSTRAP_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
+          envsubst < ./bootstrap/vars/config.yaml | sponge ./bootstrap/vars/config.yaml
 
       - name: Run configure
         shell: bash
         run: task --yes configure
+
+      - name: Run repo clean and reset
+        shell: bash
+        run: |
+          task repo:clean
+          task --yes repo:reset
