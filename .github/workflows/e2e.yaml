@@ -11,8 +11,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e:
-    name: e2e
+  e2e-paru:
+    name: e2e-paru
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test Arch dependencies
+        uses: docker://greyltc/archlinux-aur:paru
+        with:
+          args: bash -c 'paru -Syyu --noconfirm && paru -S --noconfirm --needed $(cat .taskfiles/Workstation/Packages/ArchPackages.txt)'
+
+  e2e-configure:
+    name: e2e-configure
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
