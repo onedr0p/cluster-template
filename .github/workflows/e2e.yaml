@@ -14,7 +14,9 @@ jobs:
   e2e-paru:
     name: e2e-paru
     runs-on: ubuntu-latest
-    container: greyltc/archlinux-aur:paru
+    container:
+      image: greyltc/archlinux-aur:paru
+      options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v4
