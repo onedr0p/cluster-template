@@ -57,7 +57,6 @@ tasks:
     cmd: flux reconcile --namespace flux-system kustomization cluster --with-source
 
   github-deploy-key:
-    cmds:
-      - sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply --server-side --filename -
+    cmd: sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply --server-side --filename -
     preconditions:
       - { msg: "Flux is not installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 0 || exit 1" }
