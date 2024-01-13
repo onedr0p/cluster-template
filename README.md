@@ -171,7 +171,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```sh
     # Homebrew
     task workstation:brew
-    # or, Arch / Paru
+    # or, Arch / Yay
     go-task workstation:yay
     ```
 
