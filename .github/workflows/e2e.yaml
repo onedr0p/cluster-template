@@ -41,8 +41,9 @@ jobs:
         shell: bash
         run: >-
           sudo -u ab -D~ bash -c '
-          cd $GITHUB_WORKSPACE;
-          paru -Syu --noconfirm --noprogressbar go-task;
+          cd $GITHUB_WORKSPACE && \
+          echo $(pwd) && \
+          paru -Syu --noconfirm --noprogressbar go-task && \
           go-task workstation:paru
           '
 
