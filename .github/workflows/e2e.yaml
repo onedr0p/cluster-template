@@ -21,7 +21,10 @@ jobs:
       - name: Test Arch dependencies
         uses: docker://greyltc/archlinux-aur:paru
         with:
-          args: bash -c 'paru -Syyu --noconfirm'
+          command: >-
+            sudo -u ab -D~ bash -c '
+            paru -Syu --noconfirm --noprogressbar - < .taskfiles/Workstation/ArchPackages
+            '
 
   e2e-configure:
     name: e2e-configure
