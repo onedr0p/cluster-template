@@ -21,6 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set Permissions
+        shell: bash
+        run: sudo chown -R 973:973 $GITHUB_WORKSPACE
+
       - name: Test Arch dependencies
         shell: bash
         run: >-
