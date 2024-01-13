@@ -33,14 +33,18 @@ jobs:
         shell: bash
         run: direnv allow .
 
+      - name: Initialize Sops Age key
+        shell: bash
+        run: task sops:init
+
+      - name: Install Ansible dependencies
+        shell: bash
+        run: task ansible:deps
+
       - name: Initialize config
         shell: bash
         run: task init
 
-      - name: Create Age key
-        shell: bash
-        run: task sops:init
-
       - name: Run configure
         shell: bash
-        run: task configure
+        run: task --yes configure
