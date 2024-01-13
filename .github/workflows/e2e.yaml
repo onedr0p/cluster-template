@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e-paru:
-    name: e2e-paru
+  e2e-yay:
+    name: e2e-yay
     runs-on: ubuntu-latest
     container:
       image: greyltc/archlinux-aur:yay
@@ -21,18 +21,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - name: Set Permissions
-      #   shell: bash
-      #   run: |
-      #     sudo chown -R 973:973 $GITHUB_WORKSPACE
-      #     sudo chmod -R 777 $GITHUB_WORKSPACE
-
       - name: Test Arch dependencies
         shell: bash
         run: >-
           sudo -E -u ab -D~ bash -c '
           cd $GITHUB_WORKSPACE;
-          yay -Syu --noconfirm --noprogressbar go-task;
+          yay -Syu --needed --noconfirm --noprogressbar go-task;
           go-task workstation:yay
           '
 

@@ -8,7 +8,6 @@ jq
 k0sctl-bin
 k9s
 kubeconform
-kubecolor
 kubectl-bin
 kustomize
 moreutils
