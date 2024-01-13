@@ -149,8 +149,8 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```sh
     # Homebrew
     brew install go-task
-    # Arch / Paru
-    paru -S go-task-bin
+    # Arch / Yay
+    yay -S go-task
     ```
 
 2. Install the most recent version of [direnv](https://direnv.net/), see the [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
@@ -160,8 +160,8 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```sh
     # Homebrew
     brew install direnv
-    # or, Arch / Paru
-    paru -S direnv
+    # or, Arch / Yay
+    yay -S direnv
     ```
 
 3. Install additional tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops)
@@ -172,7 +172,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     # Homebrew
     task workstation:brew
     # or, Arch / Paru
-    go-task workstation:paru
+    go-task workstation:yay
     ```
 
 4. Setup a Python virual env and install Ansible by running the following task command.

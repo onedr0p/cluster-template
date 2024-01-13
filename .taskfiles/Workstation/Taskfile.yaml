@@ -18,7 +18,7 @@ tasks:
     desc: Install workstation dependencies with Paru
     cmd: yay -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/Workstation/ArchPackages | xargs)
     preconditions:
-      - sh: command -v paru
+      - sh: command -v yay
         msg: |
           Yay is not installed. Using ArchLinux?
           Head over to https://github.com/Jguer/yay to get up and running.
