@@ -16,7 +16,7 @@ tasks:
 
   paru:
     desc: Install workstation dependencies with Paru
-    cmd: paru -Syu --noconfirm --noprogressbar $(cat .taskfiles/Workstation/ArchPackages | xargs)
+    cmd: paru -Syu --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/Workstation/ArchPackages | xargs)
     preconditions:
       - sh: command -v paru
         msg: |
