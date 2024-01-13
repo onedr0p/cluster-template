@@ -2,6 +2,7 @@
 name: "e2e"
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: ["main"]
 
@@ -10,12 +11,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e:
-    name: e2e
+  e2e-yay:
+    name: e2e-yay
+    runs-on: ubuntu-latest
+    container:
+      image: greyltc/archlinux-aur:yay
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test Arch dependencies
+        shell: bash
+        run: >-
+          sudo -E -u ab -D~ bash -c '
+          cd $GITHUB_WORKSPACE;
+          yay -Syu --needed --noconfirm --noprogressbar go-task;
+          go-task workstation:yay
+          '
+
+  e2e-configure:
+    name: e2e-configure
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Homebrew
+        id: setup-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -23,22 +47,30 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Cache homebrew packages
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/cache@v3
+        id: cache-homebrew-packages
+        with:
+          key: homebrew-${{ runner.os }}-${{ steps.setup-homebrew.outputs.gems-hash }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
+          path: /home/linuxbrew/.linuxbrew
+
       - name: Cache venv
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/cache@v3
         with:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt', 'requirements.yaml') }}
           path: .venv
 
-      - name: Setup Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-
       - name: Setup Workflow Tools
+        if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
         shell: bash
         run: brew install go-task
 
       - name: Install Brew dependencies
+        if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
         shell: bash
-        run: task brew:deps
+        run: task workstation:brew
 
       - name: Initialize Direnv
         shell: bash
@@ -46,13 +78,13 @@ jobs:
 
       - name: Initialize Sops Age key
         shell: bash
-        run: task sops:init
+        run: task sops:age-keygen
 
       - name: Install Ansible dependencies
         shell: bash
-        run: task ansible:deps
+        run: task ansible:deps force=false
 
-      - name: Initialize config
+      - name: Generate bootstrap config file
         shell: bash
         run: |
           task init
@@ -65,7 +97,11 @@ jobs:
         shell: bash
         run: task --yes configure
 
-      - name: List Hosts
+      - name: Run kubeconform
+        shell: bash
+        run: ./scripts/kubeconform.sh ./kubernetes
+
+      - name: List Hosts with Ansible
         shell: bash
         run: task ansible:list
 

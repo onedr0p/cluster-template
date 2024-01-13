@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+
+  brew:
+    desc: Install workstation dependencies with Brew
+    cmd: brew bundle --file {{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile
+    preconditions:
+      - sh: command -v brew
+        msg: |
+          Homebrew is not installed. Using MacOS, Linux or WSL?
+          Head over to https://brew.sh to get up and running.
+      - { msg: "Brewfile not found", sh: "test -f {{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile" }
+
+  yay:
+    desc: Install workstation dependencies with Paru
+    cmd: yay -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/Workstation/ArchPackages | xargs)
+    preconditions:
+      - sh: command -v yay
+        msg: |
+          Yay is not installed. Using ArchLinux?
+          Head over to https://github.com/Jguer/yay to get up and running.
+      - { msg: "ArchPackages not found", sh: "test -f {{.ROOT_DIR}}/.taskfiles/Workstation/ArchPackages" }

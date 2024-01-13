@@ -11,15 +11,15 @@ env:
   KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
 
 includes:
-  ansible: .taskfiles/AnsibleTasks.yaml
-  brew: .taskfiles/BrewTasks.yaml
+  ansible: .taskfiles/Ansible/Taskfile.yaml
   kubernetes:
     aliases: ["k8s"]
-    taskfile: .taskfiles/KubernetesTasks.yaml
-  flux: .taskfiles/FluxTasks.yaml
-  k0s: .taskfiles/K0sTasks.yaml
-  repo: .taskfiles/RepoTasks.yaml
-  sops: .taskfiles/SopsTasks.yaml
+    taskfile: .taskfiles/Kubernetes/Taskfile.yaml
+  flux: .taskfiles/Flux/Taskfile.yaml
+  k0s: .taskfiles/K0s/Taskfile.yaml
+  repo: .taskfiles/Repo/Taskfile.yaml
+  sops: .taskfiles/Sops/Taskfile.yaml
+  workstation: .taskfiles/Workstation/Taskfile.yaml
 
 tasks:
 
@@ -47,8 +47,6 @@ tasks:
   configure:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
-    cmds:
-      - ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/configure.yaml
-      - ./scripts/kubeconform.sh {{.KUBERNETES_DIR}}
+    cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/configure.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"

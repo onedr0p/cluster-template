@@ -4,6 +4,7 @@ version: "3"
 
 vars:
   PYTHON_BIN: python3
+  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_DIR}}/inventory/hosts.yaml"
 
 env:
   PATH: "{{.ROOT_DIR}}/.venv/bin:$PATH"
@@ -11,6 +12,8 @@ env:
   ANSIBLE_COLLECTIONS_PATH: "{{.ROOT_DIR}}/.venv/galaxy"
   ANSIBLE_ROLES_PATH: "{{.ROOT_DIR}}/.venv/galaxy/ansible_roles"
   ANSIBLE_VARS_ENABLED: "host_group_vars,community.sops.sops"
+  ANSIBLE_LOCALHOST_WARNING: "False"
+  ANSIBLE_INVENTORY_UNPARSED_WARNING: "False"
 
 tasks:
 
@@ -18,6 +21,8 @@ tasks:
     desc: Set up Ansible dependencies for the environment
     cmds:
       - task: .venv
+        vars:
+          force: '{{.force | default "true"}}'
 
   run:
     desc: Run an Ansible playbook for configuring a cluster
@@ -27,46 +32,53 @@ tasks:
     prompt: Run Ansible playbook '{{.playbook}}'... continue?
     deps: ["deps"]
     cmd: |
-      .venv/bin/ansible-playbook \
-        --inventory {{.ANSIBLE_DIR}}/inventory/hosts.yaml \
-        {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml {{.CLI_ARGS}}
+      .venv/bin/ansible-playbook --inventory {{.ANSIBLE_INVENTORY_FILE}} \
+          {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml {{.CLI_ARGS}}
     preconditions:
       - { msg: "Argument (playbook) is required", sh: "test -n {{.playbook}}" }
       - { msg: "Venv not found",                  sh: "test -d {{.ROOT_DIR}}/.venv" }
-      - { msg: "Inventory not found",             sh: "test -f {{.ANSIBLE_DIR}}/inventory/hosts.yaml" }
+      - { msg: "Inventory not found",             sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
       - { msg: "Playbook not found",              sh: "test -f {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml" }
 
   poweroff:
     desc: Shutdown all the k8s nodes
     deps: ["deps"]
-    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml -a '/usr/bin/systemctl poweroff' --become
+    cmd: |
+      .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} \
+          -a '/usr/bin/systemctl poweroff' --become
     preconditions:
       - { msg: "Venv not found",      sh: "test -d {{.ROOT_DIR}}/.venv" }
-      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_DIR}}/inventory/hosts.yaml" }
+      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   list:
     desc: List all the hosts
     deps: ["deps"]
-    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --list-hosts
+    cmd: |
+      .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} \
+          --list-hosts
     preconditions:
       - { msg: "Venv not found",      sh: "test -d {{.ROOT_DIR}}/.venv" }
-      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_DIR}}/inventory/hosts.yaml" }
+      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   ping:
     desc: Ping all the hosts
     deps: ["deps"]
-    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -m 'ping'
+    cmd: |
+      .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} \
+          --one-line -m 'ping'
     preconditions:
       - { msg: "Venv not found",      sh: "test -d {{.ROOT_DIR}}/.venv" }
-      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_DIR}}/inventory/hosts.yaml" }
+      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   uptime:
     desc: Uptime of all the hosts
     deps: ["deps"]
-    cmd: .venv/bin/ansible kubernetes -i {{.ANSIBLE_DIR}}/inventory/hosts.yaml --one-line -a 'uptime'
+    cmd: |
+      .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} \
+          --one-line -a 'uptime'
     preconditions:
       - { msg: "Venv not found",      sh: "test -d {{.ROOT_DIR}}/.venv" }
-      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_DIR}}/inventory/hosts.yaml" }
+      - { msg: "Inventory not found", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   .venv:
     internal: true
@@ -74,7 +86,9 @@ tasks:
       - true && {{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv
       - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
       - .venv/bin/python3 -m pip install --upgrade --requirement "{{.ROOT_DIR}}/requirements.txt"
-      - .venv/bin/ansible-galaxy install --role-file "{{.ROOT_DIR}}/requirements.yaml" --force
+      - .venv/bin/ansible-galaxy install --role-file "{{.ROOT_DIR}}/requirements.yaml" {{if eq .force "true"}}--force{{end}}
+    vars:
+      force: '{{.force | default "true"}}'
     sources:
       - "{{.ANSIBLE_DIR}}/requirements.txt"
       - "{{.ANSIBLE_DIR}}/requirements.yaml"

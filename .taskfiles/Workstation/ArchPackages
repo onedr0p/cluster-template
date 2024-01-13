@@ -1,0 +1,17 @@
+age
+cilium-cli
+cloudflared-bin
+direnv
+flux-bin
+helm
+jq
+k0sctl-bin
+k9s
+kubeconform
+kubectl-bin
+kustomize
+moreutils
+sops
+stern-bin
+go-task
+go-yq

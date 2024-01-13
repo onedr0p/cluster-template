@@ -144,8 +144,13 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 1. Install the most recent version of [task](https://taskfile.dev/), see the [installation docs](https://taskfile.dev/installation/) for other supported platforms.
 
+    📍 _If using **ArchLinux** the `task` command is `go-task` in your shell_
+
     ```sh
+    # Homebrew
     brew install go-task
+    # Arch / Yay
+    yay -S go-task
     ```
 
 2. Install the most recent version of [direnv](https://direnv.net/), see the [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
@@ -153,23 +158,29 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     📍 _After installing `direnv` be sure to **[hook it into your shell](https://direnv.net/docs/hook.html)** and after that is done run `direnv allow` while in your repos' directory._
 
     ```sh
+    # Homebrew
     brew install direnv
+    # or, Arch / Yay
+    yay -S direnv
     ```
 
-3. Setup a Python virual env and install Ansible by running the following task command.
+3. Install additional tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops)
 
-    📍 _This commands requires Python 3.10+ to be installed_
+   📍 _Not using Homebrew or ArchLinux? Make sure to look up how to install the latest version of each of these CLI tools and install them._
+
+    ```sh
+    # Homebrew
+    task workstation:brew
+    # or, Arch / Paru
+    go-task workstation:yay
+    ```
+
+4. Setup a Python virual env and install Ansible by running the following task command.
+
+    📍 _This commands requires Python 3.10+ to be installed._
 
     ```sh
     task ansible:deps
-    ```
-
-4. Install the required tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops), [kubeconform](https://github.com/yannh/kubeconform), [kustomize](https://github.com/kubernetes-sigs/kustomize)
-
-   📍 _Not using brew? Make sure to look up how to install the latest version of each of these CLI tools yourself._
-
-    ```sh
-    task brew:deps
     ```
 
 ### 🔧 Stage 3: Do bootstrap configuration
@@ -191,7 +202,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     3a. Create a Age private / public key (this file is gitignored)
 
       ```sh
-      age-keygen -o age.key
+      task sops:age-keygen
       ```
 
     3b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
@@ -300,17 +311,12 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 3. Install Kubernetes depending on the distribution you chose
 
-    * Install k3s
-
-      ```sh
-      task ansible:run playbook=cluster-installation
-      ```
-
-    * Install k0s
-
-      ```sh
-      task k0s:apply
-      ```
+    ```sh
+    # Install k3s
+    task ansible:run playbook=cluster-installation
+    # or, install k0s
+    task k0s:apply
+    ```
 
 4. Verify the nodes are online
 
@@ -444,17 +450,12 @@ By default Flux will periodically check your git repository for changes. In orde
 
 There might be a situation where you want to destroy your Kubernetes cluster. This will completely clean the OS of all traces of the Kubernetes distribution you chose and then reboot the nodes.
 
-* Nuke k3s
-
-    ```sh
-    task ansible:run playbook=cluster-nuke
-    ```
-
-* Nuke k0s
-
-    ```sh
-    task k0s:reset
-    ```
+```sh
+# Nuke k3s
+task ansible:run playbook=cluster-nuke
+# or, Nuke k0s
+task k0s:reset
+```
 
 ### 🤖 Renovate
 
@@ -616,6 +617,14 @@ The benefits of a public repository include:
 10. Optionally set your repository to Private in your repository settings.
 
 </details>
+
+## Related Projects
+
+If this repo is too hot to handle or too cold to hold check out these following projects.
+
+- [danmanners/aws-argo-cluster-template](https://github.com/danmanners/aws-argo-cluster-template) - _A community opinionated template for deploying Kubernetes clusters on-prem and in AWS using Pulumi, SOPS, Sealed Secrets, GitHub Actions, Renovate, Cilium and more!_
+- [ricsanfre/pi-cluster](https://github.com/ricsanfre/pi-cluster) - _Pi Kubernetes Cluster. Homelab kubernetes cluster automated with Ansible and ArgoCD_
+- [techno-tim/k3s-ansible](https://github.com/techno-tim/k3s-ansible) - _The easiest way to bootstrap a self-hosted High Availability Kubernetes cluster. A fully automated HA k3s etcd install with kube-vip, MetalLB, and more_
 
 ## 🤝 Thanks
 
