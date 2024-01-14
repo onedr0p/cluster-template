@@ -46,12 +46,8 @@
         wait_sleep: 10
         wait_timeout: 360
       loop:
-        - { name: cilium, kind: HelmChart, namespace: kube-system }
+        - { name: cilium,  kind: HelmChart, namespace: kube-system }
         - { name: coredns, kind: HelmChart, namespace: kube-system }
-        {% if not bootstrap_ipv6_enabled | default(false) %}
-        - { name: policy, kind: CiliumL2AnnouncementPolicy }
-        - { name: pool, kind: CiliumLoadBalancerIPPool }
-        {% endif %}
 
     - name: Coredns
       when: k3s_primary_control_node
