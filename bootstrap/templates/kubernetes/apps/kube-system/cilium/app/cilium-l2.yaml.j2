@@ -20,6 +20,6 @@ metadata:
 spec:
   cidrs:
     - cidr: "${NODE_CIDR}"
-    {% if not bootstrap_ipv6_enabled | default(false) %}
+    {% if bootstrap_ipv6_enabled | default(false) %}
     - cidr: "${NODE_CIDR_V6}"
     {% endif %}
