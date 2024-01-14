@@ -1,3 +1,4 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 # https://github.com/kevincoakley/ansible-role-k8s-rolling-update
 - name: Cluster rollout update
@@ -12,7 +13,11 @@
         seconds: 5
   tasks:
     - name: Details
-      ansible.builtin.command: "kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
+      {% if bootstrap_distribution == 'k3s' %}
+      ansible.builtin.command: "k3s kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
+      {% elif bootstrap_distribution == 'k0s' %}
+      ansible.builtin.command: "k0s kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
+      {% endif %}
       register: kubectl_get_node
       delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
       failed_when: false
@@ -28,14 +33,22 @@
         - name: Cordon
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            {% if bootstrap_distribution == 'k3s' %}
             kubeconfig: /etc/rancher/k3s/k3s.yaml
+            {% elif bootstrap_distribution == 'k0s' %}
+            kubeconfig: /var/lib/k0s/pki/admin.conf
+            {% endif %}
             state: cordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
 
         - name: Drain
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            {% if bootstrap_distribution == 'k3s' %}
             kubeconfig: /etc/rancher/k3s/k3s.yaml
+            {% elif bootstrap_distribution == 'k0s' %}
+            kubeconfig: /var/lib/k0s/pki/admin.conf
+            {% endif %}
             state: drain
             delete_options:
               delete_emptydir_data: true
@@ -67,6 +80,10 @@
         - name: Uncordon
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            {% if bootstrap_distribution == 'k3s' %}
             kubeconfig: /etc/rancher/k3s/k3s.yaml
+            {% elif bootstrap_distribution == 'k0s' %}
+            kubeconfig: /var/lib/k0s/pki/admin.conf
+            {% endif %}
             state: uncordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
