@@ -34,13 +34,13 @@ jobs:
     name: e2e-configure
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         config-files:
-          - config-ipv4
-          - config-ipv6
-        addon-files:
-          - addons
-      fail-fast: false
+          - k0s
+          - k3s-ipv4
+          - k3s-ipv6
+        addon-files: ["addons"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -96,10 +96,16 @@ jobs:
         shell: bash
         run: |
           task init
-          cp ./.github/tests/${{ matrix.config-files }}.yaml ./bootstrap/vars/config.yaml
+          cp ./.github/tests/config-${{ matrix.config-files }}.yaml ./bootstrap/vars/config.yaml
           cp ./.github/tests/${{ matrix.addon-files }}.yaml ./bootstrap/vars/addons.yaml
           export BOOTSTRAP_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
           envsubst < ./bootstrap/vars/config.yaml | sponge ./bootstrap/vars/config.yaml
+
+      - name: Export Env from config.yaml
+        shell: bash
+        id: config-env
+        run: |
+          echo "distribution=$(yq '.bootstrap_distribution' ./bootstrap/vars/config.yaml)" >> $GITHUB_OUTPUT
 
       - name: Run configure
         shell: bash
@@ -110,6 +116,7 @@ jobs:
         run: ./scripts/kubeconform.sh ./kubernetes
 
       - name: List Hosts with Ansible
+        if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}
         shell: bash
         run: task ansible:list
 
