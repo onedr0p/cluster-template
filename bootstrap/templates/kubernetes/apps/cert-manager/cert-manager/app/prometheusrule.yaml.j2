@@ -1,4 +1,3 @@
-#jinja2: trim_blocks: True
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -29,9 +28,8 @@ spec:
             severity: warning
           annotations:
             description: >
-              The domain that this cert covers will be unavailable after
-              {% raw %}{{ $value | humanizeDuration }}{% endraw %}. Clients using endpoints that this cert
-              protects will start to fail in {% raw %}{{ $value | humanizeDuration }}{% endraw %}.
+              The domain that this cert covers will be unavailable after {% raw %}{{ $value | humanizeDuration }}{% endraw %}.
+              Clients using endpoints that this cert protects will start to fail in {% raw %}{{ $value | humanizeDuration }}{% endraw %}.
             runbook_url: https://gitlab.com/uneeq-oss/cert-manager-mixin/-/blob/master/RUNBOOK.md#certmanagercertexpirysoon
             summary: |
               The cert {% raw %}{{ $labels.name }}{% endraw %} is {% raw %}{{ $value | humanizeDuration }}{% endraw %} from expiry, it should have renewed over a week ago.
