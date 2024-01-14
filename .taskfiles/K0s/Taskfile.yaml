@@ -3,6 +3,7 @@ version: "3"
 
 env:
   DISABLE_TELEMETRY: "true"
+  DISABLE_UPGRADE_CHECK: "true"
 
 tasks:
 
