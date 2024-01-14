@@ -1,4 +1,3 @@
-#jinja2: trim_blocks: True, lstrip_blocks: True
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -7,7 +6,7 @@ metadata:
   namespace: flux-system
 data:
   TIMEZONE: "{{ bootstrap_timezone }}"
-  COREDNS_ADDR: "{{ bootstrap_service_cidr.split(',')[0] | ansible.utils.nthhost(10) }}"
+  COREDNS_ADDR: "{{ bootstrap_service_cidr.split(',')[0] }}" #FIXME
   KUBEAPI_ADDR: "{{ bootstrap_kubeapi_addr }}"
   CLUSTER_CIDR: "{{ bootstrap_cluster_cidr.split(',')[0] }}"
   SERVICE_CIDR: "{{ bootstrap_service_cidr.split(',')[0] }}"

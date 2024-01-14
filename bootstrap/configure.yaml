@@ -27,19 +27,49 @@
     - name: Verify configuration
       ansible.builtin.include_tasks: tasks/validation/main.yaml
 
-    - name: Template Sops configuration
-      ansible.builtin.include_tasks: tasks/sops/main.yaml
+    - name: Template SOPS configuration # noqa: no-changed-when
+      ansible.builtin.shell:
+        cmd: >
+          makejinja
+          --input "{{ repository_path }}/bootstrap/templates/.sops.yaml.j2"
+          --output "{{ repository_path }}/.sops.yaml"
+          --data "{{ repository_path }}/bootstrap/vars/config.yaml"
+          --jinja-suffix ".j2" --quiet --force
 
-    - name: Template k0s configuration
+    - name: Template k0s configuration # noqa: no-changed-when
       when: bootstrap_distribution == "k0s"
-      ansible.builtin.include_tasks: tasks/k0s/main.yaml
+      ansible.builtin.shell:
+        cmd: >
+          makejinja
+          --input "{{ repository_path }}/bootstrap/templates/k0s/k0s-config.yaml.j2"
+          --output "{{ repository_path }}/k0s-config.yaml"
+          --data-var "bootstrap_kube_vip_enabled={{ bootstrap_kube_vip_enabled }}"
+          --data-var "bootstrap_kubeapi_addr={{ bootstrap_kubeapi_addr }}"
+          --data "{{ repository_path }}/bootstrap/vars/config.yaml"
+          --data "{{ repository_path }}/bootstrap/vars/addons.yaml"
+          --jinja-suffix ".j2" --quiet --force
 
-    - name: Template Ansible configuration
+    - name: Template Ansible configuration # noqa: no-changed-when
       when: bootstrap_distribution == "k0s" or bootstrap_distribution == "k3s"
-      ansible.builtin.include_tasks: tasks/ansible/main.yaml
+      ansible.builtin.shell:
+        cmd: >
+          makejinja
+          --input "{{ repository_path }}/bootstrap/templates/ansible"
+          --output "{{ repository_path }}/ansible"
+          --data-var "bootstrap_kube_vip_enabled={{ bootstrap_kube_vip_enabled }}"
+          --data-var "bootstrap_kubeapi_addr={{ bootstrap_kubeapi_addr }}"
+          --data "{{ repository_path }}/bootstrap/vars/config.yaml"
+          --data "{{ repository_path }}/bootstrap/vars/addons.yaml"
+          --jinja-suffix ".j2" --quiet --force
 
-    - name: Template Kubernetes configuration
-      ansible.builtin.include_tasks: tasks/kubernetes/main.yaml
-
-    - name: Template Kubernetes addon configuration
-      ansible.builtin.include_tasks: tasks/addons/main.yaml
+    - name: Template Kubernetes configuration # noqa: no-changed-when
+      ansible.builtin.shell:
+        cmd: >
+          makejinja
+          --input "{{ repository_path }}/bootstrap/templates/kubernetes"
+          --output "{{ repository_path }}/kubernetes"
+          --data-var "bootstrap_kube_vip_enabled={{ bootstrap_kube_vip_enabled }}"
+          --data-var "bootstrap_kubeapi_addr={{ bootstrap_kubeapi_addr }}"
+          --data "{{ repository_path }}/bootstrap/vars/config.yaml"
+          --data "{{ repository_path }}/bootstrap/vars/addons.yaml"
+          --jinja-suffix ".j2" --quiet --force

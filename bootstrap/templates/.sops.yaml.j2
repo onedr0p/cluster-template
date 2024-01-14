@@ -1,16 +1,11 @@
 ---
 creation_rules:
-  - path_regex: kubernetes/.*\.sops\.ya?ml
+  - path_regex: kubernetes/.*\.secret(\.sops)?\.yaml
     encrypted_regex: "^(data|stringData)$"
     key_groups:
       - age:
           - "{{ bootstrap_age_public_key }}"
-  - path_regex: ansible/.*\.sops\.ya?ml
-    key_groups:
-      - age:
-          - "{{ bootstrap_age_public_key }}"
-  # https://github.com/ansible-collections/community.sops/issues/153
-  - path_regex: /dev/stdin
+  - path_regex: ansible/.*\.secret(\.sops)?\.yaml
     key_groups:
       - age:
           - "{{ bootstrap_age_public_key }}"

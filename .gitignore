@@ -8,6 +8,7 @@ kubeconfig
 *.agekey
 *.pub
 *.key
+*.secret.yaml
 # Private
 .private
 # Ansible
