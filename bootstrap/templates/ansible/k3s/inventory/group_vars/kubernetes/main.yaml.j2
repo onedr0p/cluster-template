@@ -18,9 +18,6 @@ k3s_registration_address: "{% raw %}{{ kubeapi_addr }}{% endraw %}"
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
-  {% if not bootstrap_ipv6_enabled | default(false) %}
-  - custom-cilium-l2.yaml.j2
-  {% endif %}
   - custom-coredns-helmchart.yaml.j2
 {% if bootstrap_kube_vip_enabled | default(true) %}
 # /var/lib/rancher/k3s/server/manifests
