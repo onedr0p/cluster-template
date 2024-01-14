@@ -28,23 +28,28 @@
       ansible.builtin.include_tasks: tasks/validation/main.yaml
 
     - name: Template Sops configuration
-      ansible.builtin.include_tasks: tasks/sops/main.yaml
-      aysnc: 60
+      ansible.builtin.include_tasks:
+        file: tasks/sops/main.yaml
+        aysnc: 60
 
     - name: Template k0s configuration
       when: bootstrap_distribution == "k0s"
-      ansible.builtin.include_tasks: tasks/k0s/main.yaml
-      aysnc: 60
+      ansible.builtin.include_tasks:
+        file: tasks/k0s/main.yaml
+        aysnc: 60
 
     - name: Template Ansible configuration
       when: bootstrap_distribution == "k0s" or bootstrap_distribution == "k3s"
-      ansible.builtin.include_tasks: tasks/ansible/main.yaml
-      aysnc: 60
+      ansible.builtin.include_tasks:
+        file: tasks/ansible/main.yaml
+        aysnc: 60
 
     - name: Template Kubernetes configuration
-      ansible.builtin.include_tasks: tasks/kubernetes/main.yaml
-      aysnc: 60
+      ansible.builtin.include_tasks:
+        file: tasks/kubernetes/main.yaml
+        aysnc: 60
 
     - name: Template Kubernetes addon configuration
-      ansible.builtin.include_tasks: tasks/addons/main.yaml
-      aysnc: 60
+      ansible.builtin.include_tasks:
+        file: tasks/addons/main.yaml
+        aysnc: 60
