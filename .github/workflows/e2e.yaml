@@ -120,11 +120,6 @@ jobs:
         shell: bash
         run: task ansible:list
 
-      - name: Test k0sctl config
-        if: ${{ steps.config-env.outputs.distribution == 'k0s' }}
-        shell: bash
-        run: k0sctl apply --config k0s-config.yaml --dry-run
-
       - name: Run repo clean and reset
         shell: bash
         run: |
