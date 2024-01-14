@@ -33,6 +33,14 @@ jobs:
   e2e-configure:
     name: e2e-configure
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config-files:
+          - config-ipv4
+          - config-ipv6
+        addon-files:
+          - addons
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,8 +96,8 @@ jobs:
         shell: bash
         run: |
           task init
-          cp ./.github/tests/config.yaml ./bootstrap/vars/config.yaml
-          cp ./.github/tests/addons.yaml ./bootstrap/vars/addons.yaml
+          cp ./.github/tests/${{ matrix.config-files }}.yaml ./bootstrap/vars/config.yaml
+          cp ./.github/tests/${{ matrix.addon-files }}.yaml ./bootstrap/vars/addons.yaml
           export BOOTSTRAP_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
           envsubst < ./bootstrap/vars/config.yaml | sponge ./bootstrap/vars/config.yaml
 

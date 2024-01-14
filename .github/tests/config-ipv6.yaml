@@ -1,0 +1,36 @@
+---
+ci_test: true
+
+bootstrap_distribution: k3s
+bootstrap_github_username: onedr0p
+bootstrap_github_repository_name: flux-cluster-template
+bootstrap_github_repository_branch: main
+bootstrap_age_public_key: $BOOTSTRAP_AGE_PUBLIC_KEY
+bootstrap_timezone: Etc/UTC
+bootstrap_acme_email: fake
+bootstrap_acme_production_enabled: false
+bootstrap_flux_github_webhook_token: fake
+bootstrap_cloudflare_domain: fake
+bootstrap_cloudflare_token: fake
+bootstrap_cloudflare_account_tag: fake
+bootstrap_cloudflare_tunnel_secret: fake
+bootstrap_cloudflare_tunnel_id: fake
+bootstrap_node_cidr: 10.10.10.0/24
+bootstrap_kubeapi_addr: 10.10.10.254
+bootstrap_k8s_gateway_addr: 10.10.10.253
+bootstrap_external_ingress_addr: 10.10.10.252
+bootstrap_internal_ingress_addr: 10.10.10.251
+bootstrap_cilium_loadbalancer_mode: dsr
+bootstrap_ipv6_enabled: true
+bootstrap_cluster_cidr: 10.42.0.0/16,fd7f:8f5:e87c:a::/64
+bootstrap_service_cidr: 10.43.0.0/16,fd7f:8f5:e87c:e::/112
+bootstrap_local_storage_path: /var/openebs/local
+bootstrap_nodes:
+  master:
+    - name: k8s-0
+      address: 10.10.10.100
+      username: fake
+  worker:
+    - name: k8s-1
+      address: 10.10.10.101
+      username: fake
