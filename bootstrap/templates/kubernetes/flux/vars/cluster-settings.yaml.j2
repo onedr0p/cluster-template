@@ -11,8 +11,9 @@ data:
   KUBEAPI_ADDR: "{{ bootstrap_kubeapi_addr }}"
   CLUSTER_CIDR: "{{ bootstrap_cluster_cidr.split(',')[0] }}"
   SERVICE_CIDR: "{{ bootstrap_service_cidr.split(',')[0] }}"
-  NODE_CIDR: "{{ bootstrap_node_cidr }}"
+  NODE_CIDR: "{{ bootstrap_node_cidr.split(',')[0] }}"
   {% if bootstrap_ipv6_enabled | default(false) %}
+  NODE_CIDR_V6: "{{ bootstrap_node_cidr.split(',')[1] }}"
   CLUSTER_CIDR_V6: "{{ bootstrap_cluster_cidr.split(',')[1] }}"
   SERVICE_CIDR_V6: "{{ bootstrap_service_cidr.split(',')[1] }}"
   {% endif %}
