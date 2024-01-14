@@ -8,6 +8,8 @@
   with_community.general.filetree:
     - "../templates/ansible/shared/"
     - "../templates/ansible/{{ bootstrap_distribution }}/"
+  loop_control:
+    label: "{{ item.path }}"
 
 - name: Template Ansible unencrypted files
   when:
@@ -21,6 +23,8 @@
   with_community.general.filetree:
     - "../templates/ansible/shared/"
     - "../templates/ansible/{{ bootstrap_distribution }}/"
+  loop_control:
+    label: "{{ item.path }}"
 
 - name: Template Ansible encrypted files
   block:
@@ -38,3 +42,5 @@
       with_community.general.filetree:
         - "../templates/ansible/shared/"
         - "../templates/ansible/{{ bootstrap_distribution }}/"
+      loop_control:
+        label: "{{ item.path }}"
