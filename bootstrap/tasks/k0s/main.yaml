@@ -4,3 +4,4 @@
     src: "templates/k0s/k0s-config.yaml.j2"
     dest: "{{ repository_path }}/k0s-config.yaml"
     mode: "0644"
+    lstrip_blocks: true

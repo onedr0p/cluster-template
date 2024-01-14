@@ -20,22 +20,20 @@
     src: "{{ item.src }}"
     dest: "{{ repository_path }}/kubernetes/apps/{{ addon_namespace }}/{{ addon_name }}/{{ item.path | replace('.j2', '') }}"
     mode: "0644"
+    lstrip_blocks: true
   with_community.general.filetree: ["../templates/addons/{{ addon_name }}/"]
   loop_control:
     label: "{{ item.path }}"
 
-# https://github.com/ansible-collections/community.sops/issues/153
-- name: Template encrypted files for {{ addon_namespace }}/{{ addon_name }}
-  block:
-    - name: Template encrypted files
-      when: item.state == 'file' and 'sops' in item.path
-      community.sops.sops_encrypt:
-        path: "{{ repository_path }}/kubernetes/apps/{{ addon_namespace }}/{{ addon_name }}/{{ item.path | replace('.j2', '') }}"
-        encrypted_regex: ^(data|stringData)$
-        age: ["{{ bootstrap_age_public_key }}"]
-        content_yaml: "{{ lookup('ansible.builtin.template', item.src) | from_yaml }}"
-        mode: "0644"
-        force: true
-      with_community.general.filetree: ["../templates/addons/{{ addon_name }}/"]
-      loop_control:
-        label: "{{ item.path }}"
+- name: Template encrypted files
+  when: item.state == 'file' and 'sops' in item.path
+  community.sops.sops_encrypt:
+    path: "{{ repository_path }}/kubernetes/apps/{{ addon_namespace }}/{{ addon_name }}/{{ item.path | replace('.j2', '') }}"
+    encrypted_regex: ^(data|stringData)$
+    age: ["{{ bootstrap_age_public_key }}"]
+    content_yaml: "{{ lookup('ansible.builtin.template', item.src, lstrip_blocks=true) | from_yaml }}"
+    mode: "0644"
+    force: true
+  with_community.general.filetree: ["../templates/addons/{{ addon_name }}/"]
+  loop_control:
+    label: "{{ item.path }}"

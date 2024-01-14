@@ -4,3 +4,4 @@
     src: "templates/.sops.yaml.j2"
     dest: "{{ repository_path }}/.sops.yaml"
     mode: "0644"
+    lstrip_blocks: true
