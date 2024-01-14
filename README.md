@@ -297,19 +297,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 ### ⛵ Stage 5: Install Kubernetes
 
-1. Verify Ansible can view your config
-
-    ```sh
-    task ansible:list
-    ```
-
-2. Verify Ansible can ping your nodes
-
-    ```sh
-    task ansible:ping
-    ```
-
-3. Install Kubernetes depending on the distribution you chose
+1. Install Kubernetes depending on the distribution you chose
 
     ```sh
     # Install k3s
@@ -318,7 +306,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task k0s:apply
     ```
 
-4. Verify the nodes are online
+2. Verify the nodes are online
 
     📍 _If this command **fails** you likely haven't configured `direnv` as mentioned previously in the guide._
 
@@ -329,7 +317,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
     ```
 
-5. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
+3. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
