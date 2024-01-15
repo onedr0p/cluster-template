@@ -1,5 +1,5 @@
 ---
-- name: Verify required bootstrap vars are set
+- name: Check that required bootstrap vars are set
   ansible.builtin.assert:
     that:
       - item in vars
@@ -31,7 +31,7 @@
     - bootstrap_service_cidr
     - bootstrap_timezone
 
-- name: Verify bootstrap node names are valid
+- name: Check that bootstrap node names are valid
   ansible.builtin.assert:
     that: item.name is match('^[a-z0-9-\.]+$')
     success_msg: Node name {{ item.name }} is valid
