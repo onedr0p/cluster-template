@@ -90,7 +90,7 @@ tasks:
     vars:
       force: '{{.force | default "true"}}'
     sources:
-      - "{{.ANSIBLE_DIR}}/requirements.txt"
-      - "{{.ANSIBLE_DIR}}/requirements.yaml"
+      - "{{.ROOT_DIR}}/requirements.txt"
+      - "{{.ROOT_DIR}}/requirements.yaml"
     generates:
       - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"
