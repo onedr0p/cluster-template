@@ -42,31 +42,24 @@ tasks:
       - test -f "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
       - test -f "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
 
-  validate:
-    desc: Validate bootstrap configuration
-    cmds:
-      - ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
-    env:
-      ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
-
   # TODO: Only prompt when generated directories exist
   # https://github.com/go-task/task/issues/1330
   configure:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     cmds:
-      - defer: find {{.ANSIBLE_DIR}} {{.KUBERNETES_DIR}} -type d -empty -delete
       - task: .validate
       - task: .template
-      - task: sops:encrypt-all
+      - task: sops:encrypt:all
 
   .validate:
     internal: true
-    cmds:
-      - ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
+    cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
 
+  # NOTE: single quotes are required for the data-var values
+  # to escape any weird characters bash might interpret
   .template:
     internal: true
     cmds:
@@ -75,9 +68,10 @@ tasks:
           --output "{{.ROOT_DIR}}"
           --data "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
           --data "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
-          --data-var "bootstrap_coredns_addr_tmpl={{.bootstrap_coredns_addr}}"
-          --data-var "bootstrap_wego_password_tmpl={{.bootstrap_wego_password}}"
+          --data-var 'bootstrap_coredns_addr={{.bootstrap_coredns_addr}}'
+          --data-var 'bootstrap_wego_password={{.bootstrap_wego_password}}'
           --jinja-suffix ".j2" --quiet --force
+      - find {{.ANSIBLE_DIR}} {{.KUBERNETES_DIR}} -type d -empty -delete
     vars:
       discover_coredns_addr:
         sh: yq '.bootstrap_service_cidr' {{.BOOTSTRAP_DIR}}/vars/config.yaml | awk -F',' '{print $1}'

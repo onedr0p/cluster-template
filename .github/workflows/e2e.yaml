@@ -110,7 +110,7 @@ jobs:
 
       - name: Run configure
         shell: bash
-        run: task --yes configure
+        run: task configure --yes
 
       - name: Run kubeconform
         shell: bash
@@ -124,5 +124,5 @@ jobs:
       - name: Run repo clean and reset
         shell: bash
         run: |
-          task repo:clean
-          task --yes repo:reset
+          task repo:reset:tmpl
+          task repo:reset:git --yes

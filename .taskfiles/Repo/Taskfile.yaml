@@ -20,18 +20,18 @@ tasks:
       - { msg: "bootstrap dir not found",  sh: "test -d {{.BOOTSTRAP_DIR}}" }
       - { msg: "renovate.json5 not found", sh: "test -f {{.ROOT_DIR}}/.github/renovate.json5" }
 
-  reset:
-    desc: Remove templated configuration files
-    prompt: Remove templated configuration files... continue?
+  reset:tmpl:
+    desc: Reset templated configuration files
+    prompt: Reset templated configuration files... continue?
     cmds:
       - rm -rf {{.ROOT_DIR}}/.sops.yaml
       - rm -rf {{.ROOT_DIR}}/k0s-config.yaml
       - rm -rf {{.ANSIBLE_DIR}}
       - rm -rf {{.KUBERNETES_DIR}}
 
-  reset-repo:
-    desc: Set repo back to HEAD
-    prompt: Set repo back to HEAD... continue?
+  reset:git:
+    desc: Reset repo back to HEAD
+    prompt: Reset repo back to HEAD... continue?
     cmds:
       - task: reset
       - git reset --hard HEAD

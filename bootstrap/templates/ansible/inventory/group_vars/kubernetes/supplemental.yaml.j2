@@ -1,7 +1,7 @@
 ---
 timezone: "{{ bootstrap_timezone }}"
 github_username: "{{ bootstrap_github_username }}"
-coredns_addr: "{{ bootstrap_coredns_addr_tmpl }}"
+coredns_addr: "{{ bootstrap_coredns_addr }}"
 {% if bootstrap_nodes.master | length == 1 and not bootstrap_kube_api_addr %}
 kube_api_addr: "{{ bootstrap_nodes.master[0].address }}"
 {% else %}
