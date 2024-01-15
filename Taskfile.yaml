@@ -65,15 +65,9 @@ tasks:
     internal: true
     cmds:
       - ./.venv/bin/makejinja
-          --input "{{.BOOTSTRAP_DIR}}/templates"
-          --output "{{.ROOT_DIR}}"
-          --data "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
-          --data "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
-          --import-path "{{.BOOTSTRAP_DIR}}/scripts"
-          --loader "loader:Loader"
-          --jinja-suffix ".j2" --quiet --force
       - find {{.ANSIBLE_DIR}} {{.KUBERNETES_DIR}} -type d -empty -delete
     preconditions:
-      - { msg: "addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
-      - { msg: "config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
-      - { msg: "loader file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
+      - { msg: "bootstrap addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
+      - { msg: "bootstrap config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
+      - { msg: "makejinja loader file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
+      - { msg: "makejinja config file not found", sh: "test -f {{.ROOT_DIR}}/makejinja.toml" }

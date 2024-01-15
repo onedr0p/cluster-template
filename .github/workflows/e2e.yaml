@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e-yay:
-    name: e2e-yay
+  yay:
+    name: yay
     runs-on: ubuntu-latest
     container:
       image: greyltc/archlinux-aur:yay
@@ -30,8 +30,8 @@ jobs:
           go-task workstation:yay
           '
 
-  e2e-configure:
-    name: e2e-configure
+  configure:
+    name: configure
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

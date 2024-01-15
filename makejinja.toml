@@ -1,0 +1,15 @@
+[makejinja]
+inputs = ["./bootstrap/templates"]
+output = "./"
+data = ["./bootstrap/vars/addons.yaml", "./bootstrap/vars/config.yaml"]
+import_paths = ["./bootstrap/scripts"]
+loaders = ["loader:Loader"]
+jinja_suffix = ".j2"
+
+[makejinja.delimiter]
+block_start = "<%"
+block_end = "%>"
+comment_start = "<#"
+comment_end = "#>"
+variable_start = "<<"
+variable_end = ">>"

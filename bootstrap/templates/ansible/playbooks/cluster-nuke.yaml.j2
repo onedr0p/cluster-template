@@ -21,7 +21,7 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
-    {% if bootstrap_distribution == "k3s" %}
+    <% if bootstrap_distribution == "k3s" %>
     - name: Stop Kubernetes # noqa: ignore-errors
       ignore_errors: true
       block:
@@ -31,24 +31,24 @@
             public: true
           vars:
             k3s_state: stopped
-    {% endif %}
+    <% endif %>
 
     # https://github.com/k3s-io/docs/blob/main/docs/installation/network-options.md
     - name: Networking
       block:
         - name: Networking | Delete Cilium links
           ansible.builtin.command:
-            cmd: "ip link delete {% raw %}{{ item }}{% endraw %}"
-            removes: "/sys/class/net/{% raw %}{{ item }}{% endraw %}"
+            cmd: "ip link delete {{ item }}"
+            removes: "/sys/class/net/{{ item }}"
           loop: ["cilium_host", "cilium_net", "cilium_vxlan"]
         - name: Networking | Flush iptables
           ansible.builtin.iptables:
-            table: "{% raw %}{{ item }}{% endraw %}"
+            table: "{{ item }}"
             flush: true
           loop: ["filter", "nat", "mangle", "raw"]
         - name: Networking | Flush ip6tables
           ansible.builtin.iptables:
-            table: "{% raw %}{{ item }}{% endraw %}"
+            table: "{{ item }}"
             flush: true
             ip_version: ipv6
           loop: ["filter", "nat", "mangle", "raw"]
@@ -57,7 +57,7 @@
             path: /etc/cni/net.d
             state: absent
 
-    {% if bootstrap_distribution == "k3s" %}
+    <% if bootstrap_distribution == "k3s" %>
     - name: Check to see if k3s-killall.sh exits
       ansible.builtin.stat:
         path: /usr/local/bin/k3s-killall.sh
@@ -89,14 +89,14 @@
         - k3s_install_hard_links
         - not ansible_check_mode
       ansible.builtin.file:
-        path: "{% raw %}{{ k3s_install_dir }}/{{ item }}{% endraw %}"
+        path: "{{ k3s_install_dir }}/{{ item }}"
         state: absent
       loop: ["kubectl", "crictl", "ctr"]
-    {% endif %}
+    <% endif %>
 
     - name: Remove local storage path
       ansible.builtin.file:
-        path: "{{ bootstrap_local_storage_path }}"
+        path: "<< bootstrap_local_storage_path >>"
         state: absent
 
     - name: Reboot

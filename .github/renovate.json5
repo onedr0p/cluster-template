@@ -22,14 +22,12 @@
   },
   "helm-values": {
     "fileMatch": [
-      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
       "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
       "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
     ]
   },
   "kubernetes": {
     "fileMatch": [
-      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
       "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
       "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
     ]
@@ -225,7 +223,6 @@
       "description": "Process various other dependencies",
       "fileMatch": [
         "(^|/).taskfiles/.+\\.ya?ml$",
-        "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
         "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
         "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
         "(^|/)k0s-config.ya?ml(\\.j2)?(\\.j2)?$"
