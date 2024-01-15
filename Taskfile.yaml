@@ -76,6 +76,6 @@ tasks:
 
   .post-validate:
     internal: true
-    cmd: bash .github/scripts/kubeconform.sh {{.KUBERNETES_DIR}}
+    cmd: ./.github/scripts/kubeconform.sh {{.KUBERNETES_DIR}}
     preconditions:
       - { msg: "kubeconform file not found", sh: "test -f ./.github/scripts/kubeconform.sh" }
