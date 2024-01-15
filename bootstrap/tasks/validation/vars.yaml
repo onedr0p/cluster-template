@@ -1,5 +1,5 @@
 ---
-- name: Verify required bootstrap vars are set
+- name: Check that required bootstrap vars are set
   ansible.builtin.assert:
     that:
       - item in vars
@@ -25,13 +25,13 @@
     - bootstrap_internal_ingress_addr
     - bootstrap_ipv6_enabled
     - bootstrap_k8s_gateway_addr
-    - bootstrap_kubeapi_addr
+    - bootstrap_kube_api_addr
     - bootstrap_local_storage_path
     - bootstrap_node_cidr
     - bootstrap_service_cidr
     - bootstrap_timezone
 
-- name: Verify bootstrap node names are valid
+- name: Check that bootstrap node names are valid
   ansible.builtin.assert:
     that: item.name is match('^[a-z0-9-\.]+$')
     success_msg: Node name {{ item.name }} is valid

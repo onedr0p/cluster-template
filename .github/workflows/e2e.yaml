@@ -40,6 +40,7 @@ jobs:
           - k0s
           - k3s-ipv4
           - k3s-ipv6
+          - k3s-no-kube-vip
         addon-files: ["addons"]
     steps:
       - name: Checkout
@@ -109,7 +110,7 @@ jobs:
 
       - name: Run configure
         shell: bash
-        run: task --yes configure
+        run: task configure --yes
 
       - name: Run kubeconform
         shell: bash
@@ -124,4 +125,4 @@ jobs:
         shell: bash
         run: |
           task repo:clean
-          task --yes repo:reset
+          task repo:reset --yes

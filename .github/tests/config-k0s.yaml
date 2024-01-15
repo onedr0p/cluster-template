@@ -16,7 +16,7 @@ bootstrap_cloudflare_account_tag: fake
 bootstrap_cloudflare_tunnel_secret: fake
 bootstrap_cloudflare_tunnel_id: fake
 bootstrap_node_cidr: 10.10.10.0/24
-bootstrap_kubeapi_addr: 10.10.10.254
+bootstrap_kube_api_addr: 10.10.10.254
 bootstrap_k8s_gateway_addr: 10.10.10.253
 bootstrap_external_ingress_addr: 10.10.10.252
 bootstrap_internal_ingress_addr: 10.10.10.251
@@ -30,7 +30,19 @@ bootstrap_nodes:
     - name: k8s-0
       address: 10.10.10.100
       username: fake
-  worker:
     - name: k8s-1
       address: 10.10.10.101
+      username: fake
+    - name: k8s-2
+      address: 10.10.10.102
+      username: fake
+  worker:
+    - name: k8s-3
+      address: 10.10.10.103
+      username: fake
+    - name: k8s-4
+      address: 10.10.10.104
+      username: fake
+    - name: k8s-5
+      address: 10.10.10.105
       username: fake

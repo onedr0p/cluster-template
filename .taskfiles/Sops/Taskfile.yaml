@@ -12,7 +12,6 @@ tasks:
 
   encrypt:
     desc: Encrypt a secret
-    aliases: ["e"]
     summary: |
       Args:
         file: Path to file to encrypt (required)
@@ -23,15 +22,13 @@ tasks:
       - { msg: "Sops config not found", sh: "test -f {{.ROOT_DIR}}/.sops.yaml" }
       - { msg: "Age key not found",     sh: "test -f {{.ROOT_DIR}}/age.key" }
 
-  decrypt:
-    desc: Decrypt a secret
-    aliases: ["d"]
-    summary: |
-      Args:
-        file: Path to file to decrypt (required)
-    cmd: sops --decrypt --in-place {{.SECRET}}
+  encrypt:all:
+    desc: Encrypt all Kubernetes SOPS secrets
+    cmds:
+      - for: { var: file }
+        task: encrypt
+        vars:
+          file: '{{.ITEM}}'
     vars:
-      claim: '{{ or .file (fail "Argument (file) is required") }}'
-    preconditions:
-      - { msg: "Sops config not found", sh: "test -f {{.ROOT_DIR}}/.sops.yaml" }
-      - { msg: "Age key not found",     sh: "test -f {{.ROOT_DIR}}/age.key" }
+      file:
+        sh: find {{.KUBERNETES_DIR}} -type f -name "*.sops.*"

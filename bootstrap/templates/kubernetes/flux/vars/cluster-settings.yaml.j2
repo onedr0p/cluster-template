@@ -6,8 +6,12 @@ metadata:
   namespace: flux-system
 data:
   TIMEZONE: "{{ bootstrap_timezone }}"
-  COREDNS_ADDR: "{{ bootstrap_service_cidr.split(',')[0] | ansible.utils.nthhost(10) }}"
-  KUBEAPI_ADDR: "{{ bootstrap_kubeapi_addr }}"
+  COREDNS_ADDR: "{{ bootstrap_service_cidr.split(',')[0] | nthhost(10) }}"
+  {% if bootstrap_nodes.master | length == 1 and not bootstrap_kube_api_addr %}
+  KUBE_API_ADDR: "{{ bootstrap_nodes.master[0].address }}"
+  {% else %}
+  KUBE_API_ADDR: "{{ bootstrap_kube_api_addr }}"
+  {% endif %}
   CLUSTER_CIDR: "{{ bootstrap_cluster_cidr.split(',')[0] }}"
   SERVICE_CIDR: "{{ bootstrap_service_cidr.split(',')[0] }}"
   NODE_CIDR: "{{ bootstrap_node_cidr }}"

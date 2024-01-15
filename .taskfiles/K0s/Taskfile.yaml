@@ -10,14 +10,14 @@ tasks:
   kubeconfig:
     desc: Gets k0s cluster kubeconfig
     cmds:
-      - k0sctl kubeconfig --config k0s-config.yaml > kubeconfig
+      - k0sctl kubeconfig --config {{.ROOT_DIR}}/k0s-config.yaml > kubeconfig
     preconditions:
       - { msg: "k0s-config.yaml not found", sh: "test -f {{.ROOT_DIR}}/k0s-config.yaml" }
 
   apply:
     desc: Apply k0s cluster k0s-config.yaml
     cmds:
-      - k0sctl apply --config k0s-config.yaml
+      - k0sctl apply --config {{.ROOT_DIR}}/k0s-config.yaml
       - task: kubeconfig
     preconditions:
       - { msg: "k0s-config.yaml not found", sh: "test -f {{.ROOT_DIR}}/k0s-config.yaml" }
@@ -25,7 +25,7 @@ tasks:
   reset:
     desc: Resets the k0s cluster
     cmds:
-      - k0sctl reset --config k0s-config.yaml
+      - k0sctl reset --config {{.ROOT_DIR}}/k0s-config.yaml
       - task: :ansible:run
         vars:
           playbook: cluster-nuke
