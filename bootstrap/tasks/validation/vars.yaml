@@ -25,7 +25,7 @@
     - bootstrap_internal_ingress_addr
     - bootstrap_ipv6_enabled
     - bootstrap_k8s_gateway_addr
-    - bootstrap_kubeapi_addr
+    - bootstrap_kube_api_addr
     - bootstrap_local_storage_path
     - bootstrap_node_cidr
     - bootstrap_service_cidr

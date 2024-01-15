@@ -42,13 +42,13 @@ bootstrap_cloudflare_tunnel_id:
 
 # CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_cidr:
-# The IP address of the kubeapi, choose an available IP in your nodes network that is not being used
+# The IP address of the Kube API, choose an available IP in your nodes network that is not being used
 # (Optional) Leave this blank if you are deploying a single master node, this will disable kube-vip in k3s
 # or keepalived in k0s and use the master node IP instead
-bootstrap_kubeapi_addr:
-# The hostname of the kubeapi, set this if you intend to call the kubeapi by hostname rather than IP
-# (Optional) This is currently only utilized in k0s and is added to the kubeapi cert sans
-#bootstrap_kubeapi_hostname:
+bootstrap_kube_api_addr:
+# The hostname of the Kube API, set this if you intend to call the Kube API by hostname rather than IP
+# (Optional) This is currently only utilized in k0s and is added to the Kube API cert sans
+# bootstrap_kubeapi_hostname:
 # The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
 bootstrap_k8s_gateway_addr:
 # The Load balancer IP for external ingress, choose an available IP in your nodes network that is not being used
@@ -81,7 +81,7 @@ bootstrap_nodes:
     # - name:     # name or hostname of the master node (must match [a-z0-9-\.]+)
     #   address:  # ip address of the master node
     #   username: # ssh username of the master node
-    #   role:     # (Optional) k0s only: can be controller+worker (default) or controller 
+    #   role:     # (Optional) k0s only: can be controller+worker (default) or controller
     #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
   worker: # set to [] or omit if no workers are needed
@@ -90,4 +90,3 @@ bootstrap_nodes:
     #   username: # ssh username of the worker node
     #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
     # ...
-

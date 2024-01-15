@@ -42,11 +42,25 @@ tasks:
       - test -f "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
       - test -f "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
 
+  validate:
+    desc: Validate bootstrap configuration
+    cmds:
+      - ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
+    env:
+      ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
+
   # TODO: Only prompt when generated directories exist
   # https://github.com/go-task/task/issues/1330
   configure:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
-    cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/configure.yaml
-    env:
-      ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
+    cmds:
+      # - task: validate
+      - ./.venv/bin/makejinja
+          --input "{{ repository_path }}/bootstrap/templates"
+          --output "{{ repository_path }}"
+          --data "{{ repository_path }}/bootstrap/vars/config.yaml"
+          --data "{{ repository_path }}/bootstrap/vars/addons.yaml"
+          --jinja-suffix ".j2" --quiet --force
+      # - task sops:encrypt-all
+      # - find {{.ROOT_DIR}}/ansible {{.ROOT_DIR}}/kubernetes -type d -empty -delete

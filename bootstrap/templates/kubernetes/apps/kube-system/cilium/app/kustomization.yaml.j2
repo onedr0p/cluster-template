@@ -5,5 +5,4 @@ resources:
   {% if not bootstrap_ipv6_enabled | default(false) %}
   - ./cilium-l2.yaml
   {% endif %}
-  - ./helmvalues.yaml
   - ./helmrelease.yaml
