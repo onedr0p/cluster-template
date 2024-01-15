@@ -125,5 +125,5 @@ jobs:
         shell: bash
         run: |
           task repo:clean
-          task repo:reset:tmpl --yes
-          task repo:reset:git --yes
+          task repo:reset --yes
+          task repo:force-reset --yes
