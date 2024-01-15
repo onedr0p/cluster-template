@@ -66,8 +66,6 @@ tasks:
     cmds:
       - ./.venv/bin/makejinja
       - task: sops:encrypt:all
-      # TODO: https://github.com/mirkolenz/makejinja/issues/94
-      - find {{.ANSIBLE_DIR}} {{.KUBERNETES_DIR}} -type d -empty -delete
     preconditions:
       - { msg: "bootstrap addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
       - { msg: "bootstrap config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
