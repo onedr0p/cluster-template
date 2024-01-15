@@ -124,5 +124,6 @@ jobs:
       - name: Run repo clean and reset
         shell: bash
         run: |
-          task repo:reset:tmpl
+          task repo:clean
+          task repo:reset:tmpl --yes
           task repo:reset:git --yes
