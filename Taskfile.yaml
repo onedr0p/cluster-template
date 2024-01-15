@@ -55,12 +55,24 @@ tasks:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     cmds:
-      # - task: validate
+      - task: validate
       - ./.venv/bin/makejinja
-          --input "{{ repository_path }}/bootstrap/templates"
-          --output "{{ repository_path }}"
-          --data "{{ repository_path }}/bootstrap/vars/config.yaml"
-          --data "{{ repository_path }}/bootstrap/vars/addons.yaml"
+          --input "{{.BOOTSTRAP_DIR}}/templates"
+          --output "{{.ROOT_DIR}}"
+          --data "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
+          --data "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
+          --data-var "bootstrap_coredns_addr_tmpl=$(./.venv/bin/python3 -c 'import ipaddress; print(ipaddress.IPv4Network("{{.bootstrap_coredns_addr}}")[10])')"
+          --data-var "bootstrap_wego_password_tmpl=$(./.venv/bin/python3 -c 'import bcrypt; print(bcrypt.hashpw(b"{{.bootstrap_wego_password}}", bcrypt.gensalt(rounds=10)).decode("ascii"))')"
           --jinja-suffix ".j2" --quiet --force
-      # - task sops:encrypt-all
-      # - find {{.ROOT_DIR}}/ansible {{.ROOT_DIR}}/kubernetes -type d -empty -delete
+      - task sops:encrypt-all
+      - find {{.ROOT_DIR}}/ansible {{.ROOT_DIR}}/kubernetes -type d -empty -delete
+    vars:
+      bootstrap_coredns_addr:
+        sh: yq '.bootstrap_service_cidr' {{.BOOTSTRAP_DIR}}/vars/config.yaml | awk -F',' '{print $1}'
+        fail_msg: Unable to generate coredns cluster IP
+      bootstrap_wego_password:
+        sh: yq '.weave_gitops.password' {{.BOOTSTRAP_DIR}}/vars/addons.yaml
+        fail_msg: Unable to generate weave-gitops password
+    preconditions:
+      - { msg: "config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
+      - { msg: "addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
