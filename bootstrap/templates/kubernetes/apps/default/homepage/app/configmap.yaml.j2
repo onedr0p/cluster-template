@@ -1,4 +1,4 @@
-{% if homepage.enabled | default(false) %}
+<% if homepage.enabled | default(false) %>
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -38,9 +38,9 @@ data:
             description: Cloudflared Tunnel
             widget:
               type: cloudflared
-              accountid: "{% raw %}{{HOMEPAGE_VAR_CLOUDFLARED_ACCOUNTID}}{% endraw %}"
-              tunnelid: "{% raw %}{{ HOMEPAGE_VAR_CLOUDFLARED_TUNNELID}}{% endraw %}"
-              key: "{% raw %}{{HOMEPAGE_VAR_CLOUDFLARED_API_TOKEN}}{% endraw %}"
+              accountid: "{{HOMEPAGE_VAR_CLOUDFLARED_ACCOUNTID}}"
+              tunnelid: "{{HOMEPAGE_VAR_CLOUDFLARED_TUNNELID}}"
+              key: "{{HOMEPAGE_VAR_CLOUDFLARED_API_TOKEN}}"
   settings.yaml: |
     title: Dashboard
     theme: dark
@@ -76,4 +76,4 @@ data:
           dateStyle: long
           timeStyle: short
           hourCycle: h23
-{% endif %}
+<% endif %>

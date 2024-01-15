@@ -28,11 +28,11 @@ spec:
             severity: warning
           annotations:
             description: >
-              The domain that this cert covers will be unavailable after {% raw %}{{ $value | humanizeDuration }}{% endraw %}.
-              Clients using endpoints that this cert protects will start to fail in {% raw %}{{ $value | humanizeDuration }}{% endraw %}.
+              The domain that this cert covers will be unavailable after {{ $value | humanizeDuration }}.
+              Clients using endpoints that this cert protects will start to fail in {{ $value | humanizeDuration }}.
             runbook_url: https://gitlab.com/uneeq-oss/cert-manager-mixin/-/blob/master/RUNBOOK.md#certmanagercertexpirysoon
             summary: |
-              The cert {% raw %}{{ $labels.name }}{% endraw %} is {% raw %}{{ $value | humanizeDuration }}{% endraw %} from expiry, it should have renewed over a week ago.
+              The cert {{ $labels.name }} is {{ $value | humanizeDuration }} from expiry, it should have renewed over a week ago.
         - alert: CertManagerCertNotReady
           expr: |
             max by (name, exported_namespace, namespace, condition) (certmanager_certificate_ready_status{condition!="True"} == 1)
@@ -45,7 +45,7 @@ spec:
               10m. If the cert is being renewed or there is another valid cert, the ingress
               controller _may_ be able to serve that instead.
             runbook_url: https://gitlab.com/uneeq-oss/cert-manager-mixin/-/blob/master/RUNBOOK.md#certmanagercertnotready
-            summary: "The cert {% raw %}{{ $labels.name }}{% endraw %} is not ready to serve traffic."
+            summary: "The cert {{ $labels.name }} is not ready to serve traffic."
         - alert: CertManagerHittingRateLimits
           expr: |
             sum by (host) (rate(certmanager_http_acme_client_request_count{status="429"}[5m])) > 0
