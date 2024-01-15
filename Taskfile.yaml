@@ -48,11 +48,11 @@ tasks:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     cmds:
-      - task: .validate
+      - task: .pre-validate
       - task: .template
-      - task: sops:encrypt:all
+      - task: .post-validate
 
-  .validate:
+  .pre-validate:
     internal: true
     cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
     env:
@@ -65,9 +65,17 @@ tasks:
     internal: true
     cmds:
       - ./.venv/bin/makejinja
+      - task: sops:encrypt:all
+      # TODO: https://github.com/mirkolenz/makejinja/issues/94
       - find {{.ANSIBLE_DIR}} {{.KUBERNETES_DIR}} -type d -empty -delete
     preconditions:
       - { msg: "bootstrap addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
       - { msg: "bootstrap config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
       - { msg: "makejinja loader file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
       - { msg: "makejinja config file not found", sh: "test -f {{.ROOT_DIR}}/makejinja.toml" }
+
+  .post-validate:
+    internal: true
+    cmd: ./.github/scripts/kubeconform.sh {{.KUBERNETES_DIR}}
+    preconditions:
+      - { msg: "kubeconform file not found", sh: "test -f ./.github/scripts/kubeconform.sh" }

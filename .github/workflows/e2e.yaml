@@ -114,7 +114,7 @@ jobs:
 
       - name: Run kubeconform
         shell: bash
-        run: ./scripts/kubeconform.sh ./kubernetes
+        run: ./.github/scripts/kubeconform.sh ./kubernetes
 
       - name: List Hosts with Ansible
         if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}

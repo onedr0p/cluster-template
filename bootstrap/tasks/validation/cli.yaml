@@ -2,7 +2,7 @@
 - name: Check if required CLI tools are present
   ansible.builtin.shell: |
     command -v {{ item }} >/dev/null 2>&1
-  loop: [age, cloudflared, flux, sops, jq]
+  loop: ["age", "cloudflared", "flux", "sops", "jq", "kubeconform", "kustomize"]
   changed_when: false
   check_mode: false
   register: result
