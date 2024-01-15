@@ -36,4 +36,4 @@ tasks:
       - task: reset
       - git reset --hard HEAD
       - git clean -f -d
-      - git pull
+      - git pull origin main
