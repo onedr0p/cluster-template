@@ -7,6 +7,7 @@ spec:
   interval: 30m
   chart:
     spec:
+      <# renovate: datasource=helm registryUrl=https://kubernetes-sigs.github.io/metrics-server #>
       chart: metrics-server
       version: 3.11.0
       sourceRef:

@@ -8,6 +8,7 @@ spec:
   interval: 30m
   chart:
     spec:
+      <# renovate: datasource=helm registryUrl=https://kubernetes.github.io/ingress-nginx #>
       chart: ingress-nginx
       version: 4.7.1
       sourceRef:

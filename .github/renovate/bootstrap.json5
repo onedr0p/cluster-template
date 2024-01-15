@@ -1,0 +1,54 @@
+{
+  "flux": {
+    "fileMatch": [
+      "(^|/)bootstrap/templates/ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)bootstrap/templates/kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "helm-values": {
+    "fileMatch": [
+      "(^|/)bootstrap/templates/ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)bootstrap/templates/kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "kubernetes": {
+    "fileMatch": [
+      "(^|/)bootstrap/templates/ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)bootstrap/templates/kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "kustomize": {
+    "fileMatch": [
+      "(^|/)bootstrap/templates/kustomization\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)bootstrap/templates/ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+        "(^|/)bootstrap/templates/kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+        "(^|/)bootstrap/templates/k0s-config.ya?ml(\\.j2)?(\\.j2)?$"
+      ],
+      "matchStrings": [
+        // Example:
+        //   chart: cert-manager
+        //   version: v1.13.3
+        "datasource=(?<datasource>\\S+) registryUrl=(?<registryUrl>\\S+)\n.*?chart: (?<depName>\\S+)\n.*?version: (?<currentValue>\\S+)\n",
+        // Example:
+        //   k3s_release_version: "v1.27.3+k3s1"
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?\"(?<currentValue>.*)\"\n",
+        // Example:
+        //   - https://github.com/rancher/system-upgrade-controller/releases/download/v0.11.0/crd.yaml
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?-\\s(.*?)\/(?<currentValue>[^/]+)\/[^/]+\n",
+        // Example:
+        //   repo: https://helm.cilium.io
+        //   chart: cilium
+        //   version: 1.14.5
+        "datasource=(?<datasource>\\S+)\n.*?repo: (?<registryUrl>\\S+)\n.*?chart: (?<depName>\\S+)\n.*?version: (?<currentValue>\\S+)\n"
+      ],
+      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    }
+  ]
+}
