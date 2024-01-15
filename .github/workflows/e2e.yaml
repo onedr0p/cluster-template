@@ -126,4 +126,3 @@ jobs:
         run: |
           task repo:clean
           task repo:reset --yes
-          task repo:force-reset --yes

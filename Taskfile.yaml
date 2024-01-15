@@ -57,9 +57,10 @@ tasks:
     cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
+    preconditions:
+      - { msg: "addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
+      - { msg: "config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
 
-  # NOTE: single quotes are required for the data-var values
-  # to escape any weird characters bash might interpret
   .template:
     internal: true
     cmds:
@@ -68,23 +69,11 @@ tasks:
           --output "{{.ROOT_DIR}}"
           --data "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
           --data "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
-          --data-var 'bootstrap_coredns_addr={{.bootstrap_coredns_addr}}'
-          --data-var 'bootstrap_wego_password={{.bootstrap_wego_password}}'
+          --import-path "{{.BOOTSTRAP_DIR}}/scripts"
+          --loader "loader:Loader"
           --jinja-suffix ".j2" --quiet --force
       - find {{.ANSIBLE_DIR}} {{.KUBERNETES_DIR}} -type d -empty -delete
-    vars:
-      discover_coredns_addr:
-        sh: yq '.bootstrap_service_cidr' {{.BOOTSTRAP_DIR}}/vars/config.yaml | awk -F',' '{print $1}'
-        fail_msg: Unable to parse addons to discover coredns cluster IP
-      discover_wego_password:
-        sh: yq '.weave_gitops.password' {{.BOOTSTRAP_DIR}}/vars/addons.yaml
-        fail_msg: Unable to parse addons to discover weave-gitops password
-      bootstrap_coredns_addr:
-        sh: ./.venv/bin/python3 -c 'import ipaddress; print(ipaddress.IPv4Network("{{.discover_coredns_addr}}")[10])'
-        fail_msg: Unable to generate coredns cluster IP
-      bootstrap_wego_password:
-        sh: ./.venv/bin/python3 -c 'import bcrypt; print(bcrypt.hashpw(b"{{.bootstrap_wego_password}}", bcrypt.gensalt(rounds=10)).decode("ascii"))'
-        fail_msg: Unable to generate weave-gitops password
     preconditions:
-      - { msg: "config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
       - { msg: "addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
+      - { msg: "config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
+      - { msg: "loader file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
