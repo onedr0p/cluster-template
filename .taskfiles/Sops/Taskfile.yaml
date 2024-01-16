@@ -20,7 +20,9 @@ tasks:
       claim: '{{ or .file (fail "Argument (file) is required") }}'
     preconditions:
       - sh: test -f {{.SOPS_CONFIG_FILE}}
+        msg: Missing {{.SOPS_CONFIG_FILE}}
       - sh: test -f {{.SOPS_AGE_FILE}}
+        msg: Missing {{.SOPS_AGE_FILE}}
 
   encrypt:all:
     desc: Encrypt all Kubernetes SOPS secrets

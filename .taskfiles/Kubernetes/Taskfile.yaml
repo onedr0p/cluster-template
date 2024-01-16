@@ -51,6 +51,7 @@ tasks:
       claim: '{{ or .claim (fail "Argument (claim) is required") }}'
     preconditions:
       - sh: kubectl -n {{.ns}} get persistentvolumeclaim {{.claim}}
+        msg: PVC {{.claim}} does not exist in namespace {{.ns}}
 
   resources:
     desc: Gather common resources in your cluster, useful when asking for support
@@ -74,5 +75,8 @@ tasks:
     cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
     preconditions:
       - sh: command -v kubeconform
+        msg: kubeconform is not installed
       - sh: command -v kustomize
+        msg: kustomize is not installed
       - sh: test -f {{.KUBECONFORM_SCRIPT}}
+        msg: Missing {{.KUBECONFORM_SCRIPT}}

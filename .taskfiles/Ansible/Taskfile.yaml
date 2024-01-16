@@ -2,8 +2,30 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
+x-preconditions: &preconditions
+  - &ansibleInventoryFileCheck
+    sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+    msg: Missing {{.ANSIBLE_INVENTORY_FILE}}
+  - &ansibleLintFileCheck
+    sh: test -f {{.ANSIBLE_LINT_FILE}}
+    msg: Missing {{.ANSIBLE_LINT_FILE}}
+  - &ansibleRequirementsFileCheck
+    sh: test -f {{.ANSIBLE_REQUIREMENTS_FILE}}
+    msg: Missing {{.ANSIBLE_REQUIREMENTS_FILE}}
+  - &pipRequirementsFileCheck
+    sh: test -f {{.PIP_REQUIREMENTS_FILE}}
+    msg: Missing {{.PIP_REQUIREMENTS_FILE}}
+  - &pythonBinCheck
+    sh: command -v {{.PYTHON_BIN}}
+    msg: Missing {{.PYTHON_BIN}}
+  - &pythonVersionCheck
+    sh: true && {{.PYTHON_BIN}} {{.BOOTSTRAP_DIR}}/scripts/py_version_check.py
+    msg: Your system Python version must be 3.11.0 or greater
+  - &venvCheck
+    sh: test -d {{.ROOT_DIR}}/.venv
+    msg: Missing virtual environment. Run `task ansible:deps` to create it
+
 vars:
-  PYTHON_BIN: python3
   ANSIBLE_LINT_FILE: "{{.ANSIBLE_DIR}}/.ansible-lint"
   ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_DIR}}/inventory/hosts.yaml"
   ANSIBLE_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.yaml"
@@ -37,49 +59,46 @@ tasks:
     cmd: .venv/bin/ansible-playbook --inventory {{.ANSIBLE_INVENTORY_FILE}} {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml {{.CLI_ARGS}}
     preconditions:
       - sh: test -n {{.playbook}}
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+        msg: Missing required argument (playbook)
       - sh: test -f {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml
+        msg: Missing {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml
+      - *ansibleInventoryFileCheck
+      - *ansibleLintFileCheck
+      - *ansibleRequirementsFileCheck
+      - *pipRequirementsFileCheck
+      - *pythonBinCheck
+      - *pythonVersionCheck
+      - *venvCheck
 
   poweroff:
     desc: Shutdown all the k8s nodes
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} -a '/usr/bin/systemctl poweroff' --become
-    preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+    preconditions: *preconditions
 
   list:
     desc: List all the hosts
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} --list-hosts
-    preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+    preconditions: *preconditions
 
   ping:
     desc: Ping all the hosts
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} --one-line -m 'ping'
-    preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+    preconditions: *preconditions
 
   uptime:
     desc: Uptime of all the hosts
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} --one-line -a 'uptime'
-    preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+    preconditions: *preconditions
 
   lint:
     desc: Lint Ansible
     deps: ["deps"]
     cmd: ./.venv/bin/ansible-lint --config-file {{.ANSIBLE_LINT_FILE}} {{.ANSIBLE_DIR}}/**/*.yaml
-    preconditions:
-      - sh: test -d {{.ANSIBLE_DIR}}
-      - sh: test -f {{.ANSIBLE_LINT_FILE}}
+    preconditions: *preconditions
 
   .venv:
     internal: true
@@ -94,6 +113,9 @@ tasks:
     generates:
       - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"
     preconditions:
-      - sh: command -v {{.PYTHON_BIN}}
+      - *ansibleRequirementsFileCheck
+      - *pipRequirementsFileCheck
+      - *pythonBinCheck
+      - *pythonVersionCheck
     vars:
       force: '{{.force | default "true"}}'

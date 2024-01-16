@@ -16,6 +16,8 @@ vars:
   MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
   SOPS_AGE_FILE: "{{.ROOT_DIR}}/age.key"
   SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
+  # Binaries
+  PYTHON_BIN: python3
 
 includes:
   ansible: .taskfiles/Ansible/Taskfile.yaml
@@ -57,26 +59,33 @@ tasks:
       - task: .pre-validate
       - task: .template
       - task: .post-validate
+    preconditions:
+      - sh: test -d {{.ROOT_DIR}}/.venv
+        msg: Missing virtual environment. Run `task ansible:deps` to create it
+      - sh: test -f {{.BOOTSTRAP_ADDONS_FILE}}
+        msg: Missing {{.BOOTSTRAP_ADDONS_FILE}}. Run `task init` to create it
+      - sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
+        msg: Missing {{.BOOTSTRAP_CONFIG_FILE}}. Run `task init` to create it
+      - sh: test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py
+        msg: Missing {{.BOOTSTRAP_DIR}}/scripts/loader.py
+      - sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
+        msg: Missing {{.MAKEJINJA_CONFIG_FILE}}
+      - sh: command -v {{.PYTHON_BIN}}
+        msg: Missing {{.PYTHON_BIN}}
+      - sh: true && {{.PYTHON_BIN}} {{.BOOTSTRAP_DIR}}/scripts/py_version_check.py
+        msg: Your system Python version must be 3.11.0 or greater
 
   .pre-validate:
     internal: true
     cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
-    preconditions:
-      - sh: test -f {{.BOOTSTRAP_ADDONS_FILE}}
-      - sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
   .template:
     internal: true
     cmds:
       - ./.venv/bin/makejinja --keep-trailing-newline --force
       - task: sops:encrypt:all
-    preconditions:
-      - sh: test -f {{.BOOTSTRAP_ADDONS_FILE}}
-      - sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
-      - sh: test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py
-      - sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
 
   .post-validate:
     internal: true

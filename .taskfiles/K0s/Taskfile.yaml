@@ -5,6 +5,15 @@ env:
   DISABLE_TELEMETRY: "true"
   DISABLE_UPGRADE_CHECK: "true"
 
+x-preconditions: &preconditions
+  - &k0sctlBinCheck
+    sh: command -v k0sctl
+    msg: Missing k0sctl
+  - &k0sconfigFileCheck
+    sh: test -f {{.K0S_CONFIG_FILE}}
+    msg: Missing {{.K0S_CONFIG_FILE}}
+
+
 tasks:
 
   apply:
@@ -12,9 +21,7 @@ tasks:
     cmds:
       - k0sctl apply --config {{.K0S_CONFIG_FILE}}
       - task: kubeconfig
-    preconditions:
-      - sh: command -v k0sctl
-      - sh: test -f {{.K0S_CONFIG_FILE}}
+    preconditions: *preconditions
 
   reset:
     desc: Resets k0s cluster
@@ -24,9 +31,7 @@ tasks:
       - task: :ansible:run
         vars:
           playbook: cluster-nuke
-    preconditions:
-      - sh: command -v k0sctl
-      - sh: test -f {{.K0S_CONFIG_FILE}}
+    preconditions: *preconditions
 
   kubeconfig:
     desc: Gets k0s cluster kubeconfig
@@ -35,6 +40,4 @@ tasks:
       - "{{.K0S_CONFIG_FILE}}"
     generates:
       - "{{.KUBECONFIG_FILE}}"
-    preconditions:
-      - sh: command -v k0sctl
-      - sh: test -f {{.K0S_CONFIG_FILE}}
+    preconditions: *preconditions
