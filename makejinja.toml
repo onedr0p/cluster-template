@@ -13,6 +13,6 @@ block_start = "#%"
 block_end = "%#"
 comment_start = "#|"
 comment_end = "|#"
-# Variable delimiters are changed to avoid conflicts with Go templates
+# Variable delimiters are changed to avoid conflicts with Renovate and Go templates
 variable_start = "#{"
 variable_end = "}#"
