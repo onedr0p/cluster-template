@@ -3,12 +3,19 @@
 version: "3"
 
 vars:
-  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
+  # Directories
   ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
+  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
-
-env:
-  KUBECONFIG: "{{.ROOT_DIR}}/kubeconfig"
+  PRIVATE_DIR: "{{.ROOT_DIR}}/.private"
+  # Files
+  BOOTSTRAP_ADDONS_FILE: "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
+  BOOTSTRAP_CONFIG_FILE: "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
+  K0S_CONFIG_FILE: "{{.ROOT_DIR}}/k0s-config.yaml"
+  KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
+  MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
+  SOPS_AGE_FILE: "{{.ROOT_DIR}}/age.key"
+  SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
 
 includes:
   ansible: .taskfiles/Ansible/Taskfile.yaml
@@ -26,21 +33,22 @@ tasks:
   default: task -l
 
   init:
-    desc: Initialize configuration files
+    desc: Initialize template files and directories
     cmds:
-      - cp -n {{.BOOTSTRAP_DIR}}/vars/addons.sample.yaml {{.BOOTSTRAP_DIR}}/vars/addons.yaml
-      - cp -n {{.BOOTSTRAP_DIR}}/vars/config.sample.yaml {{.BOOTSTRAP_DIR}}/vars/config.yaml
-      - cmd: echo "=== Configuration files copied ==="
+      - mkdir -p {{.PRIVATE_DIR}}
+      - cp -n {{.BOOTSTRAP_ADDONS_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_ADDONS_FILE}}
+      - cp -n {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
+      - cmd: echo === Configuration files copied ===
         silent: true
-      - cmd: echo "Proceed with updating the configuration files..."
+      - cmd: echo Proceed with updating the configuration files...
         silent: true
-      - cmd: echo "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
+      - cmd: echo {{.BOOTSTRAP_CONFIG_FILE}}
         silent: true
-      - cmd: echo "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
+      - cmd: echo {{.BOOTSTRAP_ADDONS_FILE}}
         silent: true
     status:
-      - test -f "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
-      - test -f "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
+      - test -f {{.BOOTSTRAP_ADDONS_FILE}}
+      - test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
   configure:
     desc: Configure repository from Ansible vars
@@ -56,22 +64,21 @@ tasks:
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
     preconditions:
-      - { msg: "addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
-      - { msg: "config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
+      - sh: test -f {{.BOOTSTRAP_ADDONS_FILE}}
+      - sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
   .template:
     internal: true
     cmds:
-      - ./.venv/bin/makejinja --force
+      - ./.venv/bin/makejinja --keep-trailing-newline --force
       - task: sops:encrypt:all
     preconditions:
-      - { msg: "bootstrap addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
-      - { msg: "bootstrap config file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/config.yaml" }
-      - { msg: "makejinja loader file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
-      - { msg: "makejinja config file not found", sh: "test -f {{.ROOT_DIR}}/makejinja.toml" }
+      - sh: test -f {{.BOOTSTRAP_ADDONS_FILE}}
+      - sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
+      - sh: test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py
+      - sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
 
   .post-validate:
     internal: true
-    cmd: ./.github/scripts/kubeconform.sh {{.KUBERNETES_DIR}}
-    preconditions:
-      - { msg: "kubeconform file not found", sh: "test -f ./.github/scripts/kubeconform.sh" }
+    cmds:
+      - task: kubernetes:kubeconform

@@ -46,7 +46,7 @@
         wait_sleep: 10
         wait_timeout: 360
       loop:
-        - { name: cilium,  kind: HelmChart, namespace: kube-system }
+        - { name: cilium,  kind: HelmChart, namespace: kube-system } # noqa: yaml[commas]
         - { name: coredns, kind: HelmChart, namespace: kube-system }
 
     - name: Coredns

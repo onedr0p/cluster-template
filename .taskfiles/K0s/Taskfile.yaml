@@ -7,27 +7,34 @@ env:
 
 tasks:
 
-  kubeconfig:
-    desc: Gets k0s cluster kubeconfig
-    cmds:
-      - k0sctl kubeconfig --config {{.ROOT_DIR}}/k0s-config.yaml > kubeconfig
-    preconditions:
-      - { msg: "k0s-config.yaml not found", sh: "test -f {{.ROOT_DIR}}/k0s-config.yaml" }
-
   apply:
-    desc: Apply k0s cluster k0s-config.yaml
+    desc: Apply k0s cluster config
     cmds:
-      - k0sctl apply --config {{.ROOT_DIR}}/k0s-config.yaml
+      - k0sctl apply --config {{.K0S_CONFIG_FILE}}
       - task: kubeconfig
     preconditions:
-      - { msg: "k0s-config.yaml not found", sh: "test -f {{.ROOT_DIR}}/k0s-config.yaml" }
+      - sh: command -v k0sctl
+      - sh: test -f {{.K0S_CONFIG_FILE}}
 
   reset:
-    desc: Resets the k0s cluster
+    desc: Resets k0s cluster
+    deps: [":ansible:deps"]
     cmds:
-      - k0sctl reset --config {{.ROOT_DIR}}/k0s-config.yaml
+      - k0sctl reset --config {{.K0S_CONFIG_FILE}}
       - task: :ansible:run
         vars:
           playbook: cluster-nuke
     preconditions:
-      - { msg: "k0s-config.yaml not found", sh: "test -f {{.ROOT_DIR}}/k0s-config.yaml" }
+      - sh: command -v k0sctl
+      - sh: test -f {{.K0S_CONFIG_FILE}}
+
+  kubeconfig:
+    desc: Gets k0s cluster kubeconfig
+    cmd: k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
+    sources:
+      - "{{.K0S_CONFIG_FILE}}"
+    generates:
+      - "{{.KUBECONFIG_FILE}}"
+    preconditions:
+      - sh: command -v k0sctl
+      - sh: test -f {{.K0S_CONFIG_FILE}}

@@ -12,22 +12,26 @@ tasks:
     desc: Bootstrap Flux into a Kubernetes cluster
     cmds:
       # Install essential Prometheus Operator CRDs
-      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
-      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
-      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
-      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
       # Install Flux
-      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap
       # Install Secrets and Kustomizations
-      - cat {{.ROOT_DIR}}/age.key | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
-      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply --server-side --filename -
-      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml | kubectl apply --server-side --filename -
-      - kubectl apply --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml
-      - kubectl apply --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml
-      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
+      - cat {{.SOPS_AGE_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
+      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
-      - { msg: "Flux already appears installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
-      - { msg: "Age private key not found",      sh: "test -f {{.ROOT_DIR}}/age.key" }
+      - sh: command -v flux
+      - sh: command -v kubectl
+      - sh: command -v sops
+      - sh: test -f {{.SOPS_AGE_FILE}}
+      - sh: test -f {{.KUBECONFIG_FILE}}
+      - sh: kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0
 
   apply:
     desc: Apply a Flux Kustomization resource for a cluster
@@ -36,27 +40,36 @@ tasks:
         path: Path containing the Flux Kustomization resource (ks.yaml) (required)
         ns: Namespace the Flux Kustomization exists in (default: flux-system)
     cmd: |
-      flux build ks $(basename {{.path}}) \
+      flux --kubeconfig {{.KUBECONFIG_FILE}} build ks $(basename {{.path}}) \
           --namespace {{.ns}} \
           --kustomization-file {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml \
           --path {{.KUBERNETES_DIR}}/apps/{{.path}} \
           {{- if contains "not found" .ks }}--dry-run \{{ end }}
       | \
-      kubectl apply --server-side \
+      kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side \
           --field-manager=kustomize-controller -f -
+    preconditions:
+      - sh: command -v flux
+      - sh: command -v kubectl
+      - sh: test -f {{.KUBECONFIG_FILE}}
+      - sh: test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml
     vars:
       path: '{{ or .path (fail "Argument (path) is required") }}'
       ns: '{{.ns | default "flux-system"}}'
       ks:
-        sh: flux --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
-    preconditions:
-      - { msg: "Kustomization file not found", sh: "test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml" }
+        sh: flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
-    cmd: flux reconcile --namespace flux-system kustomization cluster --with-source
+    cmd: flux --kubeconfig {{.KUBECONFIG_FILE}} reconcile --namespace flux-system kustomization cluster --with-source
+    preconditions:
+      - sh: command -v flux
+      - sh: test -f {{.KUBECONFIG_FILE}}
 
   github-deploy-key:
-    cmd: sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply --server-side --filename -
+    cmd: sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
     preconditions:
-      - { msg: "Flux is not installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 0 || exit 1" }
+      - sh: command -v kubectl
+      - sh: command -v sops
+      - sh: test -f {{.KUBECONFIG_FILE}}
+      - sh: kubectl get namespace flux-system &>/dev/null && exit 0 || exit 1

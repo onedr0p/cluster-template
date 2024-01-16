@@ -11,23 +11,23 @@ tasks:
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
       # Move bootstrap directory to gitignored directory
-      - mkdir -p {{.ROOT_DIR}}/.private
-      - mv {{.BOOTSTRAP_DIR}} {{.ROOT_DIR}}/.private/bootstrap-{{now | date "150405"}}
-      - mv {{.ROOT_DIR}}/makejinja.toml {{.ROOT_DIR}}/.private/makejinja-{{now | date "150405"}}.toml
+      - mv {{.BOOTSTRAP_DIR}} {{.PRIVATE_DIR}}/bootstrap-{{now | date "150405"}}
+      - mv {{.MAKEJINJA_CONFIG_FILE}} {{.PRIVATE_DIR}}/makejinja-{{now | date "150405"}}.toml
       # Update renovate.json5
       - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
     preconditions:
-      - { msg: "bootstrap dir not found",  sh: "test -d {{.BOOTSTRAP_DIR}}" }
-      - { msg: "renovate.json5 not found", sh: "test -f {{.ROOT_DIR}}/.github/renovate.json5" }
+      - sh: test -d {{.BOOTSTRAP_DIR}}
+      - sh: test -d {{.PRIVATE_DIR}}
+      - sh: test -f {{.ROOT_DIR}}/.github/renovate.json5
 
   reset:
     desc: Reset templated configuration files
     prompt: Reset templated configuration files... continue?
     cmds:
-      - rm -rf {{.ROOT_DIR}}/.sops.yaml
-      - rm -rf {{.ROOT_DIR}}/k0s-config.yaml
+      - rm -rf {{.SOPS_CONFIG_FILE}}
       - rm -rf {{.ANSIBLE_DIR}}
       - rm -rf {{.KUBERNETES_DIR}}
+      - rm -rf {{.K0S_CONFIG_FILE}}
 
   force-reset:
     desc: Reset repo back to HEAD

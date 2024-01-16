@@ -6,9 +6,9 @@ tasks:
 
   age-keygen:
     desc: Initialize Age Key for Sops
-    cmd: age-keygen --output {{.ROOT_DIR}}/age.key
+    cmd: age-keygen --output {{.SOPS_AGE_FILE}}
     status:
-      - test -f "{{.ROOT_DIR}}/age.key"
+      - test -f "{{.SOPS_AGE_FILE}}"
 
   encrypt:
     desc: Encrypt a secret
@@ -19,8 +19,8 @@ tasks:
     vars:
       claim: '{{ or .file (fail "Argument (file) is required") }}'
     preconditions:
-      - { msg: "Sops config not found", sh: "test -f {{.ROOT_DIR}}/.sops.yaml" }
-      - { msg: "Age key not found",     sh: "test -f {{.ROOT_DIR}}/age.key" }
+      - sh: test -f {{.SOPS_CONFIG_FILE}}
+      - sh: test -f {{.SOPS_AGE_FILE}}
 
   encrypt:all:
     desc: Encrypt all Kubernetes SOPS secrets
@@ -28,7 +28,7 @@ tasks:
       - for: { var: file }
         task: encrypt
         vars:
-          file: '{{.ITEM}}'
+          file: "{{.ITEM}}"
     vars:
       file:
         sh: find {{.KUBERNETES_DIR}} -type f -name "*.sops.*"
