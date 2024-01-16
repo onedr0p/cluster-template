@@ -1,3 +1,4 @@
+#% if bootstrap_distribution == 'k3s' %#
 ---
 - name: Containerd
   block:
@@ -17,3 +18,4 @@
         owner: root
         group: root
         mode: "0644"
+#% endif %#
