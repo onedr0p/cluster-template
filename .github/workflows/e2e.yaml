@@ -112,6 +112,10 @@ jobs:
         shell: bash
         run: task configure --yes
 
+      - name: Run configure again to ensure idempotency
+        shell: bash
+        run: task configure --yes
+
       - name: Run kubeconform
         shell: bash
         run: ./.github/scripts/kubeconform.sh ./kubernetes
