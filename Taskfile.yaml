@@ -64,7 +64,7 @@ tasks:
   .template:
     internal: true
     cmds:
-      - ./.venv/bin/makejinja
+      - ./.venv/bin/makejinja --force
       - task: sops:encrypt:all
     preconditions:
       - { msg: "bootstrap addons file not found", sh: "test -f {{.BOOTSTRAP_DIR}}/vars/addons.yaml" }
