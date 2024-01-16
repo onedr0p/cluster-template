@@ -1,4 +1,4 @@
-<% if homepage.enabled | default(false) %>
+#% if homepage.enabled | default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -87,4 +87,4 @@ spec:
             path: /app/config/widgets.yaml
     serviceAccount:
       create: true
-<% endif %>
+#% endif %#

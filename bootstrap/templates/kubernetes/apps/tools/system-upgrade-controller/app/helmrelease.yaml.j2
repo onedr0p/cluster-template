@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == "k3s" and system_upgrade_controller.enabled | default(false) %>
+#% if bootstrap_distribution == "k3s" and system_upgrade_controller.enabled | default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -103,4 +103,4 @@ spec:
         globalMounts:
           - path: /etc/ca-certificates
             readOnly: true
-<% endif %>
+#% endif %#

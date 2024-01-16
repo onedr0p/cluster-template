@@ -1,4 +1,4 @@
-<% if kubernetes_dashboard.enabled | default(false) %>
+#% if kubernetes_dashboard.enabled | default(false) %#
 # For dashboard sign in token:
 # kubectl -n observability get secret kubernetes-dashboard -o jsonpath='{.data.token}' | base64 -d
 ---
@@ -38,4 +38,4 @@ subjects:
   - kind: ServiceAccount
     name: kubernetes-dashboard
     namespace: observability
-<% endif %>
+#% endif %#

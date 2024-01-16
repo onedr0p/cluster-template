@@ -34,11 +34,11 @@ spec:
       id: 1
     containerRuntime:
       integration: containerd
-      <% if bootstrap_distribution == "k3s" %>
+      #% if bootstrap_distribution == "k3s" %#
       socketPath: /var/run/k3s/containerd/containerd.sock
-      <% else %>
+      #% elif bootstrap_distribution == "k0s" %#
       socketPath: /var/run/k0s/containerd.sock
-      <% endif %>
+      #% endif %#
     endpointRoutes:
       enabled: true
     hubble:
@@ -70,13 +70,13 @@ spec:
         ingress:
           enabled: true
           className: internal
-          <% if homepage.enabled | default(false) %>
+          #% if homepage.enabled | default(false) %#
           annotations:
             gethomepage.dev/enabled: "true"
             gethomepage.dev/group: Network
             gethomepage.dev/name: Cilium
             gethomepage.dev/icon: cilium.png
-          <% endif %>
+          #% endif %#
           hosts:
             - "hubble.${SECRET_DOMAIN}"
           tls:
@@ -85,28 +85,28 @@ spec:
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "${CLUSTER_CIDR}"
-    <% if bootstrap_ipv6_enabled | default(false) %>
+    #% if bootstrap_ipv6_enabled | default(false) %#
     ipv6NativeRoutingCIDR: "${CLUSTER_CIDR_V6}"
     ipv6:
       enabled: true
-    <% endif %>
+    #% endif %#
     k8sServiceHost: "${KUBE_API_ADDR}"
     k8sServicePort: 6443
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
     l2announcements:
-      <% if bootstrap_ipv6_enabled | default(false) %>
+      #% if bootstrap_ipv6_enabled | default(false) %#
       enabled: false
-      <% else %>
+      #% else %#
       enabled: true
       # https://github.com/cilium/cilium/issues/26586
       leaseDuration: 120s
       leaseRenewDeadline: 60s
       leaseRetryPeriod: 1s
-      <% endif %>
+      #% endif %#
     loadBalancer:
       algorithm: maglev
-      mode: << bootstrap_cilium_loadbalancer_mode | default('dsr', true) >>
+      mode: "{% bootstrap_cilium_loadbalancer_mode | default('dsr', true) %}"
     localRedirectPolicy: true
     operator:
       replicas: 1

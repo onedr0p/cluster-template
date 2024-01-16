@@ -1,4 +1,4 @@
-<% if csi_driver_nfs.enabled | default(false) %>
+#% if csi_driver_nfs.enabled | default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -27,4 +27,4 @@ spec:
   values:
     externalSnapshotter:
       enabled: false
-<% endif %>
+#% endif %#

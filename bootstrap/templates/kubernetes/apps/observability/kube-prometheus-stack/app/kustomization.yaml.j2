@@ -1,7 +1,7 @@
-<% if kube_prometheus_stack.enabled | default(false) %>
+#% if kube_prometheus_stack.enabled | default(false) %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./helmrelease.yaml
-<% endif %>
+#% endif %#

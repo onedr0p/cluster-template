@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == 'k3s' and bootstrap_nodes.master | length > 1 and not bootstrap_kube_api_addr %>
+#% if bootstrap_distribution == 'k3s' and bootstrap_nodes.master | length > 1 and not bootstrap_kube_api_addr %#
 ---
 apiVersion: v1
 kind: Pod
@@ -58,4 +58,4 @@ spec:
     - name: kubeconfig
       hostPath:
         path: /etc/rancher/k3s/k3s.yaml
-<% endif %>
+#% endif %#

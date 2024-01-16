@@ -31,7 +31,7 @@ spec:
       service:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: "internal.${SECRET_DOMAIN}"
-          io.cilium/lb-ipam-ips: "<< bootstrap_internal_ingress_addr >>"
+          io.cilium/lb-ipam-ips: "{% bootstrap_internal_ingress_addr %}"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: internal
@@ -69,11 +69,11 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        <% if bootstrap_acme_production_enabled | default(false) %>
+        #% if bootstrap_acme_production_enabled | default(false) %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-production-tls"
-        <% else %>
+        #% else %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-staging-tls"
-        <% endif %>
+        #% endif %#
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname

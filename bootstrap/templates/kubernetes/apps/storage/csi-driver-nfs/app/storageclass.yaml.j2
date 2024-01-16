@@ -1,16 +1,16 @@
-<% if csi_driver_nfs.enabled | default(false) %>
-<% for item in csi_driver_nfs.storage_class %>
+#% if csi_driver_nfs.enabled | default(false) %#
+#% for item in csi_driver_nfs.storage_class %#
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: << item.name >>
+  name: "{% item.name %}"
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: << item.server >>
-  share: << item.share >>
+  server: "{% item.server %}"
+  share: "{% item.share %}"
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 mountOptions: ["hard", "noatime"]
-<% endfor %>
-<% endif %>
+#% endfor %#
+#% endif %#

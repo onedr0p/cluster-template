@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == "k3s" and system_upgrade_controller.enabled | default(false) %>
+#% if bootstrap_distribution == "k3s" and system_upgrade_controller.enabled | default(false) %#
 ---
 apiVersion: upgrade.cattle.io/v1
 kind: Plan
@@ -22,4 +22,4 @@ spec:
     - {key: CriticalAddonsOnly, operator: Exists}
   upgrade:
     image: rancher/k3s-upgrade
-<% endif %>
+#% endif %#

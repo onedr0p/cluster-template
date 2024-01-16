@@ -1,4 +1,4 @@
-<% if grafana.enabled | default(false) %>
+#% if grafana.enabled | default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -160,7 +160,7 @@ spec:
     ingress:
       enabled: true
       ingressClassName: internal
-      <% if homepage.enabled | default(false) %>
+      #% if homepage.enabled | default(false) %#
       annotations:
         gethomepage.dev/enabled: "true"
         gethomepage.dev/icon: grafana.png
@@ -170,7 +170,7 @@ spec:
         gethomepage.dev/widget.url: http://grafana.observability
         gethomepage.dev/widget.username: "{{`{{HOMEPAGE_VAR_GRAFANA_USERNAME}}`}}"
         gethomepage.dev/widget.password: "{{`{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}`}}"
-      <% endif %>
+      #% endif %#
       hosts:
         - &host "grafana.${SECRET_DOMAIN}"
       tls:
@@ -181,4 +181,4 @@ spec:
       storageClassName: openebs-hostpath
     testFramework:
       enabled: false
-<% endif %>
+#% endif %#

@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == 'k3s' %>
+#% if bootstrap_distribution == 'k3s' %#
 ---
 #
 # Below vars are for the xanmanning.k3s role
@@ -9,17 +9,17 @@
 k3s_release_version: "v1.29.0+k3s1"
 k3s_install_hard_links: true
 k3s_become: true
-<% if bootstrap_nodes.master | length > 1 %>
+#% if bootstrap_nodes.master | length > 1 %#
 k3s_etcd_datastore: true
-<% else %>
+#% else %#
 k3s_etcd_datastore: false
-<% endif %>
+#% endif %#
 k3s_registration_address: "{{ kube_api_addr }}"
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
   - custom-coredns-helmchart.yaml.j2
-<% if bootstrap_nodes.master | length > 1 and not bootstrap_kube_api_addr %>
+#% if bootstrap_nodes.master | length > 1 and not bootstrap_kube_api_addr %#
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_urls:
   - url: https://raw.githubusercontent.com/kube-vip/website/main/content/manifests/rbac.yaml
@@ -27,5 +27,5 @@ k3s_server_manifests_urls:
 # /var/lib/rancher/k3s/agent/pod-manifests
 k3s_server_pod_manifests_templates:
   - kube-vip-static-pod.yaml.j2
-<% endif %>
-<% endif %>
+#% endif %#
+#% endif %#

@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == 'k3s' %>
+#% if bootstrap_distribution == 'k3s' %#
 ---
 - name: Cluster kube-vip
   hosts: master
@@ -23,4 +23,4 @@
         src: templates/kube-vip-static-pod.yaml.j2
         dest: "{{ k3s_server_pod_manifests_dir }}/kube-vip-static-pod.yaml"
         mode: preserve
-<% endif %>
+#% endif %#

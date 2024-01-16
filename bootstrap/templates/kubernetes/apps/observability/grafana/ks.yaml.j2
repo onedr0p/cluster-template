@@ -1,4 +1,4 @@
-<% if grafana.enabled | default(false) %>
+#% if grafana.enabled | default(false) %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -19,4 +19,4 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
-<% endif %>
+#% endif %#

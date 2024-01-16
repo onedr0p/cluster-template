@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == 'k0s' %>
+#% if bootstrap_distribution == 'k0s' %#
 ---
 apiVersion: k0sctl.k0sproject.io/v1beta1
 kind: Cluster
@@ -6,25 +6,25 @@ metadata:
   name: k0s-cluster
 spec:
   hosts:
-    <% for item in bootstrap_nodes.master %>
-    - role: << item.role | default('controller+worker') >>
+    #% for item in bootstrap_nodes.master %#
+    - role: "{% item.role | default('controller+worker') %}"
       ssh:
-        address: << item.address >>
-        user: << item.username >>
+        address: "{% item.address %}"
+        user: "{% item.username %}"
       installFlags:
         - --disable-components=metrics-server
-        <% if item.role | default('') == 'controller+worker' %>
+        #% if item.role | default('') == 'controller+worker' %#
         - --no-taints
-        <% endif %>
-    <% endfor %>
-    <% if bootstrap_nodes.worker | default([]) | length > 0 %>
-    <% for item in bootstrap_nodes.worker %>
+        #% endif %#
+    #% endfor %#
+    #% if bootstrap_nodes.worker | default([]) | length > 0 %#
+    #% for item in bootstrap_nodes.worker %#
     - role: worker
       ssh:
-        address: << item.address >>
-        user: << item.username >>
-    <% endfor %>
-    <% endif %>
+        address: "{% item.address %}"
+        user: "{% item.username %}"
+    #% endfor %#
+    #% endif %#
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s
     version: "v1.28.5+k0s.0"
@@ -43,18 +43,18 @@ spec:
             bind-address: "0.0.0.0"
         api:
           sans:
-            - << bootstrap_kube_api_addr >>
-            <% if bootstrap_kubeapi_hostname is defined %>
-            - << bootstrap_kubeapi_hostname >>
-            <% endif %>
-            <% for item in bootstrap_nodes.master %>
-            <% if item.address != bootstrap_kube_api_addr %>
-            - << item.address >>
-            <% endif %>
-            <% if (bootstrap_kubeapi_hostname is not defined) or (item.name != bootstrap_kubeapi_hostname) %>
-            - << item.name >>
-            <% endif %>
-            <% endfor %>
+            - "{% bootstrap_kube_api_addr %}"
+            #% if bootstrap_kubeapi_hostname is defined %#
+            - "{% bootstrap_kubeapi_hostname %}"
+            #% endif %#
+            #% for item in bootstrap_nodes.master %#
+            #% if item.address != bootstrap_kube_api_addr %#
+            - "{% item.address %}"
+            #% endif %#
+            #% if (bootstrap_kubeapi_hostname is not defined) or (item.name != bootstrap_kubeapi_hostname) %#
+            - "{% item.name %}"
+            #% endif %#
+            #% endfor %#
         extensions:
           helm:
             repositories:
@@ -84,33 +84,33 @@ spec:
                     enabled: false
                   ipam:
                     mode: kubernetes
-                  ipv4NativeRoutingCIDR: "<< bootstrap_cluster_cidr >>"
-                  <% if bootstrap_ipv6_enabled | default(false) %>
-                  ipv6NativeRoutingCIDR: "<< bootstrap_cluster_cidr_v6 >>"
+                  ipv4NativeRoutingCIDR: "{% bootstrap_cluster_cidr %}"
+                  #% if bootstrap_ipv6_enabled | default(false) %#
+                  ipv6NativeRoutingCIDR: "{% bootstrap_cluster_cidr_v6 %}"
                   ipv6:
                     enabled: true
-                  <% endif %>
-                  <% if bootstrap_nodes.master | length == 1 and not bootstrap_kube_api_addr %>
-                  k8sServiceHost: << bootstrap_nodes.master[0].address >>
-                  <% else %>
-                  k8sServiceHost: << bootstrap_kube_api_addr >>
-                  <% endif %>
+                  #% endif %#
+                  #% if bootstrap_nodes.master | length == 1 and not bootstrap_kube_api_addr %#
+                  k8sServiceHost: "{% bootstrap_nodes.master[0].address %}"
+                  #% else %#
+                  k8sServiceHost: "{% bootstrap_kube_api_addr %}"
+                  #% endif %#
                   k8sServicePort: 6443
                   kubeProxyReplacement: true
                   kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
                   l2announcements:
-                    <% if bootstrap_ipv6_enabled | default(false) %>
+                    #% if bootstrap_ipv6_enabled | default(false) %#
                     enabled: false
-                    <% else %>
+                    #% else %#
                     enabled: true
                     # https://github.com/cilium/cilium/issues/26586
                     leaseDuration: 120s
                     leaseRenewDeadline: 60s
                     leaseRetryPeriod: 1s
-                    <% endif %>
+                    #% endif %#
                   loadBalancer:
                     algorithm: maglev
-                    mode: << bootstrap_cilium_loadbalancer_mode | default('dsr', true) >>
+                    mode: "{% bootstrap_cilium_loadbalancer_mode | default('dsr', true) %}"
                   localRedirectPolicy: true
                   operator:
                     replicas: 1
@@ -122,10 +122,10 @@ spec:
         network:
           kubeProxy:
             disabled: true
-          <%  if bootstrap_nodes.master | length > 1 %>
+          #%  if bootstrap_nodes.master | length > 1 %#
           nodeLocalLoadBalancing:
             enabled: true
             type: EnvoyProxy
-          <% endif %>
+          #% endif %#
           provider: custom
-<% endif %>
+#% endif %#
