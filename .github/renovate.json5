@@ -15,7 +15,6 @@
   "schedule": ["on saturday"],
   "flux": {
     "fileMatch": [
-      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
       "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
       "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
     ]
@@ -228,11 +227,16 @@
         "(^|/)k0s-config.ya?ml(\\.j2)?(\\.j2)?$"
       ],
       "matchStrings": [
-        // Example: `k3s_release_version: "v1.27.3+k3s1"`
+        // Example:
+        //   k3s_release_version: "v1.27.3+k3s1"
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?\"(?<currentValue>.*)\"\n",
-        // Example: `- https://github.com/rancher/system-upgrade-controller/releases/download/v0.11.0/crd.yaml`
+        // Example:
+        //   - https://github.com/rancher/system-upgrade-controller/releases/download/v0.11.0/crd.yaml
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?-\\s(.*?)\/(?<currentValue>[^/]+)\/[^/]+\n",
-        // Example: apiVersion=helm.cattle.io/v1 kind=HelmChart
+        // Example:
+        //   repo: https://helm.cilium.io
+        //   chart: cilium
+        //   version: 1.14.5
         "datasource=(?<datasource>\\S+)\n.*?repo: (?<registryUrl>\\S+)\n.*?chart: (?<depName>\\S+)\n.*?version: (?<currentValue>\\S+)\n"
       ],
       "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
