@@ -14,6 +14,8 @@ vars:
   K0S_CONFIG_FILE: "{{.ROOT_DIR}}/k0s-config.yaml"
   KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
   MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
+  MAKEJINJA_LOADER_FILE: "{{.BOOTSTRAP_DIR}}/scripts/loader.py"
+  PYTHON_VERSION_CHECK_FILE: "{{.BOOTSTRAP_DIR}}/scripts/py_version_check.py"
   SOPS_AGE_FILE: "{{.ROOT_DIR}}/age.key"
   SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
   # Binaries
@@ -61,18 +63,20 @@ tasks:
       - task: .post-validate
     preconditions:
       - sh: test -d {{.ROOT_DIR}}/.venv
-        msg: Missing virtual environment. Run `task ansible:deps` to create it
+        msg: Missing virtual environment, run `task ansible:deps` to create it
       - sh: test -f {{.BOOTSTRAP_ADDONS_FILE}}
-        msg: Missing {{.BOOTSTRAP_ADDONS_FILE}}. Run `task init` to create it
+        msg: Missing {{.BOOTSTRAP_ADDONS_FILE}}, run `task init` to create it
       - sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
-        msg: Missing {{.BOOTSTRAP_CONFIG_FILE}}. Run `task init` to create it
-      - sh: test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py
-        msg: Missing {{.BOOTSTRAP_DIR}}/scripts/loader.py
+        msg: Missing {{.BOOTSTRAP_CONFIG_FILE}}, run `task init` to create it
+      - sh: test -f {{.MAKEJINJA_LOADER_FILE}}
+        msg: Missing {{.MAKEJINJA_LOADER_FILE}}
       - sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
         msg: Missing {{.MAKEJINJA_CONFIG_FILE}}
       - sh: command -v {{.PYTHON_BIN}}
         msg: Missing {{.PYTHON_BIN}}
-      - sh: true && {{.PYTHON_BIN}} {{.BOOTSTRAP_DIR}}/scripts/py_version_check.py
+      - sh: test -f {{.PYTHON_VERSION_CHECK_FILE}}
+        msg: Missing {{.PYTHON_VERSION_CHECK_FILE}}
+      - sh: true && {{.PYTHON_BIN}} {{.PYTHON_VERSION_CHECK_FILE}}
         msg: Your system Python version must be 3.11.0 or greater
 
   .pre-validate:

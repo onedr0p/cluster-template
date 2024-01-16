@@ -23,7 +23,7 @@ x-preconditions: &preconditions
     msg: Your system Python version must be 3.11.0 or greater
   - &venvCheck
     sh: test -d {{.ROOT_DIR}}/.venv
-    msg: Missing virtual environment. Run `task ansible:deps` to create it
+    msg: Missing virtual environment, run `task ansible:deps` to create it
 
 vars:
   ANSIBLE_LINT_FILE: "{{.ANSIBLE_DIR}}/.ansible-lint"

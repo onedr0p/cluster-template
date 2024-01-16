@@ -13,7 +13,6 @@ x-preconditions: &preconditions
     sh: test -f {{.K0S_CONFIG_FILE}}
     msg: Missing {{.K0S_CONFIG_FILE}}
 
-
 tasks:
 
   apply:
