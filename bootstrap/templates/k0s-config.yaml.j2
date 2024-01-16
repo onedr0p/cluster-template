@@ -44,14 +44,14 @@ spec:
         api:
           sans:
             - "#{ bootstrap_kube_api_addr }#"
-            #% if bootstrap_kubeapi_hostname is defined %#
-            - "#{ bootstrap_kubeapi_hostname }#"
+            #% if bootstrap_kube_api_hostname is defined %#
+            - "#{ bootstrap_kube_api_hostname }#"
             #% endif %#
             #% for item in bootstrap_nodes.master %#
             #% if item.address != bootstrap_kube_api_addr %#
             - "#{ item.address }#"
             #% endif %#
-            #% if (bootstrap_kubeapi_hostname is not defined) or (item.name != bootstrap_kubeapi_hostname) %#
+            #% if (bootstrap_kube_api_hostname is not defined) or (item.name != bootstrap_kube_api_hostname) %#
             - "#{ item.name }#"
             #% endif %#
             #% endfor %#
