@@ -112,13 +112,10 @@ jobs:
         shell: bash
         run: task configure --yes
 
-      - name: Run configure again to ensure idempotency
+      - name: Run Ansible lint
+        if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}
         shell: bash
-        run: task configure --yes
-
-      - name: Run kubeconform
-        shell: bash
-        run: ./.github/scripts/kubeconform.sh ./kubernetes
+        run: task ansible:lint
 
       - name: List Hosts with Ansible
         if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}

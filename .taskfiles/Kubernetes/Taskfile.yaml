@@ -2,6 +2,9 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
+vars:
+  KUBECONFORM_SCRIPT: "{{.TASKFILE_DIR}}/.taskfiles/Kubernetes/kubeconform.sh"
+
 tasks:
 
   mount:
@@ -47,7 +50,7 @@ tasks:
       ns: '{{.ns | default "default"}}'
       claim: '{{ or .claim (fail "Argument (claim) is required") }}'
     preconditions:
-      - { msg: "PVC not found", sh: "kubectl -n {{.ns}} get persistentvolumeclaim {{.claim}}" }
+      - sh: kubectl -n {{.ns}} get persistentvolumeclaim {{.claim}}
 
   resources:
     desc: Gather common resources in your cluster, useful when asking for support
@@ -65,3 +68,11 @@ tasks:
         certificaterequests
         ingresses
         pods
+
+  kubeconform:
+    desc: Validate Kubernetes manifests with kubeconform
+    cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
+    preconditions:
+      - sh: command -v kubeconform
+      - sh: command -v kustomize
+      - sh: test -f {{.KUBECONFORM_SCRIPT}}
