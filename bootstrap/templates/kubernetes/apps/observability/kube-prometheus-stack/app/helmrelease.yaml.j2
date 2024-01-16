@@ -92,7 +92,7 @@ spec:
       enabled: true
       endpoints: &endpoints
       #% for item in bootstrap_nodes.master %#
-        - "{% item.address %}"
+        - "#{ item.address }#"
       #% endfor %#
       #% if bootstrap_distribution == 'k3s' %#
       serviceMonitor:
