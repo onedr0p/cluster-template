@@ -1,15 +1,15 @@
-<% if bootstrap_distribution == 'k3s' %>
+#% if bootstrap_distribution == 'k3s' %#
 ---
 # https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/
 # https://github.com/PyratLabs/ansible-role-k3s
 
 k3s_control_node: true
 k3s_server:
-  <% if bootstrap_ipv6_enabled | default(false) %>
+  #% if bootstrap_ipv6_enabled | default(false) %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
-  <% else %>
+  #% else %#
   node-ip: "{{ ansible_host }}"
-  <% endif %>
+  #% endif %#
   tls-san:
     - "{{ kube_api_addr }}"
   docker: false
@@ -27,13 +27,13 @@ k3s_server:
   write-kubeconfig-mode: "644"
   pause-image: registry.k8s.io/pause:3.9
   secrets-encryption: true
-  <% if bootstrap_ipv6_enabled | default(false) %>
+  #% if bootstrap_ipv6_enabled | default(false) %#
   cluster-cidr: "{{ cluster_cidr }},{{ cluster_cidr_v6 }}"
   service-cidr: "{{ service_cidr }},{{ service_cidr_v6 }}"
-  <% else %>
+  #% else %#
   cluster-cidr: "{{ cluster_cidr }}"
   service-cidr: "{{ service_cidr }}"
-  <% endif %>
+  #% endif %#
   etcd-expose-metrics: true           # Required to monitor etcd with kube-prometheus-stack
   kube-controller-manager-arg:
     - "bind-address=0.0.0.0"          # Required to monitor kube-controller-manager with kube-prometheus-stack
@@ -45,4 +45,4 @@ k3s_server:
   kubelet-arg:
     - "image-gc-high-threshold=55"
     - "image-gc-low-threshold=50"
-<% endif %>
+#% endif %#

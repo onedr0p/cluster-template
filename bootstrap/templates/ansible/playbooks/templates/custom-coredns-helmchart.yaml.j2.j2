@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == 'k3s' %>
+#% if bootstrap_distribution == 'k3s' %#
 ---
 # https://docs.k3s.io/helm
 apiVersion: helm.cattle.io/v1
@@ -76,4 +76,4 @@ spec:
         labelSelector:
           matchLabels:
             app.kubernetes.io/instance: coredns
-<% endif %>
+#% endif %#

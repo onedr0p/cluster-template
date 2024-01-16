@@ -1,4 +1,4 @@
-<% if weave_gitops.enabled | default(false) %>
+#% if weave_gitops.enabled | default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -32,13 +32,13 @@ spec:
     ingress:
       enabled: true
       className: internal
-      <% if homepage.enabled | default(false) %>
+      #% if homepage.enabled | default(false) %#
       annotations:
         gethomepage.dev/enabled: "true"
         gethomepage.dev/group: Home
         gethomepage.dev/name: Weave-gitops
         gethomepage.dev/icon: flux-cd.png
-      <% endif %>
+      #% endif %#
       hosts:
         - host: &host "gitops.${SECRET_DOMAIN}"
           paths:
@@ -56,4 +56,4 @@ spec:
       impersonationResourceNames: ["admin"]
     podAnnotations:
       secret.reloader.stakater.com/reload: cluster-user-auth
-<% endif %>
+#% endif %#

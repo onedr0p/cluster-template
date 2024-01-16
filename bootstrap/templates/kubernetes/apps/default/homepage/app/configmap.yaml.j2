@@ -1,4 +1,4 @@
-<% if homepage.enabled | default(false) %>
+#% if homepage.enabled | default(false) %#
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -76,4 +76,4 @@ data:
           dateStyle: long
           timeStyle: short
           hourCycle: h23
-<% endif %>
+#% endif %#

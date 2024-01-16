@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == 'k3s' %>
+#% if bootstrap_distribution == 'k3s' %#
 ---
 # https://github.com/k3s-io/k3s/issues/1971
 - name: Cruft
@@ -31,4 +31,4 @@
         namespace: kube-system
         state: absent
       loop: "{{ addons_list.resources | selectattr('metadata.name', 'match', '^custom-.*') | list }}"
-<% endif %>
+#% endif %#

@@ -4,9 +4,9 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./openebs/ks.yaml
-  <% if volsync.enabled | default(false) %>
+  #% if volsync.enabled | default(false) %#
   - ./volsync/ks.yaml
-  <% endif %>
-  <% if csi_driver_nfs.enabled | default(false) %>
+  #% endif %#
+  #% if csi_driver_nfs.enabled | default(false) %#
   - ./csi-driver-nfs/ks.yaml
-  <% endif %>
+  #% endif %#

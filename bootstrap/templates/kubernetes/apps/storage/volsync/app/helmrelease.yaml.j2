@@ -1,4 +1,4 @@
-<% if volsync.enabled | default(false) %>
+#% if volsync.enabled | default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -41,4 +41,4 @@ spec:
       tag: *tag
     metrics:
       disableAuth: true
-<% endif %>
+#% endif %#

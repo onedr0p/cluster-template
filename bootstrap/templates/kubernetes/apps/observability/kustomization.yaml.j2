@@ -3,12 +3,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
-  <% if grafana.enabled | default(false) %>
+  #% if grafana.enabled | default(false) %#
   - ./grafana/ks.yaml
-  <% endif %>
-  <% if kube_prometheus_stack.enabled | default(false) %>
+  #% endif %#
+  #% if kube_prometheus_stack.enabled | default(false) %#
   - ./kube-prometheus-stack/ks.yaml
-  <% endif %>
-  <% if kubernetes_dashboard.enabled | default(false) %>
+  #% endif %#
+  #% if kubernetes_dashboard.enabled | default(false) %#
   - ./kubernetes-dashboard/ks.yaml
-  <% endif %>
+  #% endif %#

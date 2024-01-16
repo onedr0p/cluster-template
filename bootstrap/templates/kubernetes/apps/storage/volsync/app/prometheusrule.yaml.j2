@@ -1,4 +1,4 @@
-<% if volsync.enabled | default(false) %>
+#% if volsync.enabled | default(false) %#
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -22,4 +22,4 @@ spec:
           for: 15m
           labels:
             severity: critical
-<% endif %>
+#% endif %#

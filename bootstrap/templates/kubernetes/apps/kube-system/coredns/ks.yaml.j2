@@ -1,4 +1,4 @@
-<% if bootstrap_distribution == "k3s" %>
+#% if bootstrap_distribution == "k3s" %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -19,4 +19,4 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
-<% endif %>
+#% endif %#
