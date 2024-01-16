@@ -1,6 +1,5 @@
 ---
 # Area
-- { name: "area/addons",             color: "0e8a16" }
 - { name: "area/ansible",            color: "0e8a16" }
 - { name: "area/bootstrap",          color: "0e8a16" }
 - { name: "area/github",             color: "0e8a16" }
