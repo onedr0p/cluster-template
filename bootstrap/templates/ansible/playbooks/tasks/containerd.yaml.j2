@@ -1,0 +1,19 @@
+---
+- name: Containerd
+  block:
+    - name: Ensures containerd configuration directory exists
+      ansible.builtin.file:
+        path: /var/lib/rancher/k3s/agent/etc/containerd
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Copy containerd configuration
+      notify: Restart Kubernetes
+      ansible.builtin.copy:
+        src: templates/config.toml.tmpl.j2
+        dest: /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+        owner: root
+        group: root
+        mode: "0644"

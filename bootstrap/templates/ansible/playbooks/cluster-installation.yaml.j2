@@ -22,6 +22,9 @@
         k3s_server_manifests_templates: []
         k3s_server_manifests_urls: []
 
+    - name: Containerd
+      ansible.builtin.include_tasks: tasks/containerd.yaml
+
     - name: Install Kubernetes
       ansible.builtin.include_role:
         name: xanmanning.k3s
