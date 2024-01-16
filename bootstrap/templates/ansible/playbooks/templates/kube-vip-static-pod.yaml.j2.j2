@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == 'k3s' and (bootstrap_nodes.master | length > 1 or bootstrap_kube_api_addr) %#
+#% if bootstrap_distribution == 'k3s' and (bootstrap_nodes.master | length > 1 or bootstrap_kube_api_addr | default('')) %#
 ---
 apiVersion: v1
 kind: Pod

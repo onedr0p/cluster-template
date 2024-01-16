@@ -7,10 +7,10 @@ metadata:
 data:
   TIMEZONE: "#{ bootstrap_timezone }#"
   COREDNS_ADDR: "#{ bootstrap_service_cidr.split(',')[0] | nthhost(10) }#"
-  #% if bootstrap_nodes.master | length == 1 and not bootstrap_kube_api_addr %#
-  KUBE_API_ADDR: "#{ bootstrap_nodes.master[0].address }#"
-  #% else %#
+  #% if bootstrap_nodes.master | length > 1 or bootstrap_kube_api_addr | default('') %#
   KUBE_API_ADDR: "#{ bootstrap_kube_api_addr }#"
+  #% else %#
+  KUBE_API_ADDR: "#{ bootstrap_nodes.master[0].address }#"
   #% endif %#
   CLUSTER_CIDR: "#{ bootstrap_cluster_cidr.split(',')[0] }#"
   SERVICE_CIDR: "#{ bootstrap_service_cidr.split(',')[0] }#"

@@ -1,5 +1,6 @@
 ---
 - name: Query Github username
+  when: not ci_test | default(false)
   ansible.builtin.uri:
     url: https://api.github.com/users/{{ bootstrap_github_username }}
     timeout: 5
@@ -8,13 +9,14 @@
   register: result
 
 - name: Check if username exists
+  when: not ci_test | default(false)
   ansible.builtin.assert:
     that: result.json.login == bootstrap_github_username
     success_msg: Github user {{ bootstrap_github_username }} exists
     fail_msg: Github user {{ bootstrap_github_username }} does not exist
 
 - name: Query Github repo
-  when: not bootstrap_private_github_repo | default(false)
+  when: (not ci_test | default(false)) or (not bootstrap_private_github_repo | default(false))
   ansible.builtin.uri:
     url: https://api.github.com/repos/{{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }}
     timeout: 5
@@ -23,14 +25,14 @@
   register: result
 
 - name: Check if repo exists
-  when: not bootstrap_private_github_repo | default(false)
+  when: (not ci_test | default(false)) or (not bootstrap_private_github_repo | default(false))
   ansible.builtin.assert:
     that: result.json.full_name == bootstrap_github_username + '/' + bootstrap_github_repository_name
     success_msg: Github repo {{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }} exists
     fail_msg: Github repo {{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }} does not exist
 
 - name: Query Github repo branch
-  when: not bootstrap_private_github_repo | default(false)
+  when: (not ci_test | default(false)) or (not bootstrap_private_github_repo | default(false))
   ansible.builtin.uri:
     url: https://api.github.com/repos/{{ bootstrap_github_username }}/{{ bootstrap_github_repository_name }}/branches/{{ bootstrap_github_repository_branch | default('main', true) }}
     timeout: 5
@@ -39,7 +41,7 @@
   register: result
 
 - name: Check if repo branch exists
-  when: not bootstrap_private_github_repo | default(false)
+  when: (not ci_test | default(false)) or (not bootstrap_private_github_repo | default(false))
   ansible.builtin.assert:
     that: result.json.name == bootstrap_github_repository_branch | default('main', true)
     success_msg: Github repo branch {{ bootstrap_github_repository_branch | default('main', true) }} exists
