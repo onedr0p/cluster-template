@@ -17,6 +17,7 @@ bootstrap_cloudflare_tunnel_secret: fake
 bootstrap_cloudflare_tunnel_id: fake
 bootstrap_node_cidr: 10.10.10.0/24
 bootstrap_kube_api_addr: 10.10.10.254
+bootstrap_kube_api_hostname: fake
 bootstrap_k8s_gateway_addr: 10.10.10.253
 bootstrap_external_ingress_addr: 10.10.10.252
 bootstrap_internal_ingress_addr: 10.10.10.251

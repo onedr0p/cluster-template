@@ -44,14 +44,14 @@ spec:
         api:
           sans:
             - "#{ bootstrap_kube_api_addr }#"
-            #% if bootstrap_kube_api_hostname is defined %#
+            #% if bootstrap_kube_api_hostname | default('') %#
             - "#{ bootstrap_kube_api_hostname }#"
             #% endif %#
             #% for item in bootstrap_nodes.master %#
             #% if item.address != bootstrap_kube_api_addr %#
             - "#{ item.address }#"
             #% endif %#
-            #% if (bootstrap_kube_api_hostname is not defined) or (item.name != bootstrap_kube_api_hostname) %#
+            #% if (not bootstrap_kube_api_hostname | default('')) or (item.name != bootstrap_kube_api_hostname | default('')) %#
             - "#{ item.name }#"
             #% endif %#
             #% endfor %#
@@ -90,10 +90,10 @@ spec:
                   ipv6:
                     enabled: true
                   #% endif %#
-                  #% if bootstrap_nodes.master | length == 1 and not bootstrap_kube_api_addr %#
-                  k8sServiceHost: "#{ bootstrap_nodes.master[0].address }#"
-                  #% else %#
+                  #% if bootstrap_nodes.master | length > 1 or bootstrap_kube_api_addr | default('') %#
                   k8sServiceHost: "#{ bootstrap_kube_api_addr }#"
+                  #% else %#
+                  k8sServiceHost: "#{ bootstrap_nodes.master[0].address }#"
                   #% endif %#
                   k8sServicePort: 6443
                   kubeProxyReplacement: true

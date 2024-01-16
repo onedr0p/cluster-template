@@ -12,6 +12,9 @@ k3s_server:
   #% endif %#
   tls-san:
     - "{{ kube_api_addr }}"
+    #% if bootstrap_kube_api_hostname | default('') %#
+    - "{{ kube_api_hostname }}"
+    #% endif %#
   docker: false
   flannel-backend: "none"             # This needs to be in quotes
   disable:
