@@ -7,13 +7,13 @@ metadata:
 spec:
   interval: 30m
   ref:
-    branch: "{% bootstrap_github_repository_branch | default('main', true) %}"
+    branch: "#{ bootstrap_github_repository_branch | default('main', true) }#"
   #% if bootstrap_private_github_repo | default(false) %#
   secretRef:
     name: github-deploy-key
-  url: "ssh://github.com/{% bootstrap_github_username %}/{% bootstrap_github_repository_name %}"
+  url: "ssh://github.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#"
   #% else %#
-  url: "https://github.com/{% bootstrap_github_username %}/{% bootstrap_github_repository_name %}.git"
+  url: "https://github.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#.git"
   #% endif %#
   ignore: |
     # exclude all

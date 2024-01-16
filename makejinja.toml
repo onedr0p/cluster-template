@@ -6,12 +6,13 @@ import_paths = ["./bootstrap/scripts"]
 loaders = ["loader:Loader"]
 jinja_suffix = ".j2"
 
-# Block delimiters are changed to avoid conflicts with Renovate
+# Block and comment delimiters are changed to avoid conflicts with Renovate
+# Variable delimiters are changed to avoid conflicts with Renovate and Go templates
 # https://github.com/renovatebot/renovate/discussions/18470
 [makejinja.delimiter]
 block_start = "#%"
 block_end = "%#"
-comment_start = "{#"
-comment_end = "#}"
-variable_start = "{%"
-variable_end = "%}"
+comment_start = "#|"
+comment_end = "|#"
+variable_start = "#{"
+variable_end = "}#"

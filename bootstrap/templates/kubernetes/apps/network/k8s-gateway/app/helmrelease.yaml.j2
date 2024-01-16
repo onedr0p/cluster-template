@@ -31,5 +31,5 @@ spec:
       type: LoadBalancer
       port: 53
       annotations:
-        io.cilium/lb-ipam-ips: "{% bootstrap_k8s_gateway_addr %}"
+        io.cilium/lb-ipam-ips: "#{ bootstrap_k8s_gateway_addr }#"
       externalTrafficPolicy: Cluster

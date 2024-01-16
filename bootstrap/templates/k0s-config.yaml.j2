@@ -7,10 +7,10 @@ metadata:
 spec:
   hosts:
     #% for item in bootstrap_nodes.master %#
-    - role: "{% item.role | default('controller+worker') %}"
+    - role: "#{ item.role | default('controller+worker') }#"
       ssh:
-        address: "{% item.address %}"
-        user: "{% item.username %}"
+        address: "#{ item.address }#"
+        user: "#{ item.username }#"
       installFlags:
         - --disable-components=metrics-server
         #% if item.role | default('') == 'controller+worker' %#
@@ -21,8 +21,8 @@ spec:
     #% for item in bootstrap_nodes.worker %#
     - role: worker
       ssh:
-        address: "{% item.address %}"
-        user: "{% item.username %}"
+        address: "#{ item.address }#"
+        user: "#{ item.username }#"
     #% endfor %#
     #% endif %#
   k0s:
@@ -43,16 +43,16 @@ spec:
             bind-address: "0.0.0.0"
         api:
           sans:
-            - "{% bootstrap_kube_api_addr %}"
+            - "#{ bootstrap_kube_api_addr }#"
             #% if bootstrap_kubeapi_hostname is defined %#
-            - "{% bootstrap_kubeapi_hostname %}"
+            - "#{ bootstrap_kubeapi_hostname }#"
             #% endif %#
             #% for item in bootstrap_nodes.master %#
             #% if item.address != bootstrap_kube_api_addr %#
-            - "{% item.address %}"
+            - "#{ item.address }#"
             #% endif %#
             #% if (bootstrap_kubeapi_hostname is not defined) or (item.name != bootstrap_kubeapi_hostname) %#
-            - "{% item.name %}"
+            - "#{ item.name }#"
             #% endif %#
             #% endfor %#
         extensions:
@@ -84,16 +84,16 @@ spec:
                     enabled: false
                   ipam:
                     mode: kubernetes
-                  ipv4NativeRoutingCIDR: "{% bootstrap_cluster_cidr %}"
+                  ipv4NativeRoutingCIDR: "#{ bootstrap_cluster_cidr }#"
                   #% if bootstrap_ipv6_enabled | default(false) %#
-                  ipv6NativeRoutingCIDR: "{% bootstrap_cluster_cidr_v6 %}"
+                  ipv6NativeRoutingCIDR: "#{ bootstrap_cluster_cidr_v6 }#"
                   ipv6:
                     enabled: true
                   #% endif %#
                   #% if bootstrap_nodes.master | length == 1 and not bootstrap_kube_api_addr %#
-                  k8sServiceHost: "{% bootstrap_nodes.master[0].address %}"
+                  k8sServiceHost: "#{ bootstrap_nodes.master[0].address }#"
                   #% else %#
-                  k8sServiceHost: "{% bootstrap_kube_api_addr %}"
+                  k8sServiceHost: "#{ bootstrap_kube_api_addr }#"
                   #% endif %#
                   k8sServicePort: 6443
                   kubeProxyReplacement: true
@@ -110,7 +110,7 @@ spec:
                     #% endif %#
                   loadBalancer:
                     algorithm: maglev
-                    mode: "{% bootstrap_cilium_loadbalancer_mode | default('dsr', true) %}"
+                    mode: "#{ bootstrap_cilium_loadbalancer_mode | default('dsr', true) }#"
                   localRedirectPolicy: true
                   operator:
                     replicas: 1
