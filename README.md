@@ -149,7 +149,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```sh
     # Homebrew
     brew install go-task
-    # or, Arch / Yay
+    # or, Arch / yay
     yay -S go-task
     ```
 
@@ -160,18 +160,18 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```sh
     # Homebrew
     brew install direnv
-    # or, Arch / Yay
+    # or, Arch / yay
     yay -S direnv
     ```
 
-3. Install additional tools: [age](https://github.com/FiloSottile/age), [flux](https://toolkit.fluxcd.io/), [cloudflared](https://github.com/cloudflare/cloudflared), [kubectl](https://kubernetes.io/docs/tasks/tools/), [sops](https://github.com/getsops/sops)
+3. Install additional tools: [age](https://github.com/FiloSottile/age), [cloudflared](https://github.com/cloudflare/cloudflared), [flux](https://toolkit.fluxcd.io/), [kubeconform](https://github.com/yannh/kubeconform), [kubectl](https://kubectl.docs.kubernetes.io/installation/), [kustomize](https://kubectl.docs.kubernetes.io/installation/), [sops](https://github.com/getsops/sops). [k0sctl](https://github.com/k0sproject/k0sctl) is also required for k0s.
 
    📍 _Not using Homebrew or ArchLinux? Make sure to look up how to install the latest version of each of these CLI tools and install them._
 
     ```sh
     # Homebrew
     task workstation:brew
-    # or, Arch / Yay
+    # or, Arch / yay
     go-task workstation:yay
     ```
 
