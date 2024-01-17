@@ -12,19 +12,19 @@ tasks:
     desc: Install workstation dependencies with Brew
     cmd: brew bundle --file {{.BREWFILE}}
     preconditions:
-      - sh: command -v brew
-      - sh: test -f {{.BREWFILE}}
+      - { msg: "Missing Homebrew", sh: "command -v brew" }
+      - { msg: "Missing Brewfile", sh: "test -f {{.BREWFILE}}" }
 
   paru:
     desc: Install workstation dependencies with Paru
     cmd: paru -Syu --needed --noconfirm --noprogressbar $(cat {{.ARCHFILE}} | xargs)
     preconditions:
-      - sh: command -v paru
-      - sh: test -f {{.ARCHFILE}}
+      - { msg: "Missing Paru", sh: "command -v paru" }
+      - { msg: "Missing Archfile", sh: "test -f {{.ARCHFILE}}" }
 
   yay:
     desc: Install workstation dependencies with Yay
     cmd: yay -Syu --needed --noconfirm --noprogressbar $(cat {{.ARCHFILE}} | xargs)
     preconditions:
-      - sh: command -v yay
-      - sh: test -f {{.ARCHFILE}}
+      - { msg: "Missing Yay", sh: "command -v yay" }
+      - { msg: "Missing Archfile", sh: "test -f {{.ARCHFILE}}" }

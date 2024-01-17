@@ -54,7 +54,7 @@ jobs:
         uses: actions/setup-python@v5
         id: setup-python
         with:
-          python-version: "3.12"
+          python-version: "3.11" # minimum supported version
 
       - name: Cache homebrew packages
         if: ${{ github.event_name == 'pull_request' }}
@@ -125,5 +125,5 @@ jobs:
       - name: Run repo clean and reset
         shell: bash
         run: |
-          task repo:clean
-          task repo:reset --yes
+          task repository:clean
+          task repository:reset --yes

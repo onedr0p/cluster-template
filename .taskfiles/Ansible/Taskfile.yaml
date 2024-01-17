@@ -2,13 +2,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-vars:
-  PYTHON_BIN: python3
-  ANSIBLE_LINT_FILE: "{{.ANSIBLE_DIR}}/.ansible-lint"
-  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_DIR}}/inventory/hosts.yaml"
-  ANSIBLE_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.yaml"
-  PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
-
 env:
   PATH: "{{.ROOT_DIR}}/.venv/bin:$PATH"
   VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
@@ -18,12 +11,18 @@ env:
   ANSIBLE_LOCALHOST_WARNING: "False"
   ANSIBLE_INVENTORY_UNPARSED_WARNING: "False"
 
+vars:
+  ANSIBLE_LINT_FILE: "{{.ANSIBLE_DIR}}/.ansible-lint"
+  ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_DIR}}/inventory/hosts.yaml"
+  ANSIBLE_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.yaml"
+  PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
+
 tasks:
 
   deps:
     desc: Set up Ansible dependencies for the environment
     cmds:
-      - task: .venv
+      - task: .setup-virtual-env
         vars:
           force: '{{.force | default "true"}}'
 
@@ -36,52 +35,45 @@ tasks:
     deps: ["deps"]
     cmd: .venv/bin/ansible-playbook --inventory {{.ANSIBLE_INVENTORY_FILE}} {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml {{.CLI_ARGS}}
     preconditions:
-      - sh: test -n {{.playbook}}
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
-      - sh: test -f {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml
+      - { msg: "Missing playbook arg", sh: "test -n {{.playbook}}" }
+      - { msg: "Missing Ansible inventory file", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   poweroff:
     desc: Shutdown all the k8s nodes
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} -a '/usr/bin/systemctl poweroff' --become
     preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+      - { msg: "Missing Ansible inventory file", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   list:
     desc: List all the hosts
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} --list-hosts
     preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+      - { msg: "Missing Ansible inventory file", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   ping:
     desc: Ping all the hosts
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} --one-line -m 'ping'
     preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+      - { msg: "Missing Ansible inventory file", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   uptime:
     desc: Uptime of all the hosts
     deps: ["deps"]
     cmd: .venv/bin/ansible kubernetes --inventory {{.ANSIBLE_INVENTORY_FILE}} --one-line -a 'uptime'
     preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-      - sh: test -f {{.ANSIBLE_INVENTORY_FILE}}
+      - { msg: "Missing Ansible inventory file", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   lint:
     desc: Lint Ansible
     deps: ["deps"]
     cmd: ./.venv/bin/ansible-lint --config-file {{.ANSIBLE_LINT_FILE}} {{.ANSIBLE_DIR}}/**/*.yaml
     preconditions:
-      - sh: test -d {{.ANSIBLE_DIR}}
-      - sh: test -f {{.ANSIBLE_LINT_FILE}}
+      - { msg: "Missing Ansible lint file", sh: "test -f {{.ANSIBLE_LINT_FILE}}" }
 
-  .venv:
+  .setup-virtual-env:
     internal: true
     cmds:
       - "{{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv"
@@ -94,6 +86,11 @@ tasks:
     generates:
       - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"
     preconditions:
-      - sh: command -v {{.PYTHON_BIN}}
+      - { msg: "Missing Ansible requirements file", sh: "test -f {{.ANSIBLE_REQUIREMENTS_FILE}}" }
+      - { msg: "Missing Pip requirements file", sh: "test -f {{.PIP_REQUIREMENTS_FILE}}" }
     vars:
       force: '{{.force | default "true"}}'
+
+  .reset:
+    internal: true
+    cmd: rm -rf {{.ANSIBLE_DIR}}

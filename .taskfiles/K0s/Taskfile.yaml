@@ -5,6 +5,9 @@ env:
   DISABLE_TELEMETRY: "true"
   DISABLE_UPGRADE_CHECK: "true"
 
+vars:
+  K0S_CONFIG_FILE: "{{.ROOT_DIR}}/k0s-config.yaml"
+
 tasks:
 
   apply:
@@ -13,11 +16,10 @@ tasks:
       - k0sctl apply --config {{.K0S_CONFIG_FILE}}
       - task: kubeconfig
     preconditions:
-      - sh: command -v k0sctl
-      - sh: test -f {{.K0S_CONFIG_FILE}}
+      - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
 
-  reset:
-    desc: Resets k0s cluster
+  nuke:
+    desc: Nuke the k0s cluster
     deps: [":ansible:deps"]
     cmds:
       - k0sctl reset --config {{.K0S_CONFIG_FILE}}
@@ -25,16 +27,19 @@ tasks:
         vars:
           playbook: cluster-nuke
     preconditions:
-      - sh: command -v k0sctl
-      - sh: test -f {{.K0S_CONFIG_FILE}}
+      - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
 
   kubeconfig:
     desc: Gets k0s cluster kubeconfig
-    cmd: k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
+    cmds:
+      - k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
     sources:
       - "{{.K0S_CONFIG_FILE}}"
     generates:
       - "{{.KUBECONFIG_FILE}}"
     preconditions:
-      - sh: command -v k0sctl
-      - sh: test -f {{.K0S_CONFIG_FILE}}
+      - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
+
+  .reset:
+    internal: true
+    cmd: rm -rf {{.K0S_CONFIG_FILE}}
