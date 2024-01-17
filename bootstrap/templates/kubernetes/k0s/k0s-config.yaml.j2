@@ -19,10 +19,16 @@ spec:
       files:
         - name: containerd-config
           src: resources/containerd/
-          dstDir: /etc/k0s/containerd.d/
           perm: 0644
           user: root
           group: root
+      hooks:
+        apply:
+          before:
+            #% if spegel.enabled | default(false) %#
+            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
+            #% endif %#
+            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
     #% endfor %#
     #% if bootstrap_nodes.worker | default([]) | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
@@ -33,10 +39,16 @@ spec:
       files:
         - name: containerd-config
           src: resources/containerd/
-          dstDir: /etc/k0s/containerd.d/
           perm: 0644
           user: root
           group: root
+      hooks:
+        apply:
+          before:
+            #% if spegel.enabled | default(false) %#
+            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
+            #% endif %#
+            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
     #% endfor %#
     #% endif %#
   k0s:
