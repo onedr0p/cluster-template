@@ -223,8 +223,7 @@
       "fileMatch": [
         "(^|/).taskfiles/.+\\.ya?ml$",
         "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-        "(^|/)k0s-config.ya?ml(\\.j2)?(\\.j2)?$"
+        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
       ],
       "matchStrings": [
         // Example:

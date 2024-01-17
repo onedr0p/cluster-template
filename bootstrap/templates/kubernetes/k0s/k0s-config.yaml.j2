@@ -16,6 +16,14 @@ spec:
         #% if item.role | default('') == 'controller+worker' %#
         - --no-taints
         #% endif %#
+      #% if spegel.enabled | default(false) %#
+      files:
+        - name: containerd-spegel
+          src: files/containerd-spegel.toml
+          dstDir: /etc/k0s/containerd.d
+          dst: spegel.toml
+          perm: 0644
+      #% endif %#
     #% endfor %#
     #% if bootstrap_nodes.worker | default([]) | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
@@ -23,6 +31,14 @@ spec:
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.username }#"
+      #% if spegel.enabled | default(false) %#
+      files:
+        - name: containerd-spegel
+          src: files/containerd-spegel.toml
+          dstDir: /etc/k0s/containerd.d
+          dst: spegel.toml
+          perm: 0644
+      #% endif %#
     #% endfor %#
     #% endif %#
   k0s:

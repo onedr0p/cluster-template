@@ -41,7 +41,7 @@ system_upgrade_controller:
   # WARNING: Only enable this if you also track the version of k3s in the
   # ansible configuration files. Running ansible against an already provisioned
   # cluster with this enabled might cause your cluster to be downgraded.
-  # Note that if bootstrap_distribution is set to k0s enable: true will be ignored.
+  # Note: If bootstrap_distribution is set to k0s this will be ignored.
   enabled: false
 
 # https://github.com/morphy2k/rss-forwarder
@@ -53,4 +53,9 @@ discord_template_notifier:
 
 # https://github.com/backube/volsync
 volsync:
+  enabled: false
+
+# https://github.com/XenitAB/spegel
+spegel:
+  # Note: This only applies to k0s at the moment
   enabled: false
