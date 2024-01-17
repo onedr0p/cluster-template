@@ -16,6 +16,19 @@ spec:
         #% if item.role | default('') == 'controller+worker' %#
         - --no-taints
         #% endif %#
+      files:
+        - name: containerd-config
+          src: resources/containerd/
+          perm: 0644
+          user: root
+          group: root
+      hooks:
+        apply:
+          before:
+            #% if spegel.enabled | default(false) %#
+            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
+            #% endif %#
+            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
     #% endfor %#
     #% if bootstrap_nodes.worker | default([]) | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
@@ -23,6 +36,19 @@ spec:
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.username }#"
+      files:
+        - name: containerd-config
+          src: resources/containerd/
+          perm: 0644
+          user: root
+          group: root
+      hooks:
+        apply:
+          before:
+            #% if spegel.enabled | default(false) %#
+            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
+            #% endif %#
+            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
     #% endfor %#
     #% endif %#
   k0s:
@@ -55,6 +81,15 @@ spec:
             - "#{ item.name }#"
             #% endif %#
             #% endfor %#
+        network:
+          kubeProxy:
+            disabled: true
+          #%  if bootstrap_nodes.master | length > 1 %#
+          nodeLocalLoadBalancing:
+            enabled: true
+            type: EnvoyProxy
+          #% endif %#
+          provider: custom
         extensions:
           helm:
             repositories:
@@ -119,13 +154,4 @@ spec:
                   routingMode: native
                   securityContext:
                     privileged: true
-        network:
-          kubeProxy:
-            disabled: true
-          #%  if bootstrap_nodes.master | length > 1 %#
-          nodeLocalLoadBalancing:
-            enabled: true
-            type: EnvoyProxy
-          #% endif %#
-          provider: custom
 #% endif %#

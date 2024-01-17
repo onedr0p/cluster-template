@@ -1,0 +1,5 @@
+#% if bootstrap_distribution == 'k0s' and spegel.enabled | default(false) %#
+[plugins."io.containerd.grpc.v1.cri"]
+  enable_unprivileged_ports = true
+  enable_unprivileged_icmp = true
+#% endif %#

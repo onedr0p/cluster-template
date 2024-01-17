@@ -6,12 +6,13 @@ env:
   DISABLE_UPGRADE_CHECK: "true"
 
 vars:
-  K0S_CONFIG_FILE: "{{.ROOT_DIR}}/k0s-config.yaml"
+  K0S_CONFIG_FILE: "{{.KUBERNETES_DIR}}/k0s/k0s-config.yaml"
 
 tasks:
 
   apply:
     desc: Apply k0s cluster config
+    dir: "{{.KUBERNETES_DIR}}/k0s" # Needed for uploading files in k0s-config.yaml
     cmds:
       - k0sctl apply --config {{.K0S_CONFIG_FILE}}
       - task: kubeconfig

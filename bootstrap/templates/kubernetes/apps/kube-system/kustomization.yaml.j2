@@ -8,3 +8,6 @@ resources:
   - ./coredns/ks.yaml
   #% endif %#
   - ./metrics-server/ks.yaml
+  #% if bootstrap_distribution == "k0s" and spegel.enabled | default(false) %#
+  - ./spegel/ks.yaml
+  #% endif %#

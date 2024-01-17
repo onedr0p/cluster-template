@@ -1,0 +1,6 @@
+#% if bootstrap_distribution == 'k0s' and spegel.enabled | default(false) %#
+[plugins."io.containerd.grpc.v1.cri".containerd]
+  discard_unpacked_layers = false
+[plugins."io.containerd.grpc.v1.cri".registry]
+  config_path = "/var/lib/k0s/containerd/certs.d"
+#% endif %#
