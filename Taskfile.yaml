@@ -60,13 +60,9 @@ tasks:
       - task: .pre-validate
       - task: .template
       - task: .post-validate
-    # preconditions:
-    #   - sh: command -v {{.PYTHON_BIN}}
-    #     msg: Missing {{.PYTHON_BIN}}
-    #   - sh: test -f {{.PYTHON_VERSION_CHECK_FILE}}
-    #     msg: Missing {{.PYTHON_VERSION_CHECK_FILE}}
-    #   - sh: true && {{.PYTHON_BIN}} {{.PYTHON_VERSION_CHECK_FILE}}
-    #     msg: Your system Python version must be 3.11.0 or greater
+    preconditions:
+      - { msg: "Missing Python version check script", sh: "test -f {{.PYTHON_VERSION_CHECK_FILE}}" }
+      - { msg: "Python version must be 3.11 or greater", sh: "{{.PYTHON_BIN}} {{.PYTHON_VERSION_CHECK_FILE}}" }
 
   .pre-validate:
     internal: true
@@ -82,9 +78,7 @@ tasks:
     internal: true
     cmds:
       - ./.venv/bin/makejinja --keep-trailing-newline --force
-      - task: sops:encrypt:all
-    vars:
-      makejinja_loader_file:
+      - task: sops:encrypt
     preconditions:
       - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
       - { msg: "Missing Makejinja loader file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
