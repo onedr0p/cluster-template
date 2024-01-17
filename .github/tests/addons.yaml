@@ -32,3 +32,6 @@ discord_template_notifier:
 
 volsync:
   enabled: true
+
+spegel:
+  enabled: true
