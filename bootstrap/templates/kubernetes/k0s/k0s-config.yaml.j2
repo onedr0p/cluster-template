@@ -16,14 +16,13 @@ spec:
         #% if item.role | default('') == 'controller+worker' %#
         - --no-taints
         #% endif %#
-      #% if spegel.enabled | default(false) %#
       files:
-        - name: containerd-spegel
-          src: files/containerd-spegel.toml
-          dstDir: /etc/k0s/containerd.d
-          dst: spegel.toml
+        - name: containerd-config
+          src: resources/containerd/
+          dstDir: /etc/k0s/containerd.d/
           perm: 0644
-      #% endif %#
+          user: root
+          group: root
     #% endfor %#
     #% if bootstrap_nodes.worker | default([]) | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
@@ -31,14 +30,13 @@ spec:
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.username }#"
-      #% if spegel.enabled | default(false) %#
       files:
-        - name: containerd-spegel
-          src: files/containerd-spegel.toml
-          dstDir: /etc/k0s/containerd.d
-          dst: spegel.toml
+        - name: containerd-config
+          src: resources/containerd/
+          dstDir: /etc/k0s/containerd.d/
           perm: 0644
-      #% endif %#
+          user: root
+          group: root
     #% endfor %#
     #% endif %#
   k0s:
@@ -71,6 +69,15 @@ spec:
             - "#{ item.name }#"
             #% endif %#
             #% endfor %#
+        network:
+          kubeProxy:
+            disabled: true
+          #%  if bootstrap_nodes.master | length > 1 %#
+          nodeLocalLoadBalancing:
+            enabled: true
+            type: EnvoyProxy
+          #% endif %#
+          provider: custom
         extensions:
           helm:
             repositories:
@@ -135,13 +142,4 @@ spec:
                   routingMode: native
                   securityContext:
                     privileged: true
-        network:
-          kubeProxy:
-            disabled: true
-          #%  if bootstrap_nodes.master | length > 1 %#
-          nodeLocalLoadBalancing:
-            enabled: true
-            type: EnvoyProxy
-          #% endif %#
-          provider: custom
 #% endif %#

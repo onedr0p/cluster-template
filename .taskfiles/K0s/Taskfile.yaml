@@ -12,6 +12,7 @@ tasks:
 
   apply:
     desc: Apply k0s cluster config
+    dir: "{{.KUBERNETES_DIR}}/k0s" # Needed for uploading files in k0s-config.yaml
     cmds:
       - k0sctl apply --config {{.K0S_CONFIG_FILE}}
       - task: kubeconfig
