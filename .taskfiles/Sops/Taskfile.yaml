@@ -2,6 +2,9 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
+vars:
+  SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
+
 tasks:
 
   age-keygen:
@@ -19,10 +22,8 @@ tasks:
     vars:
       claim: '{{ or .file (fail "Argument (file) is required") }}'
     preconditions:
-      - sh: test -f {{.SOPS_CONFIG_FILE}}
-        msg: Missing {{.SOPS_CONFIG_FILE}}
-      - sh: test -f {{.SOPS_AGE_FILE}}
-        msg: Missing {{.SOPS_AGE_FILE}}
+      - { msg: "Missing Sops config file", sh: "test -f {{.SOPS_CONFIG_FILE}}" }
+      - { msg: "Missing Sops Age key file", sh: "test -f {{.SOPS_AGE_FILE}}" }
 
   encrypt:all:
     desc: Encrypt all Kubernetes SOPS secrets
@@ -34,3 +35,7 @@ tasks:
     vars:
       file:
         sh: find {{.KUBERNETES_DIR}} -type f -name "*.sops.*"
+
+  .reset:
+    internal: true
+    cmd: rm -rf {{.SOPS_CONFIG_FILE}}

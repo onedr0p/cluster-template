@@ -125,5 +125,5 @@ jobs:
       - name: Run repo clean and reset
         shell: bash
         run: |
-          task repo:clean
-          task repo:reset --yes
+          task repository:clean
+          task repository:reset --yes

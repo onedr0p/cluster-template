@@ -2,50 +2,34 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
-x-preconditions: &preconditions
-  - &fluxBinCheck
-    sh: command -v flux
-    msg: Flux is not installed
-  - &fluxInstalledCheck
-    sh: kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0
-    msg: Flux is already installed
-  - &kubeconfigFileCheck
-    sh: test -f {{.KUBECONFIG_FILE}}
-    msg: Missing {{.KUBECONFIG_FILE}}
-  - &kubectlBinCheck
-    sh: command -v kubectl
-    msg: kubectl is not installed
-  - &sopsAgeFileCheck
-    sh: test -f {{.SOPS_AGE_FILE}}
-    msg: Missing {{.SOPS_AGE_FILE}}
-  - &sopsBinCheck
-    sh: command -v sops
-    msg: sops is not installed
-
 vars:
   # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
   PROMETHEUS_OPERATOR_VERSION: "v0.70.0"
+  CLUSTER_SECRET_SOPS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml"
+  CLUSTER_SECRET_USER_SOPS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml"
+  CLUSTER_SETTINGS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml"
+  CLUSTER_SETTINGS_USER_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml"
 
 tasks:
 
   bootstrap:
     desc: Bootstrap Flux into a Kubernetes cluster
     cmds:
-      # Install essential Prometheus Operator CRDs
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
-      # Install Flux
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap
-      # Install Secrets and Kustomizations
       - cat {{.SOPS_AGE_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
-      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
-      - sops --decrypt {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings-user.yaml
+      - sops --decrypt {{.CLUSTER_SECRET_SOPS_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - sops --decrypt {{.CLUSTER_SECRET_USER_SOPS_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.CLUSTER_SETTINGS_FILE}}
+      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.CLUSTER_SETTINGS_USER_FILE}}
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
-    preconditions: *preconditions
+    preconditions:
+      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
+      - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+      - { msg: "Missing Sops Age key file", sh: "test -f {{.SOPS_AGE_FILE}}" }
 
   apply:
     desc: Apply a Flux Kustomization resource for a cluster
@@ -62,32 +46,25 @@ tasks:
       | \
       kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side \
           --field-manager=kustomize-controller -f -
-    preconditions:
-      - sh: test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml
-        msg: Missing {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml
-      - *fluxBinCheck
-      - *fluxInstalledCheck
-      - *kubeconfigFileCheck
-      - *kubectlBinCheck
-      - *sopsAgeFileCheck
-      - *sopsBinCheck
     vars:
       path: '{{ or .path (fail "Argument (path) is required") }}'
       ns: '{{.ns | default "flux-system"}}'
       ks:
         sh: flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
+    preconditions:
+      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
+      - { msg: "Missing Flux Kustomization", sh: "test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml" }
+      - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmd: flux --kubeconfig {{.KUBECONFIG_FILE}} reconcile --namespace flux-system kustomization cluster --with-source
     preconditions:
-      - *fluxBinCheck
-      - *kubeconfigFileCheck
+      - { msg: "Flux not installed", sh: "kubectl get namespace flux-system" }
+      - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
 
   github-deploy-key:
     cmd: sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
     preconditions:
-      - *kubectlBinCheck
-      - *sopsBinCheck
-      - *kubeconfigFileCheck
-      - *fluxInstalledCheck
+      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
+      - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }

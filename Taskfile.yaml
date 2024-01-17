@@ -11,13 +11,10 @@ vars:
   # Files
   BOOTSTRAP_ADDONS_FILE: "{{.BOOTSTRAP_DIR}}/vars/addons.yaml"
   BOOTSTRAP_CONFIG_FILE: "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
-  K0S_CONFIG_FILE: "{{.ROOT_DIR}}/k0s-config.yaml"
   KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
   MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
-  MAKEJINJA_LOADER_FILE: "{{.BOOTSTRAP_DIR}}/scripts/loader.py"
   PYTHON_VERSION_CHECK_FILE: "{{.BOOTSTRAP_DIR}}/scripts/py_version_check.py"
   SOPS_AGE_FILE: "{{.ROOT_DIR}}/age.key"
-  SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
   # Binaries
   PYTHON_BIN: python3
 
@@ -28,7 +25,9 @@ includes:
     taskfile: .taskfiles/Kubernetes/Taskfile.yaml
   flux: .taskfiles/Flux/Taskfile.yaml
   k0s: .taskfiles/K0s/Taskfile.yaml
-  repo: .taskfiles/Repo/Taskfile.yaml
+  repository:
+    aliases: ["repo"]
+    taskfile: .taskfiles/Repository/Taskfile.yaml
   sops: .taskfiles/Sops/Taskfile.yaml
   workstation: .taskfiles/Workstation/Taskfile.yaml
 
@@ -37,7 +36,7 @@ tasks:
   default: task -l
 
   init:
-    desc: Initialize template files and directories
+    desc: Initialize files and directories
     cmds:
       - mkdir -p {{.PRIVATE_DIR}}
       - cp -n {{.BOOTSTRAP_ADDONS_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_ADDONS_FILE}}
@@ -61,35 +60,34 @@ tasks:
       - task: .pre-validate
       - task: .template
       - task: .post-validate
-    preconditions:
-      - sh: test -d {{.ROOT_DIR}}/.venv
-        msg: Missing virtual environment, run `task ansible:deps` to create it
-      - sh: test -f {{.BOOTSTRAP_ADDONS_FILE}}
-        msg: Missing {{.BOOTSTRAP_ADDONS_FILE}}, run `task init` to create it
-      - sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
-        msg: Missing {{.BOOTSTRAP_CONFIG_FILE}}, run `task init` to create it
-      - sh: test -f {{.MAKEJINJA_LOADER_FILE}}
-        msg: Missing {{.MAKEJINJA_LOADER_FILE}}
-      - sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
-        msg: Missing {{.MAKEJINJA_CONFIG_FILE}}
-      - sh: command -v {{.PYTHON_BIN}}
-        msg: Missing {{.PYTHON_BIN}}
-      - sh: test -f {{.PYTHON_VERSION_CHECK_FILE}}
-        msg: Missing {{.PYTHON_VERSION_CHECK_FILE}}
-      - sh: true && {{.PYTHON_BIN}} {{.PYTHON_VERSION_CHECK_FILE}}
-        msg: Your system Python version must be 3.11.0 or greater
+    # preconditions:
+    #   - sh: command -v {{.PYTHON_BIN}}
+    #     msg: Missing {{.PYTHON_BIN}}
+    #   - sh: test -f {{.PYTHON_VERSION_CHECK_FILE}}
+    #     msg: Missing {{.PYTHON_VERSION_CHECK_FILE}}
+    #   - sh: true && {{.PYTHON_BIN}} {{.PYTHON_VERSION_CHECK_FILE}}
+    #     msg: Your system Python version must be 3.11.0 or greater
 
   .pre-validate:
     internal: true
     cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
     env:
       ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
+    preconditions:
+      - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
+      - { msg: "Missing bootstrap addons file", sh: "test -f {{.BOOTSTRAP_ADDONS_FILE}}" }
+      - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }
 
   .template:
     internal: true
     cmds:
       - ./.venv/bin/makejinja --keep-trailing-newline --force
       - task: sops:encrypt:all
+    vars:
+      makejinja_loader_file:
+    preconditions:
+      - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
+      - { msg: "Missing Makejinja loader file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
 
   .post-validate:
     internal: true
