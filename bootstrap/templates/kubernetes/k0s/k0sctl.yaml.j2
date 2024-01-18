@@ -13,19 +13,20 @@ spec:
         user: "#{ item.username }#"
       installFlags:
         - --disable-components=metrics-server
-        #% if item.role | default('') == 'controller+worker' %#
+        #% if item.role | default('controller+worker') == 'controller+worker' %#
         - --no-taints
         #% endif %#
-      #% if item.role | default('') == 'controller+worker' %#
+      #% if item.role | default('') != 'controller' %#
       files:
         - name: containerd-config
           src: resources/containerd/
+          dstDir: /home/#{ item.username }#/
           perm: 0644
           user: root
           group: root
       #% endif %#
-      #% if loop.first %#
-      hooks: &hooks
+      hooks:
+        #% if loop.first %#
         #% if item.role | default('') != 'controller' %#
         apply:
           before:
@@ -34,7 +35,7 @@ spec:
             - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
             #% endif %#
         #% endif %#
-        reset:
+        reset: &reset
           before:
             - sudo ip link delete cilium_host > /dev/null 2>&1 || true
             - sudo ip link delete cilium_net > /dev/null 2>&1 || true
@@ -52,8 +53,16 @@ spec:
             - sudo rm -rf /etc/cni/net.d
           after:
             - sudo shutdown -r now
-      #% else %#
-      hooks: *hooks
+        #% else %#
+        #% if item.role | default('') != 'controller' %#
+        apply:
+          before:
+            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
+            #% if spegel.enabled | default(false) %#
+            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
+            #% endif %#
+        #% endif %#
+        reset: *reset
       #% endif %#
     #% endfor %#
     #% if bootstrap_nodes.worker | default([]) | length > 0 %#
@@ -62,13 +71,30 @@ spec:
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.username }#"
-      files:
+      #% if loop.first %#
+      files: &files
         - name: containerd-config
           src: resources/containerd/
+          dstDir: /home/#{ item.username }#/
           perm: 0644
           user: root
           group: root
-      hooks: *hooks
+      #% else %#
+      files: *files
+      #% endif %#
+      hooks:
+        #% if loop.first %#
+        apply: &apply
+          before:
+            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
+            #% if spegel.enabled | default(false) %#
+            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
+            #% endif %#
+        reset: *reset
+        #% else %#
+        apply: *apply
+        reset: *reset
+        #% endif %#
     #% endfor %#
     #% endif %#
   k0s:
