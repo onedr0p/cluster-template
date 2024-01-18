@@ -1,3 +1,4 @@
+#% if bootstrap_distribution == 'k3s' %#
 ---
 - name: Cluster Nuke
   hosts: kubernetes
@@ -21,7 +22,6 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
-    #% if bootstrap_distribution == "k3s" %#
     - name: Stop Kubernetes # noqa: ignore-errors
       ignore_errors: true
       block:
@@ -31,7 +31,6 @@
             public: true
           vars:
             k3s_state: stopped
-    #% endif %#
 
     # https://github.com/k3s-io/docs/blob/main/docs/installation/network-options.md
     - name: Networking
@@ -57,7 +56,6 @@
             path: /etc/cni/net.d
             state: absent
 
-    #% if bootstrap_distribution == "k3s" %#
     - name: Check to see if k3s-killall.sh exits
       ansible.builtin.stat:
         path: /usr/local/bin/k3s-killall.sh
@@ -92,7 +90,6 @@
         path: "{{ k3s_install_dir }}/{{ item }}"
         state: absent
       loop: ["kubectl", "crictl", "ctr"]
-    #% endif %#
 
     - name: Remove local storage path
       ansible.builtin.file:
@@ -103,3 +100,4 @@
       ansible.builtin.reboot:
         msg: Rebooting nodes
         reboot_timeout: 3600
+#% endif %#
