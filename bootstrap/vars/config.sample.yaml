@@ -46,7 +46,7 @@ bootstrap_node_cidr:
 # and keepalived in k0s and use the master node IP instead
 bootstrap_kube_api_addr:
 # (Optional) The hostname of the Kube API, set this if you intend to call the Kube API by
-# hostname rather than IP. Hostname is added to the Kube API cert sans
+# hostname rather than IP. If the hostname is set it is added to the Kube API cert sans
 bootstrap_kube_api_hostname:
 # The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
 bootstrap_k8s_gateway_addr:

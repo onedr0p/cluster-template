@@ -77,7 +77,7 @@ tasks:
   .template:
     internal: true
     cmds:
-      - ./.venv/bin/makejinja --keep-trailing-newline --force
+      - ./.venv/bin/makejinja
       - task: sops:encrypt
     preconditions:
       - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }

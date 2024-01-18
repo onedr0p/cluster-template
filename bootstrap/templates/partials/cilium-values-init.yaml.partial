@@ -1,0 +1,57 @@
+autoDirectNodeRoutes: true
+bpf:
+  masquerade: true
+bgp:
+  enabled: false
+cluster:
+  name: home-cluster
+  id: 1
+containerRuntime:
+  integration: containerd
+  #% if bootstrap_distribution == "k3s" %#
+  socketPath: /var/run/k3s/containerd/containerd.sock
+  #% elif bootstrap_distribution == "k0s" %#
+  socketPath: /var/run/k0s/containerd.sock
+  #% endif %#
+endpointRoutes:
+  enabled: true
+hubble:
+  enabled: false
+ipam:
+  mode: kubernetes
+ipv4NativeRoutingCIDR: "#{ bootstrap_cluster_cidr }#"
+#% if bootstrap_ipv6_enabled | default(false) %#
+ipv6NativeRoutingCIDR: "#{ bootstrap_cluster_cidr_v6 }#"
+ipv6:
+  enabled: true
+#% endif %#
+#% if bootstrap_distribution == "k3s" %#
+k8sServiceHost: 127.0.0.1
+k8sServicePort: 6444
+#% elif bootstrap_distribution == "k0s"  %#
+k8sServiceHost: localhost
+k8sServicePort: 7443
+#% endif %#
+kubeProxyReplacement: true
+kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+l2announcements:
+  #% if bootstrap_ipv6_enabled | default(false) %#
+  enabled: false
+  #% else %#
+  enabled: true
+  # https://github.com/cilium/cilium/issues/26586
+  leaseDuration: 120s
+  leaseRenewDeadline: 60s
+  leaseRetryPeriod: 1s
+  #% endif %#
+loadBalancer:
+  algorithm: maglev
+  mode: "#{ bootstrap_cilium_loadbalancer_mode | default('dsr', true) }#"
+localRedirectPolicy: true
+operator:
+  replicas: 1
+  rollOutPods: true
+rollOutCiliumPods: true
+routingMode: native
+securityContext:
+  privileged: true
