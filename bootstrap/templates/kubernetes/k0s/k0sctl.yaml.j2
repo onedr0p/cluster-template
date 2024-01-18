@@ -88,6 +88,9 @@ spec:
             extraArgs:
               listen-metrics-urls: http://0.0.0.0:2381 # Required to monitor etcd with kube-prometheus-stack
         api:
+          network:
+            podCIDR: "#{ bootstrap_cluster_cidr.split(',')[0] }#"
+            serviceCIDR: "#{ bootstrap_service_cidr.split(',')[0] }#"
           sans:
             - "#{ bootstrap_kube_api_addr }#"
             #% if bootstrap_kube_api_hostname | default('') %#
