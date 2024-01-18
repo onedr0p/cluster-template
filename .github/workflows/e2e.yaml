@@ -58,7 +58,7 @@ jobs:
 
       - name: Cache homebrew packages
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-homebrew-packages
         with:
           key: homebrew-${{ runner.os }}-${{ steps.setup-homebrew.outputs.gems-hash }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
@@ -66,7 +66,7 @@ jobs:
 
       - name: Cache venv
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt', 'requirements.yaml') }}
           path: .venv
