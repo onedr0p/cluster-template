@@ -9,11 +9,8 @@
 k3s_release_version: "v1.29.0+k3s1"
 k3s_install_hard_links: true
 k3s_become: true
-#% if bootstrap_nodes.master | length > 1 %#
 k3s_etcd_datastore: true
-#% else %#
-k3s_etcd_datastore: false
-#% endif %#
+k3s_use_unsupported_config: true
 k3s_registration_address: "{{ kube_api_addr }}"
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
