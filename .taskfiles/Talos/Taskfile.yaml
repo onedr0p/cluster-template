@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
 vars:
@@ -11,7 +12,7 @@ tasks:
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper genconfig
     preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALOS_DIR}}/talhelper.yaml" }
+      - { msg: "Missing talhelper config file", sh: "test -f {{.TALOS_DIR}}/talconfig.yaml" }
 
   apply-config:
     desc: Apply talos config on a node

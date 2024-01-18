@@ -1,6 +1,6 @@
 #% if bootstrap_distribution == 'talos' %#
 ---
-clusterName: &cluster k8s
+clusterName: &cluster home-cluster
 clusterPodNets:
   - "#{ bootstrap_cluster_cidr.split(',')[0] }#"
 clusterSvcNets:
