@@ -18,19 +18,55 @@ clusterPodNets:
 clusterSvcNets:
   - "#{ bootstrap_service_cidr.split(',')[0] }#"
 
-additionalApiServerCertSans:
+additionalApiServerCertSans: &sans
   - "#{ bootstrap_kube_api_addr }#"
-
-additionalMachineCertSans:
-  - "#{ bootstrap_kube_api_addr }#"
+  - 127.0.0.1 #KubePrism
   #% if bootstrap_kube_api_hostname | default('') %#
   - "#{ bootstrap_kube_api_hostname }#"
   #% endif %#
 
+additionalMachineCertSans: *sans
+
 cniConfig:
   name: none
 
-nodes: []
+nodes:
+  #% for item in bootstrap_nodes.master %#
+  - hostname: "#{ item.name }#"
+    ipAddress: &ipAddress "#{ item.address }#"
+    installDiskSelector:
+      serial: "#{ item.diskSerial }#"
+    controlPlane: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        mtu: 1500
+        addresses:
+          - *ipAddress
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "#{ bootstrap_node_cidr | nthhost(1) }#"
+        vip:
+          ip: "#{ bootstrap_kube_api_addr }#"
+  #% endfor %#
+  #% if bootstrap_nodes.worker | default([]) | length > 0 %#
+  #% for item in bootstrap_nodes.worker %#
+  - hostname: "#{ item.name }#"
+    ipAddress: &ipAddress "#{ item.address }#"
+    installDiskSelector:
+      serial: "#{ item.diskSerial }#"
+    controlPlane: false
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        mtu: 1500
+        addresses:
+          - *ipAddress
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "#{ bootstrap_node_cidr | nthhost(1) }#"
+  #% endfor %#
+  #% endif %#
 
 controlPlane:
   patches:
