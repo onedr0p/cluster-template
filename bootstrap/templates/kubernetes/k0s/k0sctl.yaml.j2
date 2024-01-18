@@ -15,13 +15,15 @@ spec:
         - --disable-components=metrics-server
         #% if item.role | default('') == 'controller+worker' %#
         - --no-taints
+        #% endif %#
+      #% if item.role | default('') == 'controller+worker' %#
       files:
         - name: containerd-config
           src: resources/containerd/
           perm: 0644
           user: root
           group: root
-        #% endif %#
+      #% endif %#
       #% if loop.first %#
       hooks: &hooks
         #% if item.role | default('') == 'controller+worker' %#
