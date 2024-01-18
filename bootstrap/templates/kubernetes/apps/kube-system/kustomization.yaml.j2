@@ -7,7 +7,10 @@ resources:
   #% if bootstrap_distribution == "k3s" %#
   - ./coredns/ks.yaml
   #% endif %#
+  #% if bootstrap_distribution == "talos" %#
+  - ./kubelet-csr-approver/ks.yaml
+  #% endif %#
   - ./metrics-server/ks.yaml
-  #% if bootstrap_distribution == "k0s" and spegel.enabled | default(false) %#
+  #% if (bootstrap_distribution == "k0s" or bootstrap_distribution == "talos") and spegel.enabled | default(false) %#
   - ./spegel/ks.yaml
   #% endif %#

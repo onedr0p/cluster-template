@@ -1,17 +1,17 @@
-#% if (bootstrap_distribution == "k0s" or bootstrap_distribution == "talos") and spegel.enabled | default(false) %#
+#% if bootstrap_distribution == "talos" %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app spegel
+  name: &app kubelet-csr-approver
   namespace: flux-system
 spec:
   targetNamespace: kube-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/kube-system/spegel/app
-  prune: true
+  path: ./kubernetes/apps/kube-system/kubelet-csr-approver/app
+  prune: false # never should be deleted
   sourceRef:
     kind: GitRepository
     name: home-kubernetes

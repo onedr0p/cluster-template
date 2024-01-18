@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == "k0s" and spegel.enabled | default(false) %#
+#% if (bootstrap_distribution == "k0s" or bootstrap_distribution == "talos") and spegel.enabled | default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
