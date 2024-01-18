@@ -24,9 +24,6 @@ tasks:
     deps: [":ansible:deps"]
     cmds:
       - k0sctl reset --config {{.K0S_CONFIG_FILE}}
-      - task: :ansible:run
-        vars:
-          playbook: cluster-nuke
     preconditions:
       - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
 

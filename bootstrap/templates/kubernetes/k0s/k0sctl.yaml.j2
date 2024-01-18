@@ -22,13 +22,35 @@ spec:
           perm: 0644
           user: root
           group: root
-      hooks:
+      #% if loop.first %#
+      hooks: &hooks
         apply:
           before:
+            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
             #% if spegel.enabled | default(false) %#
             - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
             #% endif %#
-            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
+        reset:
+          before:
+            - sudo ip link delete cilium_host > /dev/null 2>&1 || true
+            - sudo ip link delete cilium_net > /dev/null 2>&1 || true
+            - sudo ip link delete cilium_vxlan > /dev/null 2>&1 || true
+            - sudo iptables -t nat -F
+            - sudo iptables -t mangle -F
+            - sudo iptables -t filter -F
+            - sudo iptables -t raw -F
+            - sudo iptables -X
+            - sudo ip6tables -t nat -F
+            - sudo ip6tables -t mangle -F
+            - sudo ip6tables -t filter -F
+            - sudo ip6tables -t raw -F
+            - sudo ip6tables -X
+            - sudo rm -rf /etc/cni/net.d
+          after:
+            - sudo shutdown -r now
+      #% else %#
+      hooks: *hooks
+      #% endif %#
     #% endfor %#
     #% if bootstrap_nodes.worker | default([]) | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
@@ -42,13 +64,7 @@ spec:
           perm: 0644
           user: root
           group: root
-      hooks:
-        apply:
-          before:
-            #% if spegel.enabled | default(false) %#
-            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
-            #% endif %#
-            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
+      hooks: *hooks
     #% endfor %#
     #% endif %#
   k0s:
