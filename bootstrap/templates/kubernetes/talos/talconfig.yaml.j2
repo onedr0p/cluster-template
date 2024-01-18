@@ -142,12 +142,6 @@ controlPlane:
           fs.inotify.max_user_watches: 524288
           fs.inotify.max_user_instances: 8192
 
-    # Custom Talos installer patch
-    - &talosPatch |-
-      machine:
-        install:
-          legacyBIOSSupport: true
-
     # Cluster configuration
     - |-
       cluster:
@@ -198,5 +192,4 @@ worker:
     - *nameserverPatch
     - *ntpPatch
     - *sysctlPatch
-    - *talosPatch
 #% endif %#
