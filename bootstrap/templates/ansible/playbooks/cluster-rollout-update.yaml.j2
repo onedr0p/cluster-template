@@ -1,3 +1,4 @@
+#% if bootstrap_distribution == 'k3s' or bootstrap_distribution == 'k0s' %#
 ---
 # https://github.com/kevincoakley/ansible-role-k8s-rolling-update
 - name: Cluster rollout update
@@ -86,3 +87,4 @@
             #% endif %#
             state: uncordon
           delegate_to: "{{ groups['master'][0] }}"
+#% endif %#

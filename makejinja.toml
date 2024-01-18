@@ -1,7 +1,7 @@
 [makejinja]
 inputs = ["./bootstrap/templates"]
 output = "./"
-exclude_patterns = ["*.partial"]
+exclude_patterns = ["*.partial.yaml.j2"]
 data = ["./bootstrap/vars/addons.yaml", "./bootstrap/vars/config.yaml"]
 import_paths = ["./bootstrap/scripts"]
 loaders = ["loader:Loader"]

@@ -1,3 +1,4 @@
+#% if bootstrap_distribution == 'k3s' or bootstrap_distribution == 'k0s' %#
 ---
 timezone: "#{ bootstrap_timezone }#"
 github_username: "#{ bootstrap_github_username }#"
@@ -16,4 +17,5 @@ node_cidr: "#{ bootstrap_node_cidr }#"
 #% if bootstrap_ipv6_enabled | default(false) %#
 cluster_cidr_v6: "#{ bootstrap_cluster_cidr.split(',')[1] }#"
 service_cidr_v6: "#{ bootstrap_service_cidr.split(',')[1] }#"
+#% endif %#
 #% endif %#
