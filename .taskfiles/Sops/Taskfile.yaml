@@ -14,7 +14,7 @@ tasks:
       - test -f "{{.SOPS_AGE_FILE}}"
 
   encrypt:
-    desc: Encrypt all Kubernetes SOPS secrets
+    desc: Encrypt all Kubernetes SOPS secrets that are not already encrypted
     cmds:
       - for: { var: file }
         task: .encrypt-file
@@ -22,7 +22,7 @@ tasks:
           file: "{{.ITEM}}"
     vars:
       file:
-        sh: find {{.KUBERNETES_DIR}} -type f -name "*.sops.*"
+        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM" {} \;
 
   .encrypt-file:
     internal: true
