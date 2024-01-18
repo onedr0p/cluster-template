@@ -33,7 +33,7 @@
 
 - name: Check if bootstrap distribution is valid
   ansible.builtin.assert:
-    that: bootstrap_distribution in ['k0s', 'k3s']
+    that: bootstrap_distribution in ['k0s', 'k3s', 'talos']
     success_msg: Distribution {{ bootstrap_distribution }} is valid
     fail_msg: Distribution {{ bootstrap_distribution }} is not valid
 

@@ -3,7 +3,7 @@
 # Bootstrap configuration - config.yaml is gitignored
 #
 
-# Distribution can either be 'k3s' or 'k0s'
+# Distribution can either be 'k3s', 'k0s', or 'talos'
 bootstrap_distribution: k3s
 
 # Github username (e.g. onedr0p)

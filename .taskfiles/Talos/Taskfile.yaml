@@ -1,0 +1,41 @@
+---
+version: "3"
+
+vars:
+  TALOS_DIR: "{{.ROOT_DIR}}/kubernetes/talos"
+
+tasks:
+
+  genconfig:
+    desc: Generate talos config
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper genconfig
+    preconditions:
+      - { msg: "Missing talhelper config file", sh: "test -f {{.TALOS_DIR}}/talhelper.yaml" }
+
+  apply-config:
+    desc: Apply talos config on a node
+    cmd: talosctl -n {{.node}} apply-config -f "{{.TALOS_DIR}}/clusterconfig/k8s-{{.node}}.yaml"
+    vars:
+      node: '{{ or .node (fail "Argument (node) is required") }}'
+    preconditions:
+      - { msg: "Missing Talos config file", sh: "test -f {{.TALOS_DIR}}/clusterconfig/k8s-{{.node}}.yaml" }
+      - { msg: "Node not found", sh: "talosctl -n {{.node}} get mc" }
+
+  upgrade-talos:
+    desc: Upgrade talos on a node
+    cmd: talosctl -n {{.node}} upgrade --image {{.image}} --preserve=true --reboot-mode=powercycle
+    vars:
+      image: '{{ or .image (fail "Argument (image) is required") }}'
+      node: '{{ or .node (fail "Argument (node) is required") }}'
+    preconditions:
+      - { msg: "Node not found", sh: "talosctl -n {{.node}} get mc" }
+
+  upgrade-k8s:
+    desc: Upgrade k8s on a node
+    cmd: talosctl -n {{.node}} upgrade-k8s --to {{.to}}
+    vars:
+      node: '{{ or .node (fail "Argument (node) is required") }}'
+      to: '{{ or .to (fail "Argument (to) is required") }}'
+    preconditions:
+      - { msg: "Node not found", sh: "talosctl -n {{.node}} get mc" }
