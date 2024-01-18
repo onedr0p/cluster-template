@@ -14,52 +14,7 @@ spec:
   targetNamespace: kube-system
   bootstrap: true
   valuesContent: |-
-    autoDirectNodeRoutes: true
-    bpf:
-      masquerade: true
-    bgp:
-      enabled: false
-    cluster:
-      name: home-cluster
-      id: 1
-    containerRuntime:
-      integration: containerd
-      socketPath: /var/run/k3s/containerd/containerd.sock
-    endpointRoutes:
-      enabled: true
-    hubble:
-      enabled: false
-    ipam:
-      mode: kubernetes
-    ipv4NativeRoutingCIDR: "{{ cluster_cidr }}"
-    #% if bootstrap_ipv6_enabled | default(false) %#
-    ipv6NativeRoutingCIDR: "{{ cluster_cidr_v6 }}"
-    ipv6:
-      enabled: true
-    #% endif %#
-    k8sServiceHost: 127.0.0.1
-    k8sServicePort: 6444
-    kubeProxyReplacement: true
-    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
-    l2announcements:
-      #% if bootstrap_ipv6_enabled | default(false) %#
-      enabled: false
-      #% else %#
-      enabled: true
-      # https://github.com/cilium/cilium/issues/26586
-      leaseDuration: 120s
-      leaseRenewDeadline: 60s
-      leaseRetryPeriod: 1s
-      #% endif %#
-    loadBalancer:
-      algorithm: maglev
-      mode: "#{ bootstrap_cilium_loadbalancer_mode | default('dsr', true) }#"
-    localRedirectPolicy: true
-    operator:
-      replicas: 1
-      rollOutPods: true
-    rollOutCiliumPods: true
-    routingMode: native
-    securityContext:
-      privileged: true
+    #% filter indent(width=4, first=True) %#
+    #% include 'partials/cilium-values-init.yaml.partial' %#
+    #% endfilter %#
 #% endif %#
