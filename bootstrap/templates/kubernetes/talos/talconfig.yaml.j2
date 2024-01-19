@@ -34,7 +34,7 @@ cniConfig:
 nodes:
   #% for item in bootstrap_nodes.master %#
   - hostname: "#{ item.name }#"
-    ipAddress: &ipAddress "#{ item.address }#"
+    ipAddress: "#{ item.address }#"
     installDiskSelector:
       serial: "#{ item.diskSerial }#"
     controlPlane: true
@@ -42,8 +42,6 @@ nodes:
       - interface: eth0
         dhcp: false
         mtu: 1500
-        addresses:
-          - *ipAddress
         routes:
           - network: 0.0.0.0/0
             gateway: "#{ bootstrap_node_cidr | nthhost(1) }#"
@@ -53,7 +51,7 @@ nodes:
   #% if bootstrap_nodes.worker | default([]) | length > 0 %#
   #% for item in bootstrap_nodes.worker %#
   - hostname: "#{ item.name }#"
-    ipAddress: &ipAddress "#{ item.address }#"
+    ipAddress: "#{ item.address }#"
     installDiskSelector:
       serial: "#{ item.diskSerial }#"
     controlPlane: false
@@ -61,8 +59,6 @@ nodes:
       - interface: eth0
         dhcp: false
         mtu: 1500
-        addresses:
-          - *ipAddress
         routes:
           - network: 0.0.0.0/0
             gateway: "#{ bootstrap_node_cidr | nthhost(1) }#"
@@ -81,10 +77,12 @@ controlPlane:
               [plugins."io.containerd.grpc.v1.cri"]
                 enable_unprivileged_ports = true
                 enable_unprivileged_icmp = true
+              #% if spegel.enabled | default(false) %#
               [plugins."io.containerd.grpc.v1.cri".containerd]
                 discard_unpacked_layers = false
               [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
                 discard_unpacked_layers = false
+              #% endif %#
 
     # Disable search domain everywhere
     - &disableSearchDomainPatch |-
