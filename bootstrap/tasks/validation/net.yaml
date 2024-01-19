@@ -103,6 +103,12 @@
     success_msg: Kube API address {{ bootstrap_kube_api_addr }} is within {{ bootstrap_node_cidr }}.
     fail_msg: Kube API address {{ bootstrap_kube_api_addr }} is not within {{ bootstrap_node_cidr }}.
 
+- name: Check if DNS server is ipv4
+  ansible.builtin.assert:
+    that: bootstrap_dns_server is ansible.utils.ipv4
+    success_msg: DNS server {{ bootstrap_dns_server }} is valid.
+    fail_msg: DNS server {{ bootstrap_dns_server }} is invalid.
+
 - name: Check if all IP addresses are unique
   ansible.builtin.assert:
     that: >

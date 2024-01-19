@@ -17,6 +17,7 @@
     - bootstrap_cloudflare_tunnel_secret
     - bootstrap_cluster_cidr
     - bootstrap_distribution
+    - bootstrap_dns_server
     - bootstrap_external_ingress_addr
     - bootstrap_flux_github_webhook_token
     - bootstrap_github_repository_branch

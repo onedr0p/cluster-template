@@ -79,7 +79,7 @@
             dest: /etc/resolv.conf
             content: |
               search .
-              nameserver 1.1.1.1
+              nameserver #{ bootstrap_dns_server | default('1.1.1.1', true) }#
 
     - name: System Configuration
       notify: Reboot

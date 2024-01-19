@@ -55,6 +55,13 @@ bootstrap_external_ingress_addr:
 # The Load balancer IP for internal ingress, choose an available IP in your nodes network that is not being used
 bootstrap_internal_ingress_addr:
 
+# The DNS server to use for the cluster, this can be an existing local DNS server or a public one
+# If using a local DNS server make sure it meets the following requirements:
+#   1. your nodes can reach it
+#   2. it is configured to forward requests to a public DNS server
+#   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
+bootstrap_dns_server: 1.1.1.1
+
 # (Advanced) Cilium load balancer mode, choose either 'dsr' or 'snat'
 # Due to unknown reasons some people need this set to 'snat' in order
 # for Cilium L2 announcements to work properly. Keep this dsr unless
