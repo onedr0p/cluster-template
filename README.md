@@ -59,7 +59,7 @@ If you are new to Flux and GitOps in general it is important to understand that 
 
 3. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
 
-4. Continue on to [🚀 **Getting Started**](#-getting-started)
+4. Continue on to 🚀 [**Getting Started**](#-getting-started)
 
 ### k3s or k0s
 
@@ -138,7 +138,7 @@ If you are new to Flux and GitOps in general it is important to understand that 
     sudo apt install -y python3
     ```
 
-8. Continue on to [🚀 **Getting Started**](#-getting-started)
+8. Continue on to 🚀 [**Getting Started**](#-getting-started)
 
 ## 🚀 Getting Started
 
@@ -153,7 +153,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 2. Clone **your new repo** to you local workstation and `cd` into it.
 
-3. Continue on to [🌱 **Stage 2**](#-stage-2-setup-your-local-workstation-environment)
+3. Continue on to 🌱 [**Stage 2**](#-stage-2-setup-your-local-workstation-environment)
 
 ### 🌱 Stage 2: Setup your local workstation environment
 
@@ -198,7 +198,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     task ansible:deps
     ```
 
-5. Continue on to [🔧 **Stage 3**](#-stage-3-do-bootstrap-configuration)
+5. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
 
 ### 🔧 Stage 3: Do bootstrap configuration
 
@@ -275,25 +275,26 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 7. Once done run the following command which will verify and generate all the files needed to continue.
 
+    > [!NOTE]
+    > The following configure task will create a `./ansible` directory for k3s or k0s and the following directories under `./kubernetes`.
+    > ```sh
+    > 📁 kubernetes      # Kubernetes cluster defined as code
+    > ├─📁 bootstrap     # Flux installation (not tracked by Flux)
+    > ├─📁 flux          # Main Flux configuration of repository
+    > └─📁 apps          # Apps deployed into the cluster grouped by namespace
+    > ```
+
     ```sh
     task configure
     ```
 
-8. Continue on to ⚡ **Stage 4**
+8. Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
 
-> [!IMPORTANT]
-> The configure task will create a `./ansible` directory for k3s or k0s and the following directories under `./kubernetes`.
-> ```sh
-> 📁 kubernetes      # Kubernetes cluster defined as code
-> ├─📁 bootstrap     # Flux installation (not tracked by Flux)
-> ├─📁 flux          # Main Flux configuration of repository
-> └─📁 apps          # Apps deployed into the cluster grouped by namespace
-> ```
 
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
 > [!NOTE]
-> For **Talos** skip ahead to ⛵ **Stage 5**
+> For **Talos** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
 
 #### k3s or k0s
 
@@ -319,7 +320,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     task ansible:run playbook=cluster-prepare
     ```
 
-5. Continue on to ⛵ **Stage 5**
+5. Continue on to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
 
 ### ⛵ Stage 5: Install Kubernetes
 
@@ -351,7 +352,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     task talos:apply-extras
     ```
 
-5. Continue on to 🔹 **Stage 6**
+5. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
 
 #### k3s or k0s
 
@@ -377,7 +378,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 3. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
-4. Continue on to 🔹 **Stage 6**
+4. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
