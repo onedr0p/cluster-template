@@ -1,0 +1,2 @@
+providerRegex: ^(#{ (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | join('|') }#)$
+bypassDnsResolution: true

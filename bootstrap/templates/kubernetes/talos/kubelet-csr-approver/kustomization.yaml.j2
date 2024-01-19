@@ -10,8 +10,9 @@ helmCharts:
     releaseName: kubelet-csr-approver
     namespace: kube-system
     valuesInline:
-      providerRegex: ^(#{ (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | join('|') }#)$
-      bypassDnsResolution: true
+      #% filter indent(width=6, first=True) %#
+      #% include 'partials/kubelet-csr-approver-values.partial.yaml.j2' %#
+      #% endfilter %#
 commonAnnotations:
   meta.helm.sh/release-name: kubelet-csr-approver
   meta.helm.sh/release-namespace: kube-system

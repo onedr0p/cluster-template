@@ -24,5 +24,7 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    providerRegex: ^(#{ (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | join('|') }#)$
+    #% filter indent(width=4, first=True) %#
+    #% include 'partials/kubelet-csr-approver-values.partial.yaml.j2' %#
+    #% endfilter %#
 #% endif %#
