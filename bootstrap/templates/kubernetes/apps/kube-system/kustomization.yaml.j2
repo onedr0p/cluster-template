@@ -4,9 +4,6 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./cilium/ks.yaml
-  #% if bootstrap_distribution == "k3s" %#
-  - ./coredns/ks.yaml
-  #% endif %#
   #% if bootstrap_distribution == "talos" %#
   - ./kubelet-csr-approver/ks.yaml
   #% endif %#
