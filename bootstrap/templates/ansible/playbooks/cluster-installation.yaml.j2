@@ -47,11 +47,6 @@
         wait_timeout: 360
       loop:
         - { name: cilium,  kind: HelmChart, namespace: kube-system } # noqa: yaml[commas]
-        - { name: coredns, kind: HelmChart, namespace: kube-system }
-
-    - name: Coredns
-      when: k3s_primary_control_node
-      ansible.builtin.include_tasks: tasks/coredns.yaml
 
     - name: Cilium
       when: k3s_primary_control_node
