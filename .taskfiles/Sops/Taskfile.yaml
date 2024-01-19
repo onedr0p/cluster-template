@@ -27,6 +27,8 @@ tasks:
   .encrypt-file:
     internal: true
     cmd: sops --encrypt --in-place {{.file}}
+    requires:
+      vars: ["file"]
     preconditions:
       - { msg: "Missing Sops config file", sh: "test -f {{.SOPS_CONFIG_FILE}}" }
       - { msg: "Missing Sops Age key file", sh: "test -f {{.SOPS_AGE_FILE}}" }
