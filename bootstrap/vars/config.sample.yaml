@@ -3,7 +3,7 @@
 # Bootstrap configuration - config.yaml is gitignored
 #
 
-# Distribution can either be 'k3s' or 'k0s'
+# Distribution can either be 'k3s', 'k0s', or 'talos'
 bootstrap_distribution: k3s
 
 # Github username (e.g. onedr0p)
@@ -77,15 +77,15 @@ bootstrap_local_storage_path: /var/openebs/local
 bootstrap_nodes:
   # Use only 1, 3 or more odd master nodes, recommended is 3
   master:
-    # - name:     # name or hostname of the master node (must match [a-z0-9-\.]+)
-    #   address:  # ip address of the master node
-    #   username: # ssh username of the master node
-    #   role:     # (Optional) k0s only: can be controller+worker (default) or controller
-    #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
+    # - name:       # name or hostname of the master node (must match [a-z0-9-\.]+)
+    #   address:    # ip address of the master node
+    #   username:   # ssh username of the master node
+    #   role:       # (Optional: k0s) controller+worker (default) or controller
+    #   diskSerial: # (Required: Talos) Serial number of Disk for this master node
     # ...
   worker: # set to [] or omit if no workers are needed
-    # - name:     # name or hostname of the worker node (must match [a-z0-9-\.]+)
-    #   address:  # ip address of the worker node
-    #   username: # ssh username of the worker node
-    #   # external_address: # (Optional) k3s only: Only use when SSH is not reachable on the IP specified in 'address' field
+    # - name:       # name or hostname of the worker node (must match [a-z0-9-\.]+)
+    #   address:    # ip address of the worker node
+    #   username:   # ssh username of the worker node
+    #   diskSerial: # (Required: Talos) Serial number of Disk for this worker node
     # ...

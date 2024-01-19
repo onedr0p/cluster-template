@@ -1,0 +1,72 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  TALOS_DIR: "{{.ROOT_DIR}}/kubernetes/talos"
+  TALHELPER_SECRET_FILE: "{{.TALOS_DIR}}/talhelper.sops.yaml"
+  TALHELPER_CONFIG_FILE: "{{.TALOS_DIR}}/talconfig.yaml"
+
+tasks:
+
+  gensecret:
+    desc: Generate talos secret
+    prompt: This will overwrite the existing secret... continue?
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - talhelper gensecret > {{.TALHELPER_SECRET_FILE}}
+      - task: :sops:.encrypt-file
+        vars:
+          file: "{{.TALHELPER_SECRET_FILE}}"
+    preconditions:
+      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
+
+  genconfig:
+    desc: Generate talos config
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper genconfig
+    preconditions:
+      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
+
+  apply-config:
+    desc: Apply talos config on a node
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper gencommand apply --extra-flags=--insecure | bash
+
+  bootstrap:
+    desc: Bootstrap the talos cluster
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper gencommand bootstrap | bash
+
+  kubeconfig:
+    desc: Generate talos kubeconfig
+    prompt: This will overwrite the existing kubeconfig... continue?
+    dir: "{{.TALOS_DIR}}"
+    cmd: talosctl kubeconfig {{.ROOT_DIR}} --force
+
+  apply-extras:
+    desc: Apply extras
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./cni | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./kubelet-csr-approver | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+    preconditions:
+      - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+
+  upgrade-talos:
+    desc: Upgrade talos on a node
+    cmd: talosctl --nodes {{.node}} upgrade --image {{.image}} --preserve=true --reboot-mode=powercycle
+    vars:
+      image: '{{ or .image (fail "Argument (image) is required") }}'
+      node: '{{ or .node (fail "Argument (node) is required") }}'
+    preconditions:
+      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
+
+  upgrade-k8s:
+    desc: Upgrade k8s on a node
+    cmd: talosctl --nodes {{.node}} upgrade-k8s --to {{.to}}
+    vars:
+      node: '{{ or .node (fail "Argument (node) is required") }}'
+      to: '{{ or .to (fail "Argument (to) is required") }}'
+    preconditions:
+      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }

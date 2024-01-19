@@ -28,6 +28,7 @@ includes:
   repository:
     aliases: ["repo"]
     taskfile: .taskfiles/Repository/Taskfile.yaml
+  talos: .taskfiles/Talos/Taskfile.yaml
   sops: .taskfiles/Sops/Taskfile.yaml
   workstation: .taskfiles/Workstation/Taskfile.yaml
 

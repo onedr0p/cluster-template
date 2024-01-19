@@ -1,0 +1,31 @@
+#% if bootstrap_distribution == 'talos' %#
+# Bootstrap
+
+## Talos
+
+### 1. Create Talos Secrets
+
+```sh
+task talos:gensecret
+task talos:genconfig
+```
+
+### 2. Apply Talos Config
+
+```sh
+task talos:apply-config
+```
+
+### 3. Boostrap Talos and get kubeconfig
+
+```sh
+task talos:bootstrap
+task talos:kubeconfig
+```
+
+### 4. Install Cilium and kubelet-csr-approver into the cluster
+
+```sh
+task talos:apply-extras
+```
+#% endif %#

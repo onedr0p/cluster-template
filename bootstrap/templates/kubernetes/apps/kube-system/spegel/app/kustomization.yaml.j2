@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == "k0s" and spegel.enabled | default(false) %#
+#% if (bootstrap_distribution == "k0s" or bootstrap_distribution == "talos") and spegel.enabled | default(false) %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization

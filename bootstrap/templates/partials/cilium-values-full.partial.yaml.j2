@@ -70,6 +70,9 @@ k8sServicePort: 6444
 #% elif bootstrap_distribution == "k0s"  %#
 k8sServiceHost: localhost
 k8sServicePort: 7443
+#% elif bootstrap_distribution == "talos"  %#
+k8sServiceHost: localhost
+k8sServicePort: 7445
 #% endif %#
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256

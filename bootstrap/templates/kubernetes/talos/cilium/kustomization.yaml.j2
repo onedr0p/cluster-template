@@ -1,0 +1,17 @@
+#% if bootstrap_distribution == 'talos' %#
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+helmCharts:
+  - name: cilium
+    repo: https://helm.cilium.io
+    version: 1.14.5
+    releaseName: cilium
+    namespace: kube-system
+    valuesFile: values.yaml
+commonAnnotations:
+  meta.helm.sh/release-name: cilium
+  meta.helm.sh/release-namespace: kube-system
+commonLabels:
+  app.kubernetes.io/managed-by: Helm
+#% endif %#

@@ -41,6 +41,7 @@ jobs:
           - k3s-ipv4
           - k3s-ipv6
           - k3s-no-kube-vip
+          - talos
         addon-files: ["addons"]
     steps:
       - name: Checkout
@@ -111,6 +112,13 @@ jobs:
       - name: Run configure
         shell: bash
         run: task configure --yes
+
+      - name: Run Talos configure
+        if: ${{ steps.config-env.outputs.distribution == 'talos' }}
+        shell: bash
+        run: |
+          task talos:gensecret --yes
+          task talos:genconfig
 
       - name: Run Ansible lint
         if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}

@@ -1,0 +1,192 @@
+#% if bootstrap_distribution == 'talos' %#
+# yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
+---
+# renovate: datasource=github-releases depName=siderolabs/talos
+talosVersion: v1.6.1
+# renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.*)$
+kubernetesVersion: 1.29.1
+
+clusterName: &cluster home-kubernetes
+
+#% if bootstrap_kube_api_hostname | default('') %#
+endpoint: https://#{ bootstrap_kube_api_hostname }#:6443
+#% else %#
+endpoint: https://#{ bootstrap_kube_api_addr }#:6443
+#% endif %#
+
+clusterPodNets:
+  - "#{ bootstrap_cluster_cidr.split(',')[0] }#"
+clusterSvcNets:
+  - "#{ bootstrap_service_cidr.split(',')[0] }#"
+
+additionalApiServerCertSans: &sans
+  - "#{ bootstrap_kube_api_addr }#"
+  - 127.0.0.1 #KubePrism
+  #% if bootstrap_kube_api_hostname | default('') %#
+  - "#{ bootstrap_kube_api_hostname }#"
+  #% endif %#
+
+additionalMachineCertSans: *sans
+
+cniConfig:
+  name: none
+
+nodes:
+  #% for item in bootstrap_nodes.master %#
+  - hostname: "#{ item.name }#"
+    ipAddress: "#{ item.address }#"
+    installDiskSelector:
+      serial: "#{ item.diskSerial }#"
+    controlPlane: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "#{ bootstrap_node_cidr | nthhost(1) }#"
+        vip:
+          ip: "#{ bootstrap_kube_api_addr }#"
+  #% endfor %#
+  #% if bootstrap_nodes.worker | default([]) | length > 0 %#
+  #% for item in bootstrap_nodes.worker %#
+  - hostname: "#{ item.name }#"
+    ipAddress: "#{ item.address }#"
+    installDiskSelector:
+      serial: "#{ item.diskSerial }#"
+    controlPlane: false
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "#{ bootstrap_node_cidr | nthhost(1) }#"
+  #% endfor %#
+  #% endif %#
+
+controlPlane:
+  patches:
+    # Configure containerd
+    - &containerdPatch |-
+      machine:
+        files:
+          - op: create
+            path: /etc/cri/conf.d/20-customization.part
+            content: |-
+              [plugins."io.containerd.grpc.v1.cri"]
+                enable_unprivileged_ports = true
+                enable_unprivileged_icmp = true
+              #% if spegel.enabled | default(false) %#
+              [plugins."io.containerd.grpc.v1.cri".containerd]
+                discard_unpacked_layers = false
+              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                discard_unpacked_layers = false
+              #% endif %#
+
+    # Disable search domain everywhere
+    - &disableSearchDomainPatch |-
+      machine:
+        network:
+          disableSearchDomain: true
+
+    # Enable cluster discovery
+    - &discoveryPatch |-
+      cluster:
+        discovery:
+          registries:
+            kubernetes:
+              disabled: false
+            service:
+              disabled: false
+
+    # Configure kubelet
+    - &kubeletPatch |-
+      machine:
+        kubelet:
+          extraArgs:
+            rotate-server-certificates: true
+          nodeIP:
+            validSubnets:
+              - "#{ bootstrap_node_cidr }#"
+
+    # Enable KubePrism
+    - &kubePrismPatch |-
+      machine:
+        features:
+          kubePrism:
+            enabled: true
+            port: 7445
+
+    # Force nameserver
+    - &nameserverPatch |-
+      machine:
+        network:
+          nameservers:
+            - 1.1.1.1
+
+    # Configure NTP
+    - &ntpPatch |-
+      machine:
+        time:
+          disabled: false
+          servers:
+            - time.cloudflare.com
+
+    # Custom sysctl settings
+    - &sysctlPatch |-
+      machine:
+        sysctls:
+          fs.inotify.max_queued_events: 65536
+          fs.inotify.max_user_watches: 524288
+          fs.inotify.max_user_instances: 8192
+
+    # Cluster configuration
+    - |-
+      cluster:
+        allowSchedulingOnMasters: true
+        controllerManager:
+          extraArgs:
+            bind-address: 0.0.0.0
+        proxy:
+          disabled: true
+        scheduler:
+          extraArgs:
+            bind-address: 0.0.0.0
+
+    # ETCD configuration
+    - |-
+      cluster:
+        etcd:
+          extraArgs:
+            listen-metrics-urls: http://0.0.0.0:2381
+          advertisedSubnets:
+            - "#{ bootstrap_node_cidr }#"
+
+    # Disable default API server admission plugins.
+    - |-
+      - op: remove
+        path: /cluster/apiServer/admissionControl
+
+    # Enable K8s Talos API Access
+    - |-
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:admin
+            allowedKubernetesNamespaces:
+              - kube-system
+
+worker:
+  patches:
+    - *containerdPatch
+    - *disableSearchDomainPatch
+    - *discoveryPatch
+    - *kubeletPatch
+    - *kubePrismPatch
+    - *nameserverPatch
+    - *ntpPatch
+    - *sysctlPatch
+#% endif %#

@@ -1,7 +1,6 @@
 ---
 - name: Check if required CLI tools are present
-  ansible.builtin.shell: |
-    command -v {{ item }} >/dev/null 2>&1
+  ansible.builtin.shell: command -v {{ item }} >/dev/null 2>&1
   loop: ["age", "cloudflared", "flux", "sops", "jq", "kubeconform", "kustomize"]
   changed_when: false
   check_mode: false
@@ -10,9 +9,17 @@
 
 - name: Check if required CLI tools are present for k0s
   when: bootstrap_distribution == "k0s"
-  ansible.builtin.shell: |
-    command -v {{ item }} >/dev/null 2>&1
+  ansible.builtin.shell: command -v {{ item }} >/dev/null 2>&1
   loop: ["k0sctl"]
+  changed_when: false
+  check_mode: false
+  register: result
+  failed_when: result.rc != 0 and result.rc != 127
+
+- name: Check if required CLI tools are present for talos
+  when: bootstrap_distribution == "talos"
+  ansible.builtin.shell: command -v {{ item }} >/dev/null 2>&1
+  loop: ["talhelper", "talosctl"]
   changed_when: false
   check_mode: false
   register: result
