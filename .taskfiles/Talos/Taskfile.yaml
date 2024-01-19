@@ -32,15 +32,11 @@ tasks:
     desc: Apply talos config on a node
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand apply --extra-flags=--insecure | bash
-    preconditions:
-      - { msg: "Missing Talos config file", sh: "test -f {{.TALOS_DIR}}/clusterconfig/home-kubernetes-{{.node}}.yaml" }
 
   bootstrap:
     desc: Bootstrap the talos cluster
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand bootstrap | bash
-    preconditions:
-      - { msg: "Missing Talos config file", sh: "test -f {{.TALOS_DIR}}/clusterconfig/home-kubernetes-{{.node}}.yaml" }
 
   kubeconfig:
     desc: Generate talos kubeconfig
