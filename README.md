@@ -31,7 +31,6 @@ If you are new to Flux and GitOps in general it is important to understand that 
 - [ ] have some experience with the following: Git/SCM, containers, networking and scripting.
 - [ ] bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
 - [ ] run the cluster on bare metal machines or VMs within your home network &mdash; **this is NOT designed for cloud environments**.
-- [ ] have Debian 12 freshly installed on 1 or more AMD64/ARM64 bare metal machines or VMs. Each machine will be either a **control node** or a **worker node** in your cluster.
 - [ ] give your nodes unrestricted internet access &mdash; **air-gapped environments won't work**.
 - [ ] have a domain you can manage on Cloudflare.
 - [ ] be willing to commit encrypted secrets to a public GitHub repository.
@@ -42,7 +41,7 @@ If you are new to Flux and GitOps in general it is important to understand that 
 ### System requirements
 
 > [!IMPORTANT]
-> 1. The default behaviour of k3s is that all nodes are able to run workloads, **including** control nodes. Worker nodes are therefore optional.
+> 1. The included behaviour of Talos, k0s or k3s is that all nodes are able to run workloads, **including** control nodes. Worker nodes are therefore optional.
 > 2. Do you have 3 or more nodes? It is strongly recommended to make 3 of them control nodes for a highly available control plane.
 > 3. Running the cluster on Proxmox VE? My thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/notes/proxmox-considerations.html).
 
@@ -52,7 +51,17 @@ If you are new to Flux and GitOps in general it is important to understand that 
 | Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 100GB _(500GB*)_ SSD/NVMe |
 | _\* recommended_ |
 
-### Debian for AMD64
+### Talos
+
+1. Download the latest stable release of Talos from thier GitHub repo. You will want to grab either `metal-amd64.iso` or `metal-rpi_generic-arm64.raw.xz` depending on your system.
+
+2. Take note of the OS drive serial numbers you will need them later on.
+
+3. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
+
+### k3s or k0s
+
+#### Debian for AMD64
 
 1. Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd), then follow [this guide](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step) to get it installed. Deviations from the guide:
 
@@ -96,7 +105,7 @@ If you are new to Flux and GitOps in general it is important to understand that 
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-### Debian for RasPi4
+#### Debian for RasPi4
 
 > [!IMPORTANT]
 > 1. It is recommended to have an 8GB RasPi model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is [supported natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first.
@@ -273,6 +282,11 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
+> [!NOTE]
+> This stage can be skipped for Talos
+
+#### k3s or k0s
+
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
 1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase** (for example using a SSH agent). This lets Ansible interact with your nodes.
@@ -296,6 +310,36 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```
 
 ### ⛵ Stage 5: Install Kubernetes
+
+#### Talos
+
+1. Create Talos Secrets
+
+    ```sh
+    task talos:gensecret
+    task talos:genconfig
+    ```
+
+2. Apply Talos Config
+
+    ```sh
+    task talos:apply
+    ```
+
+3. Boostrap Talos and get kubeconfig
+
+    ```sh
+    task talos:bootstrap
+    task talos:kubeconfig
+    ```
+
+4. Install Cilium and kubelet-csr-approver into the cluster
+
+    ```sh
+    task talos:apply-extras
+    ```
+
+#### k3s or k0s
 
 1. Install Kubernetes depending on the distribution you chose
 

@@ -29,13 +29,9 @@ tasks:
       - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
 
   kubeconfig:
-    desc: Gets k0s cluster kubeconfig
-    cmds:
-      - k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
-    sources:
-      - "{{.K0S_CONFIG_FILE}}"
-    generates:
-      - "{{.KUBECONFIG_FILE}}"
+    desc: Gets k0s kubeconfig
+    prompt: This will overwrite the existing kubeconfig... continue?
+    cmd: k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
     preconditions:
       - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
 
