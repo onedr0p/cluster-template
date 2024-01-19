@@ -54,4 +54,7 @@ cat <<EOF > /etc/profile.d/neofetch.sh
 neofetch --config none
 EOF
 chmod 755 /etc/profile.d/neofetch.sh
+
+# Ensure k0s containerd directory exists
+mkdir -p /etc/k0s/containerd.d
 #% endif %#
