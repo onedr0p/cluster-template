@@ -110,7 +110,7 @@ If you are marching forward, now is a good time to choose whether you will deplo
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-### k3s or k0s (RasPi4/RasPi5)
+### k3s or k0s (RasPi4)
 
 > [!IMPORTANT]
 > 1. It is recommended to have an 8GB RasPi model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is [supported natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first.
