@@ -297,9 +297,9 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
 > [!NOTE]
-> For **Talos** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
+> For **Talos** or **k0s** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
 
-#### k3s or k0s
+#### k3s
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 

@@ -87,7 +87,6 @@ bootstrap_nodes:
     # - name:       # name or hostname of the master node (must match [a-z0-9-\.]+)
     #   address:    # ip address of the master node
     #   username:   # ssh username of the master node
-    #   role:       # (Optional: k0s) controller+worker (default) or controller
     #   diskSerial: # (Required: Talos) Serial number of Disk for this master node
     # ...
   worker: # set to [] or omit if no workers are needed

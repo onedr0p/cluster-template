@@ -1,0 +1,11 @@
+#% if bootstrap_distribution == 'k0s' %#
+#!/usr/bin/env bash
+
+[ $(id -u) -eq 0 ] || exec sudo $0 $@
+
+# Remove local storage data
+rm -rf "#{ bootstrap_local_storage_path }#"
+
+# Reboot
+(sleep 10 && systemctl reboot)&
+#% endif %#

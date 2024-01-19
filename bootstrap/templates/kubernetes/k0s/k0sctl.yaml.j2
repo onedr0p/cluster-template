@@ -3,67 +3,50 @@
 apiVersion: k0sctl.k0sproject.io/v1beta1
 kind: Cluster
 metadata:
-  name: k0s-cluster
+  name: home-kubernetes
 spec:
   hosts:
     #% for item in bootstrap_nodes.master %#
-    - role: "#{ item.role | default('controller+worker') }#"
+    - role: controller+worker
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.username }#"
       installFlags:
         - --disable-components=metrics-server
-        #% if item.role | default('controller+worker') == 'controller+worker' %#
         - --no-taints
-        #% endif %#
-      #% if item.role | default('') != 'controller' %#
-      files:
-        - name: containerd-config
-          src: resources/containerd/
-          dstDir: /home/#{ item.username }#/
+      #% if loop.first %#
+      files: &files
+        - name: system-config
+          src: resources/hooks/
+          dstDir: /home/#{ item.username }#/k0s/hooks/
           perm: 0644
           user: root
           group: root
+        - name: containerd-config
+          src: resources/containerd/
+          dstDir: /home/#{ item.username }#/k0s/containerd/
+          perm: 0644
+          user: root
+          group: root
+      #% else %#
+      files: *files
       #% endif %#
-      hooks:
-        #% if loop.first %#
-        #% if item.role | default('') != 'controller' %#
+      #% if loop.first %#
+      hooks: &hooks
         apply:
           before:
-            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
+            - sudo bash /home/#{ item.username }#/k0s/hooks/apply-system.sh
+            - sudo mv /home/#{ item.username }#/k0s/containerd/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
             #% if spegel.enabled | default(false) %#
-            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
+            - sudo mv /home/#{ item.username }#/k0s/containerd/spegel.toml /etc/k0s/containerd.d/spegel.toml
             #% endif %#
-        #% endif %#
-        reset: &reset
+        reset:
           before:
-            - sudo ip link delete cilium_host > /dev/null 2>&1 || true
-            - sudo ip link delete cilium_net > /dev/null 2>&1 || true
-            - sudo ip link delete cilium_vxlan > /dev/null 2>&1 || true
-            - sudo iptables -t nat -F
-            - sudo iptables -t mangle -F
-            - sudo iptables -t filter -F
-            - sudo iptables -t raw -F
-            - sudo iptables -X
-            - sudo ip6tables -t nat -F
-            - sudo ip6tables -t mangle -F
-            - sudo ip6tables -t filter -F
-            - sudo ip6tables -t raw -F
-            - sudo ip6tables -X
-            - sudo rm -rf /etc/cni/net.d
+            - sudo bash /home/#{ item.username }#/k0s/hooks/reset-cilium.sh
           after:
-            - sudo rm -rf #{ bootstrap_local_storage_path }#
-            - nohup sudo -b bash -c 'sleep 5; reboot' &>/dev/null
-        #% else %#
-        #% if item.role | default('') != 'controller' %#
-        apply:
-          before:
-            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
-            #% if spegel.enabled | default(false) %#
-            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
-            #% endif %#
-        #% endif %#
-        reset: *reset
+            - sudo bash /home/#{ item.username }#/k0s/hooks/reset-system.sh
+      #% else %#
+      hooks: *hooks
       #% endif %#
     #% endfor %#
     #% if bootstrap_nodes.worker | default([]) | length > 0 %#
@@ -72,30 +55,8 @@ spec:
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.username }#"
-      #% if loop.first %#
-      files: &files
-        - name: containerd-config
-          src: resources/containerd/
-          dstDir: /home/#{ item.username }#/
-          perm: 0644
-          user: root
-          group: root
-      #% else %#
       files: *files
-      #% endif %#
-      hooks:
-        #% if loop.first %#
-        apply: &apply
-          before:
-            - sudo mv ~/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
-            #% if spegel.enabled | default(false) %#
-            - sudo mv ~/spegel.toml /etc/k0s/containerd.d/spegel.toml
-            #% endif %#
-        reset: *reset
-        #% else %#
-        apply: *apply
-        reset: *reset
-        #% endif %#
+      hooks: *hooks
     #% endfor %#
     #% endif %#
   k0s:
