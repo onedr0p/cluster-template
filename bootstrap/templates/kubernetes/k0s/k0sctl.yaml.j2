@@ -35,16 +35,16 @@ spec:
       hooks: &hooks
         apply:
           before:
-            - sudo bash /home/#{ item.username }#/k0s/hooks/system-apply-before.sh
+            - sudo bash /home/#{ item.username }#/k0s/hooks/apply-system.sh
             - sudo mv /home/#{ item.username }#/k0s/containerd/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
             #% if spegel.enabled | default(false) %#
             - sudo mv /home/#{ item.username }#/k0s/containerd/spegel.toml /etc/k0s/containerd.d/spegel.toml
             #% endif %#
         reset:
           before:
-            - sudo bash /home/#{ item.username }#/k0s/hooks/cilium-reset-before.sh
+            - sudo bash /home/#{ item.username }#/k0s/hooks/reset-cilium.sh
           after:
-            - sudo bash /home/#{ item.username }#/k0s/hooks/system-reset-after.sh
+            - sudo bash /home/#{ item.username }#/k0s/hooks/reset-system.sh
       #% else %#
       hooks: *hooks
       #% endif %#
