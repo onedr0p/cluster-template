@@ -56,17 +56,15 @@ tasks:
   upgrade-talos:
     desc: Upgrade talos on a node
     cmd: talosctl --nodes {{.node}} upgrade --image {{.image}} --preserve=true --reboot-mode=powercycle
-    vars:
-      image: '{{ or .image (fail "Argument (image) is required") }}'
-      node: '{{ or .node (fail "Argument (node) is required") }}'
+    requires:
+      vars: ["node", "to"]
     preconditions:
       - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
 
   upgrade-k8s:
     desc: Upgrade k8s on a node
     cmd: talosctl --nodes {{.node}} upgrade-k8s --to {{.to}}
-    vars:
-      node: '{{ or .node (fail "Argument (node) is required") }}'
-      to: '{{ or .to (fail "Argument (to) is required") }}'
+    requires:
+      vars: ["node", "to"]
     preconditions:
       - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }

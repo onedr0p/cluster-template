@@ -46,9 +46,9 @@ tasks:
       | \
       kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side \
           --field-manager=kustomize-controller -f -
+    requires:
+      vars: ["path", "ns"]
     vars:
-      path: '{{ or .path (fail "Argument (path) is required") }}'
-      ns: '{{.ns | default "flux-system"}}'
       ks:
         sh: flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
     preconditions:

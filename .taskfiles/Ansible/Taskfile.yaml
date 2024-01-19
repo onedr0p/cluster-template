@@ -34,8 +34,9 @@ tasks:
     prompt: Run Ansible playbook '{{.playbook}}'... continue?
     deps: ["deps"]
     cmd: .venv/bin/ansible-playbook --inventory {{.ANSIBLE_INVENTORY_FILE}} {{.ANSIBLE_DIR}}/playbooks/{{.playbook}}.yaml {{.CLI_ARGS}}
+    requires:
+      vars: ["playbook"]
     preconditions:
-      - { msg: "Missing playbook arg", sh: "test -n {{.playbook}}" }
       - { msg: "Missing Ansible inventory file", sh: "test -f {{.ANSIBLE_INVENTORY_FILE}}" }
 
   poweroff:
