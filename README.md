@@ -41,7 +41,7 @@ If you are new to Flux and GitOps it is important to understand that **all chang
 
 Hopefully some of this peeked your interests!
 
-If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k0s](https://github.com/k0sproject/k0s), [k3s](https://k3s.io) or [Talos](https://github.com/siderolabs/talos). Talos and k0s support was recently added so I would advise using k3s until those have been tested more however feel free to use Talos or k0s and report ant issues that you find.
+If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k0s](https://github.com/k0sproject/k0s), [k3s](https://k3s.io) or [Talos](https://github.com/siderolabs/talos). Talos and k0s support was recently added so I would advise using k3s until those have been tested more however feel free to use Talos or k0s and report ant issues that you find. Keep the one you decide in mind as you continue along, some steps may vary on what you choose.
 
 ### System requirements
 
@@ -66,9 +66,7 @@ If you are marching forward, now is a good time to choose whether you will deplo
 
 4. Continue on to 🚀 [**Getting Started**](#-getting-started)
 
-### k3s or k0s
-
-#### Debian for AMD64
+### k3s or k0s (AMD64)
 
 1. Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd), then follow [this guide](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step) to get it installed. Deviations from the guide:
 
@@ -112,7 +110,7 @@ If you are marching forward, now is a good time to choose whether you will deplo
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-#### Debian for RasPi4
+### k3s or k0s (RasPi4/RasPi5)
 
 > [!IMPORTANT]
 > 1. It is recommended to have an 8GB RasPi model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is [supported natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first.
