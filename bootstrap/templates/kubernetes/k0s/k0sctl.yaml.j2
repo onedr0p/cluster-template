@@ -52,7 +52,7 @@ spec:
             - sudo ip6tables -X
             - sudo rm -rf /etc/cni/net.d
           after:
-            - sudo shutdown -r +m 1
+            - nohup sudo -b bash -c 'sleep 5; reboot' &>/dev/null
         #% else %#
         #% if item.role | default('') != 'controller' %#
         apply:
