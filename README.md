@@ -133,7 +133,7 @@ If you are marching forward, now is a good time to choose whether you will deplo
 
 5. [Post install] SSH into the device with the `root` user and then create a normal user account with `adduser ${username}`
 
-6. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
+6. [Post install] Follow steps 3 and 4 from [k3s or k0s (AMD64)](##k3s-or-k0s-amd64).
 
 7. [Post install] Install `python3` which is needed by Ansible.
 
