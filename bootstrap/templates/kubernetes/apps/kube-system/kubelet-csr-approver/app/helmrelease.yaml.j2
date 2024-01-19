@@ -24,6 +24,5 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    providerRegex: |
-      ^k(m|w)\d\d?$
+    providerRegex: ^(#{ (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | join('|') }#)$
 #% endif %#
