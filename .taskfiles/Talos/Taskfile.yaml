@@ -30,21 +30,17 @@ tasks:
 
   apply-config:
     desc: Apply talos config on a node
-    cmd: talosctl --nodes {{.node}} apply-config -f "{{.TALOS_DIR}}/clusterconfig/home-kubernetes-{{.node}}.yaml"
-    vars:
-      node: '{{ or .node (fail "Argument (node) is required") }}'
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper gencommand apply --extra-flags=--insecure | bash
     preconditions:
       - { msg: "Missing Talos config file", sh: "test -f {{.TALOS_DIR}}/clusterconfig/home-kubernetes-{{.node}}.yaml" }
-      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
 
   bootstrap:
     desc: Bootstrap the talos cluster
-    cmd: talosctl --nodes {{.node}} bootstrap
-    vars:
-      node: '{{ or .node (fail "Argument (node) is required") }}'
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper gencommand bootstrap | bash
     preconditions:
       - { msg: "Missing Talos config file", sh: "test -f {{.TALOS_DIR}}/clusterconfig/home-kubernetes-{{.node}}.yaml" }
-      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
 
   kubeconfig:
     desc: Generate talos kubeconfig
