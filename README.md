@@ -8,11 +8,12 @@ The goal of this project is to make it easy for people interested in learning Ku
 
 This template implements Flux in a way that promotes legibility and ease of use for those who are new (or relatively new) to the technology and GitOps in general.
 
-If you are new to Flux and GitOps in general it is important to understand that **all changes** you want made to your Kubernetes cluster should be **commited to your Git repository** which Flux will pick up and attempt to apply. You're still free to make _dirty_ edits using `kubectl` but keep in mind that Flux might revert them once its reconcilation loop happens.
+If you are new to Flux and GitOps it is important to understand that **all changes** you want made to your Kubernetes cluster should be **commited to your Git repository** which Flux will pick up and attempt to apply. You're still free to make _dirty_ edits using `kubectl` but keep in mind that Flux might revert them once its reconcilation loop happens.
 
 ## ✨ Features
 
-- Automated, reproducible, customizable setup through Ansible templates and playbooks
+- Build a Kubernetes cluster with either [k0s](https://github.com/k0sproject/k0s), [k3s](https://k3s.io) or [Talos](https://github.com/siderolabs/talos)
+- Automated, reproducible, customizable setup through templates
 - Opinionated implementation of Flux with [strong community support](https://github.com/onedr0p/flux-cluster-template/tree/main#-help)
 - Encrypted secrets thanks to [SOPS](https://github.com/getsops/sops) and [Age](https://github.com/FiloSottile/age)
 - Web application firewall thanks to [Cloudflare Tunnels](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
@@ -31,7 +32,6 @@ If you are new to Flux and GitOps in general it is important to understand that 
 - [ ] have some experience with the following: Git/SCM, containers, networking and scripting.
 - [ ] bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
 - [ ] run the cluster on bare metal machines or VMs within your home network &mdash; **this is NOT designed for cloud environments**.
-- [ ] have Debian 12 freshly installed on 1 or more AMD64/ARM64 bare metal machines or VMs. Each machine will be either a **control node** or a **worker node** in your cluster.
 - [ ] give your nodes unrestricted internet access &mdash; **air-gapped environments won't work**.
 - [ ] have a domain you can manage on Cloudflare.
 - [ ] be willing to commit encrypted secrets to a public GitHub repository.
@@ -39,10 +39,14 @@ If you are new to Flux and GitOps in general it is important to understand that 
 
 ## 💻 Machine Preparation
 
+Hopefully some of this peeked your interests!
+
+If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k0s](https://github.com/k0sproject/k0s), [k3s](https://k3s.io) or [Talos](https://github.com/siderolabs/talos). Talos and k0s support was recently added so I would advise using k3s until those have been tested more however feel free to use Talos or k0s and report ant issues that you find. Keep the one you decide in mind as you continue along, some steps may vary on what you choose.
+
 ### System requirements
 
 > [!IMPORTANT]
-> 1. The default behaviour of k3s is that all nodes are able to run workloads, **including** control nodes. Worker nodes are therefore optional.
+> 1. The included behaviour of Talos, k0s or k3s is that all nodes are able to run workloads, **including** control nodes. Worker nodes are therefore optional.
 > 2. Do you have 3 or more nodes? It is strongly recommended to make 3 of them control nodes for a highly available control plane.
 > 3. Running the cluster on Proxmox VE? My thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/notes/proxmox-considerations.html).
 
@@ -52,7 +56,17 @@ If you are new to Flux and GitOps in general it is important to understand that 
 | Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 100GB _(500GB*)_ SSD/NVMe |
 | _\* recommended_ |
 
-### Debian for AMD64
+### Talos
+
+1. Download the latest stable release of Talos from thier GitHub repo. You will want to grab either `metal-amd64.iso` or `metal-rpi_generic-arm64.raw.xz` depending on your system.
+
+2. Take note of the OS drive serial numbers you will need them later on.
+
+3. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
+
+4. Continue on to 🚀 [**Getting Started**](#-getting-started)
+
+### k3s or k0s (AMD64)
 
 1. Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd), then follow [this guide](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step) to get it installed. Deviations from the guide:
 
@@ -96,7 +110,7 @@ If you are new to Flux and GitOps in general it is important to understand that 
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-### Debian for RasPi4
+### k3s or k0s (RasPi4)
 
 > [!IMPORTANT]
 > 1. It is recommended to have an 8GB RasPi model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is [supported natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first.
@@ -119,7 +133,7 @@ If you are new to Flux and GitOps in general it is important to understand that 
 
 5. [Post install] SSH into the device with the `root` user and then create a normal user account with `adduser ${username}`
 
-6. [Post install] Follow steps 3 and 4 from [Debian for AMD64](#debian-for-amd64).
+6. [Post install] Follow steps 3 and 4 from [k3s or k0s (AMD64)](##k3s-or-k0s-amd64).
 
 7. [Post install] Install `python3` which is needed by Ansible.
 
@@ -127,9 +141,11 @@ If you are new to Flux and GitOps in general it is important to understand that 
     sudo apt install -y python3
     ```
 
+8. Continue on to 🚀 [**Getting Started**](#-getting-started)
+
 ## 🚀 Getting Started
 
-Once you have installed Debian on your nodes, there are six stages to getting a Flux-managed cluster up and runnning.
+Once you have installed Talos or Debian on your nodes, there are six stages to getting a Flux-managed cluster up and runnning.
 
 > [!IMPORTANT]
 > For all stages below the commands **MUST** be ran on your personal workstation within your repository directory
@@ -139,6 +155,8 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 1. Create a new **public** repository by clicking the big green "Use this template" button at the top of this page.
 
 2. Clone **your new repo** to you local workstation and `cd` into it.
+
+3. Continue on to 🌱 [**Stage 2**](#-stage-2-setup-your-local-workstation-environment)
 
 ### 🌱 Stage 2: Setup your local workstation environment
 
@@ -164,7 +182,7 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     yay -S direnv
     ```
 
-3. Install **required** CLI tools: [age](https://github.com/FiloSottile/age), [cloudflared](https://github.com/cloudflare/cloudflared), [flux](https://toolkit.fluxcd.io/), [kubeconform](https://github.com/yannh/kubeconform), [kubectl](https://kubectl.docs.kubernetes.io/installation/), [kustomize](https://kubectl.docs.kubernetes.io/installation/), [sops](https://github.com/getsops/sops). [k0sctl](https://github.com/k0sproject/k0sctl) is also required for k0s.
+3. Install **required** CLI tools: [age](https://github.com/FiloSottile/age), [cloudflared](https://github.com/cloudflare/cloudflared), [flux](https://toolkit.fluxcd.io/), [kubeconform](https://github.com/yannh/kubeconform), [kubectl](https://kubectl.docs.kubernetes.io/installation/), [kustomize](https://kubectl.docs.kubernetes.io/installation/), [sops](https://github.com/getsops/sops). [k0sctl](https://github.com/k0sproject/k0sctl) is required for k0s. [talosctl](https://www.talos.dev/latest/learn-more/talosctl/) and [talhelper](https://github.com/budimanjojo/talhelper) is required for Talos.
 
    📍 _Not using Homebrew or ArchLinux? Make sure to look up how to install the latest version of each of these CLI tools and install them._
 
@@ -182,6 +200,8 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```sh
     task ansible:deps
     ```
+
+5. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
 
 ### 🔧 Stage 3: Do bootstrap configuration
 
@@ -258,20 +278,28 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
 
 7. Once done run the following command which will verify and generate all the files needed to continue.
 
+    > [!NOTE]
+    > The following configure task will create a `./ansible` directory for k3s or k0s and the following directories under `./kubernetes`.
+    > ```sh
+    > 📁 kubernetes      # Kubernetes cluster defined as code
+    > ├─📁 bootstrap     # Flux installation (not tracked by Flux)
+    > ├─📁 flux          # Main Flux configuration of repository
+    > └─📁 apps          # Apps deployed into the cluster grouped by namespace
+    > ```
+
     ```sh
     task configure
     ```
 
-> [!IMPORTANT]
-> The configure task will create a `./ansible` directory and the following directories under `./kubernetes`.
-> ```sh
-> 📁 kubernetes      # Kubernetes cluster defined as code
-> ├─📁 bootstrap     # Flux installation (not tracked by Flux)
-> ├─📁 flux          # Main Flux configuration of repository
-> └─📁 apps          # Apps deployed into the cluster grouped by namespace
-> ```
+8. Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
+
 
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
+
+> [!NOTE]
+> For **Talos** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
+
+#### k3s or k0s
 
 📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
 
@@ -295,7 +323,41 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     task ansible:run playbook=cluster-prepare
     ```
 
+5. Continue on to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
+
 ### ⛵ Stage 5: Install Kubernetes
+
+#### Talos
+
+1. Create Talos Secrets
+
+    ```sh
+    task talos:gensecret
+    task talos:genconfig
+    ```
+
+2. Apply Talos Config
+
+    ```sh
+    task talos:apply
+    ```
+
+3. Boostrap Talos and get kubeconfig
+
+    ```sh
+    task talos:bootstrap
+    task talos:kubeconfig
+    ```
+
+4. Install Cilium and kubelet-csr-approver into the cluster
+
+    ```sh
+    task talos:apply-extras
+    ```
+
+5. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
+
+#### k3s or k0s
 
 1. Install Kubernetes depending on the distribution you chose
 
@@ -318,6 +380,8 @@ Once you have installed Debian on your nodes, there are six stages to getting a 
     ```
 
 3. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
+
+4. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
