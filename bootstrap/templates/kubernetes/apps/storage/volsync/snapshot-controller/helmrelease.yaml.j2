@@ -27,6 +27,18 @@ spec:
     keepHistory: false
   values:
     controller:
+      #% if longhorn.enabled | default(false) %#
+      volumeSnapshotClasses:
+        - name: longhorn-snapclass
+          annotations:
+            snapshot.storage.kubernetes.io/is-default-class: "true"
+          driver: driver.longhorn.io
+          deletionPolicy: Delete
+          parameters:
+            # needed for successful VolumeSnapshots
+            # see: https://github.com/longhorn/longhorn/issues/2534#issuecomment-1010508714
+            type: snap
+      #% endif %#
       serviceMonitor:
         create: true
     webhook:
