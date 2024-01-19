@@ -16,7 +16,7 @@ task talos:genconfig
 > You must run this task for each of your nodes
 
 ```sh
-task talos:apply-config node=${bootstrap_nodes.[*].name}
+task talos:apply-config
 ```
 
 ### 3. Boostrap Talos
@@ -25,7 +25,7 @@ task talos:apply-config node=${bootstrap_nodes.[*].name}
 > You must run the bootstrap task on the first master node in your cluster
 
 ```sh
-task talos:bootstrap node=${bootstrap_nodes.master[0].name}
+task talos:bootstrap
 task talos:kubeconfig
 ```
 
