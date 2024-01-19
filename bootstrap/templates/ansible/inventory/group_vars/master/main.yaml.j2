@@ -2,7 +2,6 @@
 ---
 # https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/
 # https://github.com/PyratLabs/ansible-role-k3s
-
 k3s_control_node: true
 k3s_server:
   #% if bootstrap_ipv6_enabled | default(false) %#
@@ -16,17 +15,11 @@ k3s_server:
     - "{{ kube_api_hostname }}"
     #% endif %#
   docker: false
-  flannel-backend: "none"             # This needs to be in quotes
-  disable:
-    - coredns                         # Disable coredns                 - replaced with Coredns Helm Chart
-    - flannel                         # Disable flannel                 - replaced with Cilium Helm Chart
-    - local-storage                   # Disable local-path-provisioner  - replaced with democratic-csi
-    - metrics-server                  # Disable metrics-server          - installed with Flux
-    - servicelb                       # Disable servicelb               - replaced with Cilium Helm Chart
-    - traefik                         # Disable traefik                 - replaced with ingress-nginx and installed with Flux
+  flannel-backend: "none" # quote
+  disable: ["flannel", "local-storage", "metrics-server", "servicelb", "traefik"]
   disable-network-policy: true
   disable-cloud-controller: true
-  disable-kube-proxy: true            # Cilium uses eBPF
+  disable-kube-proxy: true
   write-kubeconfig-mode: "644"
   pause-image: registry.k8s.io/pause:3.9
   secrets-encryption: true
@@ -37,14 +30,13 @@ k3s_server:
   cluster-cidr: "{{ cluster_cidr }}"
   service-cidr: "{{ service_cidr }}"
   #% endif %#
-  etcd-expose-metrics: true           # Required to monitor etcd with kube-prometheus-stack
+  etcd-expose-metrics: true # Required to monitor etcd with kube-prometheus-stack
   kube-controller-manager-arg:
-    - "bind-address=0.0.0.0"          # Required to monitor kube-controller-manager with kube-prometheus-stack
+    - "bind-address=0.0.0.0" # Required to monitor kube-controller-manager with kube-prometheus-stack
   kube-scheduler-arg:
-    - "bind-address=0.0.0.0"          # Required to monitor kube-scheduler with kube-prometheus-stack
+    - "bind-address=0.0.0.0" # Required to monitor kube-scheduler with kube-prometheus-stack
   kube-apiserver-arg:
-    - "anonymous-auth=true"           # Required for HAProxy health-checks
-  # TODO: Move these options to a kubelet config file
+    - "anonymous-auth=true" # Required for external LB health-checks
   kubelet-arg:
     - "image-gc-high-threshold=55"
     - "image-gc-low-threshold=50"
