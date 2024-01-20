@@ -64,6 +64,7 @@ spegel:
 longhorn:
   # IMPORTANT: Only enable this if you have 3 or more nodes in your cluster
   # and you have enough IOPS on disk to support the number of replicas.
+  # Longhorn is currently unsupported in Talos
   # Note: Consider enabling volsync if you would like to configure snapshots
   # and backups to durable storage.
   enabled: false

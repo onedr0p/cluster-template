@@ -27,7 +27,7 @@ spec:
     keepHistory: false
   values:
     controller:
-      #% if longhorn|default({}) and longhorn.enabled|default(false) %#
+      #% if bootstrap_distribution in ['k0s', 'k3s'] and longhorn|default({}) and longhorn.enabled|default(false) %#
       volumeSnapshotClasses:
         - name: longhorn-snapclass
           annotations:
