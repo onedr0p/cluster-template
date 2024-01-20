@@ -1,4 +1,4 @@
-#% if kube_prometheus_stack.enabled | default(false) %#
+#% if kube_prometheus_stack|default({}) and kube_prometheus_stack.enabled|default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -121,7 +121,7 @@ spec:
       ingress:
         enabled: true
         ingressClassName: internal
-        #% if homepage.enabled | default(false) %#
+        #% if homepage|default({}) and homepage.enabled|default(false) %#
         annotations:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/icon: prometheus.png

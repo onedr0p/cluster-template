@@ -1,5 +1,6 @@
-#% if bootstrap_distribution == 'k3s' or bootstrap_distribution == 'k0s' %#
+#% if bootstrap_distribution in ['k3s', 'k0s'] %#
 skip_list:
+  - jinja[spacing]
   - yaml[commas]
   - yaml[line-length]
   - var-naming

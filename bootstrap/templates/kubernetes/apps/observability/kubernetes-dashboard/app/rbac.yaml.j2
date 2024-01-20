@@ -1,4 +1,4 @@
-#% if kubernetes_dashboard.enabled | default(false) %#
+#% if kubernetes_dashboard|default({}) and kubernetes_dashboard.enabled|default(false) %#
 # For dashboard sign in token:
 # kubectl -n observability get secret kubernetes-dashboard -o jsonpath='{.data.token}' | base64 -d
 ---

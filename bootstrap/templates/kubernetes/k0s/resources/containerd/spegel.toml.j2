@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == 'k0s' and spegel.enabled | default(false) %#
+#% if bootstrap_distribution == 'k0s' and spegel|default({}) and spegel.enabled|default(false) %#
 [plugins."io.containerd.grpc.v1.cri".registry]
   config_path = "/var/lib/k0s/containerd/certs.d"
 [plugins."io.containerd.grpc.v1.cri".containerd]

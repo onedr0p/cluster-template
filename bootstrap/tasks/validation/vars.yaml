@@ -43,6 +43,6 @@
     that: item.name is match('^[a-z0-9-\.]+$')
     success_msg: Node name {{ item.name }} is valid
     fail_msg: Node name {{ item.name }} is not valid
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker|default([]) }}"
   loop_control:
     label: "{{ item.name }}"

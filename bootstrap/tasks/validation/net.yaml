@@ -14,21 +14,21 @@
     fail_msg: Node CIDR {{ bootstrap_node_cidr }} is invalid.
 
 - name: Check if cluster CIDR is ipv4 OR ipv6
-  when: not bootstrap_ipv6_enabled | default(false)
+  when: not bootstrap_ipv6_enabled|default(false)
   ansible.builtin.assert:
     that: bootstrap_cluster_cidr is ansible.utils.ipv4 or bootstrap_cluster_cidr is ansible.utils.ipv6
     success_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is valid.
     fail_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid.
 
 - name: Check if service CIDR is ipv4 OR ipv6
-  when: not bootstrap_ipv6_enabled | default(false)
+  when: not bootstrap_ipv6_enabled|default(false)
   ansible.builtin.assert:
     that: bootstrap_service_cidr is ansible.utils.ipv4 or bootstrap_service_cidr is ansible.utils.ipv6
     success_msg: Service CIDR {{ bootstrap_service_cidr }} is valid.
     fail_msg: Service CIDR {{ bootstrap_service_cidr }} is invalid.
 
 - name: Check if cluster CIDR is ipv4 AND ipv6
-  when: bootstrap_ipv6_enabled | default(false)
+  when: bootstrap_ipv6_enabled|default(false)
   ansible.builtin.assert:
     that: >
       (
@@ -42,7 +42,7 @@
     fail_msg: Cluster CIDR {{ bootstrap_cluster_cidr }} is invalid.
 
 - name: Check if service CIDR is ipv4 AND ipv6
-  when: bootstrap_ipv6_enabled | default(false)
+  when: bootstrap_ipv6_enabled|default(false)
   ansible.builtin.assert:
     that: >
       (
@@ -122,24 +122,24 @@
     fail_msg: All IP addresses are not unique.
 
 - name: Check if nodes are not the same IPs as k8s_gateway or ingress external/internal
-  when: not bootstrap_kube_vip_enabled | default(true)
+  when: not bootstrap_kube_vip_enabled|default(true)
   ansible.builtin.assert:
     that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_external_ingress_addr, bootstrap_internal_ingress_addr)
     success_msg: Node address {{ item.address }} is different than k8s_gateway or ingress-nginx.
     fail_msg: Node address {{ item.address }} is not different than k8s_gateway or ingress-nginx.
     quiet: true
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker|default([]) }}"
   loop_control:
     label: "{{ item.address }}"
 
 - name: Check if nodes are not the same IPs as k8s_gateway, ingress external/internal or Kube API address
-  when: (bootstrap_distribution == "k3s") and (bootstrap_kube_vip_enabled | default(true))
+  when: (bootstrap_distribution == "k3s") and (bootstrap_kube_vip_enabled|default(true))
   ansible.builtin.assert:
     that: item.address not in (bootstrap_k8s_gateway_addr, bootstrap_external_ingress_addr, bootstrap_internal_ingress_addr, bootstrap_kube_api_addr)
     success_msg: Node address {{ item.address }} is different than k8s_gateway, ingress-nginx or Kube API.
     fail_msg: Node address {{ item.address }} is not different than k8s_gateway, ingress-nginx or Kube API.
     quiet: true
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker|default([]) }}"
   loop_control:
     label: "{{ item.address }}"
 
@@ -149,7 +149,7 @@
     success_msg: Node address {{ item.address }} is valid.
     fail_msg: Node address {{ item.address }} is invalid.
     quiet: true
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker|default([]) }}"
   loop_control:
     label: "{{ item.address }}"
 
@@ -159,7 +159,7 @@
     success_msg: Node address {{ item.address }} is within {{ bootstrap_node_cidr }}.
     fail_msg: Node address {{ item.address }} is not within {{ bootstrap_node_cidr }}.
     quiet: true
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker|default([]) }}"
   loop_control:
     label: "{{ item.address }}"
 
@@ -167,11 +167,11 @@
   ansible.builtin.assert:
     that: >
       (
-        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='address') | list
+        (bootstrap_nodes.master + bootstrap_nodes.worker|default([])) | map(attribute='address') | list
       ) | unique | length
       ==
       (
-        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='address') | list
+        (bootstrap_nodes.master + bootstrap_nodes.worker|default([])) | map(attribute='address') | list
       ) | length
     success_msg: All node IP addresses are unique.
     fail_msg: All node IP addresses are not unique.
@@ -181,34 +181,34 @@
   ansible.builtin.assert:
     that: >
       (
-        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | list
+        (bootstrap_nodes.master + bootstrap_nodes.worker|default([])) | map(attribute='name') | list
       ) | unique | length
       ==
       (
-        (bootstrap_nodes.master + bootstrap_nodes.worker | default([])) | map(attribute='name') | list
+        (bootstrap_nodes.master + bootstrap_nodes.worker|default([])) | map(attribute='name') | list
       ) | length
     success_msg: All node names are unique.
     fail_msg: All node names are not unique.
     quiet: true
 
 - name: Check if SSH ports are reachable
-  when: (not ci_test | default(false)) and (not bootstrap_distribution == "talos")
+  when: (not ci_test|default(false)) and (not bootstrap_distribution == "talos")
   ansible.builtin.wait_for:
     host: "{{ item.address }}"
     port: 22
     timeout: 10
   connection: local
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker|default([]) }}"
   loop_control:
     label: "{{ item.address }}"
 
 - name: Check if Talos ports are reachable
-  when: (not ci_test | default(false)) and (bootstrap_distribution == "talos")
+  when: (not ci_test|default(false)) and (bootstrap_distribution == "talos")
   ansible.builtin.wait_for:
     host: "{{ item.address }}"
     port: 50000
     timeout: 10
   connection: local
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker|default([]) }}"
   loop_control:
     label: "{{ item.address }}"

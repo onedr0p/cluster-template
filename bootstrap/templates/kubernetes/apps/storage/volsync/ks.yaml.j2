@@ -1,4 +1,4 @@
-#% if volsync.enabled | default(false) %#
+#% if volsync|default({}) and volsync.enabled|default(false) %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -10,7 +10,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  #% if longhorn.enabled | default(false) %#
+  #% if longhorn|default({}) and longhorn.enabled|default(false) %#
   dependsOn:
     - name: longhorn
   #% endif %#

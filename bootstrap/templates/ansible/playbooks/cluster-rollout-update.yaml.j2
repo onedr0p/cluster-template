@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == 'k3s' or bootstrap_distribution == 'k0s' %#
+#% if bootstrap_distribution in ['k3s', 'k0s'] %#
 ---
 # https://github.com/kevincoakley/ansible-role-k8s-rolling-update
 - name: Cluster rollout update

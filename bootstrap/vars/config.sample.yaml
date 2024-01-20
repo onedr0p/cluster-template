@@ -95,3 +95,10 @@ bootstrap_nodes:
     #   username:   # ssh username of the worker node
     #   diskSerial: # (Required: Talos) Serial number of Disk for this worker node
     # ...
+
+#
+# Do not make changes below this line unless you know what you are doing
+#
+
+# bootstrap_advanced_flags:
+#   update_resolv_conf: true # Disable to prevent changes to nodes /etc/resolv.conf
