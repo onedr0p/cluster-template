@@ -4,7 +4,7 @@ version: "3"
 
 vars:
   # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-  PROMETHEUS_OPERATOR_VERSION: "v0.70.0"
+  PROMETHEUS_OPERATOR_VERSION: "v0.71.0"
   CLUSTER_SECRET_SOPS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml"
   CLUSTER_SECRET_USER_SOPS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-secrets-user.sops.yaml"
   CLUSTER_SETTINGS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml"
