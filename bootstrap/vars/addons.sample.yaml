@@ -67,4 +67,7 @@ longhorn:
   # Longhorn is currently unsupported in Talos
   # Note: Consider enabling volsync if you would like to configure snapshots
   # and backups to durable storage.
+  # Note: You must label any node that you want to allocate storage to longhorn
+  # with label node.longhorn.io/create-default-disk="true"
+  # ie: kubectl label --overwrite node <node name> node.longhorn.io/create-default-disk="true"
   enabled: false

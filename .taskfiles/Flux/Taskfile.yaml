@@ -27,15 +27,15 @@ tasks:
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.CLUSTER_SETTINGS_USER_FILE}}
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
-      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 1 || exit 0" }
       - { msg: "Missing Sops Age key file", sh: "test -f {{.SOPS_AGE_FILE}}" }
 
   apply:
     desc: Apply a Flux Kustomization resource for a cluster
     summary: |
       Args:
-        path: Path containing the Flux Kustomization resource (ks.yaml) (required)
+        path: Path under {{.KUBERNETES_DIR}}/apps/ containing the Flux Kustomization resource (ks.yaml) (required)
         ns: Namespace the Flux Kustomization exists in (default: flux-system)
     cmd: |
       flux --kubeconfig {{.KUBECONFIG_FILE}} build ks $(basename {{.path}}) \
@@ -47,24 +47,27 @@ tasks:
       kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side \
           --field-manager=kustomize-controller -f -
     requires:
-      vars: ["path", "ns"]
+      vars: ["path"]
     vars:
+      ns: '{{.ns | default "flux-system"}}'
       ks:
-        sh: flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
+        sh: |
+          [ -f {{.KUBECONFIG_FILE}} ] || exit 0;
+          flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
     preconditions:
-      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
-      - { msg: "Missing Flux Kustomization", sh: "test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml" }
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+      - { msg: "Namespace {{.ns}} does not exist", sh: "kubectl get namespace {{.ns}} --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
+      - { msg: "Missing Flux Kustomization for app {{.path}}", sh: "test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml" }
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmd: flux --kubeconfig {{.KUBECONFIG_FILE}} reconcile --namespace flux-system kustomization cluster --with-source
     preconditions:
-      - { msg: "Flux not installed", sh: "kubectl get namespace flux-system" }
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+      - { msg: "Flux not installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
 
   github-deploy-key:
     cmd: sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
     preconditions:
-      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system &>/dev/null && exit 1 || exit 0" }
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+      - { msg: "Flux not installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
