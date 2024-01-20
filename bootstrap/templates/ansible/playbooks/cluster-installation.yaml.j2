@@ -41,7 +41,7 @@
         kubeconfig: /etc/rancher/k3s/k3s.yaml
         kind: "{{ item.kind }}"
         name: "{{ item.name }}"
-        namespace: "{{ item.namespace | default('') }}"
+        namespace: "{{ item.namespace|default('') }}"
         wait: true
         wait_sleep: 10
         wait_timeout: 360

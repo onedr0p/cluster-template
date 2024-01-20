@@ -1,4 +1,4 @@
-#% if longhorn.enabled | default(false) %#
+#% if longhorn|default({}) and longhorn.enabled|default(false) %#
 ---
 apiVersion: v1
 kind: Namespace

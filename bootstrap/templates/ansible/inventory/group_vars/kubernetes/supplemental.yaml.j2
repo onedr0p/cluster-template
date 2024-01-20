@@ -1,20 +1,20 @@
-#% if bootstrap_distribution == 'k3s' or bootstrap_distribution == 'k0s' %#
+#% if bootstrap_distribution in ['k3s', 'k0s'] %#
 ---
 timezone: "#{ bootstrap_timezone }#"
 github_username: "#{ bootstrap_github_username }#"
 coredns_addr: "#{ bootstrap_service_cidr.split(',')[0] | nthhost(10) }#"
-#% if bootstrap_nodes.master | length > 1 or bootstrap_kube_api_addr | default('') %#
+#% if bootstrap_nodes.master | length > 1 or bootstrap_kube_api_addr|default('') %#
 kube_api_addr: "#{ bootstrap_kube_api_addr }#"
 #% else %#
 kube_api_addr: "#{ bootstrap_nodes.master[0].address }#"
 #% endif %#
-#% if bootstrap_kube_api_hostname | default('') %#
+#% if bootstrap_kube_api_hostname|default('') %#
 kube_api_hostname: "#{ bootstrap_kube_api_hostname }#"
 #% endif %#
 cluster_cidr: "#{ bootstrap_cluster_cidr.split(',')[0] }#"
 service_cidr: "#{ bootstrap_service_cidr.split(',')[0] }#"
 node_cidr: "#{ bootstrap_node_cidr }#"
-#% if bootstrap_ipv6_enabled | default(false) %#
+#% if bootstrap_ipv6_enabled|default(false) %#
 cluster_cidr_v6: "#{ bootstrap_cluster_cidr.split(',')[1] }#"
 service_cidr_v6: "#{ bootstrap_service_cidr.split(',')[1] }#"
 #% endif %#

@@ -1,4 +1,4 @@
-#% if (bootstrap_distribution == "k0s" or bootstrap_distribution == "talos") and spegel.enabled | default(false) %#
+#% if bootstrap_distribution in ['k0s', 'talos'] and spegel|default({}) and spegel.enabled|default(false) %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

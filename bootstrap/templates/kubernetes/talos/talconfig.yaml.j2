@@ -8,7 +8,7 @@ kubernetesVersion: 1.29.1
 
 clusterName: &cluster home-kubernetes
 
-#% if bootstrap_kube_api_hostname | default('') %#
+#% if bootstrap_kube_api_hostname|default('') %#
 endpoint: https://#{ bootstrap_kube_api_hostname }#:6443
 #% else %#
 endpoint: https://#{ bootstrap_kube_api_addr }#:6443
@@ -22,7 +22,7 @@ clusterSvcNets:
 additionalApiServerCertSans: &sans
   - "#{ bootstrap_kube_api_addr }#"
   - 127.0.0.1 #KubePrism
-  #% if bootstrap_kube_api_hostname | default('') %#
+  #% if bootstrap_kube_api_hostname|default('') %#
   - "#{ bootstrap_kube_api_hostname }#"
   #% endif %#
 
@@ -48,7 +48,7 @@ nodes:
         vip:
           ip: "#{ bootstrap_kube_api_addr }#"
   #% endfor %#
-  #% if bootstrap_nodes.worker | default([]) | length > 0 %#
+  #% if bootstrap_nodes.worker|default([]) | length > 0 %#
   #% for item in bootstrap_nodes.worker %#
   - hostname: "#{ item.name }#"
     ipAddress: "#{ item.address }#"
@@ -77,7 +77,7 @@ controlPlane:
               [plugins."io.containerd.grpc.v1.cri"]
                 enable_unprivileged_ports = true
                 enable_unprivileged_icmp = true
-              #% if spegel.enabled | default(false) %#
+              #% if spegel|default({}) and spegel.enabled|default(false) %#
               [plugins."io.containerd.grpc.v1.cri".containerd]
                 discard_unpacked_layers = false
               [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
@@ -123,7 +123,7 @@ controlPlane:
       machine:
         network:
           nameservers:
-            - "#{ bootstrap_dns_server | default('1.1.1.1', true) }#"
+            - "#{ bootstrap_dns_server|default('1.1.1.1', true) }#"
 
     # Configure NTP
     - &ntpPatch |-

@@ -37,7 +37,7 @@ spec:
           before:
             - sudo bash /home/#{ item.username }#/k0s/hooks/apply-system.sh
             - sudo mv /home/#{ item.username }#/k0s/containerd/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
-            #% if spegel.enabled | default(false) %#
+            #% if spegel|default({}) and spegel.enabled|default(false) %#
             - sudo mv /home/#{ item.username }#/k0s/containerd/spegel.toml /etc/k0s/containerd.d/spegel.toml
             #% endif %#
         reset:
@@ -49,7 +49,7 @@ spec:
       hooks: *hooks
       #% endif %#
     #% endfor %#
-    #% if bootstrap_nodes.worker | default([]) | length > 0 %#
+    #% if bootstrap_nodes.worker|default([]) | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
     - role: worker
       ssh:
@@ -82,14 +82,14 @@ spec:
         api:
           sans:
             - "#{ bootstrap_kube_api_addr }#"
-            #% if bootstrap_kube_api_hostname | default('') %#
+            #% if bootstrap_kube_api_hostname|default('') %#
             - "#{ bootstrap_kube_api_hostname }#"
             #% endif %#
             #% for item in bootstrap_nodes.master %#
             #% if item.address != bootstrap_kube_api_addr %#
             - "#{ item.address }#"
             #% endif %#
-            #% if (not bootstrap_kube_api_hostname | default('')) or (item.name != bootstrap_kube_api_hostname | default('')) %#
+            #% if (not bootstrap_kube_api_hostname|default('')) or (item.name != bootstrap_kube_api_hostname|default('')) %#
             - "#{ item.name }#"
             #% endif %#
             #% endfor %#

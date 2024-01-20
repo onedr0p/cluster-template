@@ -70,7 +70,7 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-          #% if homepage.enabled | default(false) %#
+          #% if homepage|default({}) and homepage.enabled|default(false) %#
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Network
           gethomepage.dev/name: Echo Server

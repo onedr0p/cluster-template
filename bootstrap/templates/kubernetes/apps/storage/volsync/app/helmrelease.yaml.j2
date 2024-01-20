@@ -1,4 +1,4 @@
-#% if volsync.enabled | default(false) %#
+#% if volsync|default({}) and volsync.enabled|default(false) %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease

@@ -1,4 +1,4 @@
-#% if longhorn.enabled | default(false) %#
+#% if longhorn|default({}) and longhorn.enabled|default(false) %#
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
