@@ -53,7 +53,7 @@ tasks:
       ks:
         sh: |
           [ -f {{.KUBECONFIG_FILE}} ] || exit 0;
-          flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path | default .KUBERNETES_DIR}}) 2>&1
+          flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
       - { msg: "Namespace {{.ns}} does not exist", sh: "kubectl get namespace {{.ns}} --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
