@@ -10,6 +10,10 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  #% if longhorn.enabled | default(false) %#
+  dependsOn:
+    - name: longhorn
+  #% endif %#
   path: ./kubernetes/apps/storage/volsync/snapshot-controller
   prune: true
   sourceRef:

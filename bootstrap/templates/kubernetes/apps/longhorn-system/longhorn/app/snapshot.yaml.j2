@@ -1,0 +1,16 @@
+#% if longhorn.enabled | default(false) %#
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+reclaimPolicy: Delete
+provisioner: driver.longhorn.io
+parameters:
+  dataLocality: disabled
+  numberOfReplicas: "1" # Faster restores from the snapshotclass
+  replicaAutoBalance: best-effort
+  staleReplicaTimeout: "30"
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
+metadata:
+  name: longhorn-snapshot
+#% endif %#

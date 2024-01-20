@@ -1,0 +1,22 @@
+#% if longhorn.enabled | default(false) %#
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app longhorn
+  namespace: flux-system
+spec:
+  targetNamespace: longhorn-system
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  path: ./kubernetes/apps/longhorn-system/longhorn/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: home-kubernetes
+  wait: false
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+#% endif %#

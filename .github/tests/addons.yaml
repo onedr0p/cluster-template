@@ -35,3 +35,6 @@ volsync:
 
 spegel:
   enabled: true
+
+longhorn:
+  enabled: true

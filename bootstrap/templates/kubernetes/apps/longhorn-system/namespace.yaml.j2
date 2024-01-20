@@ -1,0 +1,9 @@
+#% if longhorn.enabled | default(false) %#
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+  labels:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+#% endif %#
