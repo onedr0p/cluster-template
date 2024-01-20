@@ -5,10 +5,8 @@ kind: StorageClass
 reclaimPolicy: Delete
 provisioner: driver.longhorn.io
 parameters:
-  # used for volsync to copy from.
-  # we set this to 1 replica for faster restores from the snapclass
   dataLocality: disabled
-  numberOfReplicas: "1"
+  numberOfReplicas: "1" # Faster restores from the snapshotclass
   replicaAutoBalance: best-effort
   staleReplicaTimeout: "30"
 allowVolumeExpansion: true

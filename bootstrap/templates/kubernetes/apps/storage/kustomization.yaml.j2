@@ -3,9 +3,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
-  #% if longhorn.enabled | default(false) %#
-  - ./longhorn/ks.yaml
-  #% endif %#
   - ./openebs/ks.yaml
   #% if volsync.enabled | default(false) %#
   - ./volsync/ks.yaml

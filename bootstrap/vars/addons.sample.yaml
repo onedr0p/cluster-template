@@ -38,7 +38,7 @@ csi_driver_nfs:
 
 # https://github.com/rancher/system-upgrade-controller
 system_upgrade_controller:
-  # WARNING: Only enable this if you also track the version of k3s in the
+  # IMPORTANT: Only enable this if you also track the version of k3s in the
   # ansible configuration files. Running ansible against an already provisioned
   # cluster with this enabled might cause your cluster to be downgraded.
   # Note: If bootstrap_distribution is set to k0s or talos this will be ignored.
@@ -62,4 +62,5 @@ spegel:
 
 # https://github.com/longhorn/longhorn
 longhorn:
+  # IMPORTANT: Only enable this if you have 3 or more nodes in your cluster
   enabled: false
