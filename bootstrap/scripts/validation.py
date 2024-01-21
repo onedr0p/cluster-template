@@ -52,7 +52,7 @@ def validate_python_version() -> None:
         raise ValueError(f"Python version is below 3.11. Please upgrade.")
 
 @required("bootstrap_distribution")
-def validate_cli_tools(distribution: str) -> None:
+def validate_cli_tools(distribution: str, **_) -> None:
     distro = _validate_distribution(distribution)
     for tool in GLOBAL_CLI_TOOLS:
         if not which(tool):
@@ -65,7 +65,7 @@ def validate_cli_tools(distribution: str) -> None:
             raise ValueError(f"Missing required CLI tool {tool}")
 
 @required("bootstrap_distribution")
-def validate_distribution(distribution: str) -> None:
+def validate_distribution(distribution: str, **_) -> None:
     _validate_distribution(distribution)
 
 @required("bootstrap_github_username", "bootstrap_github_repository_name", "bootstrap_github_repository_branch")
@@ -78,17 +78,17 @@ def validate_github(username: str, repository: str, branch: str, **_) -> None:
         raise ValueError(f"GitHub repository {username}/{repository} branch {branch} not found") from e
 
 @required("bootstrap_age_public_key")
-def validate_age(key: str) -> None:
+def validate_age(key: str, **_) -> None:
     if not re.match(r"^age1[a-z0-9]{0,58}$", key):
         raise ValueError(f"Invalid Age public key {key}")
 
 @required("bootstrap_timezone")
-def validate_timezone(timezone: str) -> None:
+def validate_timezone(timezone: str, **_) -> None:
     if not timezone in available_timezones():
         raise ValueError(f"Invalid timezone {timezone}")
 
 @required("bootstrap_ipv6_enabled", "bootstrap_cluster_cidr", "bootstrap_service_cidr")
-def validate_cluster_cidrs(ipv6_enabled: bool, cluster_cidr: str, service_cidr: str) -> None:
+def validate_cluster_cidrs(ipv6_enabled: bool, cluster_cidr: str, service_cidr: str, **_) -> None:
     if not isinstance(ipv6_enabled, bool):
         raise ValueError(f"Invalid IPv6 enabled {ipv6_enabled}")
 
@@ -117,19 +117,19 @@ def validate_cluster_cidrs(ipv6_enabled: bool, cluster_cidr: str, service_cidr: 
     _validate_cidr(service_cidr, 4)
 
 @required("bootstrap_acme_email", "bootstrap_acme_production_enabled")
-def validate_acme_email(email: str, acme_production: bool) -> None:
+def validate_acme_email(email: str, acme_production: bool, **_) -> None:
     try:
         validate_email(email)
     except EmailNotValidError as e:
         raise ValueError(f"Invalid ACME email {email}") from e
 
 @required("bootstrap_flux_github_webhook_token")
-def validate_flux_github_webhook_token(token: str) -> None:
+def validate_flux_github_webhook_token(token: str, **_) -> None:
     if not re.match(r"^[a-zA-Z0-9]+$", token):
         raise ValueError(f"Invalid Flux GitHub webhook token {token}")
 
 @required("bootstrap_cloudflare_domain", "bootstrap_cloudflare_token", "bootstrap_cloudflare_account_tag", "bootstrap_cloudflare_tunnel_secret", "bootstrap_cloudflare_tunnel_id")
-def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret: str, tunnel_id: str) -> None:
+def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret: str, tunnel_id: str, **_) -> None:
     try:
       cf = CloudFlare.CloudFlare(token=token)
       zones = cf.zones.get(params={"name": domain})
@@ -139,12 +139,12 @@ def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret
       raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it") from e
 
 @required("bootstrap_cilium_loadbalancer_mode")
-def validate_cilium_loadbalancer_mode(mode: str) -> None:
+def validate_cilium_loadbalancer_mode(mode: str, **_) -> None:
     if mode not in CILIUM_LOADBALANCER_MODES:
         raise ValueError(f"Invalid Cilium load balancer mode {mode}")
 
 @required("bootstrap_local_storage_path")
-def validate_local_storage_path(path: str) -> None:
+def validate_local_storage_path(path: str, **_) -> None:
     try:
         if not is_valid_filepath(path, platform="linux"):
             raise ValueError(f"Invalid local storage path {path}")
@@ -152,11 +152,11 @@ def validate_local_storage_path(path: str) -> None:
         raise ValueError(f"Invalid local storage path {path}") from e
 
 @required("bootstrap_dns_server")
-def validate_bootstrap_dns_server(dns_server: str) -> None:
+def validate_bootstrap_dns_server(dns_server: str, **_) -> None:
     _validate_ip(dns_server)
 
 @required("bootstrap_node_cidr", "bootstrap_kube_api_addr", "bootstrap_k8s_gateway_addr", "bootstrap_external_ingress_addr", "bootstrap_internal_ingress_addr")
-def validate_host_network(node_cidr: str, api_addr: str, gateway_addr: str, external_ingress_addr: str, internal_ingress_addr: str) -> None:
+def validate_host_network(node_cidr: str, api_addr: str, gateway_addr: str, external_ingress_addr: str, internal_ingress_addr: str, **_) -> None:
     _validate_cidr(node_cidr, 4)
     _validate_ip(api_addr)
     _validate_ip(gateway_addr)

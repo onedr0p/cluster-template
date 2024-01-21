@@ -18,9 +18,9 @@ def encrypt(value: str) -> str:
 
 class Loader:
     def __init__(self, data):
-        validation.validate_python_version()
         if data.get("skip_tests", False):
             return
+        validation.validate_python_version()
         validation.validate_cli_tools(data)
         validation.validate_distribution(data)
         validation.validate_github(data)
