@@ -146,7 +146,7 @@ def validate_acme_email(email: str, acme_production: bool, **_) -> None:
 @required("bootstrap_flux_github_webhook_token")
 def validate_flux_github_webhook_token(token: str, **_) -> None:
     if not re.match(r"^[a-zA-Z0-9]+$", token):
-        raise ValueError(f"Invalid Flux GitHub webhook token {token}")
+        raise ValueError(f"Invalid Flux GitHub webhook token ***")
 
 @required("bootstrap_cloudflare_domain", "bootstrap_cloudflare_token", "bootstrap_cloudflare_account_tag", "bootstrap_cloudflare_tunnel_secret", "bootstrap_cloudflare_tunnel_id")
 def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret: str, tunnel_id: str, **_) -> None:

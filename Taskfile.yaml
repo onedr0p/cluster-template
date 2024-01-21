@@ -56,28 +56,20 @@ tasks:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     cmds:
-      - task: .pre-validate
       - task: .template
       - task: .post-validate
-
-  .pre-validate:
-    internal: true
-    cmd: ./.venv/bin/ansible-playbook {{.BOOTSTRAP_DIR}}/validate.yaml
-    env:
-      ANSIBLE_DISPLAY_SKIPPED_HOSTS: "false"
-    preconditions:
-      - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
-      - { msg: "Missing bootstrap addons file", sh: "test -f {{.BOOTSTRAP_ADDONS_FILE}}" }
-      - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }
 
   .template:
     internal: true
     cmds:
-      - ./.venv/bin/makejinja --undefined chainable
+      - ./.venv/bin/makejinja
       - task: sops:encrypt
     preconditions:
+      - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
       - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
       - { msg: "Missing Makejinja loader file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
+      - { msg: "Missing bootstrap addons file", sh: "test -f {{.BOOTSTRAP_ADDONS_FILE}}" }
+      - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }
 
   .post-validate:
     internal: true
