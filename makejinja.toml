@@ -4,7 +4,7 @@ output = "./"
 exclude_patterns = ["*.partial.yaml.j2"]
 data = ["./bootstrap/vars/addons.yaml", "./bootstrap/vars/config.yaml"]
 import_paths = ["./bootstrap/scripts"]
-loaders = ["loader:Loader"]
+loaders = ["plugin:Plugin"]
 jinja_suffix = ".j2"
 force = true
 undefined = "chainable"
@@ -19,6 +19,3 @@ comment_start = "#|"
 comment_end = "|#"
 variable_start = "#{"
 variable_end = "}#"
-
-[makejinja.whitespace]
-keep_trailing_newline = true

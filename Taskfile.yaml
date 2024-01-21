@@ -67,7 +67,7 @@ tasks:
     preconditions:
       - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
       - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
-      - { msg: "Missing Makejinja loader file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/loader.py" }
+      - { msg: "Missing Makejinja plugin file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py" }
       - { msg: "Missing bootstrap addons file", sh: "test -f {{.BOOTSTRAP_ADDONS_FILE}}" }
       - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }
 

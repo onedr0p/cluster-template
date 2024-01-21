@@ -1,4 +1,6 @@
+from typing import Any
 import bcrypt
+import makejinja
 import netaddr
 
 import validation
@@ -16,12 +18,12 @@ def nthhost(value: str, query: int) -> str:
 def encrypt(value: str) -> str:
     return bcrypt.hashpw(value.encode(), bcrypt.gensalt(rounds=10)).decode("ascii")
 
-class Loader:
-    def __init__(self, data):
+class Plugin(makejinja.plugin.Plugin):
+    def __init__(self, data: dict[str, Any]):
         if data.get("skip_tests", False):
             return
 
         validation.validate(data)
 
-    def filters(self):
+    def filters(self) -> makejinja.plugin.Filters:
         return [nthhost, encrypt]
