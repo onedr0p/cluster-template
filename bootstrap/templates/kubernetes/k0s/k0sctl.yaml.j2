@@ -49,7 +49,7 @@ spec:
       hooks: *hooks
       #% endif %#
     #% endfor %#
-    #% if bootstrap_nodes.worker|default([]) | length > 0 %#
+    #% if bootstrap_nodes.worker | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
     - role: worker
       ssh:
@@ -82,14 +82,14 @@ spec:
         api:
           sans:
             - "#{ bootstrap_kube_api_addr }#"
-            #% if bootstrap_kube_api_hostname|default('') %#
+            #% if bootstrap_kube_api_hostname %#
             - "#{ bootstrap_kube_api_hostname }#"
             #% endif %#
             #% for item in bootstrap_nodes.master %#
             #% if item.address != bootstrap_kube_api_addr %#
             - "#{ item.address }#"
             #% endif %#
-            #% if (not bootstrap_kube_api_hostname|default('')) or (item.name != bootstrap_kube_api_hostname|default('')) %#
+            #% if (not bootstrap_kube_api_hostname) or (item.name != bootstrap_kube_api_hostname) %#
             - "#{ item.name }#"
             #% endif %#
             #% endfor %#

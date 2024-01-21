@@ -8,7 +8,7 @@ metadata:
 provisioner: smb.csi.k8s.io
 parameters:
   source: "#{ item.source }#"
-  csi.storage.k8s.io/node-stage-secret-name: "#{ item.existing_secret_name|default(item.name+"-secret") }#"
+  csi.storage.k8s.io/node-stage-secret-name: "#{ item.existing_secret_name|default(item.name + '-secret') }#"
   #% if item.existing_secret_name and item.existing_secret_namespace %#
   csi.storage.k8s.io/node-stage-secret-namespace: "#{ item.existing_secret_namespace }#"
   #% else %#

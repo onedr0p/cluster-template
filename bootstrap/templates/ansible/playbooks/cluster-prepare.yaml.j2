@@ -16,7 +16,7 @@
       block:
         - name: Locale | Set timezone
           community.general.timezone:
-            name: "{{ timezone|default('Etc/UTC') }}"
+            name: "{{ timezone | default('Etc/UTC') }}"
 
     - name: Packages
       block:
@@ -62,7 +62,7 @@
               ff02::2 ip6-allrouters
             dest: /etc/hosts
             mode: preserve
-        #% if bootstrap_advanced_flags|default({}) and bootstrap_advanced_flags.update_resolv_conf|default(true) %#
+        #% if bootstrap_advanced_flags.update_resolv_conf %#
         # https://github.com/onedr0p/flux-cluster-template/discussions/635
         - name: Network Configuration | Remove immutable flag from /etc/resolv.conf
           ansible.builtin.file:
@@ -80,7 +80,7 @@
             dest: /etc/resolv.conf
             content: |
               search .
-              nameserver #{ bootstrap_dns_server|default('1.1.1.1', true) }#
+              nameserver #{ bootstrap_dns_server }#
         #% endif %#
 
     - name: System Configuration

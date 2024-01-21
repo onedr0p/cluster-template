@@ -8,7 +8,7 @@ kubernetesVersion: 1.29.1
 
 clusterName: &cluster home-kubernetes
 
-#% if bootstrap_kube_api_hostname|default('') %#
+#% if bootstrap_kube_api_hostname %#
 endpoint: https://#{ bootstrap_kube_api_hostname }#:6443
 #% else %#
 endpoint: https://#{ bootstrap_kube_api_addr }#:6443
@@ -21,8 +21,8 @@ clusterSvcNets:
 
 additionalApiServerCertSans: &sans
   - "#{ bootstrap_kube_api_addr }#"
-  - 127.0.0.1 #KubePrism
-  #% if bootstrap_kube_api_hostname|default('') %#
+  - 127.0.0.1 # KubePrism
+  #% if bootstrap_kube_api_hostname %#
   - "#{ bootstrap_kube_api_hostname }#"
   #% endif %#
 
@@ -48,7 +48,7 @@ nodes:
         vip:
           ip: "#{ bootstrap_kube_api_addr }#"
   #% endfor %#
-  #% if bootstrap_nodes.worker|default([]) | length > 0 %#
+  #% if bootstrap_nodes.worker | length > 0 %#
   #% for item in bootstrap_nodes.worker %#
   - hostname: "#{ item.name }#"
     ipAddress: "#{ item.address }#"
@@ -123,7 +123,7 @@ controlPlane:
       machine:
         network:
           nameservers:
-            - "#{ bootstrap_dns_server|default('1.1.1.1', true) }#"
+            - "#{ bootstrap_dns_server }#"
 
     # Configure NTP
     - &ntpPatch |-

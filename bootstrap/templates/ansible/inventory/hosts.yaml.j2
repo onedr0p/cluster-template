@@ -9,7 +9,7 @@ kubernetes:
           ansible_user: "#{ item.username }#"
           ansible_host: "#{ item.address }#"
       #% endfor %#
-    #% if bootstrap_nodes.worker|default([]) | length > 0 %#
+    #% if bootstrap_nodes.worker | length > 0 %#
     worker:
       hosts:
       #% for item in bootstrap_nodes.worker %#
