@@ -89,6 +89,7 @@ spec:
             #% endfor %#
             #% for item in bootstrap_nodes.master %#
             - "#{ item.address }#"
+            - "#{ item.name }#"
             #% endfor %#
         network:
           podCIDR: "#{ bootstrap_cluster_cidr.split(',')[0] }#"
