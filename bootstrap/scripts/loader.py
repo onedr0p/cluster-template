@@ -34,6 +34,7 @@ class Loader:
         validation.validate_cilium_loadbalancer_mode(data)
         validation.validate_local_storage_path(data)
         validation.validate_cluster_cidrs(data)
+        validation.validate_nodes(data)
 
     def filters(self):
         return [nthhost, encrypt]

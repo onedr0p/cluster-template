@@ -8,6 +8,7 @@ import CloudFlare
 import netaddr
 import re
 import requests
+import socket
 import sys
 
 DISTRIBUTIONS             = ["k0s", "k3s", "talos"]
@@ -27,24 +28,43 @@ def required(*keys: str):
         return wrapper
     return wrapper_outter
 
-def _validate_ip(ip: str) -> None:
+def _validate_ip(ip: str) -> str:
     try:
         netaddr.IPAddress(ip)
     except netaddr.core.AddrFormatError as e:
         raise ValueError(f"Invalid IP address {ip}") from e
+    return ip
 
-def _validate_cidr(cidr: str, family: int) -> None:
+def _validate_cidr(cidr: str, family: int) -> str:
     try:
         network = netaddr.IPNetwork(cidr)
         if network.version != family:
             raise ValueError(f"Invalid CIDR family {network.version}")
     except netaddr.core.AddrFormatError as e:
         raise ValueError(f"Invalid CIDR {cidr}") from e
+    return cidr
 
 def _validate_distribution(distribution: str) -> None:
     if distribution not in DISTRIBUTIONS:
         raise ValueError(f"Invalid distribution {distribution}")
     return distribution
+
+def _validate_node(node: dict, node_cidr: str, distribution: str) -> None:
+    if not node.get("name"):
+        raise ValueError(f"Node {node.get('name')} is missing a name")
+    if not node.get("username") and distribution not in ["k0s", "k3s"]:
+        raise ValueError(f"Node {node.get('username')} is missing a username")
+    if not node.get("diskSerial") and distribution in ["talos"]:
+        raise ValueError(f"Node {node.get('diskSerial')} is missing a disk serial")
+    ip = _validate_ip(node.get("address"))
+    if netaddr.IPAddress(ip, 4) not in netaddr.IPNetwork(node_cidr):
+        raise ValueError(f"Node {node.get('address')} is not in the node CIDR {node_cidr}")
+    port = 50000 if distribution == "talos" else 22
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(5)
+        result = sock.connect_ex((ip, port))
+        if result != 0:
+            raise ValueError(f"Node {ip} port {port} is not open")
 
 def validate_python_version() -> None:
     required_version = (3, 11, 0)
@@ -177,3 +197,19 @@ def validate_host_network(node_cidr: str, api_addr: str, gateway_addr: str, exte
         raise ValueError(f"Kubernetes external ingress address {external_ingress_addr} is not in the node CIDR {node_cidr}")
     if netaddr.IPAddress(internal_ingress_addr) not in node_cidr:
         raise ValueError(f"Kubernetes internal ingress address {internal_ingress_addr} is not in the node CIDR {node_cidr}")
+
+@required("bootstrap_node_cidr", "bootstrap_nodes", "bootstrap_distribution")
+def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) -> None:
+    node_cidr = _validate_cidr(node_cidr, 4)
+
+    masters = nodes.get("master", [])
+    if len(masters) < 1:
+        raise ValueError(f"Must have at least one master node")
+    if len(masters) % 2 == 0:
+        raise ValueError(f"Must have an odd number of master nodes")
+    for node in masters:
+        _validate_node(node, node_cidr, distribution)
+
+    workers = nodes.get("worker", [])
+    for node in workers:
+        _validate_node(node, node_cidr, distribution)

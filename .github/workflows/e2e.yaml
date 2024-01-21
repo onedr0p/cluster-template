@@ -90,6 +90,10 @@ jobs:
         shell: bash
         run: task sops:age-keygen
 
+      - name: Run setup-virtual-env task
+        shell: bash
+        run: task setup-virtual-env
+
       - name: Run init tasks
         shell: bash
         run: |

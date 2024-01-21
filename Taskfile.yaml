@@ -56,9 +56,9 @@ tasks:
     desc: Configure repository from Ansible vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
     cmds:
-      # - task: .pre-validate
+      - task: .pre-validate
       - task: .template
-      # - task: .post-validate
+      - task: .post-validate
 
   .pre-validate:
     internal: true
