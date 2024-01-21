@@ -4,6 +4,7 @@ from shutil import which
 from typing import Callable, Optional
 from zoneinfo import available_timezones
 import CloudFlare
+import json
 import netaddr
 import re
 import requests
@@ -157,6 +158,14 @@ def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret
           raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it")
     except CloudFlare.exceptions.CloudFlareAPIError as e:
       raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it") from e
+    try:
+        request = requests.get(f"https://api.cloudflare.com/client/v4/accounts/{account_tag}/cfd_tunnel/{tunnel_id}", headers={"Authorization": f"Bearer {token}"})
+        if request.status_code != 200:
+            raise ValueError(f"Cloudflare tunnel for {account_tag} not found or token does not have access to it")
+        if not json.loads(request.text)["success"]:
+            raise ValueError(f"Cloudflare tunnel for {account_tag} not found or token does not have access to it")
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Cloudflare tunnel for {account_tag} not found or token does not have access to it") from e
 
 @required("bootstrap_dns_server")
 def validate_bootstrap_dns_server(dns_server: str, **_) -> None:
