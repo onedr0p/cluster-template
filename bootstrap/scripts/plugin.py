@@ -26,11 +26,6 @@ class Plugin(makejinja.plugin.Plugin):
         self.data = data
         self.config = config
 
-        if self.data.get("skip_tests", False):
-            return
-
-        validation.validate(self.data)
-
         self._excluded_dirs: set[Path] = set()
         for input_path in config.inputs:
             for filter_file in input_path.rglob(".mjfilter"):
@@ -39,6 +34,11 @@ class Plugin(makejinja.plugin.Plugin):
                 )
                 if filter_func(data) is False:
                     self._excluded_dirs.add(filter_file.parent)
+
+        if self.data.get("skip_tests", False):
+            return
+
+        validation.validate(self.data)
 
     def filters(self) -> makejinja.plugin.Filters:
         return [nthhost, encrypt]
