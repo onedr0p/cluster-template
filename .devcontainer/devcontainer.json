@@ -6,7 +6,7 @@
     "SOPS_AGE_KEY_FILE": "${containerWorkspaceFolder}/age.key"
   },
   "postCreateCommand": {
-    "deps": "task deps"
+    "deps": "task setup-virtual-env"
   },
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
@@ -16,7 +16,7 @@
       "minikube": "none"
     },
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.10.13"
+      "version": "3.12.1"
     },
     "ghcr.io/devcontainers-contrib/features/age:1": {},
     "ghcr.io/devcontainers-contrib/features/cloudflared:1": {},
@@ -27,7 +27,8 @@
     "ghcr.io/dhoeric/features/stern:1": {},
     "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
     "ghcr.io/jsburckhardt/devcontainer-features/flux:1": {},
-    "ghcr.io/rio/features/kustomize:1": {}
+    "ghcr.io/rio/features/kustomize:1": {},
+    "ghcr.io/gickis/devcontainer-features/kubeconform:1": {}
   },
   "customizations": {
     "vscode": {
