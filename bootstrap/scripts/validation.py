@@ -54,6 +54,8 @@ def _validate_node(node: dict, node_cidr: str, distribution: str) -> None:
         raise ValueError(f"Node {node.get('username')} is missing a username")
     if not node.get("diskSerial") and distribution in ["talos"]:
         raise ValueError(f"Node {node.get('diskSerial')} is missing a disk serial")
+    if not re.match(r"^[a-z0-9-\.]+$", node.get('name')):
+        raise ValueError(f"Invalid node name {node.get('name')}")
     ip = _validate_ip(node.get("address"))
     if netaddr.IPAddress(ip, 4) not in netaddr.IPNetwork(node_cidr):
         raise ValueError(f"Node {node.get('address')} is not in the node CIDR {node_cidr}")
