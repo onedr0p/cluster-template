@@ -1,4 +1,4 @@
-#% if bootstrap_distribution in ['k0s', 'k3s'] and longhorn|default({}) and longhorn.enabled|default(false) %#
+#% if bootstrap_distribution in ['k0s', 'k3s'] and addon_longhorn.enabled %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization

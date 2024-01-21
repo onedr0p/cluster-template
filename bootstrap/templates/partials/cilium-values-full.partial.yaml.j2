@@ -44,7 +44,7 @@ hubble:
     ingress:
       enabled: true
       className: internal
-      #% if homepage|default({}) and homepage.enabled|default(false) %#
+      #% if addon_homepage.enabled %#
       annotations:
         gethomepage.dev/enabled: "true"
         gethomepage.dev/group: Network

@@ -1,4 +1,4 @@
-#% if weave_gitops|default({}) and weave_gitops.enabled|default(false) %#
+#% if addon_weave_gitops.enabled %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
