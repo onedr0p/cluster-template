@@ -31,8 +31,6 @@ class Loader:
         validation.validate_cloudflare(data)
         validation.validate_host_network(data)
         validation.validate_bootstrap_dns_server(data)
-        validation.validate_cilium_loadbalancer_mode(data)
-        validation.validate_local_storage_path(data)
         validation.validate_cluster_cidrs(data)
         validation.validate_nodes(data)
 

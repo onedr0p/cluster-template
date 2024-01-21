@@ -1,6 +1,5 @@
 from email_validator import validate_email, EmailNotValidError
 from functools import wraps
-from pathvalidate import is_valid_filepath, ValidationError
 from shutil import which
 from typing import Callable, Optional
 from zoneinfo import available_timezones
@@ -11,11 +10,10 @@ import requests
 import socket
 import sys
 
-DISTRIBUTIONS             = ["k0s", "k3s", "talos"]
-CILIUM_LOADBALANCER_MODES = ["dsr", "snat"]
-GLOBAL_CLI_TOOLS          = ["age", "cloudflared", "flux", "sops", "jq", "kubeconform", "kustomize"]
-TALOS_CLI_TOOLS           = ["talosctl", "talhelper"]
-K0S_CLI_TOOLS             = ["k0sctl"]
+DISTRIBUTIONS    = ["k0s", "k3s", "talos"]
+GLOBAL_CLI_TOOLS = ["age", "cloudflared", "flux", "sops", "jq", "kubeconform", "kustomize"]
+TALOS_CLI_TOOLS  = ["talosctl", "talhelper"]
+K0S_CLI_TOOLS    = ["k0sctl"]
 
 def required(*keys: str):
     def wrapper_outter(func: Callable):
@@ -157,19 +155,6 @@ def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret
           raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it")
     except CloudFlare.exceptions.CloudFlareAPIError as e:
       raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it") from e
-
-@required("bootstrap_cilium_loadbalancer_mode")
-def validate_cilium_loadbalancer_mode(mode: str, **_) -> None:
-    if mode not in CILIUM_LOADBALANCER_MODES:
-        raise ValueError(f"Invalid Cilium load balancer mode {mode}")
-
-@required("bootstrap_local_storage_path")
-def validate_local_storage_path(path: str, **_) -> None:
-    try:
-        if not is_valid_filepath(path, platform="linux"):
-            raise ValueError(f"Invalid local storage path {path}")
-    except ValidationError as e:
-        raise ValueError(f"Invalid local storage path {path}") from e
 
 @required("bootstrap_dns_server")
 def validate_bootstrap_dns_server(dns_server: str, **_) -> None:

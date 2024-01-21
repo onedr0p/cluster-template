@@ -4,7 +4,7 @@
 [ $(id -u) -eq 0 ] || exec sudo $0 $@
 
 # Remove local storage data
-rm -rf "#{ bootstrap_local_storage_path }#"
+rm -rf "#{ bootstrap_advanced_flags.local_storage_path|default('/var/openebs/local', true) }#"
 
 # Reboot
 (sleep 10 && systemctl reboot)&
