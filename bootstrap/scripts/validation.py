@@ -1,4 +1,4 @@
-from email_validator import validate_email, EmailNotValidError
+from email_validator import validate_email, EmailNotValidError, EmailUndeliverableError
 from functools import wraps
 from shutil import which
 from typing import Callable, Optional
@@ -11,10 +11,11 @@ import requests
 import socket
 import sys
 
-DISTRIBUTIONS    = ["k0s", "k3s", "talos"]
+DISTRIBUTIONS = ["k0s", "k3s", "talos"]
 GLOBAL_CLI_TOOLS = ["age", "cloudflared", "flux", "sops", "jq", "kubeconform", "kustomize"]
-TALOS_CLI_TOOLS  = ["talosctl", "talhelper"]
-K0S_CLI_TOOLS    = ["k0sctl"]
+TALOS_CLI_TOOLS = ["talosctl", "talhelper"]
+K0S_CLI_TOOLS = ["k0sctl"]
+
 
 def required(*keys: str):
     def wrapper_outter(func: Callable):
@@ -24,8 +25,11 @@ def required(*keys: str):
                 if data.get(key) is None:
                     raise ValueError(f"Missing required key {key}")
             return func(*[data[key] for key in keys], **kwargs)
+
         return wrapper
+
     return wrapper_outter
+
 
 def _validate_ip(ip: str) -> str:
     try:
@@ -33,6 +37,7 @@ def _validate_ip(ip: str) -> str:
     except netaddr.core.AddrFormatError as e:
         raise ValueError(f"Invalid IP address {ip}") from e
     return ip
+
 
 def _validate_cidr(cidr: str, family: int) -> str:
     try:
@@ -43,10 +48,12 @@ def _validate_cidr(cidr: str, family: int) -> str:
         raise ValueError(f"Invalid CIDR {cidr}") from e
     return cidr
 
+
 def _validate_distribution(distribution: str) -> None:
     if distribution not in DISTRIBUTIONS:
         raise ValueError(f"Invalid distribution {distribution}")
     return distribution
+
 
 def _validate_node(node: dict, node_cidr: str, distribution: str) -> None:
     if not node.get("name"):
@@ -67,10 +74,12 @@ def _validate_node(node: dict, node_cidr: str, distribution: str) -> None:
         if result != 0:
             raise ValueError(f"Node {node.get('name')} port {port} is not open")
 
+
 def validate_python_version() -> None:
     required_version = (3, 11, 0)
     if sys.version_info < required_version:
         raise ValueError(f"Python version is below 3.11. Please upgrade.")
+
 
 @required("bootstrap_distribution")
 def validate_cli_tools(distribution: str, **_) -> None:
@@ -85,9 +94,11 @@ def validate_cli_tools(distribution: str, **_) -> None:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
 
+
 @required("bootstrap_distribution")
 def validate_distribution(distribution: str, **_) -> None:
     _validate_distribution(distribution)
+
 
 @required("bootstrap_github_username", "bootstrap_github_repository_name", "bootstrap_github_repository_branch")
 def validate_github(username: str, repository: str, branch: str, **_) -> None:
@@ -98,15 +109,18 @@ def validate_github(username: str, repository: str, branch: str, **_) -> None:
     except requests.exceptions.RequestException as e:
         raise ValueError(f"GitHub repository {username}/{repository} branch {branch} not found") from e
 
+
 @required("bootstrap_age_public_key")
 def validate_age(key: str, **_) -> None:
     if not re.match(r"^age1[a-z0-9]{0,58}$", key):
         raise ValueError(f"Invalid Age public key {key}")
 
+
 @required("bootstrap_timezone")
 def validate_timezone(timezone: str, **_) -> None:
-    if not timezone in available_timezones():
+    if timezone not in available_timezones():
         raise ValueError(f"Invalid timezone {timezone}")
+
 
 @required("bootstrap_ipv6_enabled", "bootstrap_cluster_cidr", "bootstrap_service_cidr")
 def validate_cluster_cidrs(ipv6_enabled: bool, cluster_cidr: str, service_cidr: str, **_) -> None:
@@ -137,29 +151,36 @@ def validate_cluster_cidrs(ipv6_enabled: bool, cluster_cidr: str, service_cidr: 
     _validate_cidr(cluster_cidr, 4)
     _validate_cidr(service_cidr, 4)
 
+
 @required("bootstrap_acme_email", "bootstrap_acme_production_enabled")
 def validate_acme_email(email: str, acme_production: bool, **_) -> None:
     try:
         validate_email(email)
+    except EmailUndeliverableError:
+        pass
     except EmailNotValidError as e:
         raise ValueError(f"Invalid ACME email {email}") from e
+
 
 @required("bootstrap_flux_github_webhook_token")
 def validate_flux_github_webhook_token(token: str, **_) -> None:
     if not re.match(r"^[a-zA-Z0-9]+$", token):
         raise ValueError(f"Invalid Flux GitHub webhook token ***")
 
-@required("bootstrap_cloudflare_domain", "bootstrap_cloudflare_token", "bootstrap_cloudflare_account_tag", "bootstrap_cloudflare_tunnel_secret", "bootstrap_cloudflare_tunnel_id")
+
+@required("bootstrap_cloudflare_domain", "bootstrap_cloudflare_token", "bootstrap_cloudflare_account_tag",
+          "bootstrap_cloudflare_tunnel_secret", "bootstrap_cloudflare_tunnel_id")
 def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret: str, tunnel_id: str, **_) -> None:
     try:
-      cf = CloudFlare.CloudFlare(token=token)
-      zones = cf.zones.get(params={"name": domain})
-      if not zones:
-          raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it")
+        cf = CloudFlare.CloudFlare(token=token)
+        zones = cf.zones.get(params={"name": domain})
+        if not zones:
+            raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it")
     except CloudFlare.exceptions.CloudFlareAPIError as e:
-      raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it") from e
+        raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it") from e
     try:
-        request = requests.get(f"https://api.cloudflare.com/client/v4/accounts/{account_tag}/cfd_tunnel/{tunnel_id}", headers={"Authorization": f"Bearer {token}"})
+        request = requests.get(f"https://api.cloudflare.com/client/v4/accounts/{account_tag}/cfd_tunnel/{tunnel_id}",
+                               headers={"Authorization": f"Bearer {token}"})
         if request.status_code != 200:
             raise ValueError(f"Cloudflare tunnel for {account_tag} not found or token does not have access to it")
         if not json.loads(request.text)["success"]:
@@ -167,12 +188,16 @@ def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret
     except requests.exceptions.RequestException as e:
         raise ValueError(f"Cloudflare tunnel for {account_tag} not found or token does not have access to it") from e
 
+
 @required("bootstrap_dns_server")
 def validate_bootstrap_dns_server(dns_server: str, **_) -> None:
     _validate_ip(dns_server)
 
-@required("bootstrap_node_cidr", "bootstrap_kube_api_addr", "bootstrap_k8s_gateway_addr", "bootstrap_external_ingress_addr", "bootstrap_internal_ingress_addr")
-def validate_host_network(node_cidr: str, api_addr: str, gateway_addr: str, external_ingress_addr: str, internal_ingress_addr: str, **_) -> None:
+
+@required("bootstrap_node_cidr", "bootstrap_kube_api_addr", "bootstrap_k8s_gateway_addr",
+          "bootstrap_external_ingress_addr", "bootstrap_internal_ingress_addr")
+def validate_host_network(node_cidr: str, api_addr: str, gateway_addr: str, external_ingress_addr: str,
+                          internal_ingress_addr: str, **_) -> None:
     _validate_cidr(node_cidr, 4)
     _validate_ip(api_addr)
     _validate_ip(gateway_addr)
@@ -182,7 +207,8 @@ def validate_host_network(node_cidr: str, api_addr: str, gateway_addr: str, exte
     addrs = [api_addr, gateway_addr, external_ingress_addr, internal_ingress_addr]
     unique = set(addrs)
     if len(addrs) != len(unique):
-        raise ValueError(f"{api_addr} and {gateway_addr} and {external_ingress_addr} and {internal_ingress_addr} are not unique")
+        raise ValueError(
+            f"{api_addr} and {gateway_addr} and {external_ingress_addr} and {internal_ingress_addr} are not unique")
 
     node_cidr = netaddr.IPNetwork(node_cidr)
     if netaddr.IPAddress(api_addr) not in node_cidr:
@@ -190,9 +216,12 @@ def validate_host_network(node_cidr: str, api_addr: str, gateway_addr: str, exte
     if netaddr.IPAddress(gateway_addr) not in node_cidr:
         raise ValueError(f"Kubernetes gateway address {gateway_addr} is not in the node CIDR {node_cidr}")
     if netaddr.IPAddress(external_ingress_addr) not in node_cidr:
-        raise ValueError(f"Kubernetes external ingress address {external_ingress_addr} is not in the node CIDR {node_cidr}")
+        raise ValueError(
+            f"Kubernetes external ingress address {external_ingress_addr} is not in the node CIDR {node_cidr}")
     if netaddr.IPAddress(internal_ingress_addr) not in node_cidr:
-        raise ValueError(f"Kubernetes internal ingress address {internal_ingress_addr} is not in the node CIDR {node_cidr}")
+        raise ValueError(
+            f"Kubernetes internal ingress address {internal_ingress_addr} is not in the node CIDR {node_cidr}")
+
 
 @required("bootstrap_node_cidr", "bootstrap_nodes", "bootstrap_distribution")
 def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) -> None:
@@ -210,11 +239,13 @@ def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) ->
     for node in workers:
         _validate_node(node, node_cidr, distribution)
 
+
 def validate(data: dict) -> None:
     validate_python_version()
     validate_cli_tools(data)
     validate_distribution(data)
-    validate_github(data)
+    if not data.get("bootstrap_private_github_repo"):
+        validate_github(data)
     validate_age(data)
     validate_timezone(data)
     validate_acme_email(data)
