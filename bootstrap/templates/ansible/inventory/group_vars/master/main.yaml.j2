@@ -11,9 +11,9 @@ k3s_server:
   #% endif %#
   tls-san:
     - "{{ kube_api_addr }}"
-    #% if bootstrap_kube_api_hostname %#
-    - "{{ kube_api_hostname }}"
-    #% endif %#
+    #% for item in bootstrap_kube_additional_tls_sans %#
+    - "{{ item }}"
+    #% endfor %#
   docker: false
   flannel-backend: "none" # quote
   disable: ["flannel", "local-storage", "metrics-server", "servicelb", "traefik"]

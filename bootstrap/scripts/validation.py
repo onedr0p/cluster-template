@@ -198,3 +198,18 @@ def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) ->
     workers = nodes.get("worker", [])
     for node in workers:
         _validate_node(node, node_cidr, distribution)
+
+def validate(data: dict) -> None:
+    validate_python_version()
+    validate_cli_tools(data)
+    validate_distribution(data)
+    validate_github(data)
+    validate_age(data)
+    validate_timezone(data)
+    validate_acme_email(data)
+    validate_flux_github_webhook_token(data)
+    validate_cloudflare(data)
+    validate_host_network(data)
+    validate_bootstrap_dns_server(data)
+    validate_cluster_cidrs(data)
+    validate_nodes(data)

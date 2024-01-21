@@ -8,11 +8,7 @@ kubernetesVersion: 1.29.1
 
 clusterName: &cluster home-kubernetes
 
-#% if bootstrap_kube_api_hostname %#
-endpoint: https://#{ bootstrap_kube_api_hostname }#:6443
-#% else %#
 endpoint: https://#{ bootstrap_kube_api_addr }#:6443
-#% endif %#
 
 clusterPodNets:
   - "#{ bootstrap_cluster_cidr.split(',')[0] }#"
@@ -22,9 +18,9 @@ clusterSvcNets:
 additionalApiServerCertSans: &sans
   - "#{ bootstrap_kube_api_addr }#"
   - 127.0.0.1 # KubePrism
-  #% if bootstrap_kube_api_hostname %#
-  - "#{ bootstrap_kube_api_hostname }#"
-  #% endif %#
+  #% for item in bootstrap_kube_additional_tls_sans %#
+  - "#{ item }#"
+  #% endfor %#
 
 additionalMachineCertSans: *sans
 

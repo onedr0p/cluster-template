@@ -42,12 +42,11 @@ bootstrap_cloudflare_tunnel_id:
 # CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_cidr:
 # The IP address of the Kube API, choose an available IP in your nodes network that is not being used
-# Leave this blank if you are deploying a single master node, this will disable kube-vip in k3s
-# and keepalived in k0s and use the master node IP instead
+# NOTE: For k0s set this to a IP you can then later use to manually setup a load balancer for the Kube API (e.g. Haproxy or Keepalived)
+# Ref: https://github.com/k0sproject/k0s/issues/1150
 bootstrap_kube_api_addr:
-# (Optional) The hostname of the Kube API, set this if you intend to call the Kube API by
-# hostname rather than IP. If the hostname is set it is added to the Kube API cert sans
-bootstrap_kube_api_hostname:
+# Add additional SANs to the Kube API cert, this is useful if you want to call the Kube API by hostname rather than IP
+bootstrap_kube_additional_tls_sans: []
 # The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
 bootstrap_k8s_gateway_addr:
 # The Load balancer IP for external ingress, choose an available IP in your nodes network that is not being used
@@ -62,13 +61,11 @@ bootstrap_internal_ingress_addr:
 #   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
 bootstrap_dns_server: 1.1.1.1
 
-# Keep the next three options default unless you know what you are doing
 # (Advanced) Enable ipv6
 bootstrap_ipv6_enabled: false
-# (Advanced) For ipv6 use format 10.42.0.0/16,fd78:c889:47fb:10::/60
-# /60 IPv6 block is enough for 16 nodes
+# For ipv6 use format "10.42.0.0/16,fd78:c889:47fb:10::/60", /60 IPv6 block is enough for 16 nodes
 bootstrap_cluster_cidr: 10.42.0.0/16
-# (Advanced) For ipv6 use format 10.43.0.0/16,fd78:c889:47fb:e0::/112
+# For ipv6 use format "10.43.0.0/16,fd78:c889:47fb:e0::/112"
 bootstrap_service_cidr: 10.43.0.0/16
 
 # Node information
