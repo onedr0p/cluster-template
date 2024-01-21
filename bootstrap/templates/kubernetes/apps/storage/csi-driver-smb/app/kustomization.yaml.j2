@@ -5,5 +5,7 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./storageclass.yaml
+  #% if addon_csi_driver_smb.create_secrets|default(true) %#
   - ./secrets.sops.yaml
+  #% endif %#
 #% endif %#

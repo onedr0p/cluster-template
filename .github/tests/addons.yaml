@@ -26,8 +26,9 @@ addon_csi_driver_nfs:
 
 addon_csi_driver_smb:
   enabled: true
+  create_secrets: true
   storage_class:
-    - name: fake1
+    - name: fake
       source: //localhost/fake
       username: fake
       password: fake
@@ -35,32 +36,8 @@ addon_csi_driver_smb:
       dir_mode: 0644
       uid: 100
       gid: 100
-    - name: fake2
-      source: //localhost/fake
-      file_mode: 0755
-      dir_mode: 0644
-      uid: 100
-      gid: 100
-      existing_secret_name: fake
-      existing_secret_namespace: fake
-    - name: fake3
-      source: //localhost/fake
-      username: fake
-      password: fake
-      file_mode: 0755
-      dir_mode: 0644
-      uid: 100
-      gid: 100
-      existing_secret_name: fake
-    - name: fake4
-      source: //localhost/fake
-      username: fake
-      password: fake
-      file_mode: 0755
-      dir_mode: 0644
-      uid: 100
-      gid: 100
-      existing_secret_namespace: fake
+      secret_name: fake
+      secret_namespace: fake
 
 addon_system_upgrade_controller:
   enabled: true
