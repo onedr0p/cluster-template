@@ -48,6 +48,8 @@ csi_driver_smb:
     #   file_mode: # default 0666
     #   uid:       # default 1000
     #   gid:       # default 1000
+    #   existing_secret_name:      # If this is defined the username and password are ignored and the secret is not created
+    #   existing_secret_namespace: # default storage. Ignored if existing_secret_name is not set
     # ...
 
 # https://github.com/rancher/system-upgrade-controller
