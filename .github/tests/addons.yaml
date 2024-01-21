@@ -40,8 +40,8 @@ csi_driver_smb:
       dir_mode: 0644
       uid: 100
       gid: 100
-      secret_name: fake
-      secret_namespace: fake
+      existing_secret_name: fake
+      existing_secret_namespace: fake
     - name: fake3
       source: //localhost/fake
       username: fake
@@ -50,7 +50,7 @@ csi_driver_smb:
       dir_mode: 0644
       uid: 100
       gid: 100
-      secret_name: fake
+      existing_secret_name: fake
     - name: fake4
       source: //localhost/fake
       username: fake
@@ -59,7 +59,7 @@ csi_driver_smb:
       dir_mode: 0644
       uid: 100
       gid: 100
-      secret_namespace: fake
+      existing_secret_namespace: fake
 
 system_upgrade_controller:
   enabled: true
