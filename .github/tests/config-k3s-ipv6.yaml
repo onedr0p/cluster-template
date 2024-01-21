@@ -25,7 +25,6 @@ bootstrap_dns_server: 1.1.1.1
 bootstrap_ipv6_enabled: true
 bootstrap_cluster_cidr: 10.42.0.0/16,fd7f:8f5:e87c:a::/64
 bootstrap_service_cidr: 10.43.0.0/16,fd7f:8f5:e87c:e::/112
-bootstrap_local_storage_path: /var/openebs/local
 bootstrap_nodes:
   master:
     - name: k8s-0
