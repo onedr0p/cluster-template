@@ -1,4 +1,4 @@
-#% if weave_gitops|default({}) and weave_gitops.enabled|default(false) %#
+#% if addon_weave_gitops.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -31,7 +31,7 @@ spec:
     ingress:
       enabled: true
       className: internal
-      #% if homepage|default({}) and homepage.enabled|default(false) %#
+      #% if addon_homepage.enabled %#
       annotations:
         gethomepage.dev/enabled: "true"
         gethomepage.dev/group: Home

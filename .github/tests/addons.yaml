@@ -1,29 +1,30 @@
 ---
-homepage:
+
+addon_homepage:
   enabled: true
 
-grafana:
-  enabled: true
-  password: fake
-
-kube_prometheus_stack:
-  enabled: true
-
-kubernetes_dashboard:
-  enabled: true
-
-weave_gitops:
+addon_grafana:
   enabled: true
   password: fake
 
-csi_driver_nfs:
+addon_kube_prometheus_stack:
+  enabled: true
+
+addon_kubernetes_dashboard:
+  enabled: true
+
+addon_weave_gitops:
+  enabled: true
+  password: fake
+
+addon_csi_driver_nfs:
   enabled: true
   storage_class:
     - name: fake
       server: fake
       share: /fake
 
-csi_driver_smb:
+addon_csi_driver_smb:
   enabled: true
   storage_class:
     - name: fake1
@@ -61,18 +62,18 @@ csi_driver_smb:
       gid: 100
       existing_secret_namespace: fake
 
-system_upgrade_controller:
+addon_system_upgrade_controller:
   enabled: true
 
-discord_template_notifier:
+addon_discord_template_notifier:
   enabled: true
   webhook_url: https://discord.com/api/webhooks/fake/fake
 
-volsync:
+addon_volsync:
   enabled: true
 
-spegel:
+addon_spegel:
   enabled: true
 
-longhorn:
+addon_longhorn:
   enabled: true
