@@ -73,7 +73,7 @@ tasks:
   .template:
     internal: true
     cmds:
-      - ./.venv/bin/makejinja
+      - ./.venv/bin/makejinja --undefined chainable
       - task: sops:encrypt
     preconditions:
       - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }

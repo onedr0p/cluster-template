@@ -37,7 +37,7 @@ spec:
           before:
             - sudo bash /home/#{ item.username }#/k0s/hooks/apply-system.sh
             - sudo mv /home/#{ item.username }#/k0s/containerd/unprivileged-ports.toml /etc/k0s/containerd.d/unprivileged-ports.toml
-            #% if spegel|default({}) and spegel.enabled|default(false) %#
+            #% if spegel.enabled %#
             - sudo mv /home/#{ item.username }#/k0s/containerd/spegel.toml /etc/k0s/containerd.d/spegel.toml
             #% endif %#
         reset:

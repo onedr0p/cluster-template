@@ -55,13 +55,13 @@ def validate_python_version() -> None:
 def validate_cli_tools(distribution: str) -> None:
     distro = _validate_distribution(distribution)
     for tool in GLOBAL_CLI_TOOLS:
-        if which(tool) is None:
+        if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
     for tool in TALOS_CLI_TOOLS if distro == "talos" else []:
-        if which(tool) is None:
+        if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
     for tool in K0S_CLI_TOOLS if distro == "k0s" else []:
-        if which(tool) is None:
+        if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
 
 @required("bootstrap_distribution")
@@ -79,7 +79,7 @@ def validate_github(username: str, repository: str, branch: str, **_) -> None:
 
 @required("bootstrap_age_public_key")
 def validate_age(key: str) -> None:
-    if re.match(r"^age1[a-z0-9]{0,58}$", key) is None:
+    if not re.match(r"^age1[a-z0-9]{0,58}$", key):
         raise ValueError(f"Invalid Age public key {key}")
 
 @required("bootstrap_timezone")
@@ -100,10 +100,10 @@ def validate_cluster_cidrs(ipv6_enabled: bool, cluster_cidr: str, service_cidr: 
             raise ValueError(f"Invalid cluster CIDR {cluster_cidr}")
         if len(service_cidr.split(",")) != 2:
             raise ValueError(f"Invalid service CIDR {service_cidr}")
-        cluster_ipv4,cluster_ipv6 = cluster_cidr.split(",")
+        cluster_ipv4, cluster_ipv6 = cluster_cidr.split(",")
         _validate_cidr(cluster_ipv4, 4)
         _validate_cidr(cluster_ipv6, 6)
-        service_ipv4,service_ipv6 = service_cidr.split(",")
+        service_ipv4, service_ipv6 = service_cidr.split(",")
         _validate_cidr(service_ipv4, 4)
         _validate_cidr(service_ipv6, 6)
         return
@@ -125,7 +125,7 @@ def validate_acme_email(email: str, acme_production: bool) -> None:
 
 @required("bootstrap_flux_github_webhook_token")
 def validate_flux_github_webhook_token(token: str) -> None:
-    if re.match(r"^[a-zA-Z0-9]+$", token) is None:
+    if not re.match(r"^[a-zA-Z0-9]+$", token):
         raise ValueError(f"Invalid Flux GitHub webhook token {token}")
 
 @required("bootstrap_cloudflare_domain", "bootstrap_cloudflare_token", "bootstrap_cloudflare_account_tag", "bootstrap_cloudflare_tunnel_secret", "bootstrap_cloudflare_tunnel_id")
@@ -133,7 +133,7 @@ def validate_cloudflare(domain: str, token: str, account_tag: str, tunnel_secret
     try:
       cf = CloudFlare.CloudFlare(token=token)
       zones = cf.zones.get(params={"name": domain})
-      if len(zones) == 0:
+      if not zones:
           raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it")
     except CloudFlare.exceptions.CloudFlareAPIError as e:
       raise ValueError(f"Cloudflare domain {domain} not found or token does not have access to it") from e
