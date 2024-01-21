@@ -23,5 +23,11 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  values: {}
+  values:
+    linux:
+      #% if bootstrap_distribution == "k0s" %#
+      kubelet: /var/lib/k0s/kubelet
+      #% else %#
+      kubelet: /var/lib/kubelet
+      #% endif %#
 #% endif %#

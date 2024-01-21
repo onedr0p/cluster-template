@@ -39,6 +39,7 @@ addon_csi_driver_nfs:
 # https://github.com/kubernetes-csi/csi-driver-smb
 addon_csi_driver_smb:
   enabled: false
+  create_secrets: true # set to false to disable secret template rendering
   storage_class:
     # - name:      # name of the storage class (must match [a-z0-9-]+)
     #   source:    # network path of the smb share ie: //192.168.0.5/downloads
@@ -48,8 +49,8 @@ addon_csi_driver_smb:
     #   file_mode: # default 0666
     #   uid:       # default 1000
     #   gid:       # default 1000
-    #   existing_secret_name:      # If this is defined the username and password are ignored and the secret is not created
-    #   existing_secret_namespace: # default storage. Ignored if existing_secret_name is not set
+    #   secret_name:      # default {name}-secret
+    #   secret_namespace: # default storage
     # ...
 
 # https://github.com/rancher/system-upgrade-controller
