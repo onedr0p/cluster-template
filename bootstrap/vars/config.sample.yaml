@@ -62,12 +62,6 @@ bootstrap_internal_ingress_addr:
 #   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
 bootstrap_dns_server: 1.1.1.1
 
-# (Advanced) Cilium load balancer mode, choose either 'dsr' or 'snat'
-# Due to unknown reasons some people need this set to 'snat' in order
-# for Cilium L2 announcements to work properly. Keep this dsr unless
-# you have issues with connecting to Cilium L2 announcements.
-bootstrap_cilium_loadbalancer_mode: dsr
-
 # Keep the next three options default unless you know what you are doing
 # (Advanced) Enable ipv6
 bootstrap_ipv6_enabled: false
@@ -76,9 +70,6 @@ bootstrap_ipv6_enabled: false
 bootstrap_cluster_cidr: 10.42.0.0/16
 # (Advanced) For ipv6 use format 10.43.0.0/16,fd78:c889:47fb:e0::/112
 bootstrap_service_cidr: 10.43.0.0/16
-
-# (Advanced) Path for openebs openebs-hostpath to use for storage on ALL nodes
-bootstrap_local_storage_path: /var/openebs/local
 
 # Node information
 bootstrap_nodes:
@@ -98,7 +89,16 @@ bootstrap_nodes:
 
 #
 # Do not make changes below this line unless you know what you are doing
+# These options are not validated and may break your cluster
 #
 
 # bootstrap_advanced_flags:
-#   update_resolv_conf: true # Disable to prevent changes to nodes /etc/resolv.conf
+#   # Disable to prevent changes to nodes /etc/resolv.conf
+#   update_resolv_conf: true
+#   # Cilium load balancer mode, choose either 'dsr' or 'snat'
+#   # Due to unknown reasons some people need this set to 'snat' in order
+#   # for Cilium L2 announcements to work properly. Keep this dsr unless
+#   # you have issues with connecting to Cilium L2 announcements.
+#   cilium_loadbalancer_mode: dsr
+#   # Path for openebs openebs-hostpath to use for storage on ALL nodes
+#   local_storage_path: /var/openebs/local

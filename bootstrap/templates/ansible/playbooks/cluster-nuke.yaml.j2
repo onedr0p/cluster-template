@@ -93,7 +93,7 @@
 
     - name: Remove local storage path
       ansible.builtin.file:
-        path: "#{ bootstrap_local_storage_path }#"
+        path: "#{ bootstrap_advanced_flags.local_storage_path|default('/var/openebs/local', true) }#"
         state: absent
 
     - name: Reboot
