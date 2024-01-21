@@ -8,6 +8,6 @@ resources:
   - ./kubelet-csr-approver/ks.yaml
   #% endif %#
   - ./metrics-server/ks.yaml
-  #% if bootstrap_distribution in ['k0s', 'talos'] and spegel|default({}) and spegel.enabled|default(false) %#
+  #% if bootstrap_distribution in ['k0s', 'talos'] and spegel.enabled %#
   - ./spegel/ks.yaml
   #% endif %#

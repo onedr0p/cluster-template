@@ -36,6 +36,16 @@
       "(^|/)kustomization\\.ya?ml(\\.j2)?(\\.j2)?$"
     ]
   },
+  "pip_requirements": {
+    "fileMatch": [
+      "(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(\\.j2)?(\\.j2)?$"
+    ]
+  },
+  "ansible-galaxy": {
+    "fileMatch": [
+      "(^|/)(galaxy|requirements)(\\.ansible)?\\.ya?ml(\\.j2)?(\\.j2)?$"
+    ]
+  },
   // commit message topics
   "commitMessageTopic": "{{depName}}",
   "commitMessageExtra": "to {{newVersion}}",

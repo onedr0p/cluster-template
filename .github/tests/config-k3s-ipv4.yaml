@@ -1,5 +1,5 @@
 ---
-ci_test: true
+skip_tests: true
 
 bootstrap_distribution: k3s
 bootstrap_github_username: onedr0p

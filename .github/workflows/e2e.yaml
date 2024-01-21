@@ -77,7 +77,7 @@ jobs:
         shell: bash
         run: brew install go-task
 
-      - name: Install Brew dependencies
+      - name: Run Workstation tasks
         if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
         shell: bash
         run: task workstation:brew
@@ -86,15 +86,15 @@ jobs:
         shell: bash
         run: direnv allow .
 
-      - name: Initialize Sops Age key
+      - name: Run Sops Age key task
         shell: bash
         run: task sops:age-keygen
 
-      - name: Install Ansible dependencies
+      - name: Run setup-virtual-env task
         shell: bash
-        run: task ansible:deps force=false
+        run: task setup-virtual-env
 
-      - name: Generate bootstrap config file
+      - name: Run init tasks
         shell: bash
         run: |
           task init
@@ -109,28 +109,26 @@ jobs:
         run: |
           echo "distribution=$(yq '.bootstrap_distribution' ./bootstrap/vars/config.yaml)" >> $GITHUB_OUTPUT
 
-      - name: Run configure
+      - name: Run configure task
         shell: bash
         run: task configure --yes
 
-      - name: Run Talos configure
+      - name: Run Talos tasks
         if: ${{ steps.config-env.outputs.distribution == 'talos' }}
         shell: bash
         run: |
           task talos:gensecret --yes
           task talos:genconfig
 
-      - name: Run Ansible lint
+      - name: Run Ansible tasks
         if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}
         shell: bash
-        run: task ansible:lint
+        run: |
+          task ansible:deps force=false
+          task ansible:lint
+          task ansible:list
 
-      - name: List Hosts with Ansible
-        if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}
-        shell: bash
-        run: task ansible:list
-
-      - name: Run repo clean and reset
+      - name: Run repo clean and reset tasks
         shell: bash
         run: |
           task repository:clean

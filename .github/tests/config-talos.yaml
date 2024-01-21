@@ -1,5 +1,5 @@
 ---
-ci_test: true
+skip_tests: true
 
 bootstrap_distribution: talos
 bootstrap_github_username: onedr0p

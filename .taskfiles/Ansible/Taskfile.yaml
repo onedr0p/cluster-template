@@ -14,17 +14,28 @@ env:
 vars:
   ANSIBLE_LINT_FILE: "{{.ANSIBLE_DIR}}/.ansible-lint"
   ANSIBLE_INVENTORY_FILE: "{{.ANSIBLE_DIR}}/inventory/hosts.yaml"
-  ANSIBLE_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.yaml"
-  PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
+  ANSIBLE_REQUIREMENTS_FILE: "{{.ANSIBLE_DIR}}/requirements.yaml"
+  ANSIBLE_PIP_REQUIREMENTS_FILE: "{{.ANSIBLE_DIR}}/requirements.txt"
 
 tasks:
 
   deps:
-    desc: Set up Ansible dependencies for the environment
+    desc: Set up Ansible dependencies
     cmds:
-      - task: .setup-virtual-env
-        vars:
-          force: '{{.force | default "true"}}'
+      - task: :setup-virtual-env
+      - .venv/bin/python3 -m pip install --upgrade --requirement "{{.ANSIBLE_PIP_REQUIREMENTS_FILE}}"
+      - .venv/bin/ansible-galaxy install --role-file "{{.ANSIBLE_REQUIREMENTS_FILE}}" {{if eq .force "true"}}--force{{end}}
+    preconditions:
+      - { msg: "Missing Ansible requirements file", sh: "test -f {{.ANSIBLE_REQUIREMENTS_FILE}}" }
+      - { msg: "Missing Pip requirements file", sh: "test -f {{.ANSIBLE_PIP_REQUIREMENTS_FILE}}" }
+    sources:
+      - "{{.ANSIBLE_REQUIREMENTS_FILE}}"
+      - "{{.ANSIBLE_PIP_REQUIREMENTS_FILE}}"
+    generates:
+      - "{{.VIRTUAL_ENV}}/bin/ansible"
+      - "{{.VIRTUAL_ENV}}/bin/ansible-galaxy"
+    vars:
+      force: '{{.force | default "true"}}'
 
   run:
     desc: Run an Ansible playbook for configuring a cluster
@@ -73,24 +84,6 @@ tasks:
     cmd: ./.venv/bin/ansible-lint --config-file {{.ANSIBLE_LINT_FILE}} {{.ANSIBLE_DIR}}/**/*.yaml
     preconditions:
       - { msg: "Missing Ansible lint file", sh: "test -f {{.ANSIBLE_LINT_FILE}}" }
-
-  .setup-virtual-env:
-    internal: true
-    cmds:
-      - "{{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv"
-      - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
-      - .venv/bin/python3 -m pip install --upgrade --requirement "{{.PIP_REQUIREMENTS_FILE}}"
-      - .venv/bin/ansible-galaxy install --role-file "{{.ANSIBLE_REQUIREMENTS_FILE}}" {{if eq .force "true"}}--force{{end}}
-    sources:
-      - "{{.PIP_REQUIREMENTS_FILE}}"
-      - "{{.ANSIBLE_REQUIREMENTS_FILE}}"
-    generates:
-      - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"
-    preconditions:
-      - { msg: "Missing Ansible requirements file", sh: "test -f {{.ANSIBLE_REQUIREMENTS_FILE}}" }
-      - { msg: "Missing Pip requirements file", sh: "test -f {{.PIP_REQUIREMENTS_FILE}}" }
-    vars:
-      force: '{{.force | default "true"}}'
 
   .reset:
     internal: true

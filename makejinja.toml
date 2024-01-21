@@ -7,6 +7,7 @@ import_paths = ["./bootstrap/scripts"]
 loaders = ["loader:Loader"]
 jinja_suffix = ".j2"
 force = true
+undefined = "chainable"
 
 # Block and comment delimiters are changed to avoid conflicts with Renovate
 # Variable delimiters are changed to avoid conflicts with Renovate and Go templates
