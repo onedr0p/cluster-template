@@ -36,6 +36,20 @@ csi_driver_nfs:
     #   share:  # exported share (path)
     # ...
 
+# https://github.com/kubernetes-csi/csi-driver-smb
+csi_driver_smb:
+  enabled: false
+  storage_class:
+    # - name:      # name of the storage class (must match [a-z0-9-]+)
+    #   source:    # network path of the smb share ie: //192.168.0.5/downloads
+    #   username:  # share credentials
+    #   password:  # share credentials
+    #   dir_mode:  # default 0777
+    #   file_mode: # default 0666
+    #   uid:       # default 1000
+    #   gid:       # default 1000
+    # ...
+
 # https://github.com/rancher/system-upgrade-controller
 system_upgrade_controller:
   # IMPORTANT: Only enable this if you also track the version of k3s in the

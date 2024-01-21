@@ -1,0 +1,9 @@
+#% if csi_driver_smb|default({}) and csi_driver_smb.enabled|default(false) %#
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./storageclass.yaml
+  - ./secrets.sops.yaml
+#% endif %#
