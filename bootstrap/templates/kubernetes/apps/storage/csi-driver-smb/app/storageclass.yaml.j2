@@ -1,0 +1,26 @@
+#% if csi_driver_smb|default({}) and csi_driver_smb.enabled|default(false) %#
+#% for item in csi_driver_smb.storage_class %#
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: "#{ item.name }#"
+provisioner: smb.csi.k8s.io
+parameters:
+  source: "#{ item.source }#"
+  csi.storage.k8s.io/node-stage-secret-name: "#{ item.name }#-secret"
+  csi.storage.k8s.io/node-stage-secret-namespace: "storage"
+  createSubDir: "false"
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+mountOptions:
+  - dir_mode=#{ item.dir_mode|default("0777") }#
+  - file_mode=#{ item.file_mode|default("0666") }#
+  - uid=#{ item.uid|default("1000") }#
+  - gid=#{ item.gid|default("1000") }#
+  - noperm
+  - mfsymlinks
+  - cache=strict
+  - noserverino  # required to prevent data corruption
+#% endfor %#
+#% endif %#

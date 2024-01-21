@@ -3,10 +3,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
+  #% if csi_driver_nfs|default({}) and csi_driver_nfs.enabled|default(false) %#
+  - ./csi-driver-nfs/ks.yaml
+  #% endif %#
+  #% if csi_driver_smb|default({}) and csi_driver_smb.enabled|default(false) %#
+  - ./csi-driver-smb/ks.yaml
+  #% endif %#
   - ./openebs/ks.yaml
   #% if volsync|default({}) and volsync.enabled|default(false) %#
   - ./volsync/ks.yaml
   #% endif %#
-  #% if csi_driver_nfs|default({}) and csi_driver_nfs.enabled|default(false) %#
-  - ./csi-driver-nfs/ks.yaml
-  #% endif %#
+

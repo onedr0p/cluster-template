@@ -1,0 +1,27 @@
+#% if csi_driver_smb|default({}) and csi_driver_smb.enabled|default(false) %#
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: csi-driver-smb
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: csi-driver-smb
+      version: v1.14.0
+      sourceRef:
+        kind: HelmRepository
+        name: csi-driver-smb
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values: {}
+#% endif %#

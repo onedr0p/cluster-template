@@ -23,6 +23,18 @@ csi_driver_nfs:
       server: fake
       share: /fake
 
+csi_driver_smb:
+  enabled: true
+  storage_class:
+    - name: fake
+      source: //localhost/fake
+      username: fake
+      password: fake
+      file_mode: 0755
+      dir_mode: 0644
+      uid: 100
+      gid: 100
+
 system_upgrade_controller:
   enabled: true
 

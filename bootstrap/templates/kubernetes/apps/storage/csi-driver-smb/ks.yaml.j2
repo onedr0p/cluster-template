@@ -1,0 +1,22 @@
+#% if csi_driver_smb|default({}) and csi_driver_smb.enabled|default(false) %#
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app csi-driver-smb
+  namespace: flux-system
+spec:
+  targetNamespace: storage
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  path: ./kubernetes/apps/storage/csi-driver-smb/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: home-kubernetes
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+#% endif %#
