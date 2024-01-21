@@ -40,7 +40,6 @@ jobs:
           - k0s
           - k3s-ipv4
           - k3s-ipv6
-          - k3s-no-kube-vip
           - talos
         addon-files: ["addons"]
     steps:

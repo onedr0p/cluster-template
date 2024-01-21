@@ -4,7 +4,7 @@
 # https://github.com/PyratLabs/ansible-role-k3s
 k3s_control_node: false
 k3s_agent:
-  #% if bootstrap_ipv6_enabled|default(false) %#
+  #% if bootstrap_ipv6_enabled %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
   #% else %#
   node-ip: "{{ ansible_host }}"

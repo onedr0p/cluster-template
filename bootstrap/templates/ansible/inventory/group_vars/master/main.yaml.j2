@@ -4,16 +4,16 @@
 # https://github.com/PyratLabs/ansible-role-k3s
 k3s_control_node: true
 k3s_server:
-  #% if bootstrap_ipv6_enabled|default(false) %#
+  #% if bootstrap_ipv6_enabled %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
   #% else %#
   node-ip: "{{ ansible_host }}"
   #% endif %#
   tls-san:
     - "{{ kube_api_addr }}"
-    #% if bootstrap_kube_api_hostname|default('') %#
-    - "{{ kube_api_hostname }}"
-    #% endif %#
+    #% for item in bootstrap_kube_additional_tls_sans %#
+    - "{{ item }}"
+    #% endfor %#
   docker: false
   flannel-backend: "none" # quote
   disable: ["flannel", "local-storage", "metrics-server", "servicelb", "traefik"]
@@ -23,7 +23,7 @@ k3s_server:
   write-kubeconfig-mode: "644"
   pause-image: registry.k8s.io/pause:3.9
   secrets-encryption: true
-  #% if bootstrap_ipv6_enabled|default(false) %#
+  #% if bootstrap_ipv6_enabled %#
   cluster-cidr: "{{ cluster_cidr }},{{ cluster_cidr_v6 }}"
   service-cidr: "{{ service_cidr }},{{ service_cidr_v6 }}"
   #% else %#

@@ -11,7 +11,6 @@ k3s_registration_address: "{{ kube_api_addr }}"
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
-#% if bootstrap_nodes.master | length > 1 or bootstrap_kube_api_addr|default('') %#
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_urls:
   - url: https://raw.githubusercontent.com/kube-vip/website/main/content/manifests/rbac.yaml
@@ -19,5 +18,4 @@ k3s_server_manifests_urls:
 # /var/lib/rancher/k3s/agent/pod-manifests
 k3s_server_pod_manifests_templates:
   - kube-vip-static-pod.yaml.j2
-#% endif %#
 #% endif %#

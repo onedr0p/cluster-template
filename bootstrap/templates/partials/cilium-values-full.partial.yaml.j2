@@ -59,7 +59,7 @@ hubble:
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "${CLUSTER_CIDR}"
-#% if bootstrap_ipv6_enabled|default(false) %#
+#% if bootstrap_ipv6_enabled %#
 ipv6NativeRoutingCIDR: "${CLUSTER_CIDR_V6}"
 ipv6:
   enabled: true
@@ -77,7 +77,7 @@ k8sServicePort: 7445
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
-  #% if bootstrap_ipv6_enabled|default(false) %#
+  #% if bootstrap_ipv6_enabled %#
   enabled: false
   #% else %#
   enabled: true

@@ -49,7 +49,7 @@ spec:
       hooks: *hooks
       #% endif %#
     #% endfor %#
-    #% if bootstrap_nodes.worker|default([]) | length > 0 %#
+    #% if bootstrap_nodes.worker | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
     - role: worker
       ssh:
@@ -81,17 +81,14 @@ spec:
               listen-metrics-urls: http://0.0.0.0:2381 # Required to monitor etcd with kube-prometheus-stack
         api:
           sans:
+            #% if bootstrap_kube_api_addr %#
             - "#{ bootstrap_kube_api_addr }#"
-            #% if bootstrap_kube_api_hostname|default('') %#
-            - "#{ bootstrap_kube_api_hostname }#"
             #% endif %#
+            #% for item in bootstrap_kube_additional_tls_sans %#
+            - "#{ item }#"
+            #% endfor %#
             #% for item in bootstrap_nodes.master %#
-            #% if item.address != bootstrap_kube_api_addr %#
             - "#{ item.address }#"
-            #% endif %#
-            #% if (not bootstrap_kube_api_hostname|default('')) or (item.name != bootstrap_kube_api_hostname|default('')) %#
-            - "#{ item.name }#"
-            #% endif %#
             #% endfor %#
         network:
           podCIDR: "#{ bootstrap_cluster_cidr.split(',')[0] }#"
