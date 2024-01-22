@@ -1,0 +1,87 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: Upgrade all apt packages
+      apt: upgrade=dist
+
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - ca-certificates
+        - curl
+        - gnupg
+
+    # To use the sops_encrypt module on a remote host, you need to install sops on it:
+    - name: Install sops on remote hosts
+      ansible.builtin.include_role:
+        name: community.sops.install
+      vars:
+        sops_version: "3.8.1"  # leaving this blank installs the latest version
+
+    - include_tasks: tasks/ufw.yml
+
+    - name: Add Docker's APT repository key
+      ansible.builtin.get_url:
+        url: "{{ docker__apt_repository_url }}/gpg"
+        dest: "/etc/apt/keyrings/docker.asc"
+        checksum: "{{ docker__apt_key_checksum }}"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: Configure Docker's upstream APT repository
+      ansible.builtin.apt_repository:
+        repo: "{{ docker__apt_repository }}"
+        update_cache: true
+
+    - name: Install Docker
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+
+    - name: Add user to docker group
+      user:
+        name: "{{ansible_user}}"
+        group: docker
+
+    - name: Create Docker configuration directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: "directory"
+        owner: "{{ansible_user}}"
+        group: "docker"
+        mode: "0755"
+      loop:
+        - "/srv/docker/data"
+        - "/srv/docker/data/traefik/acme"
+
+    - name: Create acme config file for traefik
+      file:
+        path: "/srv/docker/data/traefik/acme/acme.json"
+        state: touch
+        mode: '0600'
+
+    - name: Create Traefik log file
+      file:
+        path: "/srv/docker/data/traefik/traefik.log"
+        state: touch
+        mode: '0755'
+
+  handlers:
+    - import_tasks: handlers/main.yml

@@ -1,0 +1,13 @@
+---
+
+- name: restart nginx
+  service: name=nginx state=restarted
+
+- name: restart ssh
+  service: name=ssh state=restarted
+
+- name: restart ufw
+  service: name=ufw state=restarted
+
+- name: restart server
+  command: /sbin/reboot

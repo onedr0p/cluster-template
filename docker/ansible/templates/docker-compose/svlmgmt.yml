@@ -1,0 +1,191 @@
+version: "3.8"
+
+services:
+  traefik:
+    container_name: traefik
+    image: "traefik:v2.10.7"
+    command:
+      - --global.checkNewVersion=false
+      - --global.sendAnonymousUsage=false
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --entrypoints.unifi-guest.address=:8843
+      - --entryPoints.ping.address=:8267
+      # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
+      ##### - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,172.64.0.0/13,131.0.72.0/22,104.16.0.0/13,104.24.0.0/14
+      # - --entrypoints.unifi-guest.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,172.64.0.0/13,131.0.72.0/22,104.16.0.0/13,104.24.0.0/14
+      - --entrypoints.https.http.tls.options=tls-opts@file
+      - --entryPoints.traefik.address=:8085
+      - --api=true
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --ping=true # Enables the health check
+      - --ping.entryPoint=ping
+      - --providers.docker.endpoint=unix:///var/run/docker.sock # Use Docker Socket Proxy instead for improved security
+      ##### - --providers.docker.endpoint=tcp://socket-proxy:2375
+      - --providers.docker.defaultrule=Host(`{{ index .Labels "com.docker.compose.service" }}.$DOMAINNAME`)
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=t2_proxy
+      - --providers.docker.swarmMode=false
+      - --providers.file.directory=/rules # Load dynamic configuration from one or more .toml or .yml files in a directory.
+      - --providers.file.watch=true # Only works on top level files in the rules folder
+      - --log=true
+      - --log.level=ERROR # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+      - --accessLog=true
+      - --accessLog.filePath=/traefik.log
+      - --accessLog.bufferingSize=100 # Configuring a buffer of 100 lines
+      - --accessLog.filters.statusCodes=400-499
+      - --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server - uncomment when testing
+      - --certificatesResolvers.dns-cloudflare.acme.email=$CLOUDFLARE_EMAIL
+      - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90 # To delay DNS check and reduce LE hitrate
+      # Required for Unifi to function. Prevents "Internal Server Error"
+      - --serversTransport.insecureSkipVerify=true
+    restart: always
+    networks:
+      t2_proxy:
+        ipv4_address: 192.168.101.200
+      ##### socket_proxy:
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+      # Unifi Guest portal can only be reached on 8843
+      - target: 8843
+        published: 8843
+        protocol: tcp
+        mode: host
+      - target: 8085
+        published: 8085
+        protocol: tcp
+        mode: host
+    volumes:
+      - $DOCKERDIR/data/traefik/rules:/rules
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Use Docker Socket Proxy instead for improved security
+      - $DOCKERDIR/data/traefik/acme/acme.json:/acme.json
+      - $DOCKERDIR/data/traefik/traefik.log:/traefik.log
+    environment:
+        - CF_API_EMAIL=$CLOUDFLARE_EMAIL
+        - CF_API_KEY=$CLOUDFLARE_API_KEY
+    labels:
+      - "traefik.enable=true"
+      # HTTP-to-HTTPS Redirect
+      - "traefik.http.routers.http-catchall.entrypoints=http"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      # HTTP Routers
+      - "traefik.http.routers.traefik-rtr.entrypoints=https"
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME`)"
+      - "traefik.http.routers.traefik-rtr.tls=true"
+      - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-cloudflare"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAINNAME"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAINNAME"
+      ## Services - API
+      - "traefik.http.routers.traefik-rtr.service=api@internal"
+      ## Middlewares
+      - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file"
+    healthcheck:
+      test: ["CMD-SHELL","traefik healthcheck --ping.entrypoint ping --entryPoints.ping.address=:8267 --ping"]
+
+  unifi-db:
+    image: docker.io/mongo:6.0.13
+    container_name: unifi-db
+    networks:
+      - unifi-backend
+    volumes:
+      - unifi_db_data:/data/db
+      - $DOCKERDIR/data/mongodb/init-mongo-unifi-db.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    restart: unless-stopped
+
+  unifi:
+    container_name: unifi
+    image: lscr.io/linuxserver/unifi-network-application:8.0.26-ls25
+    depends_on:
+      - traefik
+      - unifi-db
+    networks:
+      - t2_proxy
+      - default
+      - unifi-backend
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - MONGO_USER=unifi
+      - MONGO_PASS=${UNIFI_MONGO_PASS}
+      - MONGO_HOST=unifi-db
+      - MONGO_PORT=27017
+      - MONGO_DBNAME=unifi
+      - MEM_LIMIT=1024 #optional
+    volumes:
+      - unifi_data:/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8443"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 1m
+    ports:
+      - 3478:3478/udp # used for STUN
+      - 10001:10001/udp # used for device discovery
+      - 8080:8080 # used for device and controller communications
+      - 1900:1900/udp #optional - used for "Make controller discoverable on L2 network" in controller settings
+      # - 8843:8843 #optional - used for HTTPS portal redirection
+      # - 8880:8880 #optional - used for HTTP portal redirection
+      - 6789:6789 #optional - used for UniFi mobile speed test
+      # - 5514:5514/udp #optional - used for remote syslog capture
+      - 2221:22/tcp # used for SSH
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      # Backup
+      - docker-volume-backup.stop-during-backup=false # true - otherwise backup can't work with socketproxy
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.unifi-rtr.entrypoints=https"
+      - "traefik.http.routers.unifi-rtr.rule=Host(`unifi.$DOMAINNAME`)"
+      - "traefik.http.routers.unifi-rtr.tls=true"
+
+      - "traefik.http.routers.unifi-guest-rtr.entrypoints=unifi-guest"
+      - "traefik.http.routers.unifi-guest-rtr.rule=Host(`unifi-guest.$DOMAINNAME`)"
+      - "traefik.http.routers.unifi-guest-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.unifi-rtr.middlewares=chain-no-auth@file" # No Authentication
+      # - "traefik.http.routers.unifi-guest-rtr.middlewares=chain-no-auth@file" # No Authentication
+      ## HTTP Services
+      - "traefik.http.routers.unifi-rtr.service=unifi"
+      - "traefik.http.routers.unifi-guest-rtr.service=unifi-guest"
+      # Fixes 'This combination of host and port requires TLS' issue
+      - "traefik.http.services.unifi.loadbalancer.server.scheme=https"
+      - "traefik.http.services.unifi-guest.loadbalancer.server.scheme=https"
+      # Enable the management port 8443
+      - "traefik.http.services.unifi.loadbalancer.server.port=8443"
+      - "traefik.http.services.unifi-guest.loadbalancer.server.port=8843"
+
+volumes:
+  unifi_data:
+  unifi_db_data:
+
+networks:
+  t2_proxy:
+    name: t2_proxy
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.101.0/24
+  default:
+    driver: bridge
+  unifi-backend:
+    name: unifi-backend
+    driver: bridge

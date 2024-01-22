@@ -1,0 +1,46 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+    - include_tasks: tasks/ufw.yml
+
+    - name: Load encrypted credentials
+      community.sops.load_vars:
+        file: group_vars/all/secrets.sops.yml
+        age_keyfile: $HOME/git/home/age.key
+        config_path: $HOME/git/home/.sops.yaml
+        expressions: ignore  # explicitly do not evaluate expressions
+                             # on load (this is the default)
+
+    - name: Write docker-compose configuration file
+      copy:
+        src: "$HOME/git/home/docker/ansible/templates/docker-compose/{{inventory_hostname_short}}.yml"
+        dest: "/srv/docker/docker-compose.yml"
+        owner: "{{ansible_user}}"
+        group: "docker"
+        mode: "0755"
+
+    - name: Dynamically create .env file
+      ansible.builtin.template:
+        src: "$HOME/git/home/docker/ansible/templates/env/env.j2"
+        dest: "/srv/docker/.env"
+        owner: "{{ansible_user}}"
+        group: "docker"
+        mode: "0755"
+
+    - name: Copy data folder
+      copy:
+        src: "$HOME/git/home/docker/ansible/templates/data/{{inventory_hostname_short}}/"
+        dest: "/srv/docker/data"
+        owner: "{{ansible_user}}"
+        group: "docker"
+        mode: "0755"
+
+    - name: Run containers
+      shell:
+        cmd: "docker compose up -d --remove-orphans"
+        chdir: /srv/docker
+
+  handlers:
+    - import_tasks: handlers/main.yml

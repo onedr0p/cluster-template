@@ -1,0 +1,41 @@
+---
+
+# to verify ufw configuration run:
+# sudo ufw status verbose
+
+- name: Install ufw
+  apt: package=ufw state=present
+
+- name: Configure ufw defaults
+  ufw: direction={{ item.direction }} policy={{ item.policy }}
+  with_items:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+  notify:
+    - restart ufw
+
+- name: Configure ufw rules
+  ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
+  with_items:
+    - { rule: 'limit', port: '{{ ssh_port | default("22") }}', proto: 'tcp' }
+    - { rule: 'allow', port: '80', proto: 'tcp' } # Traefik
+    - { rule: 'allow', port: '443', proto: 'tcp' } # Traefik
+    - { rule: 'allow', port: '8843', proto: 'tcp' } # Traefik
+    - { rule: 'allow', port: '8085', proto: 'tcp' } # Traefik
+
+    - { rule: 'allow', port: '3478', proto: 'udp' } # Unifi
+    - { rule: 'allow', port: '10001', proto: 'udp' } # Unifi
+    - { rule: 'allow', port: '8080', proto: 'tcp' } # Unifi
+    - { rule: 'allow', port: '1900', proto: 'udp' } # Unifi
+    - { rule: 'allow', port: '6789', proto: 'tcp' } # Unifi
+
+  notify:
+    - restart ufw
+
+- name: Enable ufw logging
+  ufw: logging=on
+  notify:
+    - restart ufw
+
+- name: Enable ufw
+  ufw: state=enabled

@@ -1,0 +1,101 @@
+---
+
+#
+# Docker
+#
+
+docker__channel: ["stable"]
+docker__version: ""
+docker__state: "present"
+
+docker__compose_version: ""
+docker__compose_v2_version: ""
+
+docker__users: ["{{ ansible_env.SUDO_USER | d('root') }}"]
+
+docker__login_become_user: "{{ docker__users | first | d('root') }}"
+
+docker__registries: []
+
+docker__default_daemon_json: |
+  "log-driver": "journald",
+  "features": {
+    "buildkit": true
+  }
+
+docker__daemon_json: ""
+
+docker__daemon_flags:
+  - "-H unix://"
+
+docker__daemon_environment: []
+
+docker__systemd_override: ""
+
+docker__cron_jobs_prune_flags: "af"
+docker__cron_jobs_prune_schedule: ["0", "0", "*", "*", "0"]
+docker__cron_jobs:
+  - name: "Docker disk clean up"
+    job: "docker system prune -{{ docker__cron_jobs_prune_flags }} > /dev/null 2>&1"  # yamllint disable-line rule:line-length
+    schedule: "{{ docker__cron_jobs_prune_schedule }}"
+    cron_file: "docker-disk-clean-up"
+    user: "{{ (docker__users | first) | d('root') }}"
+
+docker__package_dependencies:
+  - "apt-transport-https"
+  - "ca-certificates"
+  - "cron"
+  - "gnupg2"
+  - "software-properties-common"
+
+docker__architecture_map:
+  "x86_64": "amd64"
+  "aarch64": "arm64"
+  "aarch": "arm64"
+  "armhf": "armhf"
+  "armv7l": "armhf"
+
+docker__apt_repository_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"  # yamllint disable-line rule:line-length
+docker__apt_key_checksum: "sha256:1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570"  # yamllint disable-line rule:line-length
+docker__apt_repository: >
+  deb [arch={{ docker__architecture_map[ansible_architecture] }}
+  signed-by=/etc/apt/keyrings/docker.asc]
+  {{ docker__apt_repository_url }}
+  {{ ansible_distribution_release }} {{ docker__channel | join(' ') }}
+
+docker__pip_dependencies:
+  - "gcc"
+  - "python3-setuptools"
+  - "python3-dev"
+  - "python3-pip"
+  - "virtualenv"
+
+docker__pip_virtualenv: "/usr/local/lib/docker/virtualenv"
+
+docker__default_pip_packages:
+  - name: "docker"
+    state: "{{ docker__pip_docker_state }}"
+  - name: "docker-compose"
+    version: "{{ docker__compose_version }}"
+    path: "/usr/local/bin/docker-compose"
+    src: "{{ docker__pip_virtualenv + '/bin/docker-compose' }}"
+    state: "{{ docker__pip_docker_compose_state }}"
+docker__pip_packages: []
+
+docker__pip_docker_state: "present"
+docker__pip_docker_compose_state: "absent"
+
+#
+# Sops
+#
+
+sops_version: "3.8.1"
+
+#
+# Generic
+#
+
+puid: 1000
+pgid: 998
+tz: "Europe/Amsterdam"
+docker_dir: "/srv/docker"

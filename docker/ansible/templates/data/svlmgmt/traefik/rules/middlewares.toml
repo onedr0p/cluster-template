@@ -1,0 +1,51 @@
+[http.middlewares]
+  [http.middlewares.middlewares-rate-limit]
+    [http.middlewares.middlewares-rate-limit.rateLimit]
+      average = 100
+      burst = 50
+  [http.middlewares.middlewares-secure-headers]
+    [http.middlewares.middlewares-secure-headers.headers]
+      accessControlAllowMethods= ["GET", "OPTIONS", "PUT"]
+      accessControlMaxAge = 100
+      hostsProxyHeaders = ["X-Forwarded-Host"]
+      sslRedirect = true
+      stsSeconds = 63072000
+      stsIncludeSubdomains = true
+      stsPreload = true
+      forceSTSHeader = true
+#      frameDeny = true # overwritten by customFrameOptionsValue
+      contentTypeNosniff = true
+      browserXssFilter = true
+      referrerPolicy = "same-origin"
+#      Setting contentSecurityPolicy is more secure but it can break things. Proper auth will reduce the risk.
+#      the below line also breaks some apps due to 'none' - sonarr, radarr, etc.
+      featurePolicy = "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none'; vr 'none';"
+      [http.middlewares.middlewares-secure-headers.headers.customResponseHeaders]
+        X-Robots-Tag = "none,noarchive,nosnippet,notranslate,noimageindex,"
+        server = ""
+  [http.middlewares.middlewares-secure-headers-http]
+    [http.middlewares.middlewares-secure-headers-http.headers]
+      accessControlAllowMethods= ["GET", "OPTIONS", "PUT"]
+      accessControlMaxAge = 100
+      hostsProxyHeaders = ["X-Forwarded-Host"]
+      sslRedirect = false
+      stsSeconds = 63072000
+      stsIncludeSubdomains = true
+      stsPreload = true
+      forceSTSHeader = true
+#      frameDeny = true # overwritten by customFrameOptionsValue
+      contentTypeNosniff = true
+      browserXssFilter = true
+#      sslForceHost = true # add sslHost to all of the services
+      referrerPolicy = "same-origin"
+#      Setting contentSecurityPolicy is more secure but it can break things. Proper auth will reduce the risk.
+#      the below line also breaks some apps due to 'none' - sonarr, radarr, etc.
+      featurePolicy = "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none'; vr 'none';"
+      [http.middlewares.middlewares-secure-headers-http.headers.customResponseHeaders]
+        X-Robots-Tag = "none,noarchive,nosnippet,notranslate,noimageindex,"
+        server = ""
+  [http.middlewares.middlewares-oauth]
+    [http.middlewares.middlewares-oauth.forwardAuth]
+      address = "http://oauth:4181"
+      trustForwardHeader = true
+      authResponseHeaders = ["X-Forwarded-User"]
