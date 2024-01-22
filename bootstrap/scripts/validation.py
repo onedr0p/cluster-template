@@ -103,11 +103,14 @@ def validate_distribution(distribution: str, **_) -> None:
 @required("bootstrap_github_username", "bootstrap_github_repository_name", "bootstrap_advanced_flags")
 def validate_github(username: str, repository: str, advanced_flags: dict, **_) -> None:
     try:
-        request = requests.get(f"https://api.github.com/repos/{username}/{repository}/branches/{advanced_flags.get('github_repository_branch')}")
+        request = requests.get(
+            f"https://api.github.com/repos/{username}/{repository}/branches/{advanced_flags.get('github_repository_branch', 'main')}")
         if request.status_code != 200:
-            raise ValueError(f"GitHub repository {username}/{repository} branch {advanced_flags.get('github_repository_branch')} not found")
+            raise ValueError(
+                f"GitHub repository {username}/{repository} branch {advanced_flags.get('github_repository_branch', 'main')} not found")
     except requests.exceptions.RequestException as e:
-        raise ValueError(f"GitHub repository {username}/{repository} branch {advanced_flags.get('github_repository_branch')} not found") from e
+        raise ValueError(
+            f"GitHub repository {username}/{repository} branch {advanced_flags.get('github_repository_branch', 'main')} not found") from e
 
 
 @required("bootstrap_age_public_key")
@@ -242,9 +245,7 @@ def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) ->
 
 def massage(data: dict) -> dict:
     data["bootstrap_advanced_flags"] = data.get("bootstrap_advanced_flags", {})
-    data["bootstrap_advanced_flags"]["github_repository_branch"] = data["bootstrap_advanced_flags"].get("github_repository_branch", "main")
     return data
-
 
 def validate(data: dict) -> None:
     user_data = massage(data)
@@ -252,14 +253,17 @@ def validate(data: dict) -> None:
     validate_python_version()
     validate_cli_tools(user_data)
     validate_distribution(user_data)
-    if not user_data.get("bootstrap_private_github_repo"):
-        validate_github(user_data)
     validate_age(user_data)
     validate_timezone(user_data)
-    validate_acme_email(user_data)
-    validate_flux_github_webhook_token(user_data)
-    validate_cloudflare(user_data)
-    validate_host_network(user_data)
     validate_bootstrap_dns_server(user_data)
     validate_cluster_cidrs(user_data)
-    validate_nodes(user_data)
+    validate_flux_github_webhook_token(user_data)
+    validate_host_network(user_data)
+    validate_acme_email(user_data)
+
+    if not user_data.get("bootstrap_private_github_repo"):
+        validate_github(user_data)
+
+    if not user_data.get("skip_tests", False):
+        validate_cloudflare(user_data)
+        validate_nodes(user_data)
