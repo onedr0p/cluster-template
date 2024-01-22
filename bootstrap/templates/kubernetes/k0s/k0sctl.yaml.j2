@@ -18,6 +18,7 @@ spec:
         apply:
           before:
             - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/apply-system.sh | INSTALL_K0S_HOSTNAME="#{ item.name }#" bash -s -
+            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/apply-kube-vip.sh | bash -s -
         reset:
           before:
             - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-cilium.sh | bash -s -
