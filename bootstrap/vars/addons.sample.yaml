@@ -72,19 +72,14 @@ addon_discord_template_notifier:
 addon_volsync:
   enabled: false
 
-# https://github.com/XenitAB/spegel
-addon_spegel:
-  # Note: This only applies to k0s at the moment
-  enabled: false
-
 # https://github.com/longhorn/longhorn
 addon_longhorn:
   # IMPORTANT: Only enable this if you have 3 or more nodes in your cluster
   # and you have enough IOPS on disk to support the number of replicas.
   # Longhorn is currently unsupported in Talos
-  # Note: Consider enabling volsync if you would like to configure snapshots
+  # NOTE: Consider enabling volsync if you would like to configure snapshots
   # and backups to durable storage.
-  # Note: You must label any node that you want to allocate storage to longhorn
+  # NOTE: You must label any node that you want to allocate storage to longhorn
   # with label node.longhorn.io/create-default-disk="true"
   # ie: kubectl label --overwrite node <node name> node.longhorn.io/create-default-disk="true"
   enabled: false
