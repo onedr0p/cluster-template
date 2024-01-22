@@ -24,19 +24,17 @@ def encrypt(value: str) -> str:
 
 class Plugin(makejinja.plugin.Plugin):
     def __init__(self, data: dict[str, Any], config: makejinja.config.Config):
-        self.data = data
-        self.config = config
 
         self._excluded_dirs: set[Path] = set()
         for input_path in config.inputs:
-            for filter_file in input_path.rglob(".mjfilter.py"):
+            for filter_file in input_path.rglob(".mjfilter"):
                 filter_func: Callable[[dict[str, Any]], bool] = import_string(
                     f"{filter_file}:main"
                 )
                 if filter_func(data) is False:
                     self._excluded_dirs.add(filter_file.parent)
 
-        utils.validate(self.data)
+        utils.validate(data)
 
     def filters(self) -> makejinja.plugin.Filters:
         return [nthhost, encrypt]
