@@ -31,7 +31,12 @@ tasks:
   kubeconfig:
     desc: Gets k0s kubeconfig
     prompt: This will overwrite the existing kubeconfig... continue?
-    cmd: k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
+    cmds:
+      - k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
+      - sed -i {{if eq OS "darwin"}}''{{end}} 's|https://.+:6443|https://{{.kube_api_addr}}:6443|g' {{.KUBECONFIG_FILE}}
+    vars:
+      kube_api_addr:
+        sh: "yq '.bootstrap_kube_api_addr' {{.BOOTSTRAP_CONFIG_FILE}}"
     preconditions:
       - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
 
