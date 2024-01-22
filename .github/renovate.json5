@@ -15,35 +15,35 @@
   "schedule": ["on saturday"],
   "flux": {
     "fileMatch": [
-      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "helm-values": {
     "fileMatch": [
-      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "kubernetes": {
     "fileMatch": [
-      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "kustomize": {
     "fileMatch": [
-      "(^|/)kustomization\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)kustomization\\.ya?ml(\\.j2)?$"
     ]
   },
   "pip_requirements": {
     "fileMatch": [
-      "(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(\\.j2)?(\\.j2)?$"
+      "(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(\\.j2)?$"
     ]
   },
   "ansible-galaxy": {
     "fileMatch": [
-      "(^|/)(galaxy|requirements)(\\.ansible)?\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)(galaxy|requirements)(\\.ansible)?\\.ya?ml(\\.j2)?$"
     ]
   },
   // commit message topics
@@ -232,8 +232,8 @@
       "description": "Process various other dependencies",
       "fileMatch": [
         "(^|/).taskfiles/.+\\.ya?ml$",
-        "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+        "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
       ],
       "matchStrings": [
         // Example:

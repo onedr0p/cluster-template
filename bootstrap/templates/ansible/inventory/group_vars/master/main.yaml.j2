@@ -10,7 +10,7 @@ k3s_server:
   node-ip: "{{ ansible_host }}"
   #% endif %#
   tls-san:
-    - "{{ kube_api_addr }}"
+    - "#{ bootstrap_kube_api_addr }#"
     #% for item in bootstrap_kube_additional_tls_sans %#
     - "{{ item }}"
     #% endfor %#
@@ -24,11 +24,11 @@ k3s_server:
   pause-image: registry.k8s.io/pause:3.9
   secrets-encryption: true
   #% if bootstrap_ipv6_enabled %#
-  cluster-cidr: "{{ cluster_cidr }},{{ cluster_cidr_v6 }}"
-  service-cidr: "{{ service_cidr }},{{ service_cidr_v6 }}"
+  cluster-cidr: "#{ bootstrap_cluster_cidr.split(',')[0] }#,#{ bootstrap_cluster_cidr.split(',')[1] }#"
+  service-cidr: "#{ bootstrap_service_cidr.split(',')[0] }#,#{ bootstrap_service_cidr.split(',')[1] }#"
   #% else %#
-  cluster-cidr: "{{ cluster_cidr }}"
-  service-cidr: "{{ service_cidr }}"
+  cluster-cidr: "#{ bootstrap_cluster_cidr }#"
+  service-cidr: "#{ bootstrap_service_cidr }#"
   #% endif %#
   etcd-expose-metrics: true # Required to monitor etcd with kube-prometheus-stack
   kube-controller-manager-arg:
