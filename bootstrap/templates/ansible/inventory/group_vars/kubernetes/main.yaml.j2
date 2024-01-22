@@ -7,15 +7,13 @@ k3s_install_hard_links: true
 k3s_become: true
 k3s_etcd_datastore: true
 k3s_use_unsupported_config: true
-k3s_registration_address: "{{ kube_api_addr }}"
+k3s_registration_address: "#{ bootstrap_kube_api_addr }#"
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
   - custom-cilium-helmchart.yaml.j2
+  - kube-vip-ds.yaml.j2
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_urls:
-  - url: https://raw.githubusercontent.com/kube-vip/website/main/content/manifests/rbac.yaml
+  - url: https://kube-vip.io/manifests/rbac.yaml
     filename: kube-vip-rbac.yaml
-# /var/lib/rancher/k3s/agent/pod-manifests
-k3s_server_pod_manifests_templates:
-  - kube-vip-static-pod.yaml.j2
 #% endif %#

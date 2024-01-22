@@ -14,7 +14,7 @@ tasks:
       - mv {{.BOOTSTRAP_DIR}} {{.PRIVATE_DIR}}/bootstrap-{{now | date "150405"}}
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.PRIVATE_DIR}}/makejinja-{{now | date "150405"}}.toml
       # Update renovate.json5
-      - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
+      - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
     preconditions:
       - { msg: "Missing bootstrap directory", sh: "test -d {{.BOOTSTRAP_DIR}}" }
       - { msg: "Missing private directory", sh: "test -d {{.PRIVATE_DIR}}" }

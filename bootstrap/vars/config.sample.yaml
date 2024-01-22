@@ -39,18 +39,18 @@ bootstrap_cloudflare_tunnel_id:
 
 # CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_cidr:
-# The IP address of the Kube API, choose an available IP in your nodes network that is not being used
-# NOTE: For k0s set this to a IP you can then later use to manually setup a load balancer for the Kube API (e.g. Haproxy or Keepalived)
-# Ref: https://github.com/k0sproject/k0s/issues/1150
+
+# The IP address of the Kube API, choose an available IP in your nodes network that is not being used. This is announced over L2.
 bootstrap_kube_api_addr:
+# The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used. This is announced over L2.
+bootstrap_k8s_gateway_addr:
+# The Load balancer IP for external ingress, choose an available IP in your nodes network that is not being used. This is announced over L2.
+bootstrap_external_ingress_addr:
+# The Load balancer IP for internal ingress, choose an available IP in your nodes network that is not being used. This is announced over L2.
+bootstrap_internal_ingress_addr:
+
 # Add additional SANs to the Kube API cert, this is useful if you want to call the Kube API by hostname rather than IP
 bootstrap_kube_additional_tls_sans: []
-# The Load balancer IP for k8s_gateway, choose an available IP in your nodes network that is not being used
-bootstrap_k8s_gateway_addr:
-# The Load balancer IP for external ingress, choose an available IP in your nodes network that is not being used
-bootstrap_external_ingress_addr:
-# The Load balancer IP for internal ingress, choose an available IP in your nodes network that is not being used
-bootstrap_internal_ingress_addr:
 
 # The DNS server to use for the cluster, this can be an existing local DNS server or a public one
 # If using a local DNS server make sure it meets the following requirements:
