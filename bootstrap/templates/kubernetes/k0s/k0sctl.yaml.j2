@@ -14,37 +14,15 @@ spec:
       installFlags:
         - --disable-components=metrics-server
         - --no-taints
-      #% if loop.first %#
-      files: &files
-        - name: system-config
-          src: resources/hooks/
-          dstDir: /home/#{ item.username }#/k0s/hooks/
-          perm: 0644
-          user: root
-          group: root
-        - name: containerd-config
-          src: resources/containerd/
-          dstDir: /home/#{ item.username }#/k0s/containerd/
-          perm: 0644
-          user: root
-          group: root
-      #% else %#
-      files: *files
-      #% endif %#
-      #% if loop.first %#
-      hooks: &hooks
+      hooks:
         apply:
           before:
-            - sudo bash /home/#{ item.username }#/k0s/hooks/apply-system.sh
-            - sudo mv /home/#{ item.username }#/k0s/containerd/default.toml /etc/k0s/containerd.d/default.toml
+            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/apply-system.sh | INSTALL_K0S_HOSTNAME="#{ item.name }#" bash -s -
         reset:
           before:
-            - sudo bash /home/#{ item.username }#/k0s/hooks/reset-cilium.sh
+            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-cilium.sh | bash -s -
           after:
-            - sudo bash /home/#{ item.username }#/k0s/hooks/reset-system.sh
-      #% else %#
-      hooks: *hooks
-      #% endif %#
+            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-system.sh | bash -s -
     #% endfor %#
     #% if bootstrap_nodes.worker | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
@@ -52,8 +30,15 @@ spec:
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.username }#"
-      files: *files
-      hooks: *hooks
+      hooks:
+        apply:
+          before:
+            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/apply-system.sh | INSTALL_K0S_HOSTNAME="#{ item.name }#" bash -s -
+        reset:
+          before:
+            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-cilium.sh | bash -s -
+          after:
+            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-system.sh | bash -s -
     #% endfor %#
     #% endif %#
   k0s:

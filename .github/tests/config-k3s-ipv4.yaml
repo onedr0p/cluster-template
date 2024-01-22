@@ -4,10 +4,9 @@ skip_tests: true
 bootstrap_distribution: k3s
 bootstrap_github_username: onedr0p
 bootstrap_github_repository_name: flux-cluster-template
-bootstrap_github_repository_branch: main
 bootstrap_age_public_key: $BOOTSTRAP_AGE_PUBLIC_KEY
 bootstrap_timezone: Etc/UTC
-bootstrap_acme_email: fake
+bootstrap_acme_email: fake@example.com
 bootstrap_acme_production_enabled: false
 bootstrap_flux_github_webhook_token: fake
 bootstrap_cloudflare_domain: fake

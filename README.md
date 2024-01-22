@@ -284,8 +284,17 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     task configure
     ```
 
-8. Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
+8. Push you changes to git
 
+   📍 **Verify** all the `*.sops.yaml` and `*.sops.yaml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
+
+    ```sh
+    git add -A
+    git commit -m "Initial commit :rocket:"
+    git push
+    ```
+
+9. Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
 
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
@@ -396,17 +405,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     # ✔ prerequisites checks passed
     ```
 
-2. Push you changes to git
-
-   📍 **Verify** all the `*.sops.yaml` and `*.sops.yaml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
-
-    ```sh
-    git add -A
-    git commit -m "Initial commit :rocket:"
-    git push
-    ```
-
-3. Install Flux and sync the cluster to the Git repository
+2. Install Flux and sync the cluster to the Git repository
 
     ```sh
     task flux:bootstrap
@@ -415,7 +414,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     # ...
     ```
 
-4. Verify Flux components are running in the cluster
+3. Verify Flux components are running in the cluster
 
     ```sh
     kubectl -n flux-system get pods -o wide

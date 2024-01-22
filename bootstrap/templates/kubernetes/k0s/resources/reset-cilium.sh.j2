@@ -1,5 +1,7 @@
 #% if bootstrap_distribution == 'k0s' %#
 #!/usr/bin/env bash
+set -e
+set -o noglob
 
 [ $(id -u) -eq 0 ] || exec sudo $0 $@
 

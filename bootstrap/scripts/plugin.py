@@ -20,9 +20,6 @@ def encrypt(value: str) -> str:
 
 class Plugin(makejinja.plugin.Plugin):
     def __init__(self, data: dict[str, Any]):
-        if data.get("skip_tests", False):
-            return
-
         validation.validate(data)
 
     def filters(self) -> makejinja.plugin.Filters:
