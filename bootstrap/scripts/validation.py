@@ -100,14 +100,14 @@ def validate_distribution(distribution: str, **_) -> None:
     _validate_distribution(distribution)
 
 
-@required("bootstrap_github_username", "bootstrap_github_repository_name", "bootstrap_github_repository_branch")
-def validate_github(username: str, repository: str, branch: str, **_) -> None:
+@required("bootstrap_github_username", "bootstrap_github_repository_name", "bootstrap_advanced_flags")
+def validate_github(username: str, repository: str, advanced_flags: dict, **_) -> None:
     try:
-        request = requests.get(f"https://api.github.com/repos/{username}/{repository}/branches/{branch}")
+        request = requests.get(f"https://api.github.com/repos/{username}/{repository}/branches/{advanced_flags.get('github_repository_branch')}")
         if request.status_code != 200:
-            raise ValueError(f"GitHub repository {username}/{repository} branch {branch} not found")
+            raise ValueError(f"GitHub repository {username}/{repository} branch {advanced_flags.get('github_repository_branch')} not found")
     except requests.exceptions.RequestException as e:
-        raise ValueError(f"GitHub repository {username}/{repository} branch {branch} not found") from e
+        raise ValueError(f"GitHub repository {username}/{repository} branch {advanced_flags.get('github_repository_branch')} not found") from e
 
 
 @required("bootstrap_age_public_key")
@@ -241,9 +241,10 @@ def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) ->
 
 
 def massage(data: dict) -> dict:
-    if not data.get("bootstrap_advanced_flags", {}).get("github_repository_branch"):
-        data["bootstrap_advanced_flags"]["github_repository_branch"] = "main"
+    data["bootstrap_advanced_flags"] = data.get("bootstrap_advanced_flags", {})
+    data["bootstrap_advanced_flags"]["github_repository_branch"] = data["bootstrap_advanced_flags"].get("github_repository_branch", "main")
     return data
+
 
 def validate(data: dict) -> None:
     user_data = massage(data)
