@@ -76,10 +76,14 @@ jobs:
         shell: bash
         run: brew install go-task
 
-      - name: Run Workstation tasks
+      - name: Run Workstation Brew tasks
         if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
         shell: bash
         run: task workstation:brew
+
+      - name: Run Workstation Venv tasks
+        shell: bash
+        run: task workstation:venv
 
       - name: Initialize Direnv
         shell: bash
@@ -88,10 +92,6 @@ jobs:
       - name: Run Sops Age key task
         shell: bash
         run: task sops:age-keygen
-
-      - name: Run setup-virtual-env task
-        shell: bash
-        run: task setup-virtual-env
 
       - name: Run init tasks
         shell: bash
