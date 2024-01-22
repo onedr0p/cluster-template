@@ -97,6 +97,10 @@ services:
     healthcheck:
       test: ["CMD-SHELL","traefik healthcheck --ping.entrypoint ping --entryPoints.ping.address=:8267 --ping"]
 
+  #
+  # Cloudflare
+  #
+
   cloudflare-companion:
     container_name: cloudflare-companion
     image: tiredofit/traefik-cloudflare-companion:7.2.0
@@ -123,6 +127,27 @@ services:
     restart: always
     security_opt:
       - no-new-privileges:true
+
+  cloudflare-ddns:
+    container_name: cloudflare-ddns
+    image: favonia/cloudflare-ddns:1.11.0
+    restart: always
+    cap_add:
+      - SETUID
+      - SETGID
+    cap_drop:
+      - all
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - IP6_PROVIDER=none # Disable IPv6
+      - CF_API_TOKEN=$CLOUDFLARE_API_TOKEN
+      - DOMAINS=$CLOUDFLARE_DOMAIN_1_OBFUSCATED_FQDN
+      - PROXIED=false
 
   #
   # Ubiquiti
