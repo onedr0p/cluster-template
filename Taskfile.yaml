@@ -38,8 +38,8 @@ tasks:
 
   init:
     desc: Initialize virtual env and configuration files
+    deps: ["setup-virtual-env"]
     cmds:
-      - task: setup-virtual-env
       - mkdir -p {{.PRIVATE_DIR}}
       - cp -n {{.BOOTSTRAP_ADDONS_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_ADDONS_FILE}}
       - cp -n {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
@@ -53,28 +53,13 @@ tasks:
         silent: true
 
   configure:
-    desc: Configure repository from Ansible vars
+    desc: Configure repository from bootstrap vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
+    deps: ["setup-virtual-env"]
     cmds:
       - task: .template
-      - task: .post-validate
-
-  .template:
-    internal: true
-    cmds:
-      - ./.venv/bin/makejinja
       - task: sops:encrypt
-    preconditions:
-      - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
-      - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
-      - { msg: "Missing Makejinja plugin file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py" }
-      - { msg: "Missing bootstrap addons file", sh: "test -f {{.BOOTSTRAP_ADDONS_FILE}}" }
-      - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }
-
-  .post-validate:
-    internal: true
-    cmds:
-      - task: kubernetes:kubeconform
+      - task: .validate
 
   setup-virtual-env:
     desc: Set up virtual environment
@@ -88,3 +73,19 @@ tasks:
       - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"
     preconditions:
       - { msg: "Missing Pip requirements file", sh: "test -f {{.PIP_REQUIREMENTS_FILE}}" }
+
+  .template:
+    internal: true
+    cmds:
+      - ./.venv/bin/makejinja
+    preconditions:
+      - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
+      - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
+      - { msg: "Missing Makejinja plugin file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py" }
+      - { msg: "Missing bootstrap addons file", sh: "test -f {{.BOOTSTRAP_ADDONS_FILE}}" }
+      - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }
+
+  .validate:
+    internal: true
+    cmds:
+      - task: kubernetes:kubeconform
