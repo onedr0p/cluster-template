@@ -1,16 +1,15 @@
+from bcrypt import hashpw
 from collections.abc import Callable
 from jinja2.utils import import_string
+from netaddr import IPNetwork
 from pathlib import Path
 from typing import Any
+from utils import validate
 
-import bcrypt
 import makejinja
-import netaddr
-
-import utils
 
 def nthhost(value: str, query: int) -> str:
-    value = netaddr.IPNetwork(value)
+    value = IPNetwork(value)
     try:
         nth = int(query)
         if value.size > nth:
@@ -20,12 +19,13 @@ def nthhost(value: str, query: int) -> str:
     return value
 
 def encrypt(value: str) -> str:
-    return bcrypt.hashpw(value.encode(), bcrypt.gensalt(rounds=10)).decode("ascii")
+    return hashpw(value.encode(), bcrypt.gensalt(rounds=10)).decode("ascii")
 
 class Plugin(makejinja.plugin.Plugin):
     def __init__(self, data: dict[str, Any], config: makejinja.config.Config):
 
         self._excluded_dirs: set[Path] = set()
+
         for input_path in config.inputs:
             for filter_file in input_path.rglob(".mjfilter"):
                 filter_func: Callable[[dict[str, Any]], bool] = import_string(
@@ -34,7 +34,7 @@ class Plugin(makejinja.plugin.Plugin):
                 if filter_func(data) is False:
                     self._excluded_dirs.add(filter_file.parent)
 
-        utils.validate(data)
+        validate(data)
 
     def filters(self) -> makejinja.plugin.Filters:
         return [nthhost, encrypt]
