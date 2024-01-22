@@ -81,13 +81,13 @@ jobs:
         shell: bash
         run: task workstation:brew
 
-      - name: Run Workstation Venv tasks
+      - name: Run Workstation venv tasks
         shell: bash
         run: task workstation:venv
 
-      - name: Initialize Direnv
+      - name: Run Workstation direnv tasks
         shell: bash
-        run: direnv allow .
+        run: task workstation:direnv
 
       - name: Run Sops Age key task
         shell: bash
