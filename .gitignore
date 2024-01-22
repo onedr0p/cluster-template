@@ -24,10 +24,3 @@ Brewfile.lock.json
 .idea
 # wiki
 wiki
-
-#
-# Custom
-#
-
-# Sops secrets
-*.sops.yml
