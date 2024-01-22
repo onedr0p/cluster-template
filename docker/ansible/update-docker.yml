@@ -15,7 +15,7 @@
 
     - name: Write docker-compose configuration file
       copy:
-        src: "$HOME/git/home/docker/ansible/templates/docker-compose/{{inventory_hostname_short}}.yml"
+        src: "templates/docker-compose/{{inventory_hostname_short}}.yml"
         dest: "/srv/docker/docker-compose.yml"
         owner: "{{ansible_user}}"
         group: "docker"
@@ -23,7 +23,7 @@
 
     - name: Dynamically create .env file
       ansible.builtin.template:
-        src: "$HOME/git/home/docker/ansible/templates/env/env.j2"
+        src: "templates/env/env.j2"
         dest: "/srv/docker/.env"
         owner: "{{ansible_user}}"
         group: "docker"
@@ -31,7 +31,7 @@
 
     - name: Copy data folder
       copy:
-        src: "$HOME/git/home/docker/ansible/templates/data/{{inventory_hostname_short}}/"
+        src: "templates/data/{{inventory_hostname_short}}/"
         dest: "/srv/docker/data"
         owner: "{{ansible_user}}"
         group: "docker"

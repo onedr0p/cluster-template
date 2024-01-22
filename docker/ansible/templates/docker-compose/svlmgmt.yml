@@ -35,7 +35,7 @@ services:
       - --accessLog.filePath=/traefik.log
       - --accessLog.bufferingSize=100 # Configuring a buffer of 100 lines
       - --accessLog.filters.statusCodes=400-499
-      - --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server - uncomment when testing
+      # - --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server - uncomment when testing
       - --certificatesResolvers.dns-cloudflare.acme.email=$CLOUDFLARE_EMAIL
       - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
       - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
@@ -96,6 +96,37 @@ services:
       - "traefik.http.routers.traefik-rtr.middlewares=chain-oauth@file"
     healthcheck:
       test: ["CMD-SHELL","traefik healthcheck --ping.entrypoint ping --entryPoints.ping.address=:8267 --ping"]
+
+  cloudflare-companion:
+    container_name: cloudflare-companion
+    image: tiredofit/traefik-cloudflare-companion:7.2.0
+    depends_on:
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TIMEZONE=${TZ}
+
+      - LOG_TYPE=BOTH
+      - LOG_LEVEL=INFO
+
+      - TRAEFIK_VERSION=2
+      - ENABLE_TRAEFIK_POLL=TRUE
+      - CF_EMAIL=$CLOUDFLARE_EMAIL
+      - CF_TOKEN=$CLOUDFLARE_API_KEY
+      - RC_TYPE=CNAME
+
+      - TARGET_DOMAIN=SVLMGMT.$CLOUDFLARE_DOMAIN_1_FQDN
+      - DOMAIN1=$CLOUDFLARE_DOMAIN_1_FQDN
+      - DOMAIN1_ZONE_ID=$CLOUDFLARE_DOMAIN_1_ZONE_ID
+      - DOMAIN1_PROXIED=FALSE
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+
+  #
+  # Ubiquiti
+  #
 
   unifi-db:
     image: docker.io/mongo:6.0.13
