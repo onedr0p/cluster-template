@@ -76,22 +76,22 @@ jobs:
         shell: bash
         run: brew install go-task
 
-      - name: Run Workstation tasks
+      - name: Run Workstation Brew tasks
         if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
         shell: bash
         run: task workstation:brew
 
-      - name: Initialize Direnv
+      - name: Run Workstation venv tasks
         shell: bash
-        run: direnv allow .
+        run: task workstation:venv
+
+      - name: Run Workstation direnv tasks
+        shell: bash
+        run: task workstation:direnv
 
       - name: Run Sops Age key task
         shell: bash
         run: task sops:age-keygen
-
-      - name: Run setup-virtual-env task
-        shell: bash
-        run: task setup-virtual-env
 
       - name: Run init tasks
         shell: bash
@@ -102,25 +102,19 @@ jobs:
           export BOOTSTRAP_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
           envsubst < ./bootstrap/vars/config.yaml | sponge ./bootstrap/vars/config.yaml
 
-      - name: Export Env from config.yaml
-        shell: bash
-        id: config-env
-        run: |
-          echo "distribution=$(yq '.bootstrap_distribution' ./bootstrap/vars/config.yaml)" >> $GITHUB_OUTPUT
-
       - name: Run configure task
         shell: bash
         run: task configure --yes
 
       - name: Run Talos tasks
-        if: ${{ steps.config-env.outputs.distribution == 'talos' }}
+        if: ${{ startsWith(matrix.config-files, 'talos') }}
         shell: bash
         run: |
           task talos:gensecret --yes
           task talos:genconfig
 
       - name: Run Ansible tasks
-        if: ${{ steps.config-env.outputs.distribution == 'k3s' || steps.config-env.outputs.distribution == 'k0s' }}
+        if: ${{ startsWith(matrix.config-files, 'k0s') || startsWith(matrix.config-files, 'k3s') }}
         shell: bash
         run: |
           task ansible:deps force=false

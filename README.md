@@ -173,8 +173,6 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 2. Install the most recent version of [direnv](https://direnv.net/), see the [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
 
-    📍 _After installing `direnv` be sure to **[hook it into your shell](https://direnv.net/docs/hook.html)** and after that is done run `direnv allow` while in your repos' directory._
-
     ```sh
     # Homebrew
     brew install direnv
@@ -182,7 +180,11 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     yay -S direnv
     ```
 
-3. Install **required** CLI tools: [age](https://github.com/FiloSottile/age), [cloudflared](https://github.com/cloudflare/cloudflared), [flux](https://toolkit.fluxcd.io/), [kubeconform](https://github.com/yannh/kubeconform), [kubectl](https://kubectl.docs.kubernetes.io/installation/), [kustomize](https://kubectl.docs.kubernetes.io/installation/), [sops](https://github.com/getsops/sops). [k0sctl](https://github.com/k0sproject/k0sctl) is required for k0s. [talosctl](https://www.talos.dev/latest/learn-more/talosctl/) and [talhelper](https://github.com/budimanjojo/talhelper) is required for Talos.
+    📍 _After `direnv` is installed be sure to **[hook it into your preferred shell](https://direnv.net/docs/hook.html)** and then run `task workstation:direnv`_
+
+3. Install **required** CLI tools: [age](https://github.com/FiloSottile/age), [cloudflared](https://github.com/cloudflare/cloudflared), [flux](https://toolkit.fluxcd.io/), [kubeconform](https://github.com/yannh/kubeconform), [kubectl](https://kubectl.docs.kubernetes.io/installation/), [kustomize](https://kubectl.docs.kubernetes.io/installation/), [sops](https://github.com/getsops/sops).
+
+   📍 _[k0sctl](https://github.com/k0sproject/k0sctl) is required for k0s. [talosctl](https://www.talos.dev/latest/learn-more/talosctl/) and [talhelper](https://github.com/budimanjojo/talhelper) is required for Talos._
 
    📍 _Not using Homebrew or ArchLinux? Make sure to look up how to install the latest version of each of these CLI tools and install them._
 
@@ -193,12 +195,12 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     go-task workstation:yay
     ```
 
-4. Setup a Python virual env by running the following task command.
+4. Setup a Python virual environment by running the following task command.
 
     📍 _This commands requires Python 3.11+ to be installed._
 
     ```sh
-    task setup-virtual-env
+    task workstation:venv
     ```
 
 5. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)

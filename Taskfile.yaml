@@ -37,8 +37,7 @@ tasks:
   default: task -l
 
   init:
-    desc: Initialize virtual env and configuration files
-    deps: ["setup-virtual-env"]
+    desc: Initialize configuration files
     cmds:
       - mkdir -p {{.PRIVATE_DIR}}
       - cp -n {{.BOOTSTRAP_ADDONS_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_ADDONS_FILE}}
@@ -51,33 +50,22 @@ tasks:
         silent: true
       - cmd: echo {{.BOOTSTRAP_ADDONS_FILE}}
         silent: true
+    status:
+      - test -f "{{.BOOTSTRAP_ADDONS_FILE}}"
+      - test -f "{{.BOOTSTRAP_CONFIG_FILE}}"
 
   configure:
     desc: Configure repository from bootstrap vars
     prompt: Any conflicting config in the root kubernetes and ansible directories will be overwritten... continue?
-    deps: ["setup-virtual-env"]
+    deps: ["workstation:direnv", "workstation:venv", "sops:age-keygen", "init"]
     cmds:
       - task: .template
       - task: sops:encrypt
       - task: .validate
 
-  setup-virtual-env:
-    desc: Set up virtual environment
-    cmds:
-      - "{{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv"
-      - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
-      - .venv/bin/python3 -m pip install --upgrade --requirement "{{.PIP_REQUIREMENTS_FILE}}"
-    sources:
-      - "{{.PIP_REQUIREMENTS_FILE}}"
-    generates:
-      - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"
-    preconditions:
-      - { msg: "Missing Pip requirements file", sh: "test -f {{.PIP_REQUIREMENTS_FILE}}" }
-
   .template:
     internal: true
-    cmds:
-      - ./.venv/bin/makejinja
+    cmd: ./.venv/bin/makejinja
     preconditions:
       - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
       - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
