@@ -75,7 +75,7 @@ services:
       - $DOCKERDIR/data/traefik/traefik.log:/traefik.log
     environment:
         - CF_API_EMAIL=$CLOUDFLARE_EMAIL
-        - CF_API_KEY=$CLOUDFLARE_API_KEY
+        - CF_DNS_API_TOKEN=$CLOUDFLARE_API_TOKEN
     labels:
       - "traefik.enable=true"
       # HTTP-to-HTTPS Redirect
@@ -116,8 +116,7 @@ services:
 
       - TRAEFIK_VERSION=2
       - ENABLE_TRAEFIK_POLL=TRUE
-      - CF_EMAIL=$CLOUDFLARE_EMAIL
-      - CF_TOKEN=$CLOUDFLARE_API_KEY
+      - CF_TOKEN=$CLOUDFLARE_API_TOKEN
       - RC_TYPE=CNAME
 
       - TARGET_DOMAIN=SVLMGMT.$CLOUDFLARE_DOMAIN_1_FQDN
