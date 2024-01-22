@@ -1,6 +1,6 @@
 ---
 creation_rules:
-  #% if bootstrap_distribution == "talos" %#
+  #% if bootstrap_distribution in ['talos'] %#
   - # IMPORTANT: This rule MUST be above the others
     path_regex: talos/.*\.sops\.ya?ml
     key_groups:

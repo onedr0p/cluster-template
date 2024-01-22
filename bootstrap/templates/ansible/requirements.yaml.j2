@@ -1,4 +1,4 @@
-#% if bootstrap_distribution in ['k3s', 'k0s'] %#
+#% if bootstrap_distribution in ['k0s', 'k3s'] %#
 ---
 collections:
   - name: ansible.posix
@@ -9,7 +9,7 @@ collections:
     version: 8.2.0
   - name: kubernetes.core
     version: 3.0.0
-#% if bootstrap_distribution == 'k3s' %#
+#% if bootstrap_distribution in ['k3s'] %#
 roles:
   - name: xanmanning.k3s
     src: https://github.com/PyratLabs/ansible-role-k3s

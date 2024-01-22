@@ -1,4 +1,4 @@
-#% if bootstrap_distribution in ['k3s', 'k0s'] %#
+#% if bootstrap_distribution in ['k0s', 'k3s'] %#
 ---
 # https://github.com/kevincoakley/ansible-role-k8s-rolling-update
 - name: Cluster rollout update
@@ -13,9 +13,9 @@
         seconds: 5
   tasks:
     - name: Details
-      #% if bootstrap_distribution == 'k3s' %#
+      #% if bootstrap_distribution in ['k3s'] %#
       ansible.builtin.command: "k3s kubectl get node {{ inventory_hostname }} -o json"
-      #% elif bootstrap_distribution == 'k0s' %#
+      #% elif bootstrap_distribution in ['k0s'] %#
       ansible.builtin.command: "k0s kubectl get node {{ inventory_hostname }} -o json"
       #% endif %#
       register: kubectl_get_node
@@ -33,9 +33,9 @@
         - name: Cordon
           kubernetes.core.k8s_drain:
             name: "{{ inventory_hostname }}"
-            #% if bootstrap_distribution == 'k3s' %#
+            #% if bootstrap_distribution in ['k3s'] %#
             kubeconfig: /etc/rancher/k3s/k3s.yaml
-            #% elif bootstrap_distribution == 'k0s' %#
+            #% elif bootstrap_distribution in ['k0s'] %#
             kubeconfig: /var/lib/k0s/pki/admin.conf
             #% endif %#
             state: cordon
@@ -44,9 +44,9 @@
         - name: Drain
           kubernetes.core.k8s_drain:
             name: "{{ inventory_hostname }}"
-            #% if bootstrap_distribution == 'k3s' %#
+            #% if bootstrap_distribution in ['k3s'] %#
             kubeconfig: /etc/rancher/k3s/k3s.yaml
-            #% elif bootstrap_distribution == 'k0s' %#
+            #% elif bootstrap_distribution in ['k0s'] %#
             kubeconfig: /var/lib/k0s/pki/admin.conf
             #% endif %#
             state: drain
@@ -80,9 +80,9 @@
         - name: Uncordon
           kubernetes.core.k8s_drain:
             name: "{{ inventory_hostname }}"
-            #% if bootstrap_distribution == 'k3s' %#
+            #% if bootstrap_distribution  in ['k3s'] %#
             kubeconfig: /etc/rancher/k3s/k3s.yaml
-            #% elif bootstrap_distribution == 'k0s' %#
+            #% elif bootstrap_distribution in ['k0s'] %#
             kubeconfig: /var/lib/k0s/pki/admin.conf
             #% endif %#
             state: uncordon

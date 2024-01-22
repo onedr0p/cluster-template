@@ -25,7 +25,7 @@ spec:
     keepHistory: false
   values:
     spegel:
-      #% if bootstrap_distribution == "k0s" %#
+      #% if bootstrap_distribution in ['k0s'] %#
       containerdSock: /run/k0s/containerd.sock
       containerdRegistryConfigPath: /var/lib/k0s/containerd/certs.d
       #% endif %#

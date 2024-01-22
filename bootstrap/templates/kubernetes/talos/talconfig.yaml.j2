@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == 'talos' %#
+#% if bootstrap_distribution in ['talos'] %#
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
 # renovate: datasource=github-releases depName=siderolabs/talos
@@ -7,23 +7,18 @@ talosVersion: v1.6.1
 kubernetesVersion: 1.29.1
 
 clusterName: &cluster home-kubernetes
-
 endpoint: https://#{ bootstrap_kube_api_addr }#:6443
-
 clusterPodNets:
   - "#{ bootstrap_cluster_cidr.split(',')[0] }#"
 clusterSvcNets:
   - "#{ bootstrap_service_cidr.split(',')[0] }#"
-
 additionalApiServerCertSans: &sans
   - "#{ bootstrap_kube_api_addr }#"
   - 127.0.0.1 # KubePrism
   #% for item in bootstrap_kube_additional_tls_sans %#
   - "#{ item }#"
   #% endfor %#
-
 additionalMachineCertSans: *sans
-
 cniConfig:
   name: none
 
