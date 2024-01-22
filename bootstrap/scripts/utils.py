@@ -241,6 +241,9 @@ def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) ->
 
 
 def validate(data: dict) -> None:
+    if data.get("skip_tests", False):
+        return
+
     validate_python_version()
     validate_cli_tools(data)
     validate_distribution(data)

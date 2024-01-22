@@ -7,7 +7,7 @@ import bcrypt
 import makejinja
 import netaddr
 
-import validation
+import utils
 
 def nthhost(value: str, query: int) -> str:
     value = netaddr.IPNetwork(value)
@@ -36,10 +36,7 @@ class Plugin(makejinja.plugin.Plugin):
                 if filter_func(data) is False:
                     self._excluded_dirs.add(filter_file.parent)
 
-        if self.data.get("skip_tests", False):
-            return
-
-        validation.validate(self.data)
+        utils.validate(self.data)
 
     def filters(self) -> makejinja.plugin.Filters:
         return [nthhost, encrypt]
