@@ -62,7 +62,7 @@
               ff02::2 ip6-allrouters
             dest: /etc/hosts
             mode: preserve
-        #% if bootstrap_advanced_flags.update_resolv_conf %#
+        #% if bootstrap_advanced_flags.update_resolv_conf|default(true) %#
         # https://github.com/onedr0p/flux-cluster-template/discussions/635
         - name: Network Configuration | Remove immutable flag from /etc/resolv.conf
           ansible.builtin.file:

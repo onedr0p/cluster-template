@@ -240,18 +240,25 @@ def validate_nodes(node_cidr: str, nodes: dict[list], distribution: str, **_) ->
         _validate_node(node, node_cidr, distribution)
 
 
+def massage(data: dict) -> dict:
+    if not data.get("bootstrap_advanced_flags", {}).get("github_repository_branch"):
+        data["bootstrap_advanced_flags"]["github_repository_branch"] = "main"
+    return data
+
 def validate(data: dict) -> None:
+    user_data = massage(data)
+
     validate_python_version()
-    validate_cli_tools(data)
-    validate_distribution(data)
-    if not data.get("bootstrap_private_github_repo"):
-        validate_github(data)
-    validate_age(data)
-    validate_timezone(data)
-    validate_acme_email(data)
-    validate_flux_github_webhook_token(data)
-    validate_cloudflare(data)
-    validate_host_network(data)
-    validate_bootstrap_dns_server(data)
-    validate_cluster_cidrs(data)
-    validate_nodes(data)
+    validate_cli_tools(user_data)
+    validate_distribution(user_data)
+    if not user_data.get("bootstrap_private_github_repo"):
+        validate_github(user_data)
+    validate_age(user_data)
+    validate_timezone(user_data)
+    validate_acme_email(user_data)
+    validate_flux_github_webhook_token(user_data)
+    validate_cloudflare(user_data)
+    validate_host_network(user_data)
+    validate_bootstrap_dns_server(user_data)
+    validate_cluster_cidrs(user_data)
+    validate_nodes(user_data)
