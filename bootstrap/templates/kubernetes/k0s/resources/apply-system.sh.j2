@@ -9,9 +9,8 @@ set -o noglob
 sudo apt-get update -y
 
 # Hostname
-if [ -n "${INSTALL_K0S_HOSTNAME}" ]; then
-    if [ "$(hostnamectl hostname)" != "${INSTALL_K0S_HOSTNAME}" ]; then
-        hostnamectl set-hostname "${INSTALL_K0S_HOSTNAME}"
+if [ -n "${INSTALL_K0S_HOSTNAME}" ] && [ "$(hostnamectl hostname)" != "${INSTALL_K0S_HOSTNAME}" ]; then
+    hostnamectl set-hostname "${INSTALL_K0S_HOSTNAME}"
 tee /etc/hosts > /dev/null <<EOF
 127.0.0.1 localhost
 127.0.1.1 $INSTALL_K0S_HOSTNAME
@@ -19,7 +18,6 @@ tee /etc/hosts > /dev/null <<EOF
 ff02::1   ip6-allnodes
 ff02::2   ip6-allrouters
 EOF
-    fi
 fi
 
 # Timezone
@@ -53,9 +51,9 @@ systemctl restart systemd-modules-load.service
 
 # Sysctls
 cat <<EOF > /etc/sysctl.d/99-kubernetes.conf
-fs.inotify.max_queued_events: 65536
-fs.inotify.max_user_watches: 524288
-fs.inotify.max_user_instances: 8192
+fs.inotify.max_queued_events = 65536
+fs.inotify.max_user_watches = 524288
+fs.inotify.max_user_instances = 8192
 EOF
 sysctl -p /etc/sysctl.d/99-kubernetes.conf
 
