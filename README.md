@@ -363,8 +363,6 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     task talos:apply-extras
     ```
 
-5. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
-
 #### k3s or k0s
 
 1. Install Kubernetes depending on the distribution you chose
@@ -376,6 +374,10 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     task k0s:apply
     ```
 
+#### Cluster validation
+
+1. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
+
 2. Verify the nodes are online
 
     📍 _If this command **fails** you likely haven't configured `direnv` as mentioned previously in the guide._
@@ -383,13 +385,11 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
     ```sh
     kubectl get nodes -o wide
     # NAME           STATUS   ROLES                       AGE     VERSION
-    # k8s-0          Ready    control-plane,etcd,master   1h      v1.27.3+k3s1
-    # k8s-1          Ready    worker                      1h      v1.27.3+k3s1
+    # k8s-0          Ready    control-plane,etcd,master   1h      v1.29.1
+    # k8s-1          Ready    worker                      1h      v1.29.1
     ```
 
-3. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
-
-4. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
+3. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
