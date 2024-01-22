@@ -20,7 +20,7 @@ hubble:
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "#{ bootstrap_cluster_cidr }#"
-#% if bootstrap_ipv6_enabled %#
+#% if bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
 ipv6NativeRoutingCIDR: "#{ bootstrap_cluster_cidr_v6 }#"
 ipv6:
   enabled: true
@@ -38,7 +38,8 @@ k8sServicePort: 7445
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
-  #% if bootstrap_ipv6_enabled %#
+  #% if bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
+  # https://github.com/cilium/cilium/issues/28985
   enabled: false
   #% else %#
   enabled: true
