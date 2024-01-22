@@ -21,8 +21,8 @@ tasks:
 
   deps:
     desc: Set up Ansible dependencies
+    deps: [":setup-virtual-env"]
     cmds:
-      - task: :setup-virtual-env
       - .venv/bin/python3 -m pip install --upgrade --requirement "{{.ANSIBLE_PIP_REQUIREMENTS_FILE}}"
       - .venv/bin/ansible-galaxy install --role-file "{{.ANSIBLE_REQUIREMENTS_FILE}}" {{if eq .force "true"}}--force{{end}}
     preconditions:
