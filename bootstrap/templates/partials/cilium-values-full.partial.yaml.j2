@@ -8,9 +8,9 @@ cluster:
   id: 1
 containerRuntime:
   integration: containerd
-  #% if bootstrap_distribution == "k3s" %#
+  #% if bootstrap_distribution in ['k3s'] %#
   socketPath: /var/run/k3s/containerd/containerd.sock
-  #% elif bootstrap_distribution == "k0s" %#
+  #% elif bootstrap_distribution in ['k0s'] %#
   socketPath: /var/run/k0s/containerd.sock
   #% endif %#
 endpointRoutes:
@@ -59,25 +59,26 @@ hubble:
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "${CLUSTER_CIDR}"
-#% if bootstrap_ipv6_enabled %#
+#% if bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
 ipv6NativeRoutingCIDR: "${CLUSTER_CIDR_V6}"
 ipv6:
   enabled: true
 #% endif %#
-#% if bootstrap_distribution == "k3s" %#
+#% if bootstrap_distribution in ['k3s'] %#
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 6444
-#% elif bootstrap_distribution == "k0s"  %#
+#% elif bootstrap_distribution in ['k0s'] %#
 k8sServiceHost: localhost
 k8sServicePort: 7443
-#% elif bootstrap_distribution == "talos"  %#
+#% elif bootstrap_distribution in ['talos'] %#
 k8sServiceHost: localhost
 k8sServicePort: 7445
 #% endif %#
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
-  #% if bootstrap_ipv6_enabled %#
+  #% if bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
+  # https://github.com/cilium/cilium/issues/28985
   enabled: false
   #% else %#
   enabled: true

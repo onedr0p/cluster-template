@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == 'k0s' %#
+#% if bootstrap_distribution in ['k0s'] %#
 ---
 apiVersion: k0sctl.k0sproject.io/v1beta1
 kind: Cluster
@@ -91,7 +91,7 @@ spec:
             charts:
               - name: cilium
                 chartname: cilium/cilium
-                # renovate: datasource=github-releases depName=cilium/cilium
+                # renovate: datasource=helm depName=cilium repository=https://helm.cilium.io
                 version: "1.14.5"
                 namespace: kube-system
                 values: |2

@@ -83,14 +83,14 @@ def validate_python_version() -> None:
 
 @required("bootstrap_distribution")
 def validate_cli_tools(distribution: str, **_) -> None:
-    distro = _validate_distribution(distribution)
+    _distribution = _validate_distribution(distribution)
     for tool in GLOBAL_CLI_TOOLS:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
-    for tool in TALOS_CLI_TOOLS if distro == "talos" else []:
+    for tool in TALOS_CLI_TOOLS if _distribution in ["talos"] else []:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
-    for tool in K0S_CLI_TOOLS if distro == "k0s" else []:
+    for tool in K0S_CLI_TOOLS if _distribution in ["k0s"] else []:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
 
@@ -125,15 +125,14 @@ def validate_timezone(timezone: str, **_) -> None:
         raise ValueError(f"Invalid timezone {timezone}")
 
 
-@required("bootstrap_ipv6_enabled", "bootstrap_cluster_cidr", "bootstrap_service_cidr")
-def validate_cluster_cidrs(ipv6_enabled: bool, cluster_cidr: str, service_cidr: str, **_) -> None:
-    if not isinstance(ipv6_enabled, bool):
-        raise ValueError(f"Invalid IPv6 enabled {ipv6_enabled}")
+@required("bootstrap_cluster_cidr", "bootstrap_service_cidr", "bootstrap_advanced_flags")
+def validate_cluster_cidrs(cluster_cidr: str, service_cidr: str, advanced_flags: dict, **_) -> None:
+    dual_stack_ipv4_first = advanced_flags.get("dual_stack_ipv4_first", False)
 
     if cluster_cidr == service_cidr:
         raise ValueError(f"Cluster CIDR {cluster_cidr} is the same as service CIDR {service_cidr}")
 
-    if ipv6_enabled:
+    if dual_stack_ipv4_first:
         if len(cluster_cidr.split(",")) != 2:
             raise ValueError(f"Invalid cluster CIDR {cluster_cidr}")
         if len(service_cidr.split(",")) != 2:

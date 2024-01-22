@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == 'k3s' %#
+#% if bootstrap_distribution in ['k3s'] %#
 ---
 # https://docs.k3s.io/helm
 apiVersion: helm.cattle.io/v1
@@ -9,7 +9,7 @@ metadata:
 spec:
   repo: https://helm.cilium.io/
   chart: cilium
-  # renovate: datasource=github-releases depName=cilium/cilium
+  # renovate: datasource=helm depName=cilium repository=https://helm.cilium.io
   version: "1.14.5"
   targetNamespace: kube-system
   bootstrap: true

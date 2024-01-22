@@ -59,11 +59,11 @@ bootstrap_kube_additional_tls_sans: []
 #   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
 bootstrap_dns_server: 1.1.1.1
 
-# (Advanced) Enable ipv6
-bootstrap_ipv6_enabled: false
-# For ipv6 use format "10.42.0.0/16,fd78:c889:47fb:10::/60", /60 IPv6 block is enough for 16 nodes
+# The pod CIDR for the cluster, this must not overlap with any existing networks
+# If you want to use IPv6 check the advanced flags below
 bootstrap_cluster_cidr: 10.42.0.0/16
-# For ipv6 use format "10.43.0.0/16,fd78:c889:47fb:e0::/112"
+# The service CIDR for the cluster, this must not overlap with any existing networks
+# If you want to use IPv6 check the advanced flags below
 bootstrap_service_cidr: 10.43.0.0/16
 
 # Node information
@@ -99,3 +99,10 @@ bootstrap_nodes:
 #   cilium_loadbalancer_mode: dsr
 #   # Path for openebs openebs-hostpath to use for storage on ALL nodes
 #   local_storage_path: /var/openebs/local
+#   # Enable Dual Stack IPv4 first
+#   # IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
+#   # https://github.com/onedr0p/flux-cluster-template/issues/1148
+#   # Keep in mind that Cilium does not currently support IPv6 L2 announcements.
+#   # Make sure you set bootstrap_cluster_cidr and bootstrap_service_cidr
+#   # to a valid dual stack CIDRs, e.g. "10.42.0.0/16,fd00:10:244::/64"
+#   dual_stack_ipv4_first: false

@@ -53,7 +53,7 @@ spec:
       enabled: true
       serviceMonitor:
         metricRelabelings:
-          #% if bootstrap_distribution == 'k3s' %#
+          #% if bootstrap_distribution in ['k3s'] %#
           # Remove duplicate labels provided by k3s
           - action: keep
             sourceLabels: ["__name__"]
@@ -74,7 +74,7 @@ spec:
       enabled: true
       serviceMonitor:
         metricRelabelings:
-          #% if bootstrap_distribution == 'k3s' %#
+          #% if bootstrap_distribution in ['k3s'] %#
           # Remove duplicate labels provided by k3s
           - action: keep
             sourceLabels: ["__name__"]
@@ -93,7 +93,7 @@ spec:
       #% for item in bootstrap_nodes.master %#
         - "#{ item.address }#"
       #% endfor %#
-      #% if bootstrap_distribution == 'k3s' %#
+      #% if bootstrap_distribution in ['k3s'] %#
       serviceMonitor:
         metricRelabelings:
           # Remove duplicate labels provided by k3s
@@ -107,7 +107,7 @@ spec:
     kubeScheduler:
       enabled: true
       endpoints: *endpoints
-      #% if bootstrap_distribution == 'k3s' %#
+      #% if bootstrap_distribution in ['k3s'] %#
       serviceMonitor:
         metricRelabelings:
           # Remove duplicate labels provided by k3s

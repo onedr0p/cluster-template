@@ -21,7 +21,6 @@ bootstrap_k8s_gateway_addr: 10.10.10.253
 bootstrap_external_ingress_addr: 10.10.10.252
 bootstrap_internal_ingress_addr: 10.10.10.251
 bootstrap_dns_server: 1.1.1.1
-bootstrap_ipv6_enabled: false
 bootstrap_cluster_cidr: 10.42.0.0/16
 bootstrap_service_cidr: 10.43.0.0/16
 bootstrap_nodes:

@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == 'k3s' %#
+#% if bootstrap_distribution in ['k3s'] %#
 ---
 # https://github.com/PyratLabs/ansible-role-k3s
 # renovate: datasource=github-releases depName=k3s-io/k3s
@@ -10,10 +10,7 @@ k3s_use_unsupported_config: true
 k3s_registration_address: "#{ bootstrap_kube_api_addr }#"
 # /var/lib/rancher/k3s/server/manifests
 k3s_server_manifests_templates:
-  - custom-cilium-helmchart.yaml.j2
-  - kube-vip-ds.yaml.j2
-# /var/lib/rancher/k3s/server/manifests
-k3s_server_manifests_urls:
-  - url: https://kube-vip.io/manifests/rbac.yaml
-    filename: kube-vip-rbac.yaml
+  - custom-cilium-helmchart.yaml
+  - kube-vip-ds.yaml
+  - kube-vip-rbac.yaml
 #% endif %#

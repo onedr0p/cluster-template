@@ -1,10 +1,10 @@
-#% if bootstrap_distribution == 'k3s' %#
+#% if bootstrap_distribution in ['k3s'] %#
 ---
 # https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/
 # https://github.com/PyratLabs/ansible-role-k3s
 k3s_control_node: false
 k3s_agent:
-  #% if bootstrap_ipv6_enabled %#
+  #% if bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
   #% else %#
   node-ip: "{{ ansible_host }}"

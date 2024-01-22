@@ -2,7 +2,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  #% if not bootstrap_ipv6_enabled %#
+  #% if not bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
   - ./cilium-l2.yaml
   #% endif %#
   - ./helmrelease.yaml

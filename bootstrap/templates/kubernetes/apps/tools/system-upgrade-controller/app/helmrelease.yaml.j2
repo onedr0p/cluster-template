@@ -1,4 +1,4 @@
-#% if bootstrap_distribution == "k3s" and addon_system_upgrade_controller.enabled %#
+#% if bootstrap_distribution in ['k3s'] and addon_system_upgrade_controller.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease

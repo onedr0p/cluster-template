@@ -25,7 +25,7 @@ spec:
     keepHistory: false
   values:
     linux:
-      #% if bootstrap_distribution == "k0s" %#
+      #% if bootstrap_distribution in ['k0s'] %#
       kubelet: /var/lib/k0s/kubelet
       #% else %#
       kubelet: /var/lib/kubelet
