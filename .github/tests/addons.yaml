@@ -49,8 +49,5 @@ addon_discord_template_notifier:
 addon_volsync:
   enabled: true
 
-addon_spegel:
-  enabled: true
-
 addon_longhorn:
   enabled: true
