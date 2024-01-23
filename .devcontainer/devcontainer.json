@@ -1,23 +1,7 @@
 {
-  "name": "Home Ops",
+  "name": "Flux Cluster Template",
   "image": "ghcr.io/onedr0p/flux-cluster-template/devcontainer:base",
   "postCreateCommand": {
     "deps": "${containerWorkspaceFolder}/.devcontainer/postCreateCommand.sh"
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "minikube": "none"
-    },
-    "ghcr.io/devcontainers-contrib/features/age:1": {},
-    "ghcr.io/devcontainers-contrib/features/cloudflared:1": {},
-    "ghcr.io/devcontainers-contrib/features/go-task:1": {},
-    "ghcr.io/devcontainers-contrib/features/direnv:1": {},
-    "ghcr.io/devcontainers-contrib/features/sops:1": {},
-    "ghcr.io/audacioustux/devcontainers/cilium:1": {},
-    "ghcr.io/dhoeric/features/stern:1": {},
-    "ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
-    "ghcr.io/jsburckhardt/devcontainer-features/flux:1": {},
-    "ghcr.io/rio/features/kustomize:1": {},
-    "ghcr.io/gickis/devcontainer-features/kubeconform:1": {}
   }
 }

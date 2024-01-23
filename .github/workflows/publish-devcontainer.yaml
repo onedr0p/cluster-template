@@ -5,10 +5,12 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: [".devcontainer/devcontainer.build.json"]
+    paths: [".devcontainer/ci/devcontainer.json"]
   pull_request:
     branches: ["main"]
-    paths: [".devcontainer/devcontainer.build.json"]
+    paths: [".devcontainer/ci/devcontainer.json"]
+  schedule:
+    - cron: "0 0 * * 1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -25,13 +27,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
+      #   with:
+      #     platforms: linux/amd64,linux/arm64
 
       - if: ${{ github.event_name != 'pull_request' }}
         name: Login to GitHub Container Registry
@@ -46,6 +48,6 @@ jobs:
         with:
           imageName: ghcr.io/${{ github.repository }}/devcontainer
           imageTag: base,latest
-          platform: linux/amd64,linux/arm64
-          configFile: .devcontainer/devcontainer.build.json
+          # platform: linux/amd64,linux/arm64
+          configFile: .devcontainer/ci/devcontainer.json
           push: ${{ github.event_name == 'pull_request' && 'never' || 'always' }}
