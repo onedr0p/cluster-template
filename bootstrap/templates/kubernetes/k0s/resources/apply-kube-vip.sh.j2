@@ -9,12 +9,12 @@ set -o noglob
 mkdir -p /var/lib/k0s/manifests/kube-vip
 
 # Create kube-vip rbac
-cat <<EOF > /var/lib/k0s/manifests/kube-vip/kube-vip-rbac.yaml
+tee /var/lib/k0s/manifests/kube-vip/kube-vip-rbac.yaml > /dev/null <<EOF
 #% include 'partials/kube-vip-rbac.partial.yaml.j2' %#
 EOF
 
 # Create kube-vip daemonset
-cat <<EOF > /var/lib/k0s/manifests/kube-vip/kube-vip-ds.yaml
+tee /var/lib/k0s/manifests/kube-vip/kube-vip-ds.yaml > /dev/null <<EOF
 #% include 'partials/kube-vip-ds.partial.yaml.j2' %#
 EOF
 #% endif %#

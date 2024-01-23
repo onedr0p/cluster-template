@@ -34,7 +34,7 @@ apt-get install -y --no-install-recommends \
 # Update DNS
 chattr -i /etc/resolv.conf
 rm -f /etc/resolv.conf
-cat <<EOF > /etc/resolv.conf
+tee /etc/resolv.conf > /dev/null <<EOF
 search .
 nameserver #{ bootstrap_dns_server }#
 EOF
@@ -50,7 +50,7 @@ done
 systemctl restart systemd-modules-load.service
 
 # Sysctls
-cat <<EOF > /etc/sysctl.d/99-kubernetes.conf
+tee /etc/sysctl.d/99-kubernetes.conf > /dev/null <<EOF
 fs.inotify.max_queued_events = 65536
 fs.inotify.max_user_watches = 524288
 fs.inotify.max_user_instances = 8192
@@ -66,14 +66,14 @@ if systemctl is-enabled apparmor.service; then
 fi
 
 # Neofetch
-cat <<EOF > /etc/profile.d/neofetch.sh
+tee /etc/profile.d/neofetch.sh > /dev/null <<EOF
 neofetch --config none
 EOF
 chmod 755 /etc/profile.d/neofetch.sh
 
 # Create containerd config
 mkdir -p /etc/k0s/containerd.d
-cat <<EOF > /etc/k0s/containerd.d/default.toml
+tee /etc/k0s/containerd.d/default.toml > /dev/null <<EOF
 [plugins."io.containerd.grpc.v1.cri"]
   enable_unprivileged_ports = true
   enable_unprivileged_icmp = true

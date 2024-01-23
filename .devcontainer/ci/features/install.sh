@@ -35,11 +35,8 @@ for installer_path in \
     "go-task/task!" \
     "k0sproject/k0sctl!" \
     "stern/stern!" \
+    "siderolabs/talos!!?as=talosctl" \
     "yannh/kubeconform!"
 do
     curl -fsSL "https://i.jpillora.com/${installer_path}" | bash
 done
-
-curl -fsSL -o /usr/local/bin/talosctl \
-    "https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-${ARCH}"
-chmod +x /usr/local/bin/talosctl

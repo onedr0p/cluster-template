@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
+set -e
+set -o noglob
+
+# Create the fish configuration directory
+mkdir -p ~/.config/fish/conf.d
 
 # Hook direnv into fish
-cat << EOF > ~/.config/fish/conf.d/direnv.fish
+tee ~/.config/fish/conf.d/direnv.fish > /dev/null <<EOF
 direnv hook fish | source
 EOF
 
 # Hook starship into fish
-cat << EOF > ~/.config/fish/conf.d/starship.fish
+tee ~/.config/fish/conf.d/starship.fish > /dev/null <<EOF
 starship init fish | source
 EOF
 
