@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
   "name": "Flux Cluster Template",
   "image": "ghcr.io/onedr0p/flux-cluster-template/devcontainer:base",
   "postCreateCommand": {

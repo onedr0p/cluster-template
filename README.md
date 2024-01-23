@@ -158,17 +158,23 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 3. Continue on to 🌱 [**Stage 2**](#-stage-2-setup-your-local-workstation-environment)
 
-### 🌱 Stage 2: Setup your local workstation environment
+### 🌱 Stage 2: Setup your local workstation
+
+#### devcontainer
+
+1. The included `devcontainer` has all the required CLI tools installed all setup and ready to go. Open your repository in VSCode and switch to it.
+
+2. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
+
+#### Non-devcontainer
 
 1. Install the most recent version of [task](https://taskfile.dev/), see the [installation docs](https://taskfile.dev/installation/) for other supported platforms.
-
-    📍 _If using **ArchLinux** the `task` command is `go-task` in your shell_
 
     ```sh
     # Homebrew
     brew install go-task
     # or, Arch / yay
-    yay -S go-task
+    yay -S go-task && ln -sf /usr/bin/go-task /usr/local/bin/task
     ```
 
 2. Install the most recent version of [direnv](https://direnv.net/), see the [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
@@ -182,11 +188,9 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
     📍 _After `direnv` is installed be sure to **[hook it into your preferred shell](https://direnv.net/docs/hook.html)** and then run `task workstation:direnv`_
 
-3. Install **required** CLI tools: [age](https://github.com/FiloSottile/age), [cloudflared](https://github.com/cloudflare/cloudflared), [flux](https://toolkit.fluxcd.io/), [kubeconform](https://github.com/yannh/kubeconform), [kubectl](https://kubectl.docs.kubernetes.io/installation/), [kustomize](https://kubectl.docs.kubernetes.io/installation/), [sops](https://github.com/getsops/sops).
+3. Install the additional **required** CLI tools
 
-   📍 _[k0sctl](https://github.com/k0sproject/k0sctl) is required for k0s. [talosctl](https://www.talos.dev/latest/learn-more/talosctl/) and [talhelper](https://github.com/budimanjojo/talhelper) is required for Talos._
-
-   📍 _Not using Homebrew or ArchLinux? Make sure to look up how to install the latest version of each of these CLI tools and install them._
+   📍 _**Not using Homebrew or ArchLinux?** Make sure to look up how to install the **latest** version of the CLI tools listed in the [Brewfile](.taskfiles/Workstation/Brewfile)/[Archfile](.taskfiles/Workstation/Archfile) and install them._
 
     ```sh
     # Homebrew

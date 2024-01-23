@@ -5,10 +5,10 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: [".devcontainer/ci/devcontainer.json"]
+    paths: [".devcontainer/ci/**"]
   pull_request:
     branches: ["main"]
-    paths: [".devcontainer/ci/devcontainer.json"]
+    paths: [".devcontainer/ci/**"]
   schedule:
     - cron: "0 0 * * 1"
 
@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   devcontainer:
-    name: Publish devcontainer
+    name: publish
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,13 +27,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-      #   with:
-      #     platforms: linux/amd64,linux/arm64
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
 
       - if: ${{ github.event_name != 'pull_request' }}
         name: Login to GitHub Container Registry
@@ -45,9 +45,12 @@ jobs:
 
       - name: Build and push
         uses: devcontainers/ci@v0.3
+        env:
+          BUILDX_NO_DEFAULT_ATTESTATIONS: true
         with:
           imageName: ghcr.io/${{ github.repository }}/devcontainer
+          cacheFrom: ghcr.io/${{ github.repository }}/devcontainer
           imageTag: base,latest
-          # platform: linux/amd64,linux/arm64
+          platform: linux/amd64,linux/arm64
           configFile: .devcontainer/ci/devcontainer.json
           push: ${{ github.event_name == 'pull_request' && 'never' || 'always' }}
