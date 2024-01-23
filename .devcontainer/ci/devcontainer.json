@@ -1,6 +1,10 @@
 {
+  "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
   "name": "Flux Cluster Template (CI)",
-  "image": "mcr.microsoft.com/devcontainers/base:alpine",
+  "build": {
+    "dockerfile": "./Dockerfile",
+    "context": "."
+  },
   "features": {
     "./features": {}
   },
