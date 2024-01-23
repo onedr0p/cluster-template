@@ -37,5 +37,5 @@ curl https://i.jpillora.com/budimanjojo/talhelper! | sudo bash
 curl https://i.jpillora.com/yannh/kubeconform! | sudo bash
 
 curl -fsSL -o /usr/local/bin/talosctl \
-    "https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-arm64"
+    "https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-${ARCH}"
 chmod +x /usr/local/bin/talosctl
