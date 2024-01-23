@@ -26,15 +26,19 @@ apk add --no-cache \
 # Install Tools not in Alpine Repositories
 #
 
-curl -fsSL "https://i.jpillora.com/budimanjojo/talhelper!" | bash
-curl -fsSL "https://i.jpillora.com/cilium/cilium-cli!!?as=cilium" | bash
-curl -fsSL "https://i.jpillora.com/cli/cli!!?as=gh" | bash
-curl -fsSL "https://i.jpillora.com/cloudflare/cloudflared!" | bash
-curl -fsSL "https://i.jpillora.com/fluxcd/flux2!!?as=flux" | bash
-curl -fsSL "https://i.jpillora.com/go-task/task!" | bash
-curl -fsSL "https://i.jpillora.com/k0sproject/k0sctl!" | bash
-curl -fsSL "https://i.jpillora.com/stern/stern!" | bash
-curl -fsSL "https://i.jpillora.com/yannh/kubeconform!" | bash
+for installer_path in \
+    "budimanjojo/talhelper!" \
+    "cilium/cilium-cli!!?as=cilium" \
+    "cli/cli!!?as=gh" \
+    "cloudflare/cloudflared!" \
+    "fluxcd/flux2!!?as=flux" \
+    "go-task/task!" \
+    "k0sproject/k0sctl!" \
+    "stern/stern!" \
+    "yannh/kubeconform!"
+do
+    curl -fsSL "https://i.jpillora.com/${installer_path}" | bash
+done
 
 curl -fsSL -o /usr/local/bin/talosctl \
     "https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-${ARCH}"
