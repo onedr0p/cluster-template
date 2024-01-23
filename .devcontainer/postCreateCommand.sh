@@ -2,6 +2,7 @@
 
 # Hook direnv into zsh
 if [[ -f "/home/vscode/.zshrc" ]]; then
+    # shellcheck disable=SC2016
     echo -e 'eval "$(direnv hook zsh)"' >> /home/vscode/.zshrc
 fi
 
