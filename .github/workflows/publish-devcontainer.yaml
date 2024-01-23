@@ -41,12 +41,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        # if: ${{ github.event.pull_request.base.ref == 'main' && github.event_name == 'pull_request' }}
         uses: devcontainers/ci@v0.3
         with:
           imageName: ghcr.io/${{ github.repository }}/devcontainer
           cacheFrom: ghcr.io/${{ github.repository }}/devcontainer
-          imageTag: latest
+          imageTag: base,latest
           platform: linux/amd64 # ,linux/arm64
           configFile: .devcontainer/devcontainer.build.json
-          push: always
+          push: ${{ github.event_name == 'pull_request' && 'never' || 'always' }}
