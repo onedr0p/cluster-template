@@ -6,7 +6,7 @@
     "SOPS_AGE_KEY_FILE": "${containerWorkspaceFolder}/age.key"
   },
   "postCreateCommand": {
-    "deps": "task setup-virtual-env"
+    "deps": "task workstation:venv"
   },
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
