@@ -26,6 +26,7 @@ apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
     cilium-cli flux stern
 
+# Naming things is hard
 ln -s /usr/bin/go-task /usr/local/bin/task
 
 #
