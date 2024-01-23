@@ -11,25 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  yay:
-    name: workstation (yay)
-    runs-on: ubuntu-latest
-    container:
-      image: greyltc/archlinux-aur:yay
-      options: --user root
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Test Arch dependencies
-        shell: bash
-        run: >-
-          sudo -E -u ab -D~ bash -c '
-          cd $GITHUB_WORKSPACE;
-          yay -Syu --needed --noconfirm --noprogressbar go-task;
-          go-task workstation:yay
-          '
-
   configure:
     name: configure
     runs-on: ubuntu-latest

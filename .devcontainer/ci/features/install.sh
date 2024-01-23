@@ -1,9 +1,9 @@
 #!/bin/sh
 
 ARCH="$(uname -m)"
-if [ "$ARCH" == "x86_64" ]; then
+if [ "$ARCH" = "x86_64" ]; then
     ARCH="amd64"
-elif [ "$ARCH" == "aarch64" ]; then
+elif [ "$ARCH" = "aarch64" ]; then
     ARCH="arm64"
 fi
 
@@ -13,7 +13,7 @@ fi
 
 apk add --no-cache \
     bash bind-tools ca-certificates curl python3 \
-    py3-pip moreutils jq git \
+    py3-pip moreutils jq git iputils \
     openssh-client
 
 apk add --no-cache \
@@ -27,15 +27,15 @@ apk add --no-cache \
     cilium-cli flux stern
 
 # Naming things is hard
-ln -s /usr/bin/go-task /usr/local/bin/task
+ln -sf /usr/bin/go-task /usr/local/bin/task
 
 #
 # Install Tools not in Alpine Repositories
 #
 
-curl https://i.jpillora.com/cloudflare/cloudflared! | sudo bash
-curl https://i.jpillora.com/budimanjojo/talhelper! | sudo bash
-curl https://i.jpillora.com/yannh/kubeconform! | sudo bash
+curl https://i.jpillora.com/cloudflare/cloudflared! | bash
+curl https://i.jpillora.com/budimanjojo/talhelper! | bash
+curl https://i.jpillora.com/yannh/kubeconform! | bash
 
 curl -fsSL -o /usr/local/bin/talosctl \
     "https://github.com/siderolabs/talos/releases/latest/download/talosctl-linux-${ARCH}"
