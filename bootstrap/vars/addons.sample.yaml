@@ -10,7 +10,7 @@ addon_homepage:
 # https://github.com/grafana/grafana
 addon_grafana:
   enabled: false
-  # password: # password for `admin` user
+  # password: # Required: password for `admin` user
 
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 addon_kube_prometheus_stack:
@@ -19,13 +19,44 @@ addon_kube_prometheus_stack:
 # https://github.com/kubernetes/dashboard
 addon_kubernetes_dashboard:
   enabled: false
-  # Password can be obtained by running the following command once it is deployed:
-  # kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}' | base64 -d
+  # NOTE: Password can be obtained by running the following command once it is deployed:
+  #   kubectl -n monitoring get secret kubernetes-dashboard -o jsonpath='{.data.token}' | base64 -d
 
 # https://github.com/weaveworks/weave-gitops
 addon_weave_gitops:
   enabled: false
-  # password: # password for `admin` user
+  # password: # Required: password for `admin` user
+
+# https://github.com/rancher/system-upgrade-controller
+addon_system_upgrade_controller:
+  # IMPORTANT: Only enable this if you also track the version of k3s in the
+  #   ansible configuration files. Running ansible against an already provisioned
+  #   cluster with this enabled might cause your cluster to be downgraded.
+  # NOTE: If bootstrap_distribution is set to k0s or talos this will be ignored.
+  enabled: false
+
+# https://github.com/morphy2k/rss-forwarder
+addon_discord_template_notifier:
+  # Will post commits from the template repository to the specified discord channel
+  # so it's easier to keep track of changes.
+  enabled: false
+  # webhook_url: # Required: Discord webhook url
+
+# https://github.com/backube/volsync
+addon_volsync:
+  enabled: false
+
+# https://github.com/longhorn/longhorn
+addon_longhorn:
+  # IMPORTANT: Only enable this if you have 3 or more nodes in your cluster
+  # and you have enough IOPS on disk to support the number of replicas.
+  # NOTE: Longhorn is currently unsupported in Talos, this will be ignored
+  #   if you are using Talos.
+  # NOTE: Consider enabling volsync if you would like to configure snapshots
+  #   and backups to durable storage.
+  # NOTE: You must label any node that you want to allocate storage to longhorn
+  #   e.g. kubectl label --overwrite node <node name> node.longhorn.io/create-default-disk="true"
+  enabled: false
 
 # https://github.com/kubernetes-csi/csi-driver-nfs
 addon_csi_driver_nfs:
@@ -41,45 +72,14 @@ addon_csi_driver_smb:
   enabled: false
   create_secrets: true # set to false to disable secret template rendering
   storage_class:
-    # - name:      # name of the storage class (must match [a-z0-9-]+)
-    #   source:    # network path of the smb share ie: //192.168.0.5/downloads
-    #   username:  # share credentials
-    #   password:  # share credentials
-    #   dir_mode:  # default 0777
-    #   file_mode: # default 0666
-    #   uid:       # default 1000
-    #   gid:       # default 1000
-    #   secret_name:      # default {name}-secret
-    #   secret_namespace: # default storage
+    # - name:             # name of the storage class (must match [a-z0-9-]+)
+    #   source:           # network path of the smb share e.g. //192.168.0.5/downloads
+    #   username:         # share credentials
+    #   password:         # share credentials
+    #   dir_mode:         # default 0777
+    #   file_mode:        # default 0666
+    #   uid:              # default 1000
+    #   gid:              # default 1000
+    #   secret_name:      # default "{name}-secret"
+    #   secret_namespace: # default "storage"
     # ...
-
-# https://github.com/rancher/system-upgrade-controller
-addon_system_upgrade_controller:
-  # IMPORTANT: Only enable this if you also track the version of k3s in the
-  # ansible configuration files. Running ansible against an already provisioned
-  # cluster with this enabled might cause your cluster to be downgraded.
-  # Note: If bootstrap_distribution is set to k0s or talos this will be ignored.
-  enabled: false
-
-# https://github.com/morphy2k/rss-forwarder
-addon_discord_template_notifier:
-  # Will post commits from the template repository to the specified discord channel
-  # so it's easier to keep track of changes.
-  enabled: false
-  webhook_url: # Discord webhook url
-
-# https://github.com/backube/volsync
-addon_volsync:
-  enabled: false
-
-# https://github.com/longhorn/longhorn
-addon_longhorn:
-  # IMPORTANT: Only enable this if you have 3 or more nodes in your cluster
-  # and you have enough IOPS on disk to support the number of replicas.
-  # Longhorn is currently unsupported in Talos
-  # NOTE: Consider enabling volsync if you would like to configure snapshots
-  # and backups to durable storage.
-  # NOTE: You must label any node that you want to allocate storage to longhorn
-  # with label node.longhorn.io/create-default-disk="true"
-  # ie: kubectl label --overwrite node <node name> node.longhorn.io/create-default-disk="true"
-  enabled: false
