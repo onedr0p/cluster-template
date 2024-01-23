@@ -16,7 +16,7 @@ fi
 apk add --no-cache \
     bash bind-tools ca-certificates curl python3 \
         py3-pip moreutils jq git iputils \
-            openssh-client
+            openssh-client starship
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
