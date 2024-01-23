@@ -162,7 +162,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 #### devcontainer
 
-1. Use the included `devcontainer` by opening your repository in VSCode and switching to it.
+1. The included `devcontainer` has all the required CLI tools installed all setup and ready to go. Open your repository in VSCode and switch to it.
 
 2. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
 
