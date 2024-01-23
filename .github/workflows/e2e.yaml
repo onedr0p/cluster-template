@@ -11,18 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  devcontainer:
-    name: devcontainer
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Pre-build dev container image
-        uses: devcontainers/ci@v0.3
-
   yay:
-    name: yay
+    name: workstation (yay)
     runs-on: ubuntu-latest
     container:
       image: greyltc/archlinux-aur:yay
