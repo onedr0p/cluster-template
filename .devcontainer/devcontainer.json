@@ -3,6 +3,6 @@
   "name": "Flux Cluster Template",
   "image": "ghcr.io/onedr0p/flux-cluster-template/devcontainer:base",
   "postCreateCommand": {
-    "deps": "bash ${containerWorkspaceFolder}/.devcontainer/postCreateCommand.sh"
+    "deps": "${containerWorkspaceFolder}/.devcontainer/postCreateCommand.sh"
   }
 }

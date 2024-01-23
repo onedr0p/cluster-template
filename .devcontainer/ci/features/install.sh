@@ -34,6 +34,7 @@ for installer_path in \
     "fluxcd/flux2!!?as=flux" \
     "go-task/task!" \
     "k0sproject/k0sctl!" \
+    "derailed/k9s!" \
     "stern/stern!" \
     "siderolabs/talos!!?as=talosctl" \
     "yannh/kubeconform!"
