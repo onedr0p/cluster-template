@@ -5,10 +5,10 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: [".devcontainer/ci/devcontainer.json"]
+    paths: [".devcontainer/ci/**"]
   pull_request:
     branches: ["main"]
-    paths: [".devcontainer/ci/devcontainer.json"]
+    paths: [".devcontainer/ci/**"]
   schedule:
     - cron: "0 0 * * 1"
 
