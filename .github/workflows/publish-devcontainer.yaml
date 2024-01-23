@@ -18,6 +18,9 @@ jobs:
   publish-devcontainer:
     name: Publish devcontainer
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +41,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
+        # if: ${{ github.event.pull_request.base.ref == 'main' && github.event_name == 'pull_request' }}
         uses: devcontainers/ci@v0.3
         with:
           imageName: ghcr.io/${{ github.repository }}/devcontainer
