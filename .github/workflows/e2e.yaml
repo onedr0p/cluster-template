@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   yay:
-    name: yay
+    name: workstation (yay)
     runs-on: ubuntu-latest
     container:
       image: greyltc/archlinux-aur:yay
