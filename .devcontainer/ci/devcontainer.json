@@ -1,9 +1,6 @@
 {
   "name": "Flux Cluster Template (CI)",
-  "build": {
-    "dockerfile": "./Dockerfile",
-    "context": "."
-  },
+  "image": "mcr.microsoft.com/devcontainers/base:alpine",
   "features": {
     "./features": {}
   },
