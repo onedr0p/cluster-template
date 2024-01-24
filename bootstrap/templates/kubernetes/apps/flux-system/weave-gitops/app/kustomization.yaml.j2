@@ -1,8 +1,6 @@
-#% if addon_weave_gitops.enabled %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./secret.sops.yaml
   - ./helmrelease.yaml
-#% endif %#

@@ -1,12 +1,18 @@
+import importlib.util
+import sys
+from collections.abc import Callable
+from pathlib import Path
 from typing import Any
-import bcrypt
-import makejinja
-import netaddr
 
+from typing import Any
+from bcrypt import hashpw, gensalt
+from netaddr import IPNetwork
+
+import makejinja
 import validation
 
 def nthhost(value: str, query: int) -> str:
-    value = netaddr.IPNetwork(value)
+    value = IPNetwork(value)
     try:
         nth = int(query)
         if value.size > nth:
@@ -16,11 +22,40 @@ def nthhost(value: str, query: int) -> str:
     return value
 
 def encrypt(value: str) -> str:
-    return bcrypt.hashpw(value.encode(), bcrypt.gensalt(rounds=10)).decode("ascii")
+    return hashpw(value.encode(), gensalt(rounds=10)).decode("ascii")
+
+def import_filter(file: Path) -> Callable[[dict[str, Any]], bool]:
+    module_path = file.relative_to(Path.cwd()).with_suffix("")
+    module_name = str(module_path).replace("/", ".")
+    spec = importlib.util.spec_from_file_location(module_name, file)
+    assert spec is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module.main
 
 class Plugin(makejinja.plugin.Plugin):
-    def __init__(self, data: dict[str, Any]):
+    def __init__(self, data: dict[str, Any], config: makejinja.config.Config):
+        self._data = data
+        self._config = config
+
+        self._excluded_dirs: set[Path] = set()
+        for input_path in config.inputs:
+            for filter_file in input_path.rglob(".mjfilter.py"):
+                filter_func = import_filter(filter_file)
+                if filter_func(data) is False:
+                    self._excluded_dirs.add(filter_file.parent)
+
         validation.validate(data)
 
     def filters(self) -> makejinja.plugin.Filters:
         return [nthhost, encrypt]
+
+    def path_filters(self):
+        return [self._mjfilter_func]
+
+    def _mjfilter_func(self, path: Path) -> bool:
+        return not any(
+            path.is_relative_to(excluded_dir) for excluded_dir in self._excluded_dirs
+        )

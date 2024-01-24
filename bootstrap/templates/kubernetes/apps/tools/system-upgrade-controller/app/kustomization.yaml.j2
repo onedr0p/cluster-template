@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k3s'] and addon_system_upgrade_controller.enabled %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -7,4 +6,3 @@ resources:
   - https://github.com/rancher/system-upgrade-controller/releases/download/v0.13.2/crd.yaml
   - helmrelease.yaml
   - rbac.yaml
-#% endif %#

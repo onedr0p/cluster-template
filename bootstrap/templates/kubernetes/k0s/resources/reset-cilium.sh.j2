@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s'] %#
 #!/usr/bin/env bash
 set -e
 set -o noglob
@@ -39,4 +38,3 @@ remove_interfaces
 reset_iptables
 rm -rf /var/lib/cni
 rm -rf /etc/cni/net.d
-#% endif %#

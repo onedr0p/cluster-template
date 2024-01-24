@@ -1,4 +1,3 @@
-#% if addon_csi_driver_nfs.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -29,4 +28,3 @@ spec:
     #% if bootstrap_distribution in ['k0s'] %#
     kubeletDir: /var/lib/k0s/kubelet
     #% endif %#
-#% endif %#

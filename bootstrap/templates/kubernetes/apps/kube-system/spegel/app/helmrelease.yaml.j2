@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s', 'talos'] %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -28,10 +27,12 @@ spec:
       #% if bootstrap_distribution in ['k0s'] %#
       containerdSock: /run/k0s/containerd.sock
       containerdRegistryConfigPath: /var/lib/k0s/containerd/certs.d
+      #% elif bootstrap_distribution in ['talos'] %#
+      containerdSock: /run/containerd/containerd.sock
+      containerdRegistryConfigPath: /etc/cri/conf.d/hosts
       #% endif %#
     service:
       registry:
         hostPort: 29999
     serviceMonitor:
       enabled: true
-#% endif %#

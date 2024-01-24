@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s'] %#
 #!/usr/bin/env bash
 set -e
 set -o noglob
@@ -13,4 +12,3 @@ rm -rf "#{ bootstrap_advanced_flags.local_storage_path|default('/var/openebs/loc
 
 # Reboot
 (sleep 10 && systemctl reboot)&
-#% endif %#

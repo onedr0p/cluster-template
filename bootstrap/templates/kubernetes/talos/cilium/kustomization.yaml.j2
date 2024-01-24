@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['talos'] %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -14,4 +13,3 @@ commonAnnotations:
   meta.helm.sh/release-namespace: kube-system
 commonLabels:
   app.kubernetes.io/managed-by: Helm
-#% endif %#

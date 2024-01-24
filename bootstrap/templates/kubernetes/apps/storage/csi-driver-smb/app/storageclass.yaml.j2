@@ -1,4 +1,3 @@
-#% if addon_csi_driver_smb.enabled %#
 #% for item in addon_csi_driver_smb.storage_class %#
 ---
 apiVersion: storage.k8s.io/v1
@@ -22,4 +21,3 @@ mountOptions:
   - cache=strict
   - noserverino # required to prevent data corruption
 #% endfor %#
-#% endif %#

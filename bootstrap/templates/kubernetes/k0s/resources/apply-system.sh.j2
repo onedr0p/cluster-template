@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s'] %#
 #!/usr/bin/env bash
 set -e
 set -o noglob
@@ -84,4 +83,3 @@ tee /etc/k0s/containerd.d/default.toml > /dev/null <<EOF
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
   discard_unpacked_layers = false
 EOF
-#% endif %#

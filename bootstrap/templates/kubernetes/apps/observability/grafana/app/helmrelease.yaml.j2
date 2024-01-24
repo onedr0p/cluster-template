@@ -1,4 +1,3 @@
-#% if addon_grafana.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -180,4 +179,3 @@ spec:
       storageClassName: openebs-hostpath
     testFramework:
       enabled: false
-#% endif %#

@@ -1,8 +1,6 @@
-#% if addon_kubernetes_dashboard.enabled %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./rbac.yaml
   - ./helmrelease.yaml
-#% endif %#

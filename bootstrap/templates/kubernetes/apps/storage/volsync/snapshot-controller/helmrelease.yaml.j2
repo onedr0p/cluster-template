@@ -25,6 +25,11 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  #% if bootstrap_distribution in ['k0s', 'k3s'] and addon_longhorn.enabled %#
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+  #% endif %#
   values:
     controller:
       #% if bootstrap_distribution in ['k0s', 'k3s'] and addon_longhorn.enabled %#
