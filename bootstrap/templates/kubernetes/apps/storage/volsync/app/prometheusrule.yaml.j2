@@ -1,4 +1,3 @@
-#% if addon_volsync.enabled %#
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -22,4 +21,3 @@ spec:
           for: 15m
           labels:
             severity: critical
-#% endif %#

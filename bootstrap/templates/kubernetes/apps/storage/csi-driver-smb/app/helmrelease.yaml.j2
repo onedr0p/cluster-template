@@ -1,4 +1,3 @@
-#% if addon_csi_driver_smb.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -30,4 +29,3 @@ spec:
       #% else %#
       kubelet: /var/lib/kubelet
       #% endif %#
-#% endif %#

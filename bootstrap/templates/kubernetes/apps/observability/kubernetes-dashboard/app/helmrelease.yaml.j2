@@ -1,4 +1,3 @@
-#% if addon_kubernetes_dashboard.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -45,4 +44,3 @@ spec:
             - *host
     metricsScraper:
       enabled: true
-#% endif %#

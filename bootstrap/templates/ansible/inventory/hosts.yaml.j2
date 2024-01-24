@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s', 'k3s'] %#
 ---
 kubernetes:
   children:
@@ -18,4 +17,3 @@ kubernetes:
           ansible_host: "#{ item.address }#"
       #% endfor %#
     #% endif %#
-#% endif %#

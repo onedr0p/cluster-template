@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k3s'] and addon_system_upgrade_controller.enabled %#
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -12,4 +11,3 @@ subjects:
   - kind: ServiceAccount
     name: system-upgrade
     namespace: tools
-#% endif %#

@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s', 'k3s'] and addon_longhorn.enabled %#
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -13,4 +12,3 @@ allowVolumeExpansion: true
 volumeBindingMode: Immediate
 metadata:
   name: longhorn-snapshot
-#% endif %#

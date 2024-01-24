@@ -17,6 +17,8 @@ vars:
   SOPS_AGE_FILE: "{{.ROOT_DIR}}/age.key"
   # Binaries
   PYTHON_BIN: python3
+  # Python
+  PYTHONDONTWRITEBYTECODE: "1"
 
 includes:
   ansible: .taskfiles/Ansible/Taskfile.yaml

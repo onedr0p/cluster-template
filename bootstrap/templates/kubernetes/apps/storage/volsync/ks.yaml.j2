@@ -1,4 +1,3 @@
-#% if addon_volsync.enabled %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -10,10 +9,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  #% if addon_longhorn.enabled %#
-  dependsOn:
-    - name: longhorn
-  #% endif %#
   path: ./kubernetes/apps/storage/volsync/snapshot-controller
   prune: true
   sourceRef:
@@ -43,4 +38,3 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
-#% endif %#

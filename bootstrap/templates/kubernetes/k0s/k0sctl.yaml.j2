@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s'] %#
 ---
 apiVersion: k0sctl.k0sproject.io/v1beta1
 kind: Cluster
@@ -98,4 +97,3 @@ spec:
                   #% filter indent(width=18, first=True) %#
                   #% include 'partials/cilium-values-init.partial.yaml.j2' %#
                   #% endfilter %#
-#% endif %#

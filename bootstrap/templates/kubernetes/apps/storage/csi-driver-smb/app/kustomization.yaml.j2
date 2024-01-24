@@ -1,11 +1,11 @@
-#% if addon_csi_driver_smb.enabled %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./helmrelease.yaml
+  #% if addon_csi_driver_smb.storage_class|length > 0 %#
   - ./storageclass.yaml
+  #% endif %#
   #% if addon_csi_driver_smb.create_secrets|default(true) %#
   - ./secrets.sops.yaml
   #% endif %#
-#% endif %#

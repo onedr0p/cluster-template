@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s', 'k3s'] %#
 ---
 # https://github.com/kevincoakley/ansible-role-k8s-rolling-update
 - name: Cluster rollout update
@@ -56,8 +55,7 @@
               terminate_grace_period: 600
               wait_timeout: 900
             pod_selectors:
-              # Rook Ceph
-              - app!=rook-ceph-osd
+              - app!=rook-ceph-osd # Rook Ceph
           delegate_to: "{{ groups['master'][0] }}"
 
         - name: Update
@@ -87,4 +85,3 @@
             #% endif %#
             state: uncordon
           delegate_to: "{{ groups['master'][0] }}"
-#% endif %#

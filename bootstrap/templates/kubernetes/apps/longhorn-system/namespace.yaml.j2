@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s', 'k3s'] and addon_longhorn.enabled %#
 ---
 apiVersion: v1
 kind: Namespace
@@ -6,4 +5,3 @@ metadata:
   name: longhorn-system
   labels:
     kustomize.toolkit.fluxcd.io/prune: disabled
-#% endif %#

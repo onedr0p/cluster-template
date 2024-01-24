@@ -1,4 +1,3 @@
-#% if addon_weave_gitops.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
@@ -55,4 +54,3 @@ spec:
       impersonationResourceNames: ["admin"]
     podAnnotations:
       secret.reloader.stakater.com/reload: cluster-user-auth
-#% endif %#

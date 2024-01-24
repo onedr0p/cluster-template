@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s', 'k3s'] %#
 ---
 - name: Reboot
   hosts: kubernetes
@@ -14,4 +13,3 @@
       ansible.builtin.reboot:
         msg: Rebooting nodes
         reboot_timeout: 3600
-#% endif %#

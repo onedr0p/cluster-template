@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['k0s', 'k3s'] %#
 ---
 - name: Cluster kube-vip
   hosts: master
@@ -28,4 +27,3 @@
         dest: "/var/lib/k0s/manifests/kube-vip/kube-vip-ds.yaml"
         #% endif %#
         mode: preserve
-#% endif %#

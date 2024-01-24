@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ['talos'] %#
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
 # renovate: depName=ghcr.io/siderolabs/installer datasource=docker extractVersion=^(?<version>.*)$
@@ -178,4 +177,3 @@ worker:
     - *nameserverPatch
     - *ntpPatch
     - *sysctlPatch
-#% endif %#
