@@ -63,7 +63,7 @@ EOF
 # Custom fish prompt
 tee /home/vscode/.config/fish/conf.d/fish_greeting.fish > /dev/null <<EOF
 function fish_greeting
-    echo (set_color yellow)"Welcome! Press [enter] to clear the direnv error"
+    echo (set_color yellow)"Welcome! Press [enter] if you see a direnv error"
 end
 EOF
 

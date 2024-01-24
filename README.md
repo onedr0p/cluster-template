@@ -175,8 +175,8 @@ You have two different options for setting up your local workstation. First one 
     ```sh
     # Homebrew
     brew install go-task
-    # or, Arch / yay
-    yay -S go-task && ln -sf /usr/bin/go-task /usr/local/bin/task
+    # or, Arch
+    pacman -S --noconfirm go-task && ln -sf /usr/bin/go-task /usr/local/bin/task
     ```
 
 2. Install the most recent version of [direnv](https://direnv.net/), see the [installation docs](https://direnv.net/docs/installation.html) for other supported platforms.
@@ -184,8 +184,8 @@ You have two different options for setting up your local workstation. First one 
     ```sh
     # Homebrew
     brew install direnv
-    # or, Arch / yay
-    yay -S direnv
+    # or, Arch
+    pacman -S --noconfirm direnv
     ```
 
     📍 _After `direnv` is installed be sure to **[hook it into your preferred shell](https://direnv.net/docs/hook.html)** and then run `task workstation:direnv`_
@@ -197,8 +197,8 @@ You have two different options for setting up your local workstation. First one 
     ```sh
     # Homebrew
     task workstation:brew
-    # or, Arch / yay
-    go-task workstation:yay
+    # or, Arch with yay/paru
+    go-task workstation:arch
     ```
 
 4. Setup a Python virual environment by running the following task command.
