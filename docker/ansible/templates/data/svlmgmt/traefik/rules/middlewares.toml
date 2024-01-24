@@ -46,6 +46,6 @@
         server = ""
   [http.middlewares.middlewares-oauth]
     [http.middlewares.middlewares-oauth.forwardAuth]
-      address = "http://oauth:4181"
+      address = "http://oauth2-proxy:4180"
       trustForwardHeader = true
       authResponseHeaders = ["X-Forwarded-User"]

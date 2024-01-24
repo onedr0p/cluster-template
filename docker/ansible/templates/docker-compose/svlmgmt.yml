@@ -228,9 +228,92 @@ services:
       - "traefik.http.services.unifi.loadbalancer.server.port=8443"
       - "traefik.http.services.unifi-guest.loadbalancer.server.port=8843"
 
+  ## OAuth2 Proxy
+  oauth2_proxy:
+    image: bitnami/oauth2-proxy:7.5.1
+    container_name: oauth2-proxy
+    command: oauth2-proxy
+    depends_on:
+      - traefik
+    networks:
+      - t2_proxy
+      - default
+      - oauth2-proxy-backend
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - OAUTH2_PROXY_HTTP_ADDRESS=http://0.0.0.0:4180
+
+      - OAUTH2_PROXY_COOKIE_NAME=$OAUTH2_PROXY_COOKIE_NAME
+      - OAUTH2_PROXY_COOKIE_SECRET=$OAUTH2_PROXY_COOKIE_SECRET
+      - OAUTH2_PROXY_COOKIE_EXPIRE=48h
+      - OAUTH2_PROXY_COOKIE_REFRESH=24h
+      - OAUTH2_PROXY_COOKIE_SECURE=true
+      #- OAUTH2_PROXY_COOKIE_HTTPONLY=true
+
+      - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=$ORGANIZATION_NAME
+      - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
+      - OAUTH2_PROXY_REVERSE_PROXY=true
+      - OAUTH2_PROXY_REDIRECT_URL=$OAUTH2_PROXY_REDIRECT_URL
+
+      # TODO: [OAuth2-Proxy] Validate the configuration against best practices
+      #- OAUTH2_PROXY_SET_AUTHORIZATION_HEADER=true
+      #- OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER=true
+      #- OAUTH2_PROXY_PASS_USER_HEADERS=true
+      #- OAUTH2_PROXY_SET_XAUTHREQUEST=true
+
+      ## GitHub Auth Config Block
+      - OAUTH2_PROXY_PROVIDER=github
+      - OAUTH2_PROXY_WHITELIST_DOMAINS=$OAUTH2_PROXY_WHITELIST_DOMAINS
+      - OAUTH2_PROXY_CLIENT_ID=$OAUTH2_PROXY_CLIENT_ID
+      - OAUTH2_PROXY_CLIENT_SECRET=$OAUTH2_PROXY_CLIENT_SECRET
+      - OAUTH2_PROXY_EMAIL_DOMAINS=*
+      - OAUTH2_PROXY_GITHUB_USER=DevSecNinja
+      - OAUTH2_PROXY_GITHUB_REPO=DevSecNinja/home
+      - OAUTH2_PROXY_GITHUB_SCOPE=user:email # Fixes 404: https://github.com/oauth2-proxy/oauth2-proxy/issues/1669#issuecomment-1546990955
+      ##
+
+      # TODO: [OAuth2-proxy] Fix the Entra ID configuration
+      # - OAUTH2_PROXY_PROVIDER=azure
+      # - OAUTH2_PROXY_AZURE_TENANT=$OAUTH2_PROXY_AZURE_TENANT_ID
+      # - OAUTH2_PROXY_CLIENT_ID=$OAUTH2_PROXY_AZURE_CLIENT_ID
+      # - OAUTH2_PROXY_CLIENT_SECRET=$OAUTH2_PROXY_AZURE_CLIENT_SECRET
+      # - OAUTH2_PROXY_OIDC_ISSUER_URL=https://login.microsoftonline.com/${OAUTH2_PROXY_AZURE_TENANT_ID}/v2.0
+      # - OAUTH2_PROXY_EMAIL_DOMAINS=$OAUTH2_PROXY_AZURE_EMAIL_DOMAIN
+
+      # TODO: [OAuth2-proxy] Fix the Redis configuration
+      # - OAUTH2_PROXY_SESSION_STORE_TYPE=redis
+      # - OAUTH2_PROXY_REDIS_CONNECTION_URL=redis://oauth2-proxy-redis:6379
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.oauth-rtr.entrypoints=https"
+      - "traefik.http.routers.oauth-rtr.rule=Host(`auth.$DOMAINNAME`)"
+      - "traefik.http.routers.oauth-rtr.tls=true"
+      ## HTTP Services
+      - "traefik.http.routers.oauth-rtr.service=oauth-svc"
+      - "traefik.http.services.oauth-svc.loadbalancer.server.port=4180"
+      ## Middlewares
+      - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
+
+  # oauth2_proxy_redis:
+  #   container_name: oauth2-proxy-redis
+  #   image: redis:7.2.4-alpine3.19
+  #   volumes:
+  #     - oauth2_proxy_redis_data:/data
+  #   networks:
+  #     - oauth2-proxy-backend
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
 volumes:
   unifi_data:
   unifi_db_data:
+  # oauth2_proxy_redis_data:
 
 networks:
   t2_proxy:
@@ -244,3 +327,6 @@ networks:
   unifi-backend:
     name: unifi-backend
     driver: bridge
+  # oauth2-proxy-backend:
+  #   name: oauth2-proxy-backend
+  #   driver: bridge
