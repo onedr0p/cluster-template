@@ -1,1 +1,1 @@
-main = lambda data: data["bootstrap_distribution"] in ['k0s', 'talos']
+main = lambda data: data.get("bootstrap_distribution") in ['k0s', 'talos']
