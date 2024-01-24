@@ -6,7 +6,7 @@
     "ansible.validation.lint.arguments": "-c ansible/.ansible-lint",
     "ansible.validation.lint.enabled": true,
     "ansible.validation.lint.path": ".venv/bin/ansible-lint",
-    "files.autoSave": "off",
+    "files.autoSave": "onWindowChange",
     "files.associations": {
         "*.json5": "jsonc",
         "./ansible/**/*.yaml": "ansible",
