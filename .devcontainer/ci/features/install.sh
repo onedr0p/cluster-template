@@ -62,10 +62,15 @@ EOF
 
 # Custom fish prompt
 tee /home/vscode/.config/fish/conf.d/fish_greeting.fish > /dev/null <<EOF
-function fish_greeting
-    echo (set_color yellow)"Welcome! Press [enter] if you see a direnv error"
-end
+set fish_greeting
 EOF
 
-# Set ownership of fish directory to the vscode user
-chown -R vscode:vscode /home/vscode/.config/fish
+# Add direnv whitelist for the workspace directory
+mkdir -p /home/vscode/.config/direnv
+tee /home/vscode/.config/direnv/direnv.toml > /dev/null <<EOF
+[whitelist]
+prefix = [ "/workspaces" ]
+EOF
+
+# Set ownership vscode .config directory to the vscode user
+chown -R vscode:vscode /home/vscode/.config

@@ -17,6 +17,3 @@ if ! grep -q "venv /workspaces/" .venv/pyvenv.cfg; then
     rm -rf .venv
 fi
 task workstation:venv
-
-# Export the direnv environment variables
-task workstation:direnv

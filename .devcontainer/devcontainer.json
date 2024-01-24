@@ -2,6 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
   "name": "Flux Cluster Template",
   "image": "ghcr.io/onedr0p/flux-cluster-template/devcontainer:base",
-  "postCreateCommand": "bash ${containerWorkspaceFolder}/.devcontainer/postCreateCommand.sh",
-  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}"
+  "postCreateCommand": {
+    "setup": "bash ${containerWorkspaceFolder}/.devcontainer/postCreateCommand.sh"
+  },
+  "postStartCommand": {
+    "git": "git config --global --add safe.directory ${containerWorkspaceFolder}"
+  }
 }
