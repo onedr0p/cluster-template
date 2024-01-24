@@ -15,6 +15,13 @@ tee ~/.config/fish/conf.d/starship.fish > /dev/null <<EOF
 starship init fish | source
 EOF
 
+# Silence fish prompt
+tee ~/.config/fish/conf.d/fish_greeting.fish > /dev/null <<EOF
+function fish_greeting
+    echo (set_color yellow)"Press [enter] to clear the direnv error"
+end
+EOF
+
 # Setup fisher plugin manager for fish
 /usr/bin/fish -c "curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher"
 /usr/bin/fish -c "fisher install decors/fish-colored-man"
@@ -32,7 +39,7 @@ stern --completion fish > ~/.config/fish/completions/stern.fish
 yq shell-completion fish > ~/.config/fish/completions/yq.fish
 
 # Create/update virtual environment
-if ! grep -q "/workspaces/flux-template-cluster/.venv" .venv/pyvenv.cfg; then
+if ! grep -q "venv /workspaces/" .venv/pyvenv.cfg; then
     rm -rf .venv
 fi
 task workstation:venv
