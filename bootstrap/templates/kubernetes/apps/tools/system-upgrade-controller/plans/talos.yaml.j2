@@ -5,7 +5,7 @@ kind: Plan
 metadata:
   name: kubernetes
 spec:
-  # renovate: depName=kubernetes/kubernetes datasource=github-releases extractVersion=^v(?<version>.*)$
+  # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.*)$
   version: 1.29.1
   serviceAccountName: system-upgrade
   secrets:
@@ -41,7 +41,7 @@ kind: Plan
 metadata:
   name: talos
 spec:
-  # renovate: depName=ghcr.io/siderolabs/installer datasource=docker extractVersion=^(?<version>.*)$
+  # renovate: datasource=docker depName=ghcr.io/siderolabs/installer extractVersion=^(?<version>.*)$
   version: v1.6.3
   serviceAccountName: system-upgrade
   secrets:
