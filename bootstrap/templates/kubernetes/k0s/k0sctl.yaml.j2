@@ -43,7 +43,7 @@ spec:
     #% endif %#
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s
-    version: "v1.28.6+k0s.0"
+    version: v1.28.6+k0s.0
     dynamicConfig: false
     config:
       spec:
@@ -91,7 +91,7 @@ spec:
               - name: cilium
                 chartname: cilium/cilium
                 # renovate: datasource=helm depName=cilium repository=https://helm.cilium.io
-                version: "1.14.6"
+                version: 1.14.6
                 namespace: kube-system
                 values: |2
                   #% filter indent(width=18, first=True) %#

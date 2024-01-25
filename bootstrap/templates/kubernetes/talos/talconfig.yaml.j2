@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
-# renovate: depName=ghcr.io/siderolabs/installer datasource=docker extractVersion=^(?<version>.*)$
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
 talosVersion: v1.6.1
-# renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.*)$
-kubernetesVersion: 1.29.1
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.29.1
 
 clusterName: &cluster home-kubernetes
 endpoint: https://#{ bootstrap_kube_api_addr }#:6443
@@ -13,7 +13,7 @@ clusterSvcNets:
   - "#{ bootstrap_service_cidr.split(',')[0] }#"
 additionalApiServerCertSans: &sans
   - "#{ bootstrap_kube_api_addr }#"
-  - 127.0.0.1 # KubePrism
+  - 127.0.0.1
   #% for item in bootstrap_kube_additional_tls_sans %#
   - "#{ item }#"
   #% endfor %#
@@ -155,17 +155,6 @@ controlPlane:
     - |-
       - op: remove
         path: /cluster/apiServer/admissionControl
-
-    # Enable K8s Talos API Access
-    - |-
-      machine:
-        features:
-          kubernetesTalosAPIAccess:
-            enabled: true
-            allowedRoles:
-              - os:admin
-            allowedKubernetesNamespaces:
-              - kube-system
 
 worker:
   patches:
