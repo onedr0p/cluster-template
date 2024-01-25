@@ -5,6 +5,6 @@ resources:
   - ./namespace.yaml
   - ./descheduler/ks.yaml
   - ./reloader/ks.yaml
-  #% if bootstrap_distribution in ['k3s'] and addon_system_upgrade_controller.enabled %#
+  #% if bootstrap_distribution in ['k3s', 'talos'] and addon_system_upgrade_controller.enabled %#
   - ./system-upgrade-controller/ks.yaml
   #% endif %#
