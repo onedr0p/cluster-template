@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 from typing import Any
-from bcrypt import hashpw, gensalt
 from netaddr import IPNetwork
 
 import makejinja
@@ -20,9 +19,6 @@ def nthhost(value: str, query: int) -> str:
     except ValueError:
         return False
     return value
-
-def encrypt(value: str) -> str:
-    return hashpw(value.encode(), gensalt(rounds=10)).decode("ascii")
 
 def import_filter(file: Path) -> Callable[[dict[str, Any]], bool]:
     module_path = file.relative_to(Path.cwd()).with_suffix("")
@@ -50,7 +46,7 @@ class Plugin(makejinja.plugin.Plugin):
         validation.validate(data)
 
     def filters(self) -> makejinja.plugin.Filters:
-        return [nthhost, encrypt]
+        return [nthhost]
 
     def path_filters(self):
         return [self._mjfilter_func]

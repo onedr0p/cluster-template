@@ -22,7 +22,6 @@ jobs:
           - k3s-ipv4
           - k3s-ipv6
           - talos
-        addon-files: ["addons"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,7 +78,6 @@ jobs:
         run: |
           task init
           cp ./.github/tests/config-${{ matrix.config-files }}.yaml ./bootstrap/vars/config.yaml
-          cp ./.github/tests/${{ matrix.addon-files }}.yaml ./bootstrap/vars/addons.yaml
           export BOOTSTRAP_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
           envsubst < ./bootstrap/vars/config.yaml | sponge ./bootstrap/vars/config.yaml
 

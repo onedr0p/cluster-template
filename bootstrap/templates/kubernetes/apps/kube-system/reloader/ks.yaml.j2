@@ -2,14 +2,14 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app openebs
+  name: &app reloader
   namespace: flux-system
 spec:
-  targetNamespace: storage
+  targetNamespace: kube-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/storage/openebs/app
+  path: ./kubernetes/apps/kube-system/reloader/app
   prune: true
   sourceRef:
     kind: GitRepository

@@ -70,12 +70,6 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-          #% if addon_homepage.enabled %#
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Network
-          gethomepage.dev/name: Echo Server
-          gethomepage.dev/icon: mdi-video-input-antenna
-          #% endif %#
         hosts:
           - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
             paths:
