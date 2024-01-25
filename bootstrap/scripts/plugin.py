@@ -46,7 +46,7 @@ class Plugin(makejinja.plugin.Plugin):
         validation.validate(data)
 
     def filters(self) -> makejinja.plugin.Filters:
-        return [nthhost, encrypt]
+        return [nthhost]
 
     def path_filters(self):
         return [self._mjfilter_func]
