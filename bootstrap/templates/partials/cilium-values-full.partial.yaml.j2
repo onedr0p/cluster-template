@@ -44,13 +44,6 @@ hubble:
     ingress:
       enabled: true
       className: internal
-      #% if addon_homepage.enabled %#
-      annotations:
-        gethomepage.dev/enabled: "true"
-        gethomepage.dev/group: Network
-        gethomepage.dev/name: Cilium
-        gethomepage.dev/icon: cilium.png
-      #% endif %#
       hosts:
         - "hubble.${SECRET_DOMAIN}"
       tls:
@@ -71,7 +64,7 @@ k8sServicePort: 6444
 k8sServiceHost: localhost
 k8sServicePort: 7443
 #% elif bootstrap_distribution in ['talos'] %#
-k8sServiceHost: localhost
+k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
 #% endif %#
 kubeProxyReplacement: true

@@ -213,9 +213,9 @@ You have two different options for setting up your local workstation. First one 
 
 ### 🔧 Stage 3: Do bootstrap configuration
 
-📍 _Both `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` files contain necessary information that is **vital** to the bootstrap process._
+📍 _The_ `bootstrap/vars/config.yaml` contain necessary information that is **vital** to the bootstrap process._
 
-1. Generate the `bootstrap/vars/config.yaml` and `bootstrap/vars/addons.yaml` configuration files.
+1. Generate the `bootstrap/vars/config.yaml` configuration file.
 
     ```sh
     task init
@@ -281,8 +281,6 @@ You have two different options for setting up your local workstation. First one 
 6. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
 
     6a. Ensure `bootstrap_acme_production_enabled` is set to `false`.
-
-    6b. [Optional] Update `bootstrap/vars/addons.yaml` and enable applications you would like included.
 
 7. Once done run the following command which will verify and generate all the files needed to continue.
 
