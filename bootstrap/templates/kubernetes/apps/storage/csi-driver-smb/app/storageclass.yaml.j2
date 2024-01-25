@@ -9,7 +9,7 @@ parameters:
   source: "#{ item.source }#"
   csi.storage.k8s.io/node-stage-secret-name: "#{ item.secret_name|default(item.name + '-secret') }#"
   csi.storage.k8s.io/node-stage-secret-namespace: "#{ item.secret_namespace|default('storage') }#"
-reclaimPolicy: Retain
+reclaimPolicy: Delete
 volumeBindingMode: Immediate
 mountOptions:
   - "dir_mode=#{ item.dir_mode|default('0777') }#"
