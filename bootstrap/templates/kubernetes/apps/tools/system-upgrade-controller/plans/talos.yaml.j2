@@ -5,8 +5,8 @@ kind: Plan
 metadata:
   name: kubernetes
 spec:
-  # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>.*)$
-  version: 1.29.1
+  # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+  version: v1.29.1
   serviceAccountName: system-upgrade
   secrets:
     - name: talos
@@ -41,7 +41,7 @@ kind: Plan
 metadata:
   name: talos
 spec:
-  # renovate: datasource=docker depName=ghcr.io/siderolabs/installer extractVersion=^(?<version>.*)$
+  # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
   version: v1.6.3
   serviceAccountName: system-upgrade
   secrets:
@@ -87,7 +87,7 @@ spec:
     args:
       - --nodes=$(NODE_IP)
       - upgrade
-      - --image=factory.talos.dev/installer/df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)
+      - --image=factory.talos.dev/installer/#{ addon_system_upgrade_controller.talos_schematic_id|default('df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263', true) }#:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)
       - --preserve=true
       - --wait=false
 #% endif %#

@@ -29,16 +29,16 @@ addon_weave_gitops:
 
 # https://github.com/rancher/system-upgrade-controller
 addon_system_upgrade_controller:
-  # IMPORTANT: Only enable this if you also track the version of k3s in the
-  #   ansible configuration files. Running ansible against an already provisioned
-  #   cluster with this enabled might cause your cluster to be downgraded.
-  # NOTE: If bootstrap_distribution is set to k0s or talos this will be ignored.
+  # NOTE: If bootstrap_distribution is set to k0s this will be ignored.
   enabled: false
+  # IMPORTANT: For talos, head over to https://factory.talos.dev/ and
+  #   generate a schematic ID based on your System Extension requirements
+  # talos_schematic_id: df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263
 
 # https://github.com/morphy2k/rss-forwarder
 addon_discord_template_notifier:
   # Will post commits from the template repository to the specified discord channel
-  # so it's easier to keep track of changes.
+  #   so it's easier to keep track of changes.
   enabled: false
   # webhook_url: # Required: Discord webhook url
 
