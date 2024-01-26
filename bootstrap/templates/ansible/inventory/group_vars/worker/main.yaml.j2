@@ -1,14 +1,12 @@
 ---
-# https://rancher.com/docs/k3s/latest/en/installation/install-options/agent-config/
-# https://github.com/PyratLabs/ansible-role-k3s
 k3s_control_node: false
 k3s_agent:
+  kubelet-arg:
+    - "image-gc-high-threshold=55"
+    - "image-gc-low-threshold=50"
   #% if bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
   #% else %#
   node-ip: "{{ ansible_host }}"
   #% endif %#
   pause-image: registry.k8s.io/pause:3.9
-  kubelet-arg:
-    - "image-gc-high-threshold=55"
-    - "image-gc-low-threshold=50"
