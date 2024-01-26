@@ -3,8 +3,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
+  - ./certificates/ks.yaml
   - ./cloudflared/ks.yaml
   - ./echo-server/ks.yaml
   - ./external-dns/ks.yaml
   - ./k8s-gateway/ks.yaml
-  - ./nginx/ks.yaml
+  - ./nginx-external/ks.yaml
+  - ./nginx-internal/ks.yaml

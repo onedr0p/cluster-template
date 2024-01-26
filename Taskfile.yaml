@@ -13,7 +13,7 @@ vars:
   KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
   MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
   PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
-  SOPS_AGE_FILE: "{{.ROOT_DIR}}/age.key"
+  SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/age.key"
   # Binaries
   PYTHON_BIN: python3
   # Python
