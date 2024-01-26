@@ -199,7 +199,7 @@ You have two different options for setting up your local workstation. First one 
     task workstation:brew
     # or, Arch with yay/paru
     task workstation:arch
-    # or, Generic Linux
+    # or, Generic Linux (this pulls binaires in to ./bin)
     task workstation:generic-linux
     ```
 

@@ -45,7 +45,7 @@ tasks:
       - { msg: "Missing Archfile", sh: "test -f {{.ARCHFILE}}" }
 
   generic-linux:
-    desc: Attempt to install CLI tools into the project directory using curl
+    desc: Install CLI tools into the projects .bin directory using curl
     dir: "{{.ROOT_DIR}}/.bin"
     platforms: ["linux/amd64", "linux/arm64"]
     cmds:
