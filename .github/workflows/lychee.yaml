@@ -44,7 +44,7 @@ jobs:
           echo "${issue_number}"
 
       - name: Create or Update Issue
-        uses: peter-evans/create-issue-from-file@v4
+        uses: peter-evans/create-issue-from-file@v5
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
           title: "${{ env.WORKFLOW_ISSUE_TITLE }}"
