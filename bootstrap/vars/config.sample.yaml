@@ -77,7 +77,7 @@ bootstrap_nodes:
     # - name:            # name or hostname of the node (must match [a-z0-9-\.]+)
     #   address:         # ip address of the node
     #   ssh:
-    #     username:      # (Required: k3s/k0s) ssh username of the node
+    #     username:      # (Required: k3s/k0s) SSH username of the node
     #   talos:
     #     disk_device:   # (Required: Talos) Device Path or Serial number of Disk for this node
     # ...
@@ -85,7 +85,7 @@ bootstrap_nodes:
     # - name:            # name or hostname of the node (must match [a-z0-9-\.]+)
     #   address:         # ip address of the node
     #   ssh:
-    #     username:      # (Required: k3s/k0s) ssh username of the node
+    #     username:      # (Required: k3s/k0s) SSH username of the node
     #   talos:
     #     disk_device:   # (Required: Talos) Device Path or Serial number of Disk for this node
     # ...
