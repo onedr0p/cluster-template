@@ -13,31 +13,37 @@ spec:
       installFlags:
         - --disable-components=metrics-server
         - --no-taints
+      files:
+        - name: bootstrap-scripts
+          src: scripts
       hooks:
         apply:
           before:
-            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/apply-system.sh | INSTALL_K0S_HOSTNAME="#{ item.name }#" bash -s -
-            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/apply-kube-vip.sh | bash -s -
+            - bash apply-system.sh "#{ item.name }#"
+            - bash apply-kube-vip.sh
         reset:
           before:
-            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-cilium.sh | bash -s -
+            - bash reset-cilium.sh
           after:
-            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-system.sh | bash -s -
+            - bash reset-system.sh
     #% endfor %#
     #% for item in bootstrap_nodes.worker %#
     - role: worker
       ssh:
         address: "#{ item.address }#"
         user: "#{ item.ssh.username }#"
+      files:
+        - name: bootstrap-scripts
+          src: scripts
       hooks:
         apply:
           before:
-            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/apply-system.sh | INSTALL_K0S_HOSTNAME="#{ item.name }#" bash -s -
+            - bash apply-system.sh "#{ item.name }#"
         reset:
           before:
-            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-cilium.sh | bash -s -
+            - bash reset-cilium.sh
           after:
-            - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-system.sh | bash -s -
+            - bash reset-system.sh
     #% endfor %#
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s

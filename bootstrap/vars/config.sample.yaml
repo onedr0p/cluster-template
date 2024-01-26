@@ -102,15 +102,6 @@ bootstrap_nodes:
 #   # Disable to prevent changes to nodes /etc/resolv.conf
 #   update_resolv_conf: true
 #
-#   # Cilium load balancer mode, choose either 'dsr' or 'snat'
-#   # Due to unknown reasons some people need this set to 'snat' in order
-#   # for Cilium L2 announcements to work properly. Keep this dsr unless
-#   # you have issues with connecting to Cilium L2 announcements.
-#   cilium_loadbalancer_mode: dsr
-#
-#   # Path for openebs openebs-hostpath to use for storage on ALL nodes
-#   local_storage_path: /var/openebs/local
-#
 #   # Enable Dual Stack IPv4 first
 #   # IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
 #   # https://github.com/onedr0p/flux-cluster-template/issues/1148
