@@ -192,13 +192,15 @@ You have two different options for setting up your local workstation. First one 
 
 3. Install the additional **required** CLI tools
 
-   📍 _**Not using Homebrew or ArchLinux?** Make sure to look up how to install the **latest** version of the CLI tools listed in the [Brewfile](.taskfiles/Workstation/Brewfile)/[Archfile](.taskfiles/Workstation/Archfile) and install them._
+   📍 _**Not using Homebrew or ArchLinux?** Try using the generic Linux task below, if that fails check out the [Brewfile](.taskfiles/Workstation/Brewfile)/[Archfile](.taskfiles/Workstation/Archfile) for what CLI tools needed and install them._
 
     ```sh
     # Homebrew
     task workstation:brew
     # or, Arch with yay/paru
-    go-task workstation:arch
+    task workstation:arch
+    # or, Generic Linux
+    task workstation:generic-linux
     ```
 
 4. Setup a Python virual environment by running the following task command.

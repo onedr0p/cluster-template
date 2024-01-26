@@ -4,33 +4,38 @@ set -o noglob
 
 apk add --no-cache \
     bash bind-tools ca-certificates curl python3 \
-        py3-pip moreutils jq git iputils \
-            openssh-client starship fzf
+    py3-pip moreutils jq git iputils openssh-client \
+    starship fzf fish
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-        age direnv fish helm kubectl kustomize sops
+        helm kubectl sops
 
 sudo apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
         lsd
 
-for installer_path in \
+for app in \
     "budimanjojo/talhelper!" \
-    "cilium/cilium-cli!!?as=cilium" \
-    "cli/cli!!?as=gh" \
-    "cloudflare/cloudflared!" \
-    "derailed/k9s!" \
-    "fluxcd/flux2!!?as=flux" \
-    "go-task/task!" \
-    "k0sproject/k0sctl!" \
-    "kubecolor/kubecolor!" \
-    "stern/stern!" \
-    "siderolabs/talos!!?as=talosctl" \
-    "yannh/kubeconform!" \
-    "mikefarah/yq!"
+    "cilium/cilium-cli!!?as=cilium&type=script" \
+    "cli/cli!!?as=gh&type=script" \
+    "cloudflare/cloudflared!!?as=cloudflared&type=script" \
+    "derailed/k9s!!?as=k9s&type=script" \
+    "direnv/direnv!!?as=direnv&type=script" \
+    "FiloSottile/age!!?as=age&type=script" \
+    "fluxcd/flux2!!?as=flux&type=script" \
+    "go-task/task!!?as=task&type=script" \
+    "k0sproject/k0sctl!!?as=k0sctl&type=script" \
+    "kubecolor/kubecolor!!?as=kubecolor&type=script" \
+    "kubernetes-sigs/krew!!?as=krew&type=script" \
+    "kubernetes-sigs/kustomize!!?as=kustomize&type=script" \
+    "stern/stern!!?as=stern&type=script" \
+    "siderolabs/talos!!?as=talosctl&type=script" \
+    "yannh/kubeconform!!?as=kubeconform&type=script" \
+    "mikefarah/yq!!?as=yq&type=script"
 do
-    curl -fsSL "https://i.jpillora.com/${installer_path}" | bash
+    echo "=== Installing ${app} ==="
+    curl -fsSL "https://i.jpillora.com/${app}" | bash
 done
 
 # Create the fish configuration directory

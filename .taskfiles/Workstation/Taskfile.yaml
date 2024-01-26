@@ -43,3 +43,28 @@ tasks:
         sh: "command -v yay || command -v paru"
     preconditions:
       - { msg: "Missing Archfile", sh: "test -f {{.ARCHFILE}}" }
+
+  generic-linux:
+    desc: Attempt to install CLI tools into the project directory using curl
+    dir: "{{.ROOT_DIR}}/.bin"
+    platforms: ["linux/amd64", "linux/arm64"]
+    cmds:
+      - for:
+          - budimanjojo/talhelper?as=talhelper&type=script
+          - cloudflare/cloudflared?as=cloudflared&type=script
+          - FiloSottile/age?as=age&type=script
+          - fluxcd/flux2?as=flux&type=script
+          - getsops/sops?as=sops&type=script
+          - jqlang/jq?as=jq&type=script
+          - k0sproject/k0sctl?as=k0sctl&type=script
+          - kubernetes-sigs/kustomize?as=kustomize&type=script
+          - siderolabs/talos?as=talosctl&type=script
+          - yannh/kubeconform?as=kubeconform&type=script
+          - mikefarah/yq?as=yq&type=script
+        cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}" | bash
+      - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        platforms: ["linux/amd64"]
+      - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+        platforms: ["linux/arm64"]
+      - cmd: chmod +x kubectl
+      - cmd: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | USE_SUDO="false" HELM_INSTALL_DIR="." bash
