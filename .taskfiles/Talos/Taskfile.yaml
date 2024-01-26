@@ -7,6 +7,9 @@ vars:
   TALHELPER_SECRET_FILE: "{{.TALOS_DIR}}/talhelper.sops.yaml"
   TALHELPER_CONFIG_FILE: "{{.TALOS_DIR}}/talconfig.yaml"
 
+env:
+  TALOSCONFIG: "{{.TALOS_DIR}}/clusterconfig/talosconfig"
+
 tasks:
 
   gensecret:
@@ -46,13 +49,15 @@ tasks:
     desc: Generate talos kubeconfig
     prompt: This will overwrite the existing kubeconfig... continue?
     dir: "{{.TALOS_DIR}}"
-    cmd: talosctl kubeconfig {{.ROOT_DIR}} --force
+    cmd: talosctl --nodes {{.node}} kubeconfig {{.ROOT_DIR}} --force
+    requires:
+      vars: ["node"]
 
   apply-extras:
     desc: Apply extras
     dir: "{{.TALOS_DIR}}"
     cmds:
-      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./cni | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./cilium | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
       - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./kubelet-csr-approver | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }

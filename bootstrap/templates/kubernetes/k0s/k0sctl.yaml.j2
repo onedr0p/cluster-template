@@ -9,7 +9,7 @@ spec:
     - role: controller+worker
       ssh:
         address: "#{ item.address }#"
-        user: "#{ item.username }#"
+        user: "#{ item.ssh.username }#"
       installFlags:
         - --disable-components=metrics-server
         - --no-taints
@@ -24,12 +24,11 @@ spec:
           after:
             - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-system.sh | bash -s -
     #% endfor %#
-    #% if bootstrap_nodes.worker | length > 0 %#
     #% for item in bootstrap_nodes.worker %#
     - role: worker
       ssh:
         address: "#{ item.address }#"
-        user: "#{ item.username }#"
+        user: "#{ item.ssh.username }#"
       hooks:
         apply:
           before:
@@ -40,7 +39,6 @@ spec:
           after:
             - curl -sfL https://raw.githubusercontent.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#/#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#/kubernetes/k0s/resources/reset-system.sh | bash -s -
     #% endfor %#
-    #% endif %#
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s
     version: v1.28.6+k0s.0
@@ -51,16 +49,14 @@ spec:
           enabled: false
         controllerManager:
           extraArgs:
-            # Required to monitor kube-controller-manager with kube-prometheus-stack
             bind-address: "0.0.0.0"
         scheduler:
           extraArgs:
-            # Required to monitor kube-scheduler with kube-prometheus-stack
             bind-address: "0.0.0.0"
         storage:
           etcd:
             extraArgs:
-              listen-metrics-urls: http://0.0.0.0:2381 # Required to monitor etcd with kube-prometheus-stack
+              listen-metrics-urls: http://0.0.0.0:2381
         api:
           sans:
             #% if bootstrap_kube_api_addr %#

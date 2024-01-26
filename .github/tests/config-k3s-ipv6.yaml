@@ -29,20 +29,26 @@ bootstrap_nodes:
   master:
     - name: k8s-0
       address: 10.10.10.100
-      username: fake
+      ssh:
+        username: fake
     - name: k8s-1
       address: 10.10.10.101
-      username: fake
+      ssh:
+        username: fake
     - name: k8s-2
       address: 10.10.10.102
-      username: fake
+      ssh:
+        username: fake
   worker:
     - name: k8s-3
       address: 10.10.10.103
-      username: fake
+      ssh:
+        username: fake
     - name: k8s-4
       address: 10.10.10.104
-      username: fake
+      ssh:
+        username: fake
     - name: k8s-5
       address: 10.10.10.105
-      username: fake
+      ssh:
+        username: fake

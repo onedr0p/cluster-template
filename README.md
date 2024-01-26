@@ -362,7 +362,7 @@ You have two different options for setting up your local workstation. First one 
 
     ```sh
     task talos:bootstrap
-    task talos:kubeconfig
+    task talos:kubeconfig node=$master_node_ip_address
     ```
 
 4. Install Cilium and kubelet-csr-approver into the cluster
