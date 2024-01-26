@@ -217,7 +217,7 @@ services:
       - "traefik.http.routers.unifi-guest-rtr.tls=true"
       ## Middlewares
       - "traefik.http.routers.unifi-rtr.middlewares=chain-no-auth@file" # No Authentication
-      # - "traefik.http.routers.unifi-guest-rtr.middlewares=chain-no-auth@file" # No Authentication
+      - "traefik.http.routers.unifi-guest-rtr.middlewares=chain-no-auth@file" # No Authentication
       ## HTTP Services
       - "traefik.http.routers.unifi-rtr.service=unifi"
       - "traefik.http.routers.unifi-guest-rtr.service=unifi-guest"
