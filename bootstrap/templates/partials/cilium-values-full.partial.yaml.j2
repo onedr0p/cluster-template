@@ -82,7 +82,7 @@ l2announcements:
   #% endif %#
 loadBalancer:
   algorithm: maglev
-  mode: "#{ bootstrap_advanced_flags.cilium_loadbalancer_mode|default('dsr', true) }#"
+  mode: dsr
 localRedirectPolicy: true
 operator:
   replicas: 1
