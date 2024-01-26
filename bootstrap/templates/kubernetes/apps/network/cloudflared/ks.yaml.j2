@@ -10,6 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: certificates
     - name: external-dns
   path: ./kubernetes/apps/network/cloudflared/app
   prune: true
