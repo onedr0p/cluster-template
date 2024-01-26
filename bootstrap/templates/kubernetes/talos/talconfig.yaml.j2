@@ -25,12 +25,18 @@ nodes:
   #% for item in bootstrap_nodes.master %#
   - hostname: "#{ item.name }#"
     ipAddress: "#{ item.address }#"
+    #% if item.talos.disk_device.startswith('/') %#
+    installDisk: "#{ item.talos.disk_device }#"
+    #% else %#
     installDiskSelector:
-      serial: "#{ item.diskSerial }#"
+      serial: "#{ item.talos.disk_device }#"
+    #% endif %#
     controlPlane: true
     networkInterfaces:
       - interface: eth0
         dhcp: false
+        addresses:
+          - "#{ item.address }#/#{ bootstrap_node_cidr.split('/') | last }#"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
@@ -38,22 +44,26 @@ nodes:
         vip:
           ip: "#{ bootstrap_kube_api_addr }#"
   #% endfor %#
-  #% if bootstrap_nodes.worker | length > 0 %#
   #% for item in bootstrap_nodes.worker %#
   - hostname: "#{ item.name }#"
     ipAddress: "#{ item.address }#"
+    #% if item.talos.disk_device.startswith('/') %#
+    installDisk: "#{ item.talos.disk_device }#"
+    #% else %#
     installDiskSelector:
-      serial: "#{ item.diskSerial }#"
+      serial: "#{ item.talos.disk_device }#"
+    #% endif %#
     controlPlane: false
     networkInterfaces:
       - interface: eth0
         dhcp: false
+        addresses:
+          - "#{ item.address }#/#{ bootstrap_node_cidr.split('/') | last }#"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
             gateway: "#{ bootstrap_node_cidr | nthhost(1) }#"
   #% endfor %#
-  #% endif %#
 
 controlPlane:
   patches:

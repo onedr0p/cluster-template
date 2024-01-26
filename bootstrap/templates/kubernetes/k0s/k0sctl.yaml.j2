@@ -9,7 +9,7 @@ spec:
     - role: controller+worker
       ssh:
         address: "#{ item.address }#"
-        user: "#{ item.username }#"
+        user: "#{ item.ssh.username }#"
       installFlags:
         - --disable-components=metrics-server
         - --no-taints
@@ -29,7 +29,7 @@ spec:
     - role: worker
       ssh:
         address: "#{ item.address }#"
-        user: "#{ item.username }#"
+        user: "#{ item.ssh.username }#"
       hooks:
         apply:
           before:
