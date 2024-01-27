@@ -25,4 +25,4 @@ jobs:
 
       - name: Run kubeconform
         shell: bash
-        run: ./.github/scripts/kubeconform.sh ${{ env.KUBERNETES_DIR }}
+        run: bash ./scripts/kubeconform.sh ${{ env.KUBERNETES_DIR }}

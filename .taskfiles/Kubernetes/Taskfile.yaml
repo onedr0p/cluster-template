@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  KUBECONFORM_SCRIPT: "{{.TASKFILE_DIR}}/.taskfiles/Kubernetes/kubeconform.sh"
+  KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubeconform.sh"
 
 tasks:
 
@@ -26,10 +26,12 @@ tasks:
 
   kubeconform:
     desc: Validate Kubernetes manifests with kubeconform
-    cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
+    cmd: |
+      if [ -d "{{.KUBERNETES_DIR}}" ]; then
+          bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
+      fi
     preconditions:
       - { msg: "Missing kubeconform script", sh: "test -f {{.KUBECONFORM_SCRIPT}}" }
-      - { msg: "Missing kubernetes directory", sh: "test -d {{.KUBERNETES_DIR}}" }
 
   .reset:
     internal: true
