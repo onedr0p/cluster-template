@@ -18,6 +18,9 @@ jobs:
     name: Lychee
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Scan for broken links
         uses: lycheeverse/lychee-action@v1
         id: lychee
