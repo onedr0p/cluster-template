@@ -5,6 +5,7 @@ version: "3"
 vars:
   ARCHFILE: "{{.ROOT_DIR}}/.taskfiles/Workstation/Archfile"
   BREWFILE: "{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile"
+  GENERIC_BIN_DIR: "{{.ROOT_DIR}}/.bin"
 
 tasks:
 
@@ -18,13 +19,13 @@ tasks:
   venv:
     desc: Set up virtual environment
     cmds:
-      - "{{.PYTHON_BIN}} -m venv {{.ROOT_DIR}}/.venv"
-      - .venv/bin/python3 -m pip install --upgrade pip setuptools wheel
-      - .venv/bin/python3 -m pip install --upgrade --requirement "{{.PIP_REQUIREMENTS_FILE}}"
+      - "{{.PYTHON_BIN}} -m venv {{.VIRTUAL_ENV}}"
+      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade pip setuptools wheel'
+      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade --requirement "{{.PIP_REQUIREMENTS_FILE}}"'
     sources:
       - "{{.PIP_REQUIREMENTS_FILE}}"
     generates:
-      - "{{.ROOT_DIR}}/.venv/pyvenv.cfg"
+      - "{{.VIRTUAL_ENV}}/pyvenv.cfg"
     preconditions:
       - { msg: "Missing Pip requirements file", sh: "test -f {{.PIP_REQUIREMENTS_FILE}}" }
 
@@ -46,7 +47,7 @@ tasks:
 
   generic-linux:
     desc: Install CLI tools into the projects .bin directory using curl
-    dir: "{{.ROOT_DIR}}/.bin"
+    dir: "{{.GENERIC_BIN_DIR}}"
     platforms: ["linux/amd64", "linux/arm64"]
     cmds:
       - for:
