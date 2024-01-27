@@ -9,9 +9,9 @@ tasks:
 
   age-keygen:
     desc: Initialize Age Key for Sops
-    cmd: age-keygen --output {{.SOPS_AGE_KEY_FILE}}
+    cmd: age-keygen --output {{.AGE_FILE}}
     status:
-      - test -f "{{.SOPS_AGE_KEY_FILE}}"
+      - test -f "{{.AGE_FILE}}"
 
   encrypt:
     desc: Encrypt all Kubernetes SOPS secrets that are not already encrypted
@@ -31,7 +31,7 @@ tasks:
       vars: ["file"]
     preconditions:
       - { msg: "Missing Sops config file", sh: "test -f {{.SOPS_CONFIG_FILE}}" }
-      - { msg: "Missing Sops Age key file", sh: "test -f {{.SOPS_AGE_KEY_FILE}}" }
+      - { msg: "Missing Sops Age key file", sh: "test -f {{.AGE_FILE}}" }
 
   .reset:
     internal: true

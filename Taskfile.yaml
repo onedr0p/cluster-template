@@ -9,15 +9,19 @@ vars:
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
   PRIVATE_DIR: "{{.ROOT_DIR}}/.private"
   # Files
+  AGE_FILE: "{{.ROOT_DIR}}/age.key"
   BOOTSTRAP_CONFIG_FILE: "{{.BOOTSTRAP_DIR}}/vars/config.yaml"
   KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
   MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
   PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
-  SOPS_AGE_KEY_FILE: "{{.ROOT_DIR}}/age.key"
   # Binaries
   PYTHON_BIN: python3
-  # Python
+
+env:
+  KUBECONFIG: "{{.KUBECONFIG_FILE}}"
   PYTHONDONTWRITEBYTECODE: "1"
+  SOPS_AGE_KEY_FILE: "{{.AGE_FILE}}"
+  VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
 
 includes:
   ansible: .taskfiles/Ansible/Taskfile.yaml
@@ -62,9 +66,9 @@ tasks:
 
   .template:
     internal: true
-    cmd: ./.venv/bin/makejinja
+    cmd: "{{.VIRTUAL_ENV}}/bin/makejinja"
     preconditions:
-      - { msg: "Missing virtual environment", sh: "test -d {{.ROOT_DIR}}/.venv" }
+      - { msg: "Missing virtual environment", sh: "test -d {{.VIRTUAL_ENV}}" }
       - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
       - { msg: "Missing Makejinja plugin file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py" }
       - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }

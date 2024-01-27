@@ -2,18 +2,19 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
 
+vars:
+  K0S_DIR: "{{.KUBERNETES_DIR}}/k0s"
+  K0S_CONFIG_FILE: "{{.K0S_DIR}}/k0sctl.yaml"
+
 env:
   DISABLE_TELEMETRY: "true"
   DISABLE_UPGRADE_CHECK: "true"
-
-vars:
-  K0S_CONFIG_FILE: "{{.KUBERNETES_DIR}}/k0s/k0sctl.yaml"
 
 tasks:
 
   apply:
     desc: Apply k0s cluster config
-    dir: "{{.KUBERNETES_DIR}}/k0s" # Needed for uploading files in k0sctl.yaml
+    dir: "{{.K0S_DIR}}"
     cmds:
       - k0sctl apply --config {{.K0S_CONFIG_FILE}}
       - task: kubeconfig
@@ -22,14 +23,14 @@ tasks:
 
   nuke:
     desc: Nuke the k0s cluster
-    deps: [":ansible:deps"]
-    cmds:
-      - k0sctl reset --config {{.K0S_CONFIG_FILE}}
+    dir: "{{.K0S_DIR}}"
+    cmd: k0sctl reset --config {{.K0S_CONFIG_FILE}}
     preconditions:
       - { msg: "Missing K0s config file", sh: "test -f {{.K0S_CONFIG_FILE}}" }
 
   kubeconfig:
     desc: Gets k0s kubeconfig
+    dir: "{{.K0S_DIR}}"
     prompt: This will overwrite the existing kubeconfig... continue?
     cmds:
       - k0sctl kubeconfig --config {{.K0S_CONFIG_FILE}} > {{.KUBECONFIG_FILE}}
