@@ -10,7 +10,7 @@
       ansible.builtin.pause:
         seconds: 5
   tasks:
-    #% if bootstrap_distribution in ['k3s'] %#
+    #% if distribution in ['k3s'] %#
     - name: Ensure Kubernetes is running
       ansible.builtin.include_role:
         name: xanmanning.k3s
@@ -21,9 +21,9 @@
     - name: Upgrade kube-vip
       ansible.builtin.template:
         src: templates/kube-vip-ds.yaml.j2
-        #% if bootstrap_distribution in ['k3s'] %#
+        #% if distribution in ['k3s'] %#
         dest: "{{ k3s_server_manifests_dir }}/kube-vip-ds.yaml"
-        #% elif bootstrap_distribution in ['k0s'] %#
+        #% elif distribution in ['k0s'] %#
         dest: "/var/lib/k0s/manifests/kube-vip/kube-vip-ds.yaml"
         #% endif %#
         mode: preserve

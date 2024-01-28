@@ -166,7 +166,7 @@ You have two different options for setting up your local workstation. First one 
 
 1. Start Docker and open your repository in VSCode. There will be a pop-up asking you to use the `devcontainer`, click the button to start using it.
 
-2. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
+2. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
 
 #### Non-devcontainer method
 
@@ -211,19 +211,23 @@ You have two different options for setting up your local workstation. First one 
     task workstation:venv
     ```
 
-5. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
+5. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
 
-### 🔧 Stage 3: Do bootstrap configuration
+### 🔧 Stage 3: Bootstrap configuration
 
-📍 _The_ `bootstrap/vars/config.yaml` contain necessary information that is **vital** to the bootstrap process._
+> [!IMPORTANT]
+> The `config.yaml` contain necessary information that is **vital** to the bootstrap process.
 
-1. Generate the `bootstrap/vars/config.yaml` configuration file.
+1. Generate the `config.yaml` configuration file.
 
     ```sh
     task init
     ```
 
-2. Choose between `k3s` or `k0s` for your Kubernetes distribution and fillout the appropriate vars in `bootstrap/vars/config.yaml`
+2. Fill out the required config in the, `distribution`, `timezone` and `cluster` config.
+
+    > [!NOTE]
+    > Move on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes) if you have **disabled** Flux
 
 3. Setup Age private / public key
 
@@ -235,7 +239,7 @@ You have two different options for setting up your local workstation. First one 
       task sops:age-keygen
       ```
 
-    3b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    3b. Fill out the appropriate vars in `config.yaml`
 
 4. Create Cloudflare API Token
 
@@ -258,7 +262,7 @@ You have two different options for setting up your local workstation. First one 
 
    4f. Limit the permissions to a specific account and zone resources.
 
-   4g. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+   4g. Fill out the appropriate vars in `config.yaml`
 
 5. Create Cloudflare Tunnel
 
@@ -278,11 +282,11 @@ You have two different options for setting up your local workstation. First one 
 
     5c. In the `~/.cloudflared` directory there will be a json file with details you need. Ignore the `cert.pem` file.
 
-    5d. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    5d. Fill out the appropriate vars in `config.yaml`
 
-6. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
+6. Complete filling out the rest of the `config.yaml` configuration file.
 
-    6a. Ensure `bootstrap_acme_production_enabled` is set to `false`.
+    6a. Ensure `cloudflare.acme.production` is set to `false`.
 
 7. Once done run the following command which will verify and generate all the files needed to continue.
 
@@ -302,7 +306,7 @@ You have two different options for setting up your local workstation. First one 
     git push
     ```
 
-9. Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
+9.  Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
 
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
@@ -401,7 +405,8 @@ You have two different options for setting up your local workstation. First one 
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
-📍 _Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps._
+> [!NOTE]
+> Skip this stage if you disabled Flux in the `config.yaml`
 
 1. Verify Flux can be installed
 

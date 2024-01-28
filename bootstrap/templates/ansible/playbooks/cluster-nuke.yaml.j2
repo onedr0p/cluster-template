@@ -1,4 +1,4 @@
-#% if bootstrap_distribution in ['k3s'] %#
+#% if distribution in ['k3s'] %#
 ---
 - name: Cluster Nuke
   hosts: kubernetes
@@ -98,6 +98,6 @@
 
     - name: Reboot
       ansible.builtin.reboot:
-        msg: Rebooting nodes
+        msg: Rebooting hosts
         reboot_timeout: 3600
 #% endif %#

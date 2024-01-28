@@ -22,7 +22,10 @@ tasks:
           file: "{{.ITEM}}"
     vars:
       file:
-        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM" {} \;
+        sh: |
+          if [ -d "{{.KUBERNETES_DIR}}" ]; then
+              find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM" {} \;
+          fi
 
   .encrypt-file:
     internal: true

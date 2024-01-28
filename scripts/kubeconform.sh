@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -o errexit
+set -o pipefail
 
 KUBERNETES_DIR=$1
-KUBE_VERSION="${2:-1.29.0}"
 
 [[ -z "${KUBERNETES_DIR}" ]] && echo "Kubernetes location not specified" && exit 1
 
@@ -11,8 +11,6 @@ kustomize_config="kustomization.yaml"
 kubeconform_args=(
     "-strict"
     "-ignore-missing-schemas"
-    "-kubernetes-version"
-    "${KUBE_VERSION}"
     "-skip"
     "Secret"
     "-schema-location"

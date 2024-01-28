@@ -28,6 +28,7 @@ tasks:
       - task: :k0s:.reset
       - task: :kubernetes:.reset
       - task: :sops:.reset
+      - task: :talos:.reset
 
   force-reset:
     desc: Reset repo back to HEAD

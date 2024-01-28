@@ -1,4 +1,4 @@
-#% if bootstrap_distribution in ['k3s'] %#
+#% if distribution in ['k3s'] %#
 ---
 - name: Prepare System
   hosts: kubernetes
@@ -16,7 +16,7 @@
       block:
         - name: Locale | Set timezone
           community.general.timezone:
-            name: "#{ bootstrap_timezone }#"
+            name: "#{ timezone }#"
 
     - name: Packages
       block:
@@ -46,7 +46,6 @@
               ff02::2 ip6-allrouters
             dest: /etc/hosts
             mode: preserve
-        #% if bootstrap_advanced_flags.update_resolv_conf|default(true) %#
         # https://github.com/onedr0p/flux-cluster-template/discussions/635
         - name: Network Configuration | Remove immutable flag from /etc/resolv.conf
           ansible.builtin.file:
@@ -63,9 +62,10 @@
             mode: '0644'
             dest: /etc/resolv.conf
             content: |
-              search .
-              nameserver #{ bootstrap_dns_server }#
-        #% endif %#
+              search #{ cluster.nodes.search_domain|default('.', true) }#
+              #% for item in cluster.nodes.dns_servers %#
+              nameserver #{ item }#
+              #% endfor %#
 
     - name: System Configuration
       notify: Reboot
@@ -110,6 +110,6 @@
   handlers:
     - name: Reboot
       ansible.builtin.reboot:
-        msg: Rebooting nodes
+        msg: Rebooting hosts
         reboot_timeout: 3600
 #% endif %#

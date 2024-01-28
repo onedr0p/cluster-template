@@ -1,20 +1,22 @@
+#% if flux.enabled %#
 ---
 creation_rules:
-  #% if bootstrap_distribution in ['talos'] %#
+  #% if distribution in ['talos'] %#
   - # IMPORTANT: This rule MUST be above the others
     path_regex: talos/.*\.sops\.ya?ml
     key_groups:
       - age:
-          - "#{ bootstrap_age_public_key }#"
+          - "#{ flux.sops_age_public_key }#"
   #% endif %#
   - path_regex: kubernetes/.*\.sops\.ya?ml
     encrypted_regex: "^(data|stringData)$"
     key_groups:
       - age:
-          - "#{ bootstrap_age_public_key }#"
-  #% if bootstrap_distribution in ['k0s', 'k3s'] %#
+          - "#{ flux.sops_age_public_key }#"
+  #% if distribution in ['k0s', 'k3s'] %#
   - path_regex: ansible/.*\.sops\.ya?ml
     key_groups:
       - age:
-          - "#{ bootstrap_age_public_key }#"
+          - "#{ flux.sops_age_public_key }#"
   #% endif %#
+#% endif %#

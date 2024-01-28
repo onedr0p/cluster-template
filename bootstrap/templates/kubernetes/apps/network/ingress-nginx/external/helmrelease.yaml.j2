@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: nginx-external
+  name: ingress-nginx-external
 spec:
   interval: 30m
   chart:
@@ -26,13 +26,13 @@ spec:
     - name: cloudflared
       namespace: network
   values:
-    fullnameOverride: nginx-external
+    fullnameOverride: ingress-nginx-external
     controller:
       replicaCount: 1
       service:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
-          io.cilium/lb-ipam-ips: "#{ bootstrap_external_ingress_addr }#"
+          io.cilium/lb-ipam-ips: "#{ cloudflare.tunnel.ingress_vip }#"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: external
@@ -63,14 +63,8 @@ spec:
         proxy-body-size: 0
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
-      metrics:
-        enabled: true
-        serviceMonitor:
-          enabled: true
-          namespaceSelector:
-            any: true
       extraArgs:
-        #% if bootstrap_acme_production_enabled %#
+        #% if cloudflare.acme.production %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-production-tls"
         #% else %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-staging-tls"
@@ -82,7 +76,7 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: ingress-nginx
-              app.kubernetes.io/instance: nginx-external
+              app.kubernetes.io/instance: ingress-nginx-external
               app.kubernetes.io/component: controller
       resources:
         requests:

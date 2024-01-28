@@ -3,17 +3,21 @@ kubernetes:
   children:
     master:
       hosts:
-      #% for item in bootstrap_nodes.master %#
+        #% for item in cluster.nodes.inventory %#
+        #% if item.controller %#
         "#{ item.name }#":
-          ansible_user: "#{ item.ssh.username }#"
+          ansible_user: "#{ item.ssh_username }#"
           ansible_host: "#{ item.address }#"
-      #% endfor %#
-    #% if bootstrap_nodes.worker|length > 0 %#
+        #% endif %#
+        #% endfor %#
+    #% if cluster.nodes.inventory | selectattr('controller', 'equalto', False) | list | length %#
     worker:
       hosts:
-      #% for item in bootstrap_nodes.worker %#
+        #% for item in cluster.nodes.inventory %#
+        #% if not item.controller %#
         "#{ item.name }#":
-          ansible_user: "#{ item.ssh.username }#"
+          ansible_user: "#{ item.ssh_username }#"
           ansible_host: "#{ item.address }#"
-      #% endfor %#
+        #% endif %#
+        #% endfor %#
     #% endif %#

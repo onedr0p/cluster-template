@@ -5,14 +5,20 @@ metadata:
   name: home-kubernetes
 spec:
   hosts:
-    #% for item in bootstrap_nodes.master %#
+    #% for item in cluster.nodes.inventory %#
+    #% if item.controller %#
     - role: controller+worker
+    #% else %#
+    - role: worker
+    #% endif %#
       ssh:
         address: "#{ item.address }#"
-        user: "#{ item.ssh.username }#"
+        user: "#{ item.ssh_username }#"
+      #% if item.controller %#
       installFlags:
         - --disable-components=metrics-server
         - --no-taints
+      #% endif %#
       files:
         - name: bootstrap-scripts
           src: scripts
@@ -20,25 +26,9 @@ spec:
         apply:
           before:
             - bash apply-system.sh "#{ item.name }#"
+            #% if item.controller %#
             - bash apply-kube-vip.sh
-        reset:
-          before:
-            - bash reset-cilium.sh
-          after:
-            - bash reset-system.sh
-    #% endfor %#
-    #% for item in bootstrap_nodes.worker %#
-    - role: worker
-      ssh:
-        address: "#{ item.address }#"
-        user: "#{ item.ssh.username }#"
-      files:
-        - name: bootstrap-scripts
-          src: scripts
-      hooks:
-        apply:
-          before:
-            - bash apply-system.sh "#{ item.name }#"
+            #% endif %#
         reset:
           before:
             - bash reset-cilium.sh
@@ -65,23 +55,25 @@ spec:
               listen-metrics-urls: http://0.0.0.0:2381
         api:
           sans:
-            #% if bootstrap_kube_api_addr %#
-            - "#{ bootstrap_kube_api_addr }#"
+            #% if cluster.endpoint_vip %#
+            - "#{ cluster.endpoint_vip }#"
             #% endif %#
-            #% for item in bootstrap_kube_additional_tls_sans %#
+            #% for item in cluster.tls_sans %#
             - "#{ item }#"
             #% endfor %#
-            #% for item in bootstrap_nodes.master %#
+            #% for item in controllers %#
+            #% if item.controller %#
             - "#{ item.address }#"
             - "#{ item.name }#"
+            #% endif %#
             #% endfor %#
         network:
-          podCIDR: "#{ bootstrap_cluster_cidr.split(',')[0] }#"
-          serviceCIDR: "#{ bootstrap_service_cidr.split(',')[0] }#"
+          podCIDR: "#{ cluster.pod_network.split(',')[0] }#"
+          serviceCIDR: "#{ cluster.service_network.split(',')[0] }#"
           provider: custom
           kubeProxy:
             disabled: true
-          nodeLocalLoadBalancing:
+          sLocalLoadBalancing:
             enabled: true
             type: EnvoyProxy
         extensions:

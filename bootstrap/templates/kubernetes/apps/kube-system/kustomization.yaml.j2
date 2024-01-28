@@ -4,11 +4,11 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./cilium/ks.yaml
-  #% if bootstrap_distribution in ['talos'] %#
+  #% if distribution in ['talos'] %#
   - ./kubelet-csr-approver/ks.yaml
   #% endif %#
   - ./metrics-server/ks.yaml
-  #% if bootstrap_distribution in ['k0s', 'talos'] %#
+  #% if distribution in ['k0s', 'talos'] %#
   - ./spegel/ks.yaml
   #% endif %#
   - ./reloader/ks.yaml

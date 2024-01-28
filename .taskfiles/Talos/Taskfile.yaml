@@ -77,3 +77,7 @@ tasks:
       vars: ["node", "to"]
     preconditions:
       - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
+
+  .reset:
+    internal: true
+    cmd: rm -rf {{.TALOS_DIR}}
