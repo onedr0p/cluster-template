@@ -2,7 +2,7 @@
 k3s_become: true
 k3s_etcd_datastore: true
 k3s_install_hard_links: true
-k3s_registration_address: "#{ bootstrap_kube_api_addr }#"
+k3s_registration_address: "#{ cluster.endpoint_vip }#"
 # renovate: datasource=github-releases depName=k3s-io/k3s
 k3s_release_version: v1.29.0+k3s1
 k3s_server_manifests_templates:

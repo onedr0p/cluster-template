@@ -1,52 +1,50 @@
 ---
 skip_tests: true
 
-bootstrap_distribution: k0s
-bootstrap_github_username: onedr0p
-bootstrap_github_repository_name: flux-cluster-template
-bootstrap_age_public_key: $BOOTSTRAP_AGE_PUBLIC_KEY
-bootstrap_timezone: Etc/UTC
-bootstrap_acme_email: fake@example.com
-bootstrap_acme_production_enabled: false
-bootstrap_flux_github_webhook_token: fake
-bootstrap_cloudflare_domain: fake
-bootstrap_cloudflare_token: fake
-bootstrap_cloudflare_account_tag: fake
-bootstrap_cloudflare_tunnel_secret: fake
-bootstrap_cloudflare_tunnel_id: fake
-bootstrap_node_cidr: 10.10.10.0/24
-bootstrap_kube_api_addr: 10.10.10.254
-bootstrap_kube_additional_tls_sans: ["fake"]
-bootstrap_k8s_gateway_addr: 10.10.10.253
-bootstrap_external_ingress_addr: 10.10.10.252
-bootstrap_internal_ingress_addr: 10.10.10.251
-bootstrap_dns_server: 1.1.1.1
-bootstrap_cluster_cidr: 10.42.0.0/16
-bootstrap_service_cidr: 10.43.0.0/16
-bootstrap_nodes:
-  master:
-    - name: k8s-0
-      address: 10.10.10.100
-      ssh:
-        username: fake
-    - name: k8s-1
-      address: 10.10.10.101
-      ssh:
-        username: fake
-    - name: k8s-2
-      address: 10.10.10.102
-      ssh:
-        username: fake
-  worker:
-    - name: k8s-3
-      address: 10.10.10.103
-      ssh:
-        username: fake
-    - name: k8s-4
-      address: 10.10.10.104
-      ssh:
-        username: fake
-    - name: k8s-5
-      address: 10.10.10.105
-      ssh:
-        username: fake
+distribution: k0s
+timezone: Etc/UTC
+
+cluster:
+  nodes:
+    host_network: 10.10.10.0/24
+    dns_servers: ["1.1.1.1"]
+    search_domain: "fake"
+    inventory:
+      - name: k8s-controller-0
+        address: 10.10.10.100
+        controller: true
+        ssh_username: fake
+      - name: k8s-worker-0
+        address: 10.10.10.101
+        controller: false
+        ssh_username: fake
+  pod_network: 10.69.0.0/16
+  service_network: 10.96.0.0/16
+  endpoint_vip: 10.10.10.254
+  tls_sans: ["fake"]
+
+flux:
+  enabled: true
+  github:
+    username: onedr0p
+    address: https://github.com/onedr0p/flux-cluster-template
+    branch: main
+    webhook:
+      enabled: true
+      token: fake
+  sops_age_public_key: $BOOTSTRAP_AGE_PUBLIC_KEY
+
+cloudflare:
+  enabled: true
+  domain: fake
+  token: take
+  acme:
+    email: fake@example.com
+    production: false
+  tunnel:
+    account_id: fake
+    id: fake
+    secret: fake
+    ingress_vip: 10.10.10.252
+  ingress_vip: 10.10.10.251
+  gateway_vip: 10.10.10.253

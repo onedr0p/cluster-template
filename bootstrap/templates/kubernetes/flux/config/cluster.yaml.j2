@@ -6,15 +6,13 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  ref:
-    branch: "#{ bootstrap_advanced_flags.github_repository_branch|default('main', true) }#"
-  #% if bootstrap_private_github_repo %#
+  url: "#{ flux.github.address }#"
+  #% if flux.github.address.startswith('ssh://') %#
   secretRef:
     name: github-deploy-key
-  url: "ssh://github.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#"
-  #% else %#
-  url: "https://github.com/#{ bootstrap_github_username }#/#{ bootstrap_github_repository_name }#.git"
   #% endif %#
+  ref:
+    branch: "#{ flux.github.branch|default('main', true) }#"
   ignore: |
     # exclude all
     /*

@@ -4,7 +4,7 @@ k3s_agent:
   kubelet-arg:
     - "image-gc-high-threshold=55"
     - "image-gc-low-threshold=50"
-  #% if bootstrap_advanced_flags.dual_stack_ipv4_first|default(false) %#
+  #% if feature_gates.dual_stack_ipv4_first %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
   #% else %#
   node-ip: "{{ ansible_host }}"

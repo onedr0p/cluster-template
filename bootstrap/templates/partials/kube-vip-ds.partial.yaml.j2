@@ -21,7 +21,7 @@ spec:
           args: ["manager"]
           env:
             - name: address
-              value: "#{ bootstrap_kube_api_addr }#"
+              value: "#{ cluster.endpoint_vip }#"
             - name: vip_arp
               value: "true"
             - name: lb_enable

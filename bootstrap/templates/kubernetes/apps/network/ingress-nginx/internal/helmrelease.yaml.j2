@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: nginx-internal
+  name: ingress-nginx-internal
   namespace: network
 spec:
   interval: 30m
@@ -24,12 +24,12 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    fullnameOverride: nginx-internal
+    fullnameOverride: ingress-nginx-internal
     controller:
       replicaCount: 1
       service:
         annotations:
-          io.cilium/lb-ipam-ips: "#{ bootstrap_internal_ingress_addr }#"
+          io.cilium/lb-ipam-ips: "#{ cloudflare.ingress_vip }#"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: internal
@@ -60,14 +60,8 @@ spec:
         proxy-body-size: 0
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
-      metrics:
-        enabled: true
-        serviceMonitor:
-          enabled: true
-          namespaceSelector:
-            any: true
       extraArgs:
-        #% if bootstrap_acme_production_enabled %#
+        #% if cloudflare.acme.production %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-production-tls"
         #% else %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-staging-tls"
@@ -79,7 +73,7 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: ingress-nginx
-              app.kubernetes.io/instance: nginx-internal
+              app.kubernetes.io/instance: ingress-nginx-internal
               app.kubernetes.io/component: controller
       resources:
         requests:

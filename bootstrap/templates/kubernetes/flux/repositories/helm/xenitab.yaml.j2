@@ -1,3 +1,4 @@
+#% if distribution in ['k0s', 'talos'] %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
@@ -8,3 +9,4 @@ spec:
   type: oci
   interval: 5m
   url: oci://ghcr.io/xenitab/helm-charts
+#% endif %#

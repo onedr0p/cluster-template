@@ -2,7 +2,7 @@
 inputs = ["./bootstrap/templates"]
 output = "./"
 exclude_patterns = [".mjfilter.py", "*.partial.yaml.j2"]
-data = ["./bootstrap/vars/config.yaml"]
+data = ["./config.yaml"]
 import_paths = ["./bootstrap/scripts"]
 loaders = ["plugin:Plugin"]
 jinja_suffix = ".j2"

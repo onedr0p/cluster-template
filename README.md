@@ -1,18 +1,21 @@
-# Deploy a Kubernetes cluster backed by Flux
+# Deploy a Kubernetes cluster
 
-Welcome to my opinionated and extendable template for deploying a single Kubernetes cluster with [k0s](https://github.com/k0sproject/k0s), [k3s](https://k3s.io) or [Talos](https://github.com/siderolabs/talos) backed by [Flux](https://fluxcd.io/flux/) to manage its state.
+Welcome to my opinionated and extensible template for deploying a single Kubernetes cluster. The goal of this project is to make it easier for people interested in using Kubernetes to deploy a cluster at home on bare-metal or VMs.
 
 ## 👋 Introduction
 
-The goal of this project is to make it easy for people interested in learning Kubernetes to deploy a cluster at home and become familiar with the GitOps tool Flux.
+There are currently 3 different types of configuration available with this template:
 
-This template implements Flux in a way that promotes legibility and ease of use for those who are new (or relatively new) to the technology and GitOps in general.
-
-If you are new to Flux and GitOps it is important to understand that **all changes** you want made to your Kubernetes cluster should be **commited to your Git repository** which Flux will pick up and attempt to apply. You're still free to make _dirty_ edits using `kubectl` but keep in mind that Flux might revert them once its reconcilation loop happens.
+1. "**Bare cluster**" - a distrubition of your choosing ([k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)) that comes with only [kube-vip](https://github.com/kube-vip/kube-vip) and [Cilium](https://github.com/cilium/cilium) installed with the cluster.
+2. "**Flux cluster**" - Add-on to the "**Bare cluster**" to deploy an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the SCM tool.
+3. "**Flux cluster w/ Cloudflare**" - Add-on to the "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
 
 ## ✨ Features
 
-- Build a Kubernetes cluster with either [k0s](https://github.com/k0sproject/k0s), [k3s](https://k3s.io) or [Talos](https://github.com/siderolabs/talos)
+> [!NOTE]
+> Features will vary depending on what type of configuration you choose, listed below is an overview of the full "**Flux cluster w/ Cloudflare**" setup.
+
+- Build a Kubernetes cluster with either [k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)
 - Automated, reproducible, customizable setup through templates
 - Opinionated implementation of Flux with [strong community support](https://github.com/onedr0p/flux-cluster-template/tree/main#-help)
 - Encrypted secrets thanks to [SOPS](https://github.com/getsops/sops) and [Age](https://github.com/FiloSottile/age)
@@ -26,8 +29,8 @@ If you are new to Flux and GitOps it is important to understand that **all chang
 
 ## 📝 Pre-start checklist
 
-> [!IMPORTANT]
-> Before we get started everything below must be taken into consideration, you must...
+> [!NOTE]
+> Pre-start checklist items will vary depending on what type of configuration you choose, listed below is an overview of the full "**Flux cluster w/ Cloudflare**" setup.
 
 - [ ] have some experience with the following: Git/SCM, containers, networking and scripting.
 - [ ] bring a **positive attitude** and be ready to learn and fail a lot. _The more you fail, the more you can learn from._
@@ -41,7 +44,7 @@ If you are new to Flux and GitOps it is important to understand that **all chang
 
 Hopefully some of this peeked your interests!
 
-If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k0s](https://github.com/k0sproject/k0s), [k3s](https://k3s.io) or [Talos](https://github.com/siderolabs/talos). Talos and k0s support was recently added so I would advise using k3s until those have been tested more however feel free to use Talos or k0s and report any issues that you find. Keep the one you decide in mind as you continue along, some steps may vary on what you choose.
+If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos). Talos and k0s support was recently added so I would advise using k3s until those have been tested more however feel free to use Talos or k0s and report any issues that you find. Keep the one you decide in mind as you continue along, some steps may vary on what you choose.
 
 ### System requirements
 
@@ -166,7 +169,7 @@ You have two different options for setting up your local workstation. First one 
 
 1. Start Docker and open your repository in VSCode. There will be a pop-up asking you to use the `devcontainer`, click the button to start using it.
 
-2. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
+2. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
 
 #### Non-devcontainer method
 
@@ -199,7 +202,7 @@ You have two different options for setting up your local workstation. First one 
     task workstation:brew
     # or, Arch with yay/paru
     task workstation:arch
-    # or, Generic Linux (this pulls binaires in to ./bin)
+    # or, Generic Linux (YMMV, this pulls binaires in to ./bin)
     task workstation:generic-linux
     ```
 
@@ -211,90 +214,80 @@ You have two different options for setting up your local workstation. First one 
     task workstation:venv
     ```
 
-5. Continue on to 🔧 [**Stage 3**](#-stage-3-do-bootstrap-configuration)
+5. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
 
-### 🔧 Stage 3: Do bootstrap configuration
+### 🔧 Stage 3: Bootstrap configuration
 
-📍 _The_ `bootstrap/vars/config.yaml` contain necessary information that is **vital** to the bootstrap process._
+> [!IMPORTANT]
+> The [config.sample.yaml](https://github.com/onedr0p/flux-cluster-template/blob/main/config.sample.yaml) file contain necessary information that is **vital** to the bootstrap process.
 
-1. Generate the `bootstrap/vars/config.yaml` configuration file.
+1. Generate the `config.yaml` from the [config.sample.yaml](https://github.com/onedr0p/flux-cluster-template/blob/main/config.sample.yaml) configuration file.
 
     ```sh
     task init
     ```
 
-2. Choose between `k3s` or `k0s` for your Kubernetes distribution and fillout the appropriate vars in `bootstrap/vars/config.yaml`
-
-3. Setup Age private / public key
+2. Setup Age private / public key (_**Skip if not using Flux**_)
 
     📍 _Using [SOPS](https://github.com/getsops/sops) with [Age](https://github.com/FiloSottile/age) allows us to encrypt secrets and use them in Ansible and Flux._
 
-    3a. Create a Age private / public key (this file is gitignored)
+    2a. Create a Age private / public key (this file is gitignored)
 
       ```sh
       task sops:age-keygen
       ```
 
-    3b. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    2b. Fill out the appropriate vars in `config.yaml`
 
-4. Create Cloudflare API Token
+3. Create Cloudflare API Token (_**Skip if not using Cloudflare**_)
 
     📍 _To use `cert-manager` with the Cloudflare DNS challenge you will need to create a API Token._
 
-   4a. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
+   1. Head over to Cloudflare and create a API Token by going [here](https://dash.cloudflare.com/profile/api-tokens).
+   2. Under the `API Tokens` section click the blue `Create Token` button.
+   3. Click the blue `Use template` button for the `Edit zone DNS` template.
+   4. Name your token something like `home-kubernetes`
+   5. Under `Permissions`, click `+ Add More` and add each permission below:
 
-   4b. Under the `API Tokens` section click the blue `Create Token` button.
+      ```text
+      Zone - DNS - Edit
+      Account - Cloudflare Tunnel - Read
+      ```
 
-   4c. Click the blue `Use template` button for the `Edit zone DNS` template.
+   6. Limit the permissions to a specific account and zone resources.
+   7. Fill out the appropriate vars in `config.yaml`
 
-   4d. Name your token something like `home-kubernetes`
-
-   4e. Under `Permissions`, click `+ Add More` and add each permission below:
-
-    ```text
-    Zone - DNS - Edit
-    Account - Cloudflare Tunnel - Read
-    ```
-
-   4f. Limit the permissions to a specific account and zone resources.
-
-   4g. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
-
-5. Create Cloudflare Tunnel
+4. Create Cloudflare Tunnel (_**Skip if not using Cloudflare**_)
 
     📍 _To expose services to the internet you will need to create a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)._
 
-    5a. Authenticate cloudflared to your domain
+    1. Authenticate cloudflared to your domain
 
-      ```sh
-      cloudflared tunnel login
-      ```
+        ```sh
+        cloudflared tunnel login
+        ```
 
-    5b. Create the tunnel
+    2. Create the tunnel
 
-      ```sh
-      cloudflared tunnel create k8s
-      ```
+        ```sh
+        cloudflared tunnel create k8s
+        ```
 
-    5c. In the `~/.cloudflared` directory there will be a json file with details you need. Ignore the `cert.pem` file.
+    3. In the `~/.cloudflared` directory there will be a json file with details you need. Ignore the `cert.pem` file.
 
-    5d. Fill out the appropriate vars in `bootstrap/vars/config.yaml`
+    4. Fill out the appropriate vars in `config.yaml`
 
-6. Complete filling out the rest of the `bootstrap/vars/config.yaml` configuration file.
+5. Complete filling out the rest of the `config.yaml` configuration file.
 
-    6a. Ensure `bootstrap_acme_production_enabled` is set to `false`.
-
-7. Once done run the following command which will verify and generate all the files needed to continue.
-
-    📍 _The following configure task will create a `./ansible` directory for k3s or k0s and the following directories under `./kubernetes` for all distributions_
+6. Once done run the following command which will verify and generate all the files needed to continue.
 
     ```sh
     task configure
     ```
 
-8. Push you changes to git
+7. Push you changes to git
 
-   📍 **Verify** all the `*.sops.yaml` and `*.sops.yaml` files under the `./ansible`, and `./kubernetes` directories are **encrypted** with SOPS
+   📍 **Verify** all the `*.sops.yaml` and `*.sops.yaml` files under `./kubernetes` directory is **encrypted** with SOPS
 
     ```sh
     git add -A
@@ -302,11 +295,11 @@ You have two different options for setting up your local workstation. First one 
     git push
     ```
 
-9. Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
+8.  Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
 
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
-> [!NOTE]
+> [!IMPORTANT]
 > For **Talos** or **k0s** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
 
 #### k3s
@@ -401,7 +394,8 @@ You have two different options for setting up your local workstation. First one 
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
-📍 _Here we will be installing [flux](https://fluxcd.io/flux/) after some quick bootstrap steps._
+> [!IMPORTANT]
+> Skip this stage if you have **disabled** Flux in the `config.yaml`
 
 1. Verify Flux can be installed
 
@@ -433,7 +427,7 @@ You have two different options for setting up your local workstation. First one 
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
 
-### 🎤 Verification Steps
+### 🎤 Flux w/ Cloudflare verification Steps
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
@@ -451,7 +445,7 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 4. 🧠 Now it's time to pause and go get some motel motor oil ☕ and admire you made it this far!
 
-## 📣 Post installation
+## 📣 Flux w/ Cloudflare post installation
 
 #### 🌐 Public DNS
 
@@ -504,7 +498,7 @@ By default Flux will periodically check your git repository for changes. In orde
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret and save.
 
-#### 💥 Nuke
+## 💥 Nuke
 
 There might be a situation where you want to destroy your Kubernetes cluster. This will completely clean the OS of all traces of the Kubernetes distribution you chose and then reboot the nodes.
 
@@ -515,7 +509,7 @@ task ansible:run playbook=cluster-nuke
 task k0s:reset
 ```
 
-### 🤖 Renovate
+## 🤖 Renovate
 
 [Renovate](https://www.mend.io/renovate) is a tool that automates dependency management. It is designed to scan your repository around the clock and open PRs for out-of-date dependencies it finds. Common dependencies it can discover are Helm charts, container images, GitHub Actions, Ansible roles... even Flux itself! Merging a PR will cause Flux to apply the update to your cluster.
 

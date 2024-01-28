@@ -22,7 +22,7 @@ EOF
 fi
 
 # Timezone
-timedatectl set-timezone "#{ bootstrap_timezone }#"
+timedatectl set-timezone "#{ timezone }#"
 
 # Install Packages
 apt-get install -y --no-install-recommends \
@@ -31,16 +31,16 @@ apt-get install -y --no-install-recommends \
     nvme-cli open-iscsi parted psmisc python3 python3-apt python3-kubernetes python3-yaml \
     smartmontools socat software-properties-common unzip util-linux
 
-#% if bootstrap_advanced_flags.update_resolv_conf|default(true) %#
 # Update DNS
 chattr -i /etc/resolv.conf
 rm -f /etc/resolv.conf
 cat >/etc/resolv.conf <<EOF
-search .
-nameserver #{ bootstrap_dns_server }#
+search #{ cluster.nodes.search_domain|default('.', true) }#
+#% for item in cluster.nodes.dns_servers %#
+nameserver #{ item }#
+#% endfor %#
 EOF
 chattr +i /etc/resolv.conf
-#% endif %#
 
 # Kernel Modules
 for module in br_netfilter ceph ip_vs ip_vs_rr nbd overlay rbd; do
