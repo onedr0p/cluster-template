@@ -100,7 +100,7 @@ def validate_cluster_networks(cluster: dict, feature_gates: dict, **_) -> None:
 def massage_config(data: dict) -> dict:
     data["flux"] = data.get("flux", {})
     data["cloudflare"] = data.get("cloudflare", {})
-    data["feature_flags"] = data.get("feature_flags", {})
+    data["feature_gates"] = data.get("feature_gates", {})
     return data
 
 
