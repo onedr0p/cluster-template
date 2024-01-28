@@ -7,18 +7,6 @@ timezone: ""
 
 # (Required) Cluster details
 cluster:
-  # (Required) The pod CIDR for the cluster, this must NOT overlap with any
-  #   existing networks. If you want to use IPv6 check the advanced flags below
-  pod_network: 10.69.0.0/16
-  # (Required) The service CIDR for the cluster, this must NOT overlap with any
-  #   existing networks. If you want to use IPv6 check the advanced flags below
-  service_network: 10.96.0.0/16
-  # (Required) The IP address of the Kube API, choose an available IP in
-  #   your nodes network that is NOT being used. This is announced over L2.
-  endpoint_vip: ""
-  # (Optional) Add additional SANs to the Kube API cert, this is useful
-  #   if you want to call the Kube API by hostname rather than IP
-  tls_sans: []
   # (Required) The nodes section is used to configure your cluster nodes
   nodes:
     # (Required) CIDR your nodes are on (e.g. 192.168.1.0/24)
@@ -29,9 +17,12 @@ cluster:
     #   1. your nodes can reach it
     #   2. it is configured to forward requests to a public DNS server
     #   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
-    dns_servers: []
+    # If using multiple DNS servers make sure they are setup the same way,
+    #   there is no guarantee that the first DNS server will be used.
+    dns_servers:
+      - "1.1.1.1"
     # (Optional) The DNS search domain to use for the nodes.
-    # Leave this option blank to avoid DNS issues inside the cluster.
+    # Leave this option blank to avoid possible DNS issues inside the cluster.
     search_domain: ""
     # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
     #   Worker nodes are optional
@@ -42,6 +33,20 @@ cluster:
       #   ssh_username: ""       # (Required: k3s/k0s) SSH username of the node
       #   talos_disk_device: ""  # (Required: Talos) Device Path or Serial number of Disk for this node
       # ...
+  # (Required) The pod CIDR for the cluster, this must NOT overlap with any
+  #   existing networks and is usually a /16 (64K IPs).
+  # If you want to use IPv6 check the advanced flags below
+  pod_network: 10.69.0.0/16
+  # (Required) The service CIDR for the cluster, this must NOT overlap with any
+  #   existing networks and is usually a /16 (64K IPs).
+  # If you want to use IPv6 check the advanced flags below
+  service_network: 10.96.0.0/16
+  # (Required) The IP address of the Kube API, choose an available IP in
+  #   your nodes host network that is NOT being used. This is announced over L2.
+  endpoint_vip: ""
+  # (Optional) Add additional SANs to the Kube API cert, this is useful
+  #   if you want to call the Kube API by hostname rather than IP
+  tls_sans: []
 
 # (Required) Flux details
 # IMPORTANT: All options are ignored if flux is disabled and no resources
@@ -85,11 +90,11 @@ cloudflare:
     production: false
   # (Required) Provide LAN access to the cluster ingresses for internal ingress classes
   # The Load balancer IP for internal ingress, choose an available IP
-  #   in your nodes network that is NOT being used. This is announced over L2.
+  #   in your nodes host network that is NOT being used. This is announced over L2.
   ingress_vip: ""
   # (Required) Gateway is used for providing DNS to your cluster on LAN
   # The Load balancer IP for k8s_gateway, choose an available IP
-  #   in your nodes network that is NOT being used. This is announced over L2.
+  #   in your nodes host network that is NOT being used. This is announced over L2.
   gateway_vip: ""
   # (Required) Options for Cloudflare Tunnel
   tunnel:
@@ -101,7 +106,7 @@ cloudflare:
     secret: ""
     # (Required) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
-    #   in your nodes network that is NOT being used. This is announced over L2.
+    #   in your nodes host network that is NOT being used. This is announced over L2.
     ingress_vip: ""
 
 # (Optional) Feature gates are used to enable experimental features
