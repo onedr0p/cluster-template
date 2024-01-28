@@ -427,7 +427,7 @@ You have two different options for setting up your local workstation. First one 
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
 
-### 🎤 Flux verification Steps
+### 🎤 Flux w/ Cloudflare verification Steps
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
@@ -445,7 +445,7 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 4. 🧠 Now it's time to pause and go get some motel motor oil ☕ and admire you made it this far!
 
-## 📣 Post installation
+## 📣 Flux w/ Cloudflare post installation
 
 #### 🌐 Public DNS
 
@@ -498,7 +498,7 @@ By default Flux will periodically check your git repository for changes. In orde
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret and save.
 
-#### 💥 Nuke
+## 💥 Nuke
 
 There might be a situation where you want to destroy your Kubernetes cluster. This will completely clean the OS of all traces of the Kubernetes distribution you chose and then reboot the nodes.
 
@@ -509,7 +509,7 @@ task ansible:run playbook=cluster-nuke
 task k0s:reset
 ```
 
-### 🤖 Renovate
+## 🤖 Renovate
 
 [Renovate](https://www.mend.io/renovate) is a tool that automates dependency management. It is designed to scan your repository around the clock and open PRs for out-of-date dependencies it finds. Common dependencies it can discover are Helm charts, container images, GitHub Actions, Ansible roles... even Flux itself! Merging a PR will cause Flux to apply the update to your cluster.
 
