@@ -6,7 +6,7 @@ Welcome to my opinionated and extensible template for deploying a single Kuberne
 
 There are currently 3 different types of configuration available with this template:
 
-1. "**Bare cluster**" - a distrubition of your choosing ([k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)) that comes with [kube-vip](https://github.com/kube-vip/kube-vip) and [Cilium](https://github.com/cilium/cilium) all set up and ready to be customized further.
+1. "**Bare cluster**" - a distrubition of your choosing ([k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)) that comes with [kube-vip](https://github.com/kube-vip/kube-vip) and [Cilium](https://github.com/cilium/cilium) installed with the cluster. You are free to manage it how you choose from here on out, or see the other two options below.
 2. "**Flux cluster**" - Addon to the "**Bare cluster**" to deploy an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using GitHub.
 3. "**Flux cluster w/ Cloudflare**" - Addon to the "**Flux cluster**" to provide DNS, TLS and Tunnel with [Cloudflare](https://www.cloudflare.com/).
 
