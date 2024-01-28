@@ -8,7 +8,7 @@ There are currently 3 different types of configuration available with this templ
 
 1. "**Bare cluster**" - a distrubition of your choosing ([k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)) that comes with only [kube-vip](https://github.com/kube-vip/kube-vip) and [Cilium](https://github.com/cilium/cilium) installed with the cluster.
 2. "**Flux cluster**" - Add-on to the "**Bare cluster**" to deploy an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the SCM tool.
-3. "**Flux cluster w/ Cloudflare**" - Add-on to the "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to applications deployed in your cluster.
+3. "**Flux cluster w/ Cloudflare**" - Add-on to the "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
 
 ## ✨ Features
 
