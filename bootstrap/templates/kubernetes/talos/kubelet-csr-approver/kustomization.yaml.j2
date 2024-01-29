@@ -9,9 +9,9 @@ helmCharts:
     releaseName: kubelet-csr-approver
     namespace: kube-system
     valuesInline:
-      #% filter indent(width=6, first=True) %#
-      #% include 'partials/kubelet-csr-approver-values.partial.yaml.j2' %#
-      #% endfilter %#
+      {% filter indent(width=6, first=True) %}
+      {% include 'partials/kubelet-csr-approver-values.partial.yaml.j2' %}
+      {% endfilter %}
 commonAnnotations:
   meta.helm.sh/release-name: kubelet-csr-approver
   meta.helm.sh/release-namespace: kube-system

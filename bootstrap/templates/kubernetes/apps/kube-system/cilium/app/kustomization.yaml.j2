@@ -2,7 +2,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  #% if not feature_gates.dual_stack_ipv4_first %#
+  {% if not feature_gates.dual_stack_ipv4_first %}
   - ./cilium-l2.yaml
-  #% endif %#
+  {% endif %}
   - ./helmrelease.yaml

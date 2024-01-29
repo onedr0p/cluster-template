@@ -1,2 +1,2 @@
-providerRegex: ^(#{ (nodes | map(attribute='name') | join('|')) }#)$
+providerRegex: ^({{ (nodes | map(attribute='name') | join('|')) }})$
 bypassDnsResolution: true

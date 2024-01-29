@@ -5,9 +5,9 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  TIMEZONE: "#{ timezone }#"
-  CLUSTER_CIDR: "#{ cluster.pod_network.split(',')[0] }#"
-  NODE_CIDR: "#{ cluster.nodes.host_network }#"
-  #% if feature_gates.dual_stack_ipv4_first %#
-  CLUSTER_CIDR_V6: "#{ cluster.pod_network.split(',')[1] }#"
-  #% endif %#
+  TIMEZONE: "{{ timezone }}"
+  CLUSTER_CIDR: "{{ cluster.pod_network.split(',')[0] }}"
+  NODE_CIDR: "{{ cluster.nodes.host_network }}"
+  {% if feature_gates.dual_stack_ipv4_first %}
+  CLUSTER_CIDR_V6: "{{ cluster.pod_network.split(',')[1] }}"
+  {% endif %}

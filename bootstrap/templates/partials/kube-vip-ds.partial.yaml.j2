@@ -21,7 +21,7 @@ spec:
           args: ["manager"]
           env:
             - name: address
-              value: "#{ cluster.endpoint_vip }#"
+              value: "{{ cluster.endpoint_vip }}"
             - name: vip_arp
               value: "true"
             - name: lb_enable

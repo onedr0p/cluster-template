@@ -13,6 +13,6 @@ spec:
   targetNamespace: kube-system
   bootstrap: true
   valuesContent: |-
-    #% filter indent(width=4, first=True) %#
-    #% include 'partials/cilium-values-init.partial.yaml.j2' %#
-    #% endfilter %#
+    {% filter indent(width=4, first=True) %}
+    {% include 'partials/cilium-values-init.partial.yaml.j2' %}
+    {% endfilter %}

@@ -6,50 +6,50 @@ talosVersion: v1.6.3
 kubernetesVersion: v1.29.1
 
 clusterName: &cluster home-kubernetes
-endpoint: https://#{ cluster.endpoint_vip }#:6443
+endpoint: https://{{ cluster.endpoint_vip }}:6443
 clusterPodNets:
-  - "#{ cluster.pod_network.split(',')[0] }#"
+  - "{{ cluster.pod_network.split(',')[0] }}"
 clusterSvcNets:
-  - "#{ cluster.service_network.split(',')[0] }#"
+  - "{{ cluster.service_network.split(',')[0] }}"
 additionalApiServerCertSans: &sans
-  - "#{ cluster.endpoint_vip }#"
+  - "{{ cluster.endpoint_vip }}"
   - 127.0.0.1
-  #% for item in cluster.tls_sans %#
-  - "#{ item }#"
-  #% endfor %#
+  {% for item in cluster.tls_sans %}
+  - "{{ item }}"
+  {% endfor %}
 additionalMachineCertSans: *sans
 cniConfig:
   name: none
 
 nodes:
-  #% for item in cluster.nodes.inventory %#
-  - hostname: "#{ item.name }#"
-    ipAddress: "#{ item.address }#"
-    #% if item.talos_disk_device.startswith('/') %#
-    installDisk: "#{ item.talos_disk_device }#"
-    #% else %#
+  {% for item in cluster.nodes.inventory %}
+  - hostname: "{{ item.name }}"
+    ipAddress: "{{ item.address }}"
+    {% if item.talos_disk_device.startswith('/') %}
+    installDisk: "{{ item.talos_disk_device }}"
+    {% else %}
     installDiskSelector:
-      serial: "#{ item.talos_disk_device }#"
-    #% endif %#
-    #% if item.controller %#
+      serial: "{{ item.talos_disk_device }}"
+    {% endif %}
+    {% if item.controller %}
     controlPlane: true
-    #% else %#
+    {% else %}
     controlPlane: false
-    #% endif %#
+    {% endif %}
     networkInterfaces:
       - interface: eth0
         dhcp: false
         addresses:
-          - "#{ item.address }#/#{ cluster.nodes.host_network.split('/') | last }#"
+          - "{{ item.address }}/{{ cluster.nodes.host_network.split('/') | last }}"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            gateway: "#{ cluster.nodes.host_network | nthhost(1) }#"
-        #% if item.controller %#
+            gateway: "{{ cluster.nodes.host_network | nthhost(1) }}"
+        {% if item.controller %}
         vip:
-          ip: "#{ cluster.endpoint_vip }#"
-        #% endif %#
-  #% endfor %#
+          ip: "{{ cluster.endpoint_vip }}"
+        {% endif %}
+  {% endfor %}
 
 controlPlane:
   patches:
@@ -92,7 +92,7 @@ controlPlane:
             rotate-server-certificates: true
           nodeIP:
             validSubnets:
-              - "#{ cluster.nodes.host_network }#"
+              - "{{ cluster.nodes.host_network }}"
 
     # Enable KubePrism
     - &kubePrismPatch |-
@@ -107,9 +107,9 @@ controlPlane:
       machine:
         network:
           nameservers:
-            #% for item in cluster.nodes.dns_servers %#
-            - #{ item }#
-            #% endfor %#
+            {% for item in cluster.nodes.dns_servers %}
+            - {{ item }}
+            {% endfor %}
 
     # Configure NTP
     - &ntpPatch |-
@@ -147,7 +147,7 @@ controlPlane:
           extraArgs:
             listen-metrics-urls: http://0.0.0.0:2381
           advertisedSubnets:
-            - "#{ cluster.nodes.host_network }#"
+            - "{{ cluster.nodes.host_network }}"
 
     # Disable default API server admission plugins.
     - |-

@@ -22,7 +22,7 @@ EOF
 fi
 
 # Timezone
-timedatectl set-timezone "#{ timezone }#"
+timedatectl set-timezone "{{ timezone }}"
 
 # Install Packages
 apt-get install -y --no-install-recommends \
@@ -35,10 +35,10 @@ apt-get install -y --no-install-recommends \
 chattr -i /etc/resolv.conf
 rm -f /etc/resolv.conf
 cat <<EOF > /etc/resolv.conf
-search #{ cluster.nodes.search_domain|default('.', true) }#
-#% for item in cluster.nodes.dns_servers %#
-nameserver #{ item }#
-#% endfor %#
+search {{ cluster.nodes.search_domain|default('.', true) }}
+{% for item in cluster.nodes.dns_servers %}
+nameserver {{ item }}
+{% endfor %}
 EOF
 chattr +i /etc/resolv.conf
 

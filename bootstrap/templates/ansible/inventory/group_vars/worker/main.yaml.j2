@@ -4,9 +4,9 @@ k3s_agent:
   kubelet-arg:
     - "image-gc-high-threshold=55"
     - "image-gc-low-threshold=50"
-  #% if feature_gates.dual_stack_ipv4_first %#
-  node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
-  #% else %#
-  node-ip: "{{ ansible_host }}"
-  #% endif %#
+  {% if feature_gates.dual_stack_ipv4_first %}
+  node-ip: "{% raw %}{{ ansible_host }}{% endraw %},{% raw %}{{ ansible_default_ipv6.address }}{% endraw %}"
+  {% else %}
+  node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
+  {% endif %}
   pause-image: registry.k8s.io/pause:3.9
