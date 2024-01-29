@@ -155,7 +155,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 You have two different options for setting up your local workstation.
 
-- First option is using a `devcontainer` which requires you to have Docker and VSCode installed. This method is the fastest to get going because all the required CLI tools are provided for you in my [devcontainer](https://github.com/onedr0p/flux-cluster-template/pkgs/container/flux-cluster-template%2Fdevcontainer) image.
+- First option is using a `devcontainer` which requires you to have Docker and VSCode installed. This method is the fastest to get going because all the required CLI tools are provided for you in my [devcontainer](https://github.com/onedr0p/cluster-template/pkgs/container/cluster-template%2Fdevcontainer) image.
 - The second option is setting up the CLI tools directly on your workstation.
 
 #### Devcontainer method
@@ -212,9 +212,9 @@ You have two different options for setting up your local workstation.
 ### 🔧 Stage 3: Bootstrap configuration
 
 > [!NOTE]
-> The [config.sample.yaml](https://github.com/onedr0p/flux-cluster-template/blob/main/config.sample.yaml) file contain necessary information that is **vital** to the bootstrap process.
+> The [config.sample.yaml](./config.sample.yaml) file contain necessary information that is **vital** to the bootstrap process.
 
-1. Generate the `config.yaml` from the [config.sample.yaml](https://github.com/onedr0p/flux-cluster-template/blob/main/config.sample.yaml) configuration file.
+1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file.
 
     ```sh
     task init
@@ -463,7 +463,7 @@ The `external-dns` application created in the `networking` namespace will handle
 > 2. Restart dnsmasq on the server.
 > 3. Query an internal-only subdomain from your workstation (any `internal` class ingresses): `dig @${home-dns-server-ip} echo-server-internal.${bootstrap_cloudflare_domain}`. It should resolve to `${bootstrap_internal_ingress_addr}`.
 
-If you're having trouble with DNS be sure to check out these two GitHub discussions: [Internal DNS](https://github.com/onedr0p/flux-cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/flux-cluster-template/discussions/635).
+If you're having trouble with DNS be sure to check out these two GitHub discussions: [Internal DNS](https://github.com/onedr0p/cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/cluster-template/discussions/635).
 
 ... Nothing working? That is expected, this is DNS after all!
 
@@ -513,7 +513,7 @@ task k0s:reset
 
 To enable Renovate, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and select your repository. Renovate creates a "Dependency Dashboard" as an issue in your repository, giving an overview of the status of all updates. The dashboard has interactive checkboxes that let you do things like advance scheduling or reattempt update PRs you closed without merging.
 
-The base Renovate configuration in your repository can be viewed at [.github/renovate.json5](https://github.com/onedr0p/flux-cluster-template/blob/main/.github/renovate.json5). By default it is scheduled to be active with PRs every weekend, but you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule), or remove it if you want Renovate to open PRs right away.
+The base Renovate configuration in your repository can be viewed at [.github/renovate.json5](./.github/renovate.json5). By default it is scheduled to be active with PRs every weekend, but you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule), or remove it if you want Renovate to open PRs right away.
 
 ## 🐛 Debugging
 
@@ -563,8 +563,8 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 ## 👉 Help
 
-- Make a post in this repository's Github [Discussions](https://github.com/onedr0p/flux-cluster-template/discussions).
-- Start a thread in the `#support` or `#flux-cluster-template` channels in the [Home Operations](https://discord.gg/home-operations) Discord server.
+- Make a post in this repository's Github [Discussions](https://github.com/onedr0p/cluster-template/discussions).
+- Start a thread in the `#support` or `#cluster-template` channels in the [Home Operations](https://discord.gg/home-operations) Discord server.
 
 ## ❔ What's next
 
@@ -681,7 +681,7 @@ If this repo is too hot to handle or too cold to hold check out these following 
 
 <div align="center">
 
-[![Star History Chart](https://api.star-history.com/svg?repos=onedr0p/flux-cluster-template&type=Date)](https://star-history.com/#onedr0p/flux-cluster-template&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=onedr0p/cluster-template&type=Date)](https://star-history.com/#onedr0p/cluster-template&Date)
 
 </div>
 

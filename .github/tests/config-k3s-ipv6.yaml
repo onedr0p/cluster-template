@@ -27,7 +27,7 @@ flux:
   enabled: true
   github:
     username: onedr0p
-    address: https://github.com/onedr0p/flux-cluster-template
+    address: https://github.com/onedr0p/cluster-template
     branch: main
     webhook:
       enabled: true
