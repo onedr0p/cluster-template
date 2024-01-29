@@ -25,15 +25,15 @@ spec:
       hooks:
         apply:
           before:
-            - bash apply-system.sh "#{ item.name }#"
+            - bash ~/apply-system.sh "#{ item.name }#"
             #% if item.controller %#
-            - bash apply-kube-vip.sh
+            - bash ~/apply-kube-vip.sh
             #% endif %#
         reset:
           before:
-            - bash reset-cilium.sh
+            - bash ~/reset-cilium.sh
           after:
-            - bash reset-system.sh
+            - bash ~/reset-system.sh
     #% endfor %#
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s

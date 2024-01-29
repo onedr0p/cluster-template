@@ -34,7 +34,7 @@ apt-get install -y --no-install-recommends \
 # Update DNS
 chattr -i /etc/resolv.conf
 rm -f /etc/resolv.conf
-cat >/etc/resolv.conf <<EOF
+cat <<EOF > /etc/resolv.conf
 search #{ cluster.nodes.search_domain|default('.', true) }#
 #% for item in cluster.nodes.dns_servers %#
 nameserver #{ item }#
@@ -51,7 +51,7 @@ done
 systemctl restart systemd-modules-load.service
 
 # Sysctls
-cat >/etc/sysctl.d/99-kubernetes.conf <<EOF
+cat <<EOF > /etc/sysctl.d/99-kubernetes.conf
 fs.inotify.max_queued_events = 65536
 fs.inotify.max_user_watches = 524288
 fs.inotify.max_user_instances = 8192
@@ -68,7 +68,7 @@ fi
 
 # Create containerd config
 mkdir -p /etc/k0s/containerd.d
-cat >/etc/k0s/containerd.d/default.toml <<EOF
+cat <<EOF > /etc/k0s/containerd.d/default.toml
 [plugins."io.containerd.grpc.v1.cri"]
   enable_unprivileged_ports = true
   enable_unprivileged_icmp = true
