@@ -20,9 +20,10 @@ The features included will depend on the type of configuration you want to use. 
 
    - **Apps included:** [ingress-nginx](https://github.com/kubernetes/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
 
-Other features include:
+**Other features include:**
 
-- [Renovate](https://github.com/renovatebot/renovate) can be activated on any of the configurations you choose to help manage dependencies via pull requests. See the 🤖 [**Renovate**](#-renovate) section below for more details.
+- A [Renovate](https://www.mend.io/renovate)-ready repository with pull request diffs provided by [flux-local](https://github.com/allenporter/flux-local)
+- Integrated [GitHub Actions](https://github.com/features/actions) with helpful workflows.
 
 
 ## 💻 Machine Preparation
