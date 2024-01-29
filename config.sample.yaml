@@ -113,7 +113,7 @@ cloudflare:
 feature_gates:
   # Enable Dual Stack IPv4 first
   # IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
-  #   Ref: https://github.com/onedr0p/flux-cluster-template/issues/1148
+  #   Ref: https://github.com/onedr0p/cluster-template/issues/1148
   # Keep in mind that Cilium does not currently support IPv6 L2 announcements.
   # Make sure you set cluster.pod_cidr and cluster.service_cidr
   #   to a valid dual stack CIDRs, e.g. "10.42.0.0/16,fd00:10:244::/64"
