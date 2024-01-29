@@ -6,13 +6,23 @@ The goal of this project is to make it easier for people interested in using Kub
 
 ## ✨ Features
 
-There are currently 3 different types of configuration available with this template.
+There are currently 3 different types of configurations available with this template.
 
-1. "**Bare cluster**" - a distrubition of your choosing ([k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)) that comes with only [kube-vip](https://github.com/kube-vip/kube-vip) _(k0s/k3s)_ and [Cilium](https://github.com/cilium/cilium) installed with the cluster.
-2. "**Flux cluster**" - Add-on to the "**Bare cluster**" to deploy an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as GitOps provider and [sops](https://github.com/getsops/sops) to manage secrets.
-3. "**Flux cluster w/ Cloudflare**" - Add-on to the "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
+"**Bare cluster**" - a distrubition of your choosing ([k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)) that comes with only [kube-vip](https://github.com/kube-vip/kube-vip) _(k0s/k3s)_ and [Cilium](https://github.com/cilium/cilium) installed with the cluster.
 
-Each configuration will allow you to activate [Renovate](https://github.com/renovatebot/renovate) which will help manage dependencies via pull requests.
+- **Apps included:** None
+
+"**Flux cluster**" - Add-on to the "**Bare cluster**" to deploy an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as GitOps provider and [sops](https://github.com/getsops/sops) to manage secrets.
+
+- **Apps included:** [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/XenitAB/spegel), [reloader](https://github.com/stakater/Reloader) and [openebs](https://github.com/openebs/openebs) in [Local PV / Hostpath](https://openebs.io/docs/concepts/localpv) mode.
+
+"**Flux cluster with Cloudflare**" - Add-on to the "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
+
+- **Apps included:** [ingress-nginx](https://github.com/kubernetes/ingress-nginx/) and [external-dns](https://github.com/kubernetes-sigs/external-dns).
+
+ ---
+
+[Renovate](https://github.com/renovatebot/renovate) can be activated on any of the configurations you choose. This will help you manage dependencies via pull requests.
 
 ## 💻 Machine Preparation
 
