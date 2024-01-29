@@ -90,6 +90,7 @@ Hopefully some of this peeked your interests!  If you are marching forward, now 
 <details>
 <summary><i>Click <b>here</b> to read about using a RasPi4</i></summary>
 
+
 > [!IMPORTANT]
 > 1. It is recommended to have an 8GB RasPi model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is [supported natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first.
 > 2. Check the [power requirements](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply) if using a PoE Hat and a SSD/NVMe dongle.
@@ -218,7 +219,6 @@ You have two different options for setting up your local workstation.
     ```
 
 2. Fill out the appropriate vars in `config.yaml`
-
 
 #### Stage 3: Flux with Cloudflare DNS
 
