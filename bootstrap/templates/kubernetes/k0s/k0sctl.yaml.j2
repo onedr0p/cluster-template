@@ -5,36 +5,36 @@ metadata:
   name: home-kubernetes
 spec:
   hosts:
-    #% for item in cluster.nodes.inventory %#
-    #% if item.controller %#
+    {% for item in cluster.nodes.inventory %}
+    {% if item.controller %}
     - role: controller+worker
-    #% else %#
+    {% else %}
     - role: worker
-    #% endif %#
+    {% endif %}
       ssh:
-        address: "#{ item.address }#"
-        user: "#{ item.ssh_username }#"
-      #% if item.controller %#
+        address: "{{ item.address }}"
+        user: "{{ item.ssh_username }}"
+      {% if item.controller %}
       installFlags:
         - --disable-components=metrics-server
         - --no-taints
-      #% endif %#
+      {% endif %}
       files:
         - name: bootstrap-scripts
           src: scripts
       hooks:
         apply:
           before:
-            - bash ~/apply-system.sh "#{ item.name }#"
-            #% if item.controller %#
+            - bash ~/apply-system.sh "{{ item.name }}"
+            {% if item.controller %}
             - bash ~/apply-kube-vip.sh
-            #% endif %#
+            {% endif %}
         reset:
           before:
             - bash ~/reset-cilium.sh
           after:
             - bash ~/reset-system.sh
-    #% endfor %#
+    {% endfor %}
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s
     version: v1.29.1+k0s.0
@@ -55,21 +55,21 @@ spec:
               listen-metrics-urls: http://0.0.0.0:2381
         api:
           sans:
-            #% if cluster.endpoint_vip %#
-            - "#{ cluster.endpoint_vip }#"
-            #% endif %#
-            #% for item in cluster.tls_sans %#
-            - "#{ item }#"
-            #% endfor %#
-            #% for item in controllers %#
-            #% if item.controller %#
-            - "#{ item.address }#"
-            - "#{ item.name }#"
-            #% endif %#
-            #% endfor %#
+            {% if cluster.endpoint_vip %}
+            - "{{ cluster.endpoint_vip }}"
+            {% endif %}
+            {% for item in cluster.tls_sans %}
+            - "{{ item }}"
+            {% endfor %}
+            {% for item in controllers %}
+            {% if item.controller %}
+            - "{{ item.address }}"
+            - "{{ item.name }}"
+            {% endif %}
+            {% endfor %}
         network:
-          podCIDR: "#{ cluster.pod_network.split(',')[0] }#"
-          serviceCIDR: "#{ cluster.service_network.split(',')[0] }#"
+          podCIDR: "{{ cluster.pod_network.split(',')[0] }}"
+          serviceCIDR: "{{ cluster.service_network.split(',')[0] }}"
           provider: custom
           kubeProxy:
             disabled: true
@@ -88,6 +88,6 @@ spec:
                 version: 1.14.6
                 namespace: kube-system
                 values: |2
-                  #% filter indent(width=18, first=True) %#
-                  #% include 'partials/cilium-values-init.partial.yaml.j2' %#
-                  #% endfilter %#
+                  {% filter indent(width=18, first=True) %}
+                  {% include 'partials/cilium-values-init.partial.yaml.j2' %}
+                  {% endfilter %}

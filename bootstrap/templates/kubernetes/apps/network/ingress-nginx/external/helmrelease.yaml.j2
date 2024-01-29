@@ -32,7 +32,7 @@ spec:
       service:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
-          io.cilium/lb-ipam-ips: "#{ cloudflare.tunnel.ingress_vip }#"
+          io.cilium/lb-ipam-ips: "{{ cloudflare.tunnel.ingress_vip }}"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: external
@@ -64,11 +64,11 @@ spec:
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
       extraArgs:
-        #% if cloudflare.acme.production %#
+        {% if cloudflare.acme.production %}
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-production-tls"
-        #% else %#
+        {% else %}
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-staging-tls"
-        #% endif %#
+        {% endif %}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname

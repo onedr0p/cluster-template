@@ -4,18 +4,18 @@ kind: Kustomization
 resources:
   - ./bjw-s.yaml
   - ./cilium.yaml
-  #% if cloudflare.enabled %#
+  {% if cloudflare.enabled %}
   - ./external-dns.yaml
   - ./ingress-nginx.yaml
   - ./k8s-gateway.yaml
-  #% endif %#
+  {% endif %}
   - ./jetstack.yaml
   - ./metrics-server.yaml
   - ./openebs.yaml
-  #% if distribution in ['talos'] %#
+  {% if distribution in ['talos'] %}
   - ./postfinance.yaml
-  #% endif %#
+  {% endif %}
   - ./stakater.yaml
-  #% if distribution in ['k0s', 'talos'] %#
+  {% if distribution in ['k0s', 'talos'] %}
   - ./xenitab.yaml
-  #% endif %#
+  {% endif %}

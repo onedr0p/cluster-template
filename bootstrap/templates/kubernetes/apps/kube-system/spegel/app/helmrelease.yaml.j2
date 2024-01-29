@@ -24,13 +24,13 @@ spec:
     keepHistory: false
   values:
     spegel:
-      #% if distribution in ['k0s'] %#
+      {% if distribution in ['k0s'] %}
       containerdSock: /run/k0s/containerd.sock
       containerdRegistryConfigPath: /var/lib/k0s/containerd/certs.d
-      #% elif distribution in ['talos'] %#
+      {% elif distribution in ['talos'] %}
       containerdSock: /run/containerd/containerd.sock
       containerdRegistryConfigPath: /etc/cri/conf.d/hosts
-      #% endif %#
+      {% endif %}
     service:
       registry:
         hostPort: 29999

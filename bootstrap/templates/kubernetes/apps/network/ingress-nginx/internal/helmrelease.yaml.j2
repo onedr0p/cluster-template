@@ -29,7 +29,7 @@ spec:
       replicaCount: 1
       service:
         annotations:
-          io.cilium/lb-ipam-ips: "#{ cloudflare.ingress_vip }#"
+          io.cilium/lb-ipam-ips: "{{ cloudflare.ingress_vip }}"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: internal
@@ -61,11 +61,11 @@ spec:
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
       extraArgs:
-        #% if cloudflare.acme.production %#
+        {% if cloudflare.acme.production %}
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-production-tls"
-        #% else %#
+        {% else %}
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-staging-tls"
-        #% endif %#
+        {% endif %}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname

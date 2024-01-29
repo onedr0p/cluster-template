@@ -8,14 +8,14 @@ cluster:
   id: 1
 containerRuntime:
   integration: containerd
-  #% if distribution in ['k3s'] %#
+  {% if distribution in ['k3s'] %}
   socketPath: /var/run/k3s/containerd/containerd.sock
-  #% elif distribution in ['k0s'] %#
+  {% elif distribution in ['k0s'] %}
   socketPath: /var/run/k0s/containerd.sock
-  #% endif %#
+  {% endif %}
 endpointRoutes:
   enabled: true
-#% if cloudflare.enabled %#
+{% if cloudflare.enabled %}
 hubble:
   enabled: true
   metrics:
@@ -50,41 +50,41 @@ hubble:
       tls:
         - hosts:
             - "hubble.${SECRET_DOMAIN}"
-#% else %#
+{% else %}
 hubble:
   enabled: false
-#% endif %#
+{% endif %}
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "${CLUSTER_CIDR}"
-#% if feature_gates.dual_stack_ipv4_first %#
+{% if feature_gates.dual_stack_ipv4_first %}
 ipv6NativeRoutingCIDR: "${CLUSTER_CIDR_V6}"
 ipv6:
   enabled: true
-#% endif %#
-#% if distribution in ['k3s'] %#
+{% endif %}
+{% if distribution in ['k3s'] %}
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 6444
-#% elif distribution in ['k0s'] %#
+{% elif distribution in ['k0s'] %}
 k8sServiceHost: localhost
 k8sServicePort: 7443
-#% elif distribution in ['talos'] %#
+{% elif distribution in ['talos'] %}
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
-#% endif %#
+{% endif %}
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
-  #% if feature_gates.dual_stack_ipv4_first %#
+  {% if feature_gates.dual_stack_ipv4_first %}
   # https://github.com/cilium/cilium/issues/28985
   enabled: false
-  #% else %#
+  {% else %}
   enabled: true
   # https://github.com/cilium/cilium/issues/26586
   leaseDuration: 120s
   leaseRenewDeadline: 60s
   leaseRetryPeriod: 1s
-  #% endif %#
+  {% endif %}
 loadBalancer:
   algorithm: maglev
   mode: dsr
