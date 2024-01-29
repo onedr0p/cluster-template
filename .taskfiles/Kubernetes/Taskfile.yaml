@@ -27,7 +27,7 @@ tasks:
   kubeconform:
     desc: Validate Kubernetes manifests with kubeconform
     cmd: |
-      if [ -d "{{.KUBERNETES_DIR}}" ]; then
+      if [ -d "{{.KUBERNETES_DIR}}/flux" ]; then
           bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
       fi
     preconditions:
