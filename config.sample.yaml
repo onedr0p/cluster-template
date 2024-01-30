@@ -32,6 +32,12 @@ cluster:
       #   controller: true       # (Required) Set to true if this is a controller node
       #   ssh_username: ""       # (Required: k3s/k0s) SSH username of the node
       #   talos_disk_device: ""  # (Required: Talos) Device Path or Serial number of Disk for this node
+      #   talos_node_config: |-  # (Optional: Talos) Additional NodeConfigs to apply to this node
+      #     schematic:           #  See: https://budimanjojo.github.io/talhelper/latest/reference/configuration/#nodeconfigs
+      #       customization:
+      #         systemExtensions:
+      #           officialExtensions:
+      #             - siderolabs/intel-ucode
       # ...
   # (Required) The pod CIDR for the cluster, this must NOT overlap with any
   #   existing networks and is usually a /16 (64K IPs).
