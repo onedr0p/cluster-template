@@ -66,6 +66,21 @@ flux:
       enabled: true
       # Token for Github push-based sync (openssl rand -hex 16)
       token: ""
+    # (Required) Private key for Flux to access the Github repository
+    private:
+      # (Required) Enable to use a private Github repository
+      enabled: false
+      # Private key for Flux to access the Github repository
+      #   1. Generate a new key with the following command:
+      #     ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
+      #   2. Make sure to paste public key from "github-deploy.key.pub"
+      #     into the deploy keys section of your repository settings
+      #   3. Uncomment and paste the private key below
+      # key: |
+      #   -----BEGIN OPENSSH PRIVATE KEY-----
+      #   ...
+      #   -----END OPENSSH PRIVATE KEY-----
+
   # (Required) Age Public Key (e.g. age15uzrw396e67z9wdzsxzdk7ka0g2gr3l460e0slaea563zll3hdfqwqxdta)
   sops_age_public_key: ""
 

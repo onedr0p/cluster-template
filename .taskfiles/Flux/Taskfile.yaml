@@ -7,6 +7,7 @@ vars:
   PROMETHEUS_OPERATOR_VERSION: v0.71.2
   CLUSTER_SECRET_SOPS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml"
   CLUSTER_SETTINGS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml"
+  GITHUB_DEPLOY_KEY_FILE: "{{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml"
 
 tasks:
 
@@ -63,7 +64,8 @@ tasks:
       - { msg: "Flux not installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
 
   github-deploy-key:
-    cmd: sops --decrypt {{.KUBERNETES_DIR}}/bootstrap/github-deploy-key.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+    cmd: sops --decrypt {{.GITHUB_DEPLOY_KEY_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
-      - { msg: "Flux not installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
+      - { msg: "Missing Sops Age key file", sh: "test -f {{.AGE_FILE}}" }
+      - { msg: "Missing Github deploy key file", sh: "test -f {{.GITHUB_DEPLOY_KEY_FILE}}" }
