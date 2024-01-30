@@ -55,6 +55,11 @@ nodes:
   {% endfor %}
 
 controlPlane:
+{% if cluster.nodes.talos.schematics.enabled %}
+  schematic:
+    customization:
+{{ cluster.nodes.talos.schematics.customization | indent(6, first=True) }}
+{% endif %}
   patches:
     # Configure containerd
     - &containerdPatch |-
@@ -157,7 +162,23 @@ controlPlane:
       - op: remove
         path: /cluster/apiServer/admissionControl
 
+    # Enable K8s Talos API Access
+    - |-
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:operator
+            allowedKubernetesNamespaces:
+              - system-upgrade
+
 worker:
+{% if cluster.nodes.talos.schematics.enabled %}
+  schematic:
+    customization:
+{{ cluster.nodes.talos.schematics.customization | indent(6, first=True) }}
+{% endif %}
   patches:
     - *containerdPatch
     - *disableSearchDomainPatch

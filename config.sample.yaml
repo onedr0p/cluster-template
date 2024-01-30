@@ -32,13 +32,25 @@ cluster:
       #   controller: true       # (Required) Set to true if this is a controller node
       #   ssh_username: ""       # (Required: k3s/k0s) SSH username of the node
       #   talos_disk_device: ""  # (Required: Talos) Device Path or Serial number of Disk for this node
-      #   talos_node_config: |-  # (Optional: Talos) Additional NodeConfigs to apply to this node
-      #     schematic:           #  See: https://budimanjojo.github.io/talhelper/latest/reference/configuration/#nodeconfigs
-      #       customization:
-      #         systemExtensions:
-      #           officialExtensions:
-      #             - siderolabs/intel-ucode
       # ...
+    # (Optional) Talos Specific Options
+    talos: {}
+      # schematics:
+      #   # (Required) Disabling the schematic will disable the system-upgrade-controller and any
+      #   #   additional customizations you have defined.
+      #   enabled: false
+      #   # (Required) For use with the system-upgrade-controller generate a schematic ID
+      #   #   based on your System Extension requirements https://factory.talos.dev/
+      #   id: ""
+      #   # (Required) Additional NodeConfigs to apply to all nodes
+      #   #   See: https://budimanjojo.github.io/talhelper/latest/reference/configuration/#nodeconfigs
+      #   customization:
+      #     extraKernelArgs:
+      #       - net.ifnames=0
+      #     systemExtensions:
+      #       officialExtensions:
+      #         - siderolabs/intel-ucode
+      #         - siderolabs/i915-ucode
   # (Required) The pod CIDR for the cluster, this must NOT overlap with any
   #   existing networks and is usually a /16 (64K IPs).
   # If you want to use IPv6 check the advanced flags below

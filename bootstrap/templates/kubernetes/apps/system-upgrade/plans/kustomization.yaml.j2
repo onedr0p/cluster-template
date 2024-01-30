@@ -1,0 +1,11 @@
+{% if distribution in ['k3s'] or (distribution in ['talos'] and cluster.nodes.talos.schematics.enabled) %}
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  {% if distribution in ['k3s'] %}
+  - ./k3s.yaml
+  {% elif distribution in ['talos'] and cluster.nodes.talos.schematics.enabled %}
+  - ./talos.yaml
+  {% endif %}
+{% endif %}

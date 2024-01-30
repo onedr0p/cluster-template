@@ -1,0 +1,54 @@
+{% if distribution in ['k3s'] %}
+---
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: controllers
+spec:
+  # renovate: datasource=github-releases depName=k3s-io/k3s
+  version: v1.29.0+k3s1
+  upgrade:
+    image: rancher/k3s-upgrade
+  serviceAccountName: system-upgrade
+  concurrency: 1
+  cordon: true
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+  tolerations:
+    - effect: NoSchedule
+      operator: Exists
+    - effect: NoExecute
+      operator: Exists
+    - key: node-role.kubernetes.io/control-plane
+      effect: NoSchedule
+      operator: Exists
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+      operator: Exists
+    - key: node-role.kubernetes.io/etcd
+      effect: NoExecute
+      operator: Exists
+    - key: CriticalAddonsOnly
+      operator: Exists
+---
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: workers
+spec:
+  # renovate: datasource=github-releases depName=k3s-io/k3s
+  version: v1.29.0+k3s1
+  serviceAccountName: system-upgrade
+  concurrency: 1
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist
+  prepare:
+    image: rancher/k3s-upgrade
+    args: ["prepare", "server"]
+  upgrade:
+    image: rancher/k3s-upgrade
+{% endif %}
