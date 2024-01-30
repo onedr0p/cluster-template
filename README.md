@@ -1,8 +1,8 @@
 # ⛵ Cluster Template
 
-Welcome to my opinionated and extensible template for deploying a single Kubernetes cluster.
+Welcome to my opinionated and extensible template for deploying a single Kubernetes cluster. The goal of this project is to make it easier for people interested in using Kubernetes to deploy a cluster at home on bare-metal or VMs.
 
-The goal of this project is to make it easier for people interested in using Kubernetes to deploy a cluster at home on bare-metal or VMs.
+At a high level this project makes use of [makejinja](https://github.com/mirkolenz/makejinja) to read in a [configuration file](./config.sample.yaml) which will render out pre-made templates that you can then use to customize your Kubernetes experience further.
 
 ## ✨ Features
 
@@ -10,7 +10,7 @@ The features included will depend on the type of configuration you want to use. 
 
 1. **"Bare cluster"** - a distrubition of your choosing: [k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)
 
-    - **Required:** Debian 12 or Talos Linux and some knowledge of [Containers](https://opencontainers.org/) and [YAML](https://yaml.org/).
+    - **Required:** Debian 12 or Talos Linux installed on bare metal (or VMs) and some knowledge of [Containers](https://opencontainers.org/) and [YAML](https://yaml.org/).
     - **Components:** [Cilium](https://github.com/cilium/cilium) and [kube-vip](https://github.com/kube-vip/kube-vip) _(k0s/k3s)_
 
 2. **"Flux cluster"** - An addition to "**Bare cluster**" that deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
@@ -27,7 +27,6 @@ The features included will depend on the type of configuration you want to use. 
 
 - A [Renovate](https://www.mend.io/renovate)-ready repository with pull request diffs provided by [flux-local](https://github.com/allenporter/flux-local)
 - Integrated [GitHub Actions](https://github.com/features/actions) with helpful workflows.
-
 
 ## 💻 Machine Preparation
 
