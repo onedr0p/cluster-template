@@ -14,7 +14,7 @@ The features included will depend on the type of configuration you want to use. 
 
 2. "**Flux cluster**" - Add-on to the "**Bare cluster**" to deploy an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as GitOps provider and [sops](https://github.com/getsops/sops) to manage secrets.
 
-   - **Apps included:** [flux](https://github.com/fluxcd/flux2), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/XenitAB/spegel), [reloader](https://github.com/stakater/Reloader) and [openebs](https://github.com/openebs/openebs) in [Local PV / Hostpath](https://openebs.io/docs/concepts/localpv) mode.
+   - **Apps included:** [flux](https://github.com/fluxcd/flux2), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/XenitAB/spegel), [reloader](https://github.com/stakater/Reloader) [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), and [openebs](https://github.com/openebs/openebs) in [Local PV / Hostpath](https://openebs.io/docs/concepts/localpv) mode.
 
 3. "**Flux cluster with Cloudflare**" - Add-on to the "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
 
