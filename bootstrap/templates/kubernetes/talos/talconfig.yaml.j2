@@ -13,7 +13,7 @@ clusterSvcNets:
   - "{{ cluster.service_network.split(',')[0] }}"
 additionalApiServerCertSans: &sans
   - "{{ cluster.endpoint_vip }}"
-  - 127.0.0.1
+  - 127.0.0.1 # KubePrism
   {% for item in cluster.tls_sans %}
   - "{{ item }}"
   {% endfor %}
@@ -31,11 +31,7 @@ nodes:
     installDiskSelector:
       serial: "{{ item.talos_disk_device }}"
     {% endif %}
-    {% if item.controller %}
-    controlPlane: true
-    {% else %}
-    controlPlane: false
-    {% endif %}
+    controlPlane: {{ (item.controller) | string | lower }}
     networkInterfaces:
       - interface: eth0
         dhcp: false
@@ -49,9 +45,6 @@ nodes:
         vip:
           ip: "{{ cluster.endpoint_vip }}"
         {% endif %}
-    {% if item.talos_node_config %}
-    {{ item.talos_node_config | indent(4, false) }}
-    {% endif %}
   {% endfor %}
 
 controlPlane:
@@ -173,6 +166,7 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
+{% if cluster.nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
 worker:
 {% if cluster.nodes.talos.schematics.enabled %}
   schematic:
@@ -188,3 +182,4 @@ worker:
     - *nameserverPatch
     - *ntpPatch
     - *sysctlPatch
+{% endif %}
