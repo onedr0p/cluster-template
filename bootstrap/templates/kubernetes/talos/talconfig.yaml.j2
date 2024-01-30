@@ -49,6 +49,9 @@ nodes:
         vip:
           ip: "{{ cluster.endpoint_vip }}"
         {% endif %}
+    {% if item.talos_node_config %}
+    {{ item.talos_node_config | indent(4, false) }}
+    {% endif %}
   {% endfor %}
 
 controlPlane:
