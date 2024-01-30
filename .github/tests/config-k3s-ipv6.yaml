@@ -32,6 +32,8 @@ flux:
     webhook:
       enabled: true
       token: fake
+    private:
+      enabled: false
   sops_age_public_key: $BOOTSTRAP_AGE_PUBLIC_KEY
 
 cloudflare:
