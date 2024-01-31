@@ -43,10 +43,6 @@ l2announcements:
   enabled: false
   {% else %}
   enabled: true
-  # https://github.com/cilium/cilium/issues/26586
-  leaseDuration: 120s
-  leaseRenewDeadline: 60s
-  leaseRetryPeriod: 1s
   {% endif %}
 loadBalancer:
   algorithm: maglev
