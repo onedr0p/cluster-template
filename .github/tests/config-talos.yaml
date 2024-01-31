@@ -22,7 +22,7 @@ cluster:
       schematics:
         enabled: true
         id: df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263
-        customization:
+        customization: |-
           extraKernelArgs:
             - net.ifnames=0
           systemExtensions:
