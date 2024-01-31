@@ -1,12 +1,10 @@
-{% if distribution in ['talos'] and cluster.nodes.talos.schematics.enabled %}
 ---
 apiVersion: upgrade.cattle.io/v1
 kind: Plan
 metadata:
   name: kubernetes
 spec:
-  # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-  version: v1.29.1
+  version: "${KUBE_VERSION}"
   serviceAccountName: system-upgrade
   secrets:
     - name: talos
@@ -19,7 +17,7 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
   prepare: &prepare
-    image: ghcr.io/siderolabs/talosctl:v1.6.3
+    image: "ghcr.io/siderolabs/talosctl:${SYSTEM_VERSION}"
     envs:
       - name: NODE_IP
         valueFrom:
@@ -41,8 +39,7 @@ kind: Plan
 metadata:
   name: talos
 spec:
-  # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-  version: v1.6.3
+  version: "${SYSTEM_VERSION}"
   serviceAccountName: system-upgrade
   secrets:
     - name: talos
@@ -59,8 +56,7 @@ spec:
     matchExpressions:
       - key: kubernetes.io/os
         operator: In
-        values:
-          - linux
+        values: ["linux"]
   tolerations:
     - key: CriticalAddonsOnly
       operator: Exists
@@ -95,4 +91,3 @@ spec:
       - --image=factory.talos.dev/installer/{{ cluster.nodes.talos.schematics.id }}:$(SYSTEM_UPGRADE_PLAN_LATEST_VERSION)
       - --preserve=true
       - --wait=false
-{% endif %}
