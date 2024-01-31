@@ -26,3 +26,6 @@ spec:
     fullnameOverride: reloader
     reloader:
       readOnlyRootFileSystem: true
+      podMonitor:
+        enabled: true
+        namespace: "{% raw %}{{ .Release.Namespace }}{% endraw %}"

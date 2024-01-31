@@ -26,3 +26,7 @@ spec:
     {% filter indent(width=4, first=True) %}
     {% include 'partials/kubelet-csr-approver-values.partial.yaml.j2' %}
     {% endfilter %}
+    metrics:
+      enable: true
+      serviceMonitor:
+        enabled: true
