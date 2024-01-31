@@ -80,10 +80,6 @@ l2announcements:
   enabled: false
   {% else %}
   enabled: true
-  # https://github.com/cilium/cilium/issues/26586
-  leaseDuration: 120s
-  leaseRenewDeadline: 60s
-  leaseRetryPeriod: 1s
   {% endif %}
 loadBalancer:
   algorithm: maglev
@@ -92,6 +88,23 @@ localRedirectPolicy: true
 operator:
   replicas: 1
   rollOutPods: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  dashboards:
+    enabled: true
+    annotations:
+      grafana_folder: Cilium
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    trustCRDsExist: true
+dashboards:
+  enabled: true
+  annotations:
+    grafana_folder: Cilium
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
