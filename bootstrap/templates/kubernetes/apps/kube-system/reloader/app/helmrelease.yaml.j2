@@ -28,4 +28,4 @@ spec:
       readOnlyRootFileSystem: true
       podMonitor:
         enabled: true
-        namespace: "{{ .Release.Namespace }}"
+        namespace: "{% raw %}{{ .Release.Namespace }}{% endraw %}"
