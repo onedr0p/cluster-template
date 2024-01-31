@@ -3,4 +3,15 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
+  {% if distribution in ['k3s', 'talos'] %}
   - ./system-upgrade-controller/ks.yaml
+  {% endif %}
+  {% if distribution in ['k0s'] %}
+  - ./k0s/ks.yaml
+  {% endif %}
+  {% if distribution in ['k3s'] %}
+  - ./k3s/ks.yaml
+  {% endif %}
+  {% if distribution in ['talos'] and cluster.nodes.talos.schematics.enabled %}
+  - ./talos/ks.yaml
+  {% endif %}

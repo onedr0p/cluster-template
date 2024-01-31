@@ -1,12 +1,10 @@
-{% if distribution in ['k3s'] %}
 ---
 apiVersion: upgrade.cattle.io/v1
 kind: Plan
 metadata:
   name: controllers
 spec:
-  # renovate: datasource=github-releases depName=k3s-io/k3s
-  version: v1.29.0+k3s1
+  version: "${KUBE_VERSION}"
   upgrade:
     image: rancher/k3s-upgrade
   serviceAccountName: system-upgrade
@@ -38,8 +36,7 @@ kind: Plan
 metadata:
   name: workers
 spec:
-  # renovate: datasource=github-releases depName=k3s-io/k3s
-  version: v1.29.0+k3s1
+  version: "${KUBE_VERSION}"
   serviceAccountName: system-upgrade
   concurrency: 1
   nodeSelector:
@@ -51,4 +48,3 @@ spec:
     args: ["prepare", "server"]
   upgrade:
     image: rancher/k3s-upgrade
-{% endif %}
