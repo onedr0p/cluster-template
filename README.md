@@ -15,7 +15,7 @@ The features included will depend on the type of configuration you want to use. 
 
 2. **"Flux cluster"** - An addition to "**Bare cluster**" that deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
 
-    - **Required:** Some knowledge of [Git](https://git-scm.com/) and its practices & terminology.
+    - **Required:** Some knowledge of [Git](https://git-scm.com/) practices & terminology.
     - **Components:** [flux](https://github.com/fluxcd/flux2), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/XenitAB/spegel), [reloader](https://github.com/stakater/Reloader), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), and [openebs](https://github.com/openebs/openebs).
 
 3. **"Flux cluster with Cloudflare"** - An addition to "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.

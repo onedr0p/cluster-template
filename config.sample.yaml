@@ -44,7 +44,7 @@ cluster:
       #   id: ""
       #   # (Required) Additional NodeConfigs to apply to all nodes
       #   #   See: https://budimanjojo.github.io/talhelper/latest/reference/configuration/#nodeconfigs
-      #   customization:
+      #   customization: |-
       #     extraKernelArgs:
       #       - net.ifnames=0
       #     systemExtensions:
