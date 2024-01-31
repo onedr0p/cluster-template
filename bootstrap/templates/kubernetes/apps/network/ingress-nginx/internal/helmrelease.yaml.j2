@@ -60,6 +60,12 @@ spec:
         proxy-body-size: 0
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+          namespaceSelector:
+            any: true
       extraArgs:
         {% if cloudflare.acme.production %}
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-production-tls"
@@ -77,8 +83,7 @@ spec:
               app.kubernetes.io/component: controller
       resources:
         requests:
-          cpu: 10m
-          memory: 250Mi
+          cpu: 100m
         limits:
           memory: 500Mi
     defaultBackend:

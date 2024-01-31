@@ -48,16 +48,22 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+              seccompProfile:
+                type: RuntimeDefault
             resources:
               requests:
-                cpu: 5m
-                memory: 10M
+                cpu: 10m
               limits:
-                memory: 64M
+                memory: 64Mi
         pod:
           securityContext:
-            runAsUser: 568
-            runAsGroup: 568
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
     service:
       main:
         ports:
