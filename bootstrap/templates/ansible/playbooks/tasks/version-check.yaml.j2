@@ -9,7 +9,7 @@
 
     - name: Extract k3s version
       ansible.builtin.set_fact:
-        current_k3s_version: "{{ k3s_version.stdout | regex_replace('(?im)k3s version (?P<version>[a-z0-9\\.\\+]+).*\n.*', '\\g<version>') }}"
+        current_k3s_version: "{% raw %}{{ k3s_version.stdout | regex_replace('(?im)k3s version (?P<version>[a-z0-9\\.\\+]+).*\n.*', '\\g<version>') }}{% endraw %}"
 
     - name: Check if upgrades are allowed
       ansible.builtin.assert:
