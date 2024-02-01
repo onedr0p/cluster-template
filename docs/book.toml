@@ -1,0 +1,34 @@
+[book]
+authors = ["Devin Buhl"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Template Cluster"
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/onedr0p/template-cluster"
+git-repository-icon = "fa-github"
+no-section-label = false
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
+additional-css = ["mdbook-admonish.css"]
+git-branch = "docs"
+
+[output.html.playground]
+copyable = true
+
+[output.html.search]
+limit-results = 15
+
+[preprocessor]
+
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "3.0.0" # do not edit: managed by `mdbook-admonish install`
+
+[preprocessor.emojicodes]
+after = [ "links" ]
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
