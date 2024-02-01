@@ -14,11 +14,12 @@ spec:
       ssh:
         address: "{{ item.address }}"
         user: "{{ item.ssh_username }}"
-      {% if item.controller %}
       installFlags:
+        {% if item.controller %}
         - --disable-components=metrics-server
         - --no-taints
-      {% endif %}
+        {% endif %}
+        - --kubelet-extra-args="--image-gc-low-threshold=50 --image-gc-high-threshold=60"
       files:
         - name: bootstrap-scripts
           src: scripts
