@@ -51,6 +51,9 @@ cluster:
       #       officialExtensions:
       #         - siderolabs/intel-ucode
       #         - siderolabs/i915-ucode
+      # # (Optional) Add vlan tag to network master device
+      # #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
+      # vlan: 1
   # (Required) The pod CIDR for the cluster, this must NOT overlap with any
   #   existing networks and is usually a /16 (64K IPs).
   # If you want to use IPv6 check the advanced flags below
