@@ -3,13 +3,6 @@ k3s_become: true
 k3s_etcd_datastore: true
 k3s_install_hard_links: true
 k3s_registration_address: "{{ cluster.endpoint_vip }}"
-# renovate: datasource=github-releases depName=k3s-io/k3s
-k3s_release_version: v1.29.1+k3s1
-k3s_server_manifests_templates:
-  - custom-cilium-helmchart.yaml
-  - kube-vip-ds.yaml
-  - kube-vip-rbac.yaml
-k3s_use_unsupported_config: true
 k3s_registries:
   mirrors:
     docker.io:
@@ -21,3 +14,10 @@ k3s_registries:
     public.ecr.aws:
     quay.io:
     registry.k8s.io:
+# renovate: datasource=github-releases depName=k3s-io/k3s
+k3s_release_version: v1.29.1+k3s1
+k3s_server_manifests_templates:
+  - custom-cilium-helmchart.yaml
+  - kube-vip-ds.yaml
+  - kube-vip-rbac.yaml
+k3s_use_unsupported_config: true
