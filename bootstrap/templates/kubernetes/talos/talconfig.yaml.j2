@@ -35,6 +35,20 @@ nodes:
     networkInterfaces:
       - interface: eth0
         dhcp: false
+        {% if cluster.nodes.talos.vlan %}
+        vlans:
+          - vlanId: {{ cluster.nodes.talos.vlan }}
+            addresses:
+              - "{{ item.address }}/{{ cluster.nodes.host_network.split('/') | last }}"
+            mtu: 1500
+            routes:
+              - network: 0.0.0.0/0
+                gateway: "{{ cluster.nodes.host_network | nthhost(1) }}"
+            {% if item.controller %}
+            vip:
+              ip: "{{ cluster.endpoint_vip }}"
+            {% endif %}
+        {% else %}
         addresses:
           - "{{ item.address }}/{{ cluster.nodes.host_network.split('/') | last }}"
         mtu: 1500
@@ -44,6 +58,7 @@ nodes:
         {% if item.controller %}
         vip:
           ip: "{{ cluster.endpoint_vip }}"
+        {% endif %}
         {% endif %}
   {% endfor %}
 
