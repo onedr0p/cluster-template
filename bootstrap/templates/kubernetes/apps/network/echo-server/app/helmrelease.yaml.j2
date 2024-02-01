@@ -61,9 +61,9 @@ spec:
                 memory: 64Mi
         pod:
           securityContext:
-            runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
+            runAsNonRoot: true
     service:
       main:
         ports:
