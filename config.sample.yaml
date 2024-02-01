@@ -17,8 +17,8 @@ cluster:
     #   1. your nodes can reach it
     #   2. it is configured to forward requests to a public DNS server
     #   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
-    # If using multiple DNS servers make sure they are setup the same way,
-    #   there is no guarantee that the first DNS server will be used.
+    # If using multiple DNS servers make sure they are setup the same way, there is no
+    #   guarantee that the first DNS server will always be used for every lookup.
     dns_servers:
       - "1.1.1.1"
     # (Optional) The DNS search domain to use for the nodes.
