@@ -183,6 +183,19 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
+    # Mount openebs-hostpath in kubelet
+    - &openEbsPatch |-
+      machine:
+        kubelet:
+          extraMounts:
+            - destination: /var/openebs/local
+              type: bind
+              source: /var/openebs/local
+              options:
+                - bind
+                - rshared
+                - rw
+
 {% if nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
 worker:
 {% if distribution.talos.schematics.enabled %}
@@ -199,4 +212,5 @@ worker:
     - *nameserverPatch
     - *ntpPatch
     - *sysctlPatch
+    - *openEbsPatch
 {% endif %}
