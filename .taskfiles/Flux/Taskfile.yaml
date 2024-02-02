@@ -64,7 +64,9 @@ tasks:
       - { msg: "Flux not installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
 
   github-deploy-key:
-    cmd: sops --decrypt {{.GITHUB_DEPLOY_KEY_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+    cmds:
+      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig {{.KUBECONFIG_FILE}} apply --filename -
+      - sops --decrypt {{.GITHUB_DEPLOY_KEY_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
       - { msg: "Missing Sops Age key file", sh: "test -f {{.AGE_FILE}}" }

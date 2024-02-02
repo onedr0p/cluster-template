@@ -92,7 +92,7 @@ cluster:
 
 flux:
   # (Required) Disable to use a different tool (e.g. kubectl, Argo, Kluctl)
-  enabled: true
+  enabled: false
   # (Required) Age Public Key (e.g. age1...)
   # 1. Generate a new key with the following command:
   #    > task sops:age-keygen
@@ -134,7 +134,7 @@ flux:
 
 cloudflare:
   # (Required) Disable to use a different DNS provider
-  enabled: true
+  enabled: false
   # (Required) Cloudflare Domain
   domain: ""
   # (Required) Cloudflare API Token (NOT API Key)
