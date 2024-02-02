@@ -1,59 +1,76 @@
 ---
-# (Required) Distribution can either be k3s, k0s, or talos
-distribution: ""
 
-# (Required) IANA formatted timezone (e.g. America/New_York)
+#
+# (Required) Distribution represents the Kubernetes distribution layer and any additional customizations
+#
+
+distribution:
+  # (Required) Distribution can either be k3s, k0s, or talos
+  type: k3s
+  # (Optional) Talos Specific Options
+  talos: {}
+    # schematics:
+    #   # (Required) Disabling the schematic will disable the system-upgrade-controller and any
+    #   #   additional Talos customization you have defined.
+    #   enabled: false
+    #   # (Required) For use with the system-upgrade-controller generate a schematic ID
+    #   #   based on your System Extension requirements https://factory.talos.dev/
+    #   id: ""
+    #   # (Required) Additional NodeConfigs to apply to all nodes
+    #   #   See: https://budimanjojo.github.io/talhelper/latest/reference/configuration/#nodeconfigs
+    #   customization: |-
+    #     extraKernelArgs:
+    #       - net.ifnames=0
+    #     systemExtensions:
+    #       officialExtensions:
+    #         - siderolabs/intel-ucode
+    #         - siderolabs/i915-ucode
+    # # (Optional) Add vlan tag to network master device
+    # #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
+    # vlan: 1
+
+#
+# (Required) Timezone is your IANA formatted timezone (e.g. America/New_York)
+#
+
 timezone: ""
 
-# (Required) Cluster details
+#
+# (Required) Nodes represents the physical or virtual machines layer and any additional customizations
+#
+
+nodes:
+  # (Required) CIDR your nodes are on (e.g. 192.168.1.0/24)
+  host_network: ""
+  # (Optional) The DNS server to use for the cluster, this can be an existing
+  #   local DNS server or a public one.
+  #   Default is ["1.1.1.1", "1.0.0.1"]
+  # If using a local DNS server make sure it meets the following requirements:
+  #   1. your nodes can reach it
+  #   2. it is configured to forward requests to a public DNS server
+  #   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
+  # If using multiple DNS servers make sure they are setup the same way, there is no
+  #   guarantee that the first DNS server will always be used for every lookup.
+  dns_servers: []
+  # (Optional) The DNS search domain to use for the nodes.
+  #   Default is "."
+  # Use the default or leave empty to avoid possible DNS issues inside the cluster.
+  search_domain: ""
+  # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
+  #   Worker nodes are optional
+  inventory: []
+    # - name: ""               # Name of the node (must match [a-z0-9-\.]+)
+    #   address: ""            # IP address of the node
+    #   controller: true       # (Required) Set to true if this is a controller node
+    #   ssh_username: ""       # (Required: k3s/k0s) SSH username of the node
+    #   talos_disk_device: ""  # (Required: Talos) Device path or serial number of the disk for this node
+    # ...
+
+#
+# (Required) Cluster represents the Kubernetes cluster layer and any additional customizations
+#
+
 cluster:
-  # (Required) The nodes section is used to configure your cluster nodes
-  nodes:
-    # (Required) CIDR your nodes are on (e.g. 192.168.1.0/24)
-    host_network: ""
-    # (Required) The DNS server to use for the cluster, this can be an existing
-    #   local DNS server or a public one
-    # If using a local DNS server make sure it meets the following requirements:
-    #   1. your nodes can reach it
-    #   2. it is configured to forward requests to a public DNS server
-    #   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
-    # If using multiple DNS servers make sure they are setup the same way, there is no
-    #   guarantee that the first DNS server will always be used for every lookup.
-    dns_servers:
-      - "1.1.1.1"
-    # (Optional) The DNS search domain to use for the nodes.
-    # Leave this option blank to avoid possible DNS issues inside the cluster.
-    search_domain: ""
-    # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
-    #   Worker nodes are optional
-    inventory: []
-      # - name: ""               # Name of the node (must match [a-z0-9-\.]+)
-      #   address: ""            # IP address of the node
-      #   controller: true       # (Required) Set to true if this is a controller node
-      #   ssh_username: ""       # (Required: k3s/k0s) SSH username of the node
-      #   talos_disk_device: ""  # (Required: Talos) Device Path or Serial number of Disk for this node
-      # ...
-    # (Optional) Talos Specific Options
-    talos: {}
-      # schematics:
-      #   # (Required) Disabling the schematic will disable the system-upgrade-controller and any
-      #   #   additional customizations you have defined.
-      #   enabled: false
-      #   # (Required) For use with the system-upgrade-controller generate a schematic ID
-      #   #   based on your System Extension requirements https://factory.talos.dev/
-      #   id: ""
-      #   # (Required) Additional NodeConfigs to apply to all nodes
-      #   #   See: https://budimanjojo.github.io/talhelper/latest/reference/configuration/#nodeconfigs
-      #   customization: |-
-      #     extraKernelArgs:
-      #       - net.ifnames=0
-      #     systemExtensions:
-      #       officialExtensions:
-      #         - siderolabs/intel-ucode
-      #         - siderolabs/i915-ucode
-      # # (Optional) Add vlan tag to network master device
-      # #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
-      # vlan: 1
   # (Required) The pod CIDR for the cluster, this must NOT overlap with any
   #   existing networks and is usually a /16 (64K IPs).
   # If you want to use IPv6 check the advanced flags below
@@ -69,55 +86,73 @@ cluster:
   #   if you want to call the Kube API by hostname rather than IP
   tls_sans: []
 
-# (Required) Flux details
-# IMPORTANT: All options are ignored if flux is disabled and no resources
-#   outside Cilium and kube-vip (k0s/k3s) will be deployed to your cluster.
+#
+# (Optional) Flux details - Flux is used to manage the cluster configuration.
+#
+
 flux:
   # (Required) Disable to use a different tool (e.g. kubectl, Argo, Kluctl)
   enabled: true
-  # (Required) Options for Github
+  # (Required) Age Public Key (e.g. age1...)
+  # 1. Generate a new key with the following command:
+  #    > task sops:age-keygen
+  # 2. Copy the public key and paste it below
+  sops_age_public_key: ""
+  # (Required) Options for GitHub
   github:
-    # (Required) Github repository URL (for private repos use the ssh:// URL)
+    # (Required) GitHub repository URL (for private repos use the ssh:// URL)
     address: ""
-    # (Required) Github repository branch
+    # (Required) GitHub repository branch
     branch: main
-    # (Required) Options for Flux Github webhook
+    # (Required) Options for Flux GitHub webhook
     webhook:
-      # (Required) Enable to use Github push-based sync
+      # (Required) Enable to setup GitHub push-based sync after cluster creation
       enabled: true
-      # Token for Github push-based sync (openssl rand -hex 16)
+      # Token for GitHub push-based sync
+      # 1. Generate a new token with the following command:
+      #    > openssl rand -hex 16
+      # 2. Copy the token and paste it below
       token: ""
-    # (Required) Private key for Flux to access the Github repository
+    # (Required) Private key for Flux to access the GitHub repository
     private:
-      # (Required) Enable to use a private Github repository
+      # (Required) Enable to use a private GitHub repository
       enabled: false
-      # Private key for Flux to access the Github repository
+      # Private key for Flux to access the GitHub repository
       #   1. Generate a new key with the following command:
-      #     ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
-      #   2. Make sure to paste public key from "github-deploy.key.pub"
-      #     into the deploy keys section of your repository settings
+      #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
+      #   2. Make sure to paste public key from "github-deploy.key.pub" into
+      #      the deploy keys section of your repository settings.
       #   3. Uncomment and paste the private key below
       # key: |
       #   -----BEGIN OPENSSH PRIVATE KEY-----
       #   ...
       #   -----END OPENSSH PRIVATE KEY-----
 
-  # (Required) Age Public Key (e.g. age15uzrw396e67z9wdzsxzdk7ka0g2gr3l460e0slaea563zll3hdfqwqxdta)
-  sops_age_public_key: ""
+#
+# (Optional) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
+#
 
-# (Required) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
-# IMPORTANT: All options are ignored if cloudflare is disabled and no resources
-#   outside a bare Flux setup will be deployed to your cluster if Flux is enabled.
 cloudflare:
   # (Required) Disable to use a different DNS provider
   enabled: true
   # (Required) Cloudflare Domain
   domain: ""
   # (Required) Cloudflare API Token (NOT API Key)
+  #   1. Head over to Cloudflare and create a API Token by going to
+  #      https://dash.cloudflare.com/profile/api-tokens
+  #   2. Under the `API Tokens` section click the blue `Create Token` button.
+  #   3. Click the blue `Use template` button for the `Edit zone DNS` template.
+  #   4. Name your token something like `home-kubernetes`
+  #   5. Under `Permissions`, click `+ Add More` and add each permission below:
+  #      `Zone - DNS - Edit`
+  #      `Account - Cloudflare Tunnel - Read`
+  #   6. Limit the permissions to a specific account and zone resources.
+  #   7. Click the blue `Continue to Summary` button and then the blue `Create Token` button.
+  #   8. Copy the token and paste it below.
   token: ""
   # (Required) Optionals for Cloudflare Acme
   acme:
-    # (Required) Email you want to be associated with the ACME account (used for TLS certs via letsencrypt.org)
+    # (Required) Any email you want to be associated with the ACME account (used for TLS certs via letsencrypt.org)
     email: ""
     # (Required) Use the ACME production server when requesting the wildcard certificate.
     #   By default the ACME staging server is used. This is to prevent being rate-limited.
@@ -133,6 +168,11 @@ cloudflare:
   #   in your nodes host network that is NOT being used. This is announced over L2.
   gateway_vip: ""
   # (Required) Options for Cloudflare Tunnel
+  # 1. Authenticate cloudflared to your domain
+  #    > cloudflared tunnel login
+  # 2. Create the tunnel
+  #    > cloudflared tunnel create k8s
+  # 3. Copy the AccountTag, TunnelID, and TunnelSecret from the tunnel configuration file and paste them below
   tunnel:
     # (Required) Cloudflare Account ID (cat ~/.cloudflared/*.json | jq -r .AccountTag)
     account_id: ""

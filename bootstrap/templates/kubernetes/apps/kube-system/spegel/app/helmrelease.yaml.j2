@@ -24,10 +24,10 @@ spec:
     keepHistory: false
   values:
     spegel:
-      {% if distribution in ['k0s'] %}
+      {% if distribution.type in ["k0s"] %}
       containerdSock: /run/k0s/containerd.sock
       containerdRegistryConfigPath: /var/lib/k0s/containerd/certs.d
-      {% elif distribution in ['talos'] %}
+      {% elif distribution.type in ["talos"] %}
       containerdSock: /run/containerd/containerd.sock
       containerdRegistryConfigPath: /etc/cri/conf.d/hosts
       {% endif %}

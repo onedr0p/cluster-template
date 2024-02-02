@@ -1,34 +1,37 @@
 ---
 skip_tests: true
 
-distribution: talos
+distribution:
+  type: talos
+  talos:
+    schematics:
+      enabled: true
+      id: df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263
+      customization: |-
+        extraKernelArgs:
+          - net.ifnames=0
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+            - siderolabs/i915-ucode
+
 timezone: Etc/UTC
 
+nodes:
+  host_network: 10.10.10.0/24
+  dns_servers: ["1.1.1.1"]
+  search_domain: "fake"
+  inventory:
+    - name: k8s-controller-0
+      address: 10.10.10.100
+      controller: true
+      talos_disk_device: fake
+    - name: k8s-worker-0
+      address: 10.10.10.101
+      controller: false
+      talos_disk_device: fake
+
 cluster:
-  nodes:
-    host_network: 10.10.10.0/24
-    dns_servers: ["1.1.1.1"]
-    search_domain: "fake"
-    inventory:
-      - name: k8s-controller-0
-        address: 10.10.10.100
-        controller: true
-        talos_disk_device: fake
-      - name: k8s-worker-0
-        address: 10.10.10.101
-        controller: false
-        talos_disk_device: fake
-    talos:
-      schematics:
-        enabled: true
-        id: df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263
-        customization: |-
-          extraKernelArgs:
-            - net.ifnames=0
-          systemExtensions:
-            officialExtensions:
-              - siderolabs/intel-ucode
-              - siderolabs/i915-ucode
   pod_network: 10.69.0.0/16
   service_network: 10.96.0.0/16
   endpoint_vip: 10.10.10.254

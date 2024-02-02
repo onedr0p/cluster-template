@@ -22,7 +22,7 @@ cniConfig:
   name: none
 
 nodes:
-  {% for item in cluster.nodes.inventory %}
+  {% for item in nodes.inventory %}
   - hostname: "{{ item.name }}"
     ipAddress: "{{ item.address }}"
     {% if item.talos_disk_device.startswith('/') %}
@@ -35,26 +35,26 @@ nodes:
     networkInterfaces:
       - interface: eth0
         dhcp: false
-        {% if cluster.nodes.talos.vlan %}
+        {% if distribution.talos.vlan %}
         vlans:
-          - vlanId: {{ cluster.nodes.talos.vlan }}
+          - vlanId: {{ distribution.talos.vlan }}
             addresses:
-              - "{{ item.address }}/{{ cluster.nodes.host_network.split('/') | last }}"
+              - "{{ item.address }}/{{ nodes.host_network.split('/') | last }}"
             mtu: 1500
             routes:
               - network: 0.0.0.0/0
-                gateway: "{{ cluster.nodes.host_network | nthhost(1) }}"
+                gateway: "{{ nodes.host_network | nthhost(1) }}"
             {% if item.controller %}
             vip:
               ip: "{{ cluster.endpoint_vip }}"
             {% endif %}
         {% else %}
         addresses:
-          - "{{ item.address }}/{{ cluster.nodes.host_network.split('/') | last }}"
+          - "{{ item.address }}/{{ nodes.host_network.split('/') | last }}"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            gateway: "{{ cluster.nodes.host_network | nthhost(1) }}"
+            gateway: "{{ nodes.host_network | nthhost(1) }}"
         {% if item.controller %}
         vip:
           ip: "{{ cluster.endpoint_vip }}"
@@ -63,10 +63,10 @@ nodes:
   {% endfor %}
 
 controlPlane:
-{% if cluster.nodes.talos.schematics.enabled %}
+{% if distribution.talos.schematics.enabled %}
   schematic:
     customization:
-{{ cluster.nodes.talos.schematics.customization | indent(6, first=True) }}
+{{ distribution.talos.schematics.customization | indent(6, first=True) }}
 {% endif %}
   patches:
     # Configure containerd
@@ -110,7 +110,7 @@ controlPlane:
             rotate-server-certificates: true
           nodeIP:
             validSubnets:
-              - "{{ cluster.nodes.host_network }}"
+              - "{{ nodes.host_network }}"
 
     # Enable KubePrism
     - &kubePrismPatch |-
@@ -125,7 +125,7 @@ controlPlane:
       machine:
         network:
           nameservers:
-            {% for item in cluster.nodes.dns_servers %}
+            {% for item in nodes.dns_servers | default(['1.1.1.1', '1.0.0.1']) %}
             - {{ item }}
             {% endfor %}
 
@@ -165,7 +165,7 @@ controlPlane:
           extraArgs:
             listen-metrics-urls: http://0.0.0.0:2381
           advertisedSubnets:
-            - "{{ cluster.nodes.host_network }}"
+            - "{{ nodes.host_network }}"
 
     # Disable default API server admission plugins.
     - |-
@@ -183,12 +183,12 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
-{% if cluster.nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
+{% if nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
 worker:
-{% if cluster.nodes.talos.schematics.enabled %}
+{% if distribution.talos.schematics.enabled %}
   schematic:
     customization:
-{{ cluster.nodes.talos.schematics.customization | indent(6, first=True) }}
+{{ distribution.talos.schematics.customization | indent(6, first=True) }}
 {% endif %}
   patches:
     - *containerdPatch

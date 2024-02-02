@@ -3,17 +3,17 @@ kubernetes:
   children:
     master:
       hosts:
-        {% for item in cluster.nodes.inventory %}
+        {% for item in nodes.inventory %}
         {% if item.controller %}
         "{{ item.name }}":
           ansible_user: "{{ item.ssh_username }}"
           ansible_host: "{{ item.address }}"
         {% endif %}
         {% endfor %}
-    {% if cluster.nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
+    {% if nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
     worker:
       hosts:
-        {% for item in cluster.nodes.inventory %}
+        {% for item in nodes.inventory %}
         {% if not item.controller %}
         "{{ item.name }}":
           ansible_user: "{{ item.ssh_username }}"

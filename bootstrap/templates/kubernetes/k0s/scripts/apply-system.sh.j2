@@ -35,8 +35,8 @@ apt-get install -y --no-install-recommends \
 chattr -i /etc/resolv.conf
 rm -f /etc/resolv.conf
 cat <<EOF > /etc/resolv.conf
-search {{ cluster.nodes.search_domain|default('.', true) }}
-{% for item in cluster.nodes.dns_servers %}
+search {{ nodes.search_domain|default('.', true) }}
+{% for item in nodes.dns_servers | default(['1.1.1.1', '1.0.0.1']) %}
 nameserver {{ item }}
 {% endfor %}
 EOF

@@ -18,7 +18,7 @@ spec:
           controllers:
             discovery:
               selector: {}
-          {% if cluster.nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
+          {% if nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
           workers:
             discovery:
               selector: {}

@@ -1,2 +1,2 @@
-providerRegex: ^({{ (cluster.nodes.inventory | map(attribute='name') | join('|')) }})$
+providerRegex: ^({{ (nodes.inventory | map(attribute='name') | join('|')) }})$
 bypassDnsResolution: true
