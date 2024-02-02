@@ -39,8 +39,11 @@ spec:
   k0s:
     # renovate: datasource=github-releases depName=k0sproject/k0s
     version: v1.29.1+k0s.0
-    dynamicConfig: false
     config:
+      apiVersion: k0s.k0sproject.io/v1beta1
+      kind: ClusterConfig
+      metadata:
+        name: home-kubernetes
       spec:
         telemetry:
           enabled: false
