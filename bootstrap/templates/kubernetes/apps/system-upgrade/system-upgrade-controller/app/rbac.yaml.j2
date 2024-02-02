@@ -11,7 +11,7 @@ subjects:
   - kind: ServiceAccount
     name: system-upgrade
     namespace: system-upgrade
-{% if distribution in ['talos'] %}
+{% if distribution.type in ["talos"] %}
 ---
 apiVersion: talos.dev/v1alpha1
 kind: ServiceAccount

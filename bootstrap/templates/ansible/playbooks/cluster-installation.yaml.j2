@@ -1,4 +1,4 @@
-{% if distribution in ['k3s'] %}
+{% if distribution.type in ["k3s"] %}
 ---
 - name: Cluster Installation
   hosts: kubernetes

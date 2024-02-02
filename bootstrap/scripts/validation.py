@@ -10,7 +10,6 @@ GLOBAL_CLI_TOOLS = ["age", "cloudflared", "flux", "sops", "jq", "kubeconform", "
 TALOS_CLI_TOOLS = ["talosctl", "talhelper"]
 K0S_CLI_TOOLS = ["k0sctl"]
 
-
 def required(*keys: str):
     def wrapper_outter(func: Callable):
         @wraps(func)
@@ -21,7 +20,6 @@ def required(*keys: str):
             return func(*[data[key] for key in keys], **kwargs)
         return wrapper
     return wrapper_outter
-
 
 def _validate_network(network: str, family: int) -> str:
     try:
@@ -40,9 +38,10 @@ def validate_python_version() -> None:
 
 
 @required("distribution")
-def validate_cli_tools(distribution: str, **_) -> None:
-    if distribution not in DISTRIBUTIONS:
-        raise ValueError(f"Invalid distribution {distribution}")
+def validate_cli_tools(distribution: dict, **_) -> None:
+    distro = distribution.get("type")
+    if distro not in DISTRIBUTIONS:
+        raise ValueError(f"Invalid distribution {distro}")
     for tool in GLOBAL_CLI_TOOLS:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
@@ -55,9 +54,10 @@ def validate_cli_tools(distribution: str, **_) -> None:
 
 
 @required("distribution")
-def validate_distribution(distribution: str, **_) -> None:
-    if distribution not in DISTRIBUTIONS:
-        raise ValueError(f"Invalid distribution {distribution}")
+def validate_distribution(distribution: dict, **_) -> None:
+    distro = distribution.get("type")
+    if distro not in DISTRIBUTIONS:
+        raise ValueError(f"Invalid distribution {distro}")
 
 
 @required("timezone")
@@ -98,6 +98,9 @@ def validate_cluster_networks(cluster: dict, feature_gates: dict, **_) -> None:
 
 
 def massage_config(data: dict) -> dict:
+    data["distribution"] = data.get("distribution", {})
+    data["nodes"] = data.get("nodes", [])
+    data["cluster"] = data.get("cluster", {})
     data["flux"] = data.get("flux", {})
     data["cloudflare"] = data.get("cloudflare", {})
     data["feature_gates"] = data.get("feature_gates", {})

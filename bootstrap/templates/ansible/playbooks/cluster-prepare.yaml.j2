@@ -1,4 +1,4 @@
-{% if distribution in ['k3s'] %}
+{% if distribution.type in ["k3s"] %}
 ---
 - name: Prepare System
   hosts: kubernetes
@@ -62,8 +62,8 @@
             mode: '0644'
             dest: /etc/resolv.conf
             content: |
-              search {{ cluster.nodes.search_domain|default('.', true) }}
-              {% for item in cluster.nodes.dns_servers %}
+              search {{ nodes.search_domain|default('.', true) }}
+              {% for item in nodes.dns_servers | default(['1.1.1.1', '1.0.0.1']) %}
               nameserver {{ item }}
               {% endfor %}
 

@@ -8,7 +8,7 @@ collections:
     version: 8.3.0
   - name: kubernetes.core
     version: 3.0.0
-{% if distribution in ['k3s'] %}
+{% if distribution.type in ["k3s"] %}
 roles:
   - name: xanmanning.k3s
     src: https://github.com/PyratLabs/ansible-role-k3s

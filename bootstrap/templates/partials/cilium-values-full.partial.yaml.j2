@@ -6,9 +6,9 @@ cluster:
   id: 1
 containerRuntime:
   integration: containerd
-  {% if distribution in ['k3s'] %}
+  {% if distribution.type in ["k3s"] %}
   socketPath: /var/run/k3s/containerd/containerd.sock
-  {% elif distribution in ['k0s'] %}
+  {% elif distribution.type in ["k0s"] %}
   socketPath: /var/run/k0s/containerd.sock
   {% endif %}
 endpointRoutes:
@@ -60,13 +60,13 @@ ipv6NativeRoutingCIDR: "${CLUSTER_CIDR_V6}"
 ipv6:
   enabled: true
 {% endif %}
-{% if distribution in ['k3s'] %}
+{% if distribution.type in ["k3s"] %}
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 6444
-{% elif distribution in ['k0s'] %}
+{% elif distribution.type in ["k0s"] %}
 k8sServiceHost: localhost
 k8sServicePort: 7443
-{% elif distribution in ['talos'] %}
+{% elif distribution.type in ["talos"] %}
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
 {% endif %}

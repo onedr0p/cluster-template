@@ -1,23 +1,26 @@
 ---
 skip_tests: true
 
-distribution: k3s
+distribution:
+  type: k3s
+
 timezone: Etc/UTC
 
+nodes:
+  host_network: 10.10.10.0/24
+  dns_servers: ["1.1.1.1"]
+  search_domain: "fake"
+  inventory:
+    - name: k8s-controller-0
+      address: 10.10.10.100
+      controller: true
+      ssh_username: fake
+    - name: k8s-worker-0
+      address: 10.10.10.101
+      controller: false
+      ssh_username: fake
+
 cluster:
-  nodes:
-    host_network: 10.10.10.0/24
-    dns_servers: ["1.1.1.1"]
-    search_domain: "fake"
-    inventory:
-      - name: k8s-controller-0
-        address: 10.10.10.100
-        controller: true
-        ssh_username: fake
-      - name: k8s-worker-0
-        address: 10.10.10.101
-        controller: false
-        ssh_username: fake
   pod_network: 10.42.0.0/16,fd7f:8f5:e87c:a::/64
   service_network: 10.43.0.0/16,fd7f:8f5:e87c:e::/112
   endpoint_vip: 10.10.10.254

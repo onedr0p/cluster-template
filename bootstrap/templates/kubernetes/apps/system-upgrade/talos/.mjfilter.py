@@ -1,6 +1,7 @@
-main = lambda data: data.get("distribution") in ['talos'] and (
-    data.get("cluster", {})
-    .get("nodes", {})
-    .get("talos", {})
-    .get("schematics", {})
-    .get("enabled", False) == True)
+main = lambda data: (
+    data.get("distribution", {}).get("type", "k3s") in ["talos"] and
+        data.get("distribution", {})
+            .get("talos", {})
+            .get("schematics", {})
+            .get("enabled", False) == True
+)

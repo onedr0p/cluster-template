@@ -5,7 +5,7 @@ metadata:
   name: home-kubernetes
 spec:
   hosts:
-    {% for item in cluster.nodes.inventory %}
+    {% for item in nodes.inventory %}
     {% if item.controller %}
     - role: controller+worker
     {% else %}
