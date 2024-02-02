@@ -354,8 +354,7 @@ You have two different options for setting up your local workstation.
 
 2. Install Flux and sync the cluster to the Git repository
 
-> [!NOTE]
-> Run `task flux:github-deploy-key` first if using a private repository.
+  📍 _Run `task flux:github-deploy-key` first if using a private repository_
 
     ```sh
     task flux:bootstrap
@@ -364,7 +363,7 @@ You have two different options for setting up your local workstation.
     # ...
     ```
 
-3. Verify Flux components are running in the cluster
+1. Verify Flux components are running in the cluster
 
     ```sh
     kubectl -n flux-system get pods -o wide
