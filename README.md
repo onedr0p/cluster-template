@@ -8,10 +8,10 @@ At a high level this project makes use of [makejinja](https://github.com/mirkole
 
 The features included will depend on the type of configuration you want to use. There are currently **3 different types** of **configurations** available with this template.
 
-1. **"Bare cluster"** - a Kubernetes distribution of your choosing: [k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)
+1. **"Bare cluster"** - a Kubernetes distribution of your choosing: [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)
 
     - **Required:** Debian 12 or Talos Linux installed on bare metal (or VMs) and some knowledge of [Containers](https://opencontainers.org/) and [YAML](https://yaml.org/).
-    - **Components:** [Cilium](https://github.com/cilium/cilium) and [kube-vip](https://github.com/kube-vip/kube-vip) _(k0s/k3s)_
+    - **Components:** [Cilium](https://github.com/cilium/cilium) and [kube-vip](https://github.com/kube-vip/kube-vip) _(k3s)_
 
 2. **"Flux cluster"** - An addition to "**Bare cluster**" that deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
 
@@ -30,12 +30,12 @@ The features included will depend on the type of configuration you want to use. 
 
 ## 💻 Machine Preparation
 
-Hopefully some of this peeked your interests!  If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k0s](https://github.com/k0sproject/k0s), [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos).
+Hopefully some of this peeked your interests!  If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos).
 
 ### System requirements
 
 > [!NOTE]
-> 1. The included behaviour of Talos, k3s or k0s is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
+> 1. The included behaviour of Talos or k3s is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
 > 2. Do you have 3 or more nodes? It is highly recommended to make 3 of them controller nodes for a highly available control plane.
 > 3. Running the cluster on Proxmox VE? My thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/notes/proxmox-considerations.html).
 
@@ -55,7 +55,7 @@ Hopefully some of this peeked your interests!  If you are marching forward, now 
 
 4. Continue on to 🚀 [**Getting Started**](#-getting-started)
 
-### k3s or k0s (AMD64)
+### k3s (AMD64)
 
 1. Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd), then follow [this guide](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step) to get it installed. Deviations from the guide:
 
@@ -99,7 +99,7 @@ Hopefully some of this peeked your interests!  If you are marching forward, now 
     chmod 600 ~/.ssh/authorized_keys
     ```
 
-### k3s or k0s (RasPi4)
+### k3s (RasPi4)
 
 <details>
 <summary><i>Click <b>here</b> to read about using a RasPi4</i></summary>
@@ -126,7 +126,7 @@ Hopefully some of this peeked your interests!  If you are marching forward, now 
 
 5. [Post install] SSH into the device with the `root` user and then create a normal user account with `adduser ${username}`
 
-6. [Post install] Follow steps 3 and 4 from [k3s or k0s (AMD64)](##k3s-or-k0s-amd64).
+6. [Post install] Follow steps 3 and 4 from [k3s (AMD64)](##k3s-amd64).
 
 7. [Post install] Install `python3` which is needed by Ansible.
 
@@ -245,7 +245,7 @@ You have two different options for setting up your local workstation.
 ### ⚡ Stage 4: Prepare your nodes for Kubernetes
 
 > [!NOTE]
-> For **Talos** or **k0s** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
+> For **Talos** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
 
 #### k3s
 
@@ -309,15 +309,13 @@ You have two different options for setting up your local workstation.
     task talos:apply-extras
     ```
 
-#### k3s or k0s
+#### k3s
 
 1. Install Kubernetes depending on the distribution you chose
 
     ```sh
     # Install k3s
     task ansible:run playbook=cluster-installation
-    # or, install k0s
-    task k0s:apply
     ```
 
 #### Cluster validation
@@ -452,8 +450,6 @@ There might be a situation where you want to destroy your Kubernetes cluster. Th
 ```sh
 # Nuke k3s
 task ansible:run playbook=cluster-nuke
-# or, Nuke k0s
-task k0s:reset
 ```
 
 ## 🤖 Renovate

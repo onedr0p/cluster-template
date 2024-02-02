@@ -25,7 +25,6 @@ tasks:
     prompt: Reset templated configuration files... continue?
     cmds:
       - task: :ansible:.reset
-      - task: :k0s:.reset
       - task: :kubernetes:.reset
       - task: :sops:.reset
       - task: :talos:.reset

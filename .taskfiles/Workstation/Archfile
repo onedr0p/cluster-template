@@ -6,7 +6,6 @@ go-task
 go-yq
 helm
 jq
-k0sctl-bin
 kubeconform
 kubectl-bin
 kustomize

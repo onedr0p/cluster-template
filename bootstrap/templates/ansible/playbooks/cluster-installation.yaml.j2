@@ -1,4 +1,3 @@
-{% if distribution.type in ["k3s"] %}
 ---
 - name: Cluster Installation
   hosts: kubernetes
@@ -59,4 +58,3 @@
     - name: Cruft
       when: k3s_primary_control_node
       ansible.builtin.include_tasks: tasks/cruft.yaml
-{% endif %}

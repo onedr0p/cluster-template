@@ -5,10 +5,9 @@ from zoneinfo import available_timezones
 import netaddr
 import sys
 
-DISTRIBUTIONS = ["k0s", "k3s", "talos"]
+DISTRIBUTIONS = ["k3s", "talos"]
 GLOBAL_CLI_TOOLS = ["age", "cloudflared", "flux", "sops", "jq", "kubeconform", "kustomize"]
 TALOS_CLI_TOOLS = ["talosctl", "talhelper"]
-K0S_CLI_TOOLS = ["k0sctl"]
 
 def required(*keys: str):
     def wrapper_outter(func: Callable):
@@ -46,9 +45,6 @@ def validate_cli_tools(distribution: dict, **_) -> None:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
     for tool in TALOS_CLI_TOOLS if distribution in ["talos"] else []:
-        if not which(tool):
-            raise ValueError(f"Missing required CLI tool {tool}")
-    for tool in K0S_CLI_TOOLS if distribution in ["k0s"] else []:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
 

@@ -75,10 +75,10 @@
     },
     // custom versioning
     {
-      "description": ["Use custom versioning for k0s/k3s"],
+      "description": ["Use custom versioning for k3s"],
       "matchDatasources": ["github-releases"],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k.s)\\.?(?<build>\\d+)$",
-      "matchPackagePatterns": ["k0s", "k3s"]
+      "matchPackagePatterns": ["k3s"]
     },
     // commit message topics
     {
