@@ -1,4 +1,3 @@
-{% if distribution.type in ["k3s"] %}
 ---
 - name: Cluster Nuke
   hosts: kubernetes
@@ -100,4 +99,3 @@
       ansible.builtin.reboot:
         msg: Rebooting hosts
         reboot_timeout: 3600
-{% endif %}

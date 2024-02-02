@@ -8,7 +8,7 @@ resources:
   - ./kubelet-csr-approver/ks.yaml
   {% endif %}
   - ./metrics-server/ks.yaml
-  {% if distribution.type in ["k0s", "talos"] %}
+  {% if distribution.type in ["talos"] %}
   - ./spegel/ks.yaml
   {% endif %}
   - ./reloader/ks.yaml

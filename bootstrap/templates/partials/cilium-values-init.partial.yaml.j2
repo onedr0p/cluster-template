@@ -8,8 +8,6 @@ containerRuntime:
   integration: containerd
   {% if distribution.type in ["k3s"] %}
   socketPath: /var/run/k3s/containerd/containerd.sock
-  {% elif distribution.type in ["k0s"] %}
-  socketPath: /var/run/k0s/containerd.sock
   {% endif %}
 endpointRoutes:
   enabled: true
@@ -26,9 +24,6 @@ ipv6:
 {% if distribution.type in ["k3s"] %}
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 6444
-{% elif distribution.type in ["k0s"] %}
-k8sServiceHost: localhost
-k8sServicePort: 7443
 {% elif distribution.type in ["talos"] %}
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445

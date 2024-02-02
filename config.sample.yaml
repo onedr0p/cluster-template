@@ -5,7 +5,7 @@
 #
 
 distribution:
-  # (Required) Distribution can either be k3s, k0s, or talos
+  # (Required) Distribution can either be k3s, or talos
   type: k3s
   # (Optional) Talos Specific Options
   talos: {}
@@ -62,7 +62,7 @@ nodes:
     # - name: ""               # Name of the node (must match [a-z0-9-\.]+)
     #   address: ""            # IP address of the node
     #   controller: true       # (Required) Set to true if this is a controller node
-    #   ssh_username: ""       # (Required: k3s/k0s) SSH username of the node
+    #   ssh_username: ""       # (Required: k3s) SSH username of the node
     #   talos_disk_device: ""  # (Required: Talos) Device path or serial number of the disk for this node
     # ...
 

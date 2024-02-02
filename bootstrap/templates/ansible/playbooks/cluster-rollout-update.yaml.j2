@@ -1,5 +1,4 @@
 ---
-# https://github.com/kevincoakley/ansible-role-k8s-rolling-update
 - name: Cluster rollout update
   hosts: kubernetes
   become: true
@@ -12,11 +11,7 @@
         seconds: 5
   tasks:
     - name: Details
-      {% if distribution.type in ["k3s"] %}
       ansible.builtin.command: "k3s kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
-      {% elif distribution.type in ["k0s"] %}
-      ansible.builtin.command: "k0s kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
-      {% endif %}
       register: kubectl_get_node
       delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
       failed_when: false
@@ -32,22 +27,14 @@
         - name: Cordon
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
-            {% if distribution.type in ["k3s"] %}
             kubeconfig: /etc/rancher/k3s/k3s.yaml
-            {% elif distribution.type in ["k0s"] %}
-            kubeconfig: /var/lib/k0s/pki/admin.conf
-            {% endif %}
             state: cordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"
 
         - name: Drain
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
-            {% if distribution.type in ["k3s"] %}
             kubeconfig: /etc/rancher/k3s/k3s.yaml
-            {% elif distribution.type in ["k0s"] %}
-            kubeconfig: /var/lib/k0s/pki/admin.conf
-            {% endif %}
             state: drain
             delete_options:
               delete_emptydir_data: true
@@ -78,10 +65,6 @@
         - name: Uncordon
           kubernetes.core.k8s_drain:
             name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
-            {% if distribution.type  in ["k3s"] %}
             kubeconfig: /etc/rancher/k3s/k3s.yaml
-            {% elif distribution.type in ["k0s"] %}
-            kubeconfig: /var/lib/k0s/pki/admin.conf
-            {% endif %}
             state: uncordon
           delegate_to: "{% raw %}{{ groups['master'][0] }}{% endraw %}"

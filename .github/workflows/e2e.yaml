@@ -19,7 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         config-files:
-          - k0s
           - k3s-ipv4
           - k3s-ipv6
           - talos
@@ -94,7 +93,7 @@ jobs:
           task talos:genconfig
 
       - name: Run Ansible tasks
-        if: ${{ startsWith(matrix.config-files, 'k0s') || startsWith(matrix.config-files, 'k3s') }}
+        if: ${{ startsWith(matrix.config-files, 'k3s') }}
         shell: bash
         run: |
           task ansible:deps force=false

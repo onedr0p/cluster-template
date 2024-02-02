@@ -6,9 +6,6 @@ resources:
   {% if distribution.type in ['k3s', 'talos'] %}
   - ./system-upgrade-controller/ks.yaml
   {% endif %}
-  {% if distribution.type in ["k0s"] %}
-  - ./k0s/ks.yaml
-  {% endif %}
   {% if distribution.type in ["k3s"] %}
   - ./k3s/ks.yaml
   {% endif %}

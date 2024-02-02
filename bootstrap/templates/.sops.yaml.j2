@@ -13,7 +13,7 @@ creation_rules:
     key_groups:
       - age:
           - "{{ flux.sops_age_public_key }}"
-  {% if distribution.type in ["k0s", "k3s"] %}
+  {% if distribution.type in ["k3s"] %}
   - path_regex: ansible/.*\.sops\.ya?ml
     key_groups:
       - age:
