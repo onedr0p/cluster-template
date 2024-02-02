@@ -6,9 +6,14 @@ from typing import Any
 
 from typing import Any
 from netaddr import IPNetwork
+from bcrypt import hashpw, gensalt
 
 import makejinja
 import validation
+
+def encrypt(value: str) -> str:
+    return hashpw(value.encode(), gensalt(rounds=10)).decode("ascii")
+
 
 def nthhost(value: str, query: int) -> str:
     value = IPNetwork(value)
@@ -20,6 +25,7 @@ def nthhost(value: str, query: int) -> str:
         return False
     return value
 
+
 def import_filter(file: Path) -> Callable[[dict[str, Any]], bool]:
     module_path = file.relative_to(Path.cwd()).with_suffix("")
     module_name = str(module_path).replace("/", ".")
@@ -30,6 +36,7 @@ def import_filter(file: Path) -> Callable[[dict[str, Any]], bool]:
     assert spec.loader is not None
     spec.loader.exec_module(module)
     return module.main
+
 
 class Plugin(makejinja.plugin.Plugin):
     def __init__(self, data: dict[str, Any], config: makejinja.config.Config):
@@ -45,11 +52,14 @@ class Plugin(makejinja.plugin.Plugin):
 
         validation.validate(data)
 
+
     def filters(self) -> makejinja.plugin.Filters:
-        return [nthhost]
+        return [encrypt, nthhost]
+
 
     def path_filters(self):
         return [self._mjfilter_func]
+
 
     def _mjfilter_func(self, path: Path) -> bool:
         return not any(

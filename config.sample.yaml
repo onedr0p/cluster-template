@@ -98,26 +98,26 @@ flux:
   #    > task sops:age-keygen
   # 2. Copy the public key and paste it below
   sops_age_public_key: ""
-  # (Required) Options for Github
+  # (Required) Options for GitHub
   github:
-    # (Required) Github repository URL (for private repos use the ssh:// URL)
+    # (Required) GitHub repository URL (for private repos use the ssh:// URL)
     address: ""
-    # (Required) Github repository branch
+    # (Required) GitHub repository branch
     branch: main
-    # (Required) Options for Flux Github webhook
+    # (Required) Options for Flux GitHub webhook
     webhook:
-      # (Required) Enable to use Github push-based sync
+      # (Required) Enable to setup GitHub push-based sync after cluster creation
       enabled: true
-      # Token for Github push-based sync
+      # Token for GitHub push-based sync
       # 1. Generate a new token with the following command:
       #    > openssl rand -hex 16
       # 2. Copy the token and paste it below
       token: ""
-    # (Required) Private key for Flux to access the Github repository
+    # (Required) Private key for Flux to access the GitHub repository
     private:
-      # (Required) Enable to use a private Github repository
+      # (Required) Enable to use a private GitHub repository
       enabled: false
-      # Private key for Flux to access the Github repository
+      # Private key for Flux to access the GitHub repository
       #   1. Generate a new key with the following command:
       #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
       #   2. Make sure to paste public key from "github-deploy.key.pub" into
