@@ -25,14 +25,13 @@ tasks:
       - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
-      - { msg: "Flux already installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 1 || exit 0" }
       - { msg: "Missing Sops Age key file", sh: "test -f {{.AGE_FILE}}" }
 
   apply:
     desc: Apply a Flux Kustomization resource for a cluster
     summary: |
       Args:
-        path: Path under {{.KUBERNETES_DIR}}/apps/ containing the Flux Kustomization resource (ks.yaml) (required)
+        path: Path under apps containing the Flux Kustomization resource (ks.yaml) (required)
         ns: Namespace the Flux Kustomization exists in (default: flux-system)
     cmd: |
       flux --kubeconfig {{.KUBECONFIG_FILE}} build ks $(basename {{.path}}) \
@@ -48,12 +47,9 @@ tasks:
     vars:
       ns: '{{.ns | default "flux-system"}}'
       ks:
-        sh: |
-          [ -f {{.KUBECONFIG_FILE}} ] || exit 0;
-          flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
+        sh: flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
-      - { msg: "Namespace {{.ns}} does not exist", sh: "kubectl get namespace {{.ns}} --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
       - { msg: "Missing Flux Kustomization for app {{.path}}", sh: "test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml" }
 
   reconcile:
@@ -61,7 +57,6 @@ tasks:
     cmd: flux --kubeconfig {{.KUBECONFIG_FILE}} reconcile --namespace flux-system kustomization cluster --with-source
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
-      - { msg: "Flux not installed", sh: "kubectl get namespace flux-system --kubeconfig {{.KUBECONFIG_FILE}} &>/dev/null && exit 0 || exit 1" }
 
   github-deploy-key:
     cmds:
