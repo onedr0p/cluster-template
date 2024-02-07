@@ -11,3 +11,6 @@ data:
   {% if feature_gates.dual_stack_ipv4_first %}
   CLUSTER_CIDR_V6: "{{ cluster.pod_network.split(',')[1] }}"
   {% endif %}
+  {% if distribution.talos.bgp.enabled %}
+  LOADBALANCER_CIDR: "{{ distribution.talos.bgp.loadbalancer_network }}"
+  {% endif %}
