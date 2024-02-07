@@ -1,6 +1,12 @@
 autoDirectNodeRoutes: true
 bpf:
   masquerade: true
+{% if distribution.type in ["talos"] %}
+cgroup:
+  automount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+{% endif %}
 cluster:
   name: home-kubernetes
   id: 1
@@ -47,4 +53,24 @@ operator:
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
+  {% if distribution.type in ["talos"] %}
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+  {% else %}
   privileged: true
+  {% endif %}
