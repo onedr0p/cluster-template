@@ -1,0 +1,34 @@
+---
+# https://docs.cilium.io/en/latest/network/bgp-control-plane/
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: policy
+spec:
+  loadBalancerIPs: true
+  # NOTE: This might need to be set if you have more than one active NIC on your hosts
+  # interfaces:
+  #   - ^eno[0-9]+
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  virtualRouters:
+    - localASN: {{ distribution.talos.bgp.local_asn }}
+      neighbors:
+        {% if distribution.talos.bgp.peers %}
+        {% for item in distribution.talos.bgp.peers %}
+        - peerAddress: "{{ item }}"
+          peerASN: {{ distribution.talos.bgp.peer_asn }}
+        {% endfor %}
+        {% else %}
+        - peerAddress: "{{ nodes.host_network | nthhost(1) }}"
+          peerASN: {{ distribution.talos.bgp.peer_asn }}
+        {% endif %}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: pool
+spec:
+  cidrs:
+    - cidr: "${LOADBALANCER_CIDR}"
