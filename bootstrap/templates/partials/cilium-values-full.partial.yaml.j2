@@ -17,6 +17,9 @@ containerRuntime:
   {% if distribution.type in ["k3s"] %}
   socketPath: /var/run/k3s/containerd/containerd.sock
   {% endif %}
+# NOTE: This might need to be set if you have more than one active NIC on your hosts
+# devices:
+#   - eno0
 endpointRoutes:
   enabled: true
 {% if cloudflare.enabled %}
