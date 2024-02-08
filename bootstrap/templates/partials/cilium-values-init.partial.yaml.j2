@@ -5,12 +5,10 @@ bgpControlPlane:
 {% endif %}
 bpf:
   masquerade: true
-{% if distribution.type in ["talos"] %}
 cgroup:
   automount:
     enabled: false
   hostRoot: /sys/fs/cgroup
-{% endif %}
 cluster:
   name: home-kubernetes
   id: 1
