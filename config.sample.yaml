@@ -28,6 +28,22 @@ distribution:
     # # (Optional) Add vlan tag to network master device
     # #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
     # vlan: 1
+    # # (Optional) Use cilium BGP control plane when L2 announcements won't traverse VLAN network segments.
+    # #   Needs a BGP capable router setup with the node IPs as peers.
+    # #   See: https://docs.cilium.io/en/latest/network/bgp-control-plane/
+    # bgp:
+    #   enabled: true
+    #   # (Optional) If using multiple BGP peers add them here.
+    #   #   Default is .1 derrived from host_network: ['x.x.x.1']
+    #   peers: []
+    #   # (Required) Set the BGP Autonomous System Number for the router(s) and nodes.
+    #   #  If these match, iBGP will be used. If not, eBGP will be used.
+    #   peer_asn: 64512   # Router(s) AS
+    #   local_asn: 64512  # Node(s) AS
+    #   # (Required) The loadbalancer CIDR for the cluster, this must NOT overlap with any
+    #   #   existing networks and is usually a /16 (64K IPs).
+    #   # If you want to use IPv6 check the advanced flags below
+    #   loadbalancer_network: 10.123.0.0/16
 
 #
 # (Required) Timezone is your IANA formatted timezone (e.g. America/New_York)

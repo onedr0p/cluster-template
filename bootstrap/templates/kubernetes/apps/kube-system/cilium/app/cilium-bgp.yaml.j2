@@ -1,0 +1,33 @@
+---
+# https://docs.cilium.io/en/latest/network/bgp-control-plane/
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: policy
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  virtualRouters:
+    - localASN: {{ distribution.talos.bgp.local_asn }}
+      neighbors:
+        {% if distribution.talos.bgp.peers %}
+        {% for item in distribution.talos.bgp.peers %}
+        - peerAddress: "{{ item }}/32"
+          peerASN: {{ distribution.talos.bgp.peer_asn }}
+        {% endfor %}
+        {% else %}
+        - peerAddress: "{{ nodes.host_network | nthhost(1) }}/32"
+          peerASN: {{ distribution.talos.bgp.peer_asn }}
+        {% endif %}
+      serviceSelector:
+        matchExpressions:
+          - {key: somekey, operator: NotIn, values: ['never-used-value']}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: pool
+spec:
+  cidrs:
+    - cidr: "${LOADBALANCER_CIDR}"

@@ -1,6 +1,14 @@
 autoDirectNodeRoutes: true
+{% if distribution.talos.bgp.enabled %}
+bgpControlPlane:
+  enabled: true
+{% endif %}
 bpf:
   masquerade: true
+cgroup:
+  automount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
 cluster:
   name: home-kubernetes
   id: 1
@@ -68,7 +76,8 @@ k8sServicePort: 7445
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
-  {% if feature_gates.dual_stack_ipv4_first %}
+  {% if ( (distribution.talos.bgp.enabled) or
+          (feature_gates.dual_stack_ipv4_first) ) %}
   # https://github.com/cilium/cilium/issues/28985
   enabled: false
   {% else %}
@@ -101,4 +110,20 @@ dashboards:
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
-  privileged: true
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
