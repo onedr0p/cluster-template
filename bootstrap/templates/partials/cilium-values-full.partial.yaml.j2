@@ -112,7 +112,6 @@ dashboards:
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
-  {% if distribution.type in ["talos"] %}
   capabilities:
     ciliumAgent:
       - CHOWN
@@ -130,6 +129,3 @@ securityContext:
       - NET_ADMIN
       - SYS_ADMIN
       - SYS_RESOURCE
-  {% else %}
-  privileged: true
-  {% endif %}
