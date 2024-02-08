@@ -9,7 +9,7 @@ apk add --no-cache \
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-        helm kubectl sops
+        age helm kubectl sops
 
 sudo apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
@@ -22,7 +22,6 @@ for app in \
     "cloudflare/cloudflared!!?as=cloudflared&type=script" \
     "derailed/k9s!!?as=k9s&type=script" \
     "direnv/direnv!!?as=direnv&type=script" \
-    "FiloSottile/age!!?as=age&type=script" \
     "fluxcd/flux2!!?as=flux&type=script" \
     "go-task/task!!?as=task&type=script" \
     "kubecolor/kubecolor!!?as=kubecolor&type=script" \
