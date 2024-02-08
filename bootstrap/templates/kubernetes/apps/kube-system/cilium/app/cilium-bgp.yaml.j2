@@ -5,10 +5,6 @@ kind: CiliumBGPPeeringPolicy
 metadata:
   name: policy
 spec:
-  loadBalancerIPs: true
-  # NOTE: This might need to be set if you have more than one active NIC on your hosts
-  # interfaces:
-  #   - ^eno[0-9]+
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
@@ -17,11 +13,11 @@ spec:
       neighbors:
         {% if distribution.talos.bgp.peers %}
         {% for item in distribution.talos.bgp.peers %}
-        - peerAddress: "{{ item }}"
+        - peerAddress: "{{ item }}/32"
           peerASN: {{ distribution.talos.bgp.peer_asn }}
         {% endfor %}
         {% else %}
-        - peerAddress: "{{ nodes.host_network | nthhost(1) }}"
+        - peerAddress: "{{ nodes.host_network | nthhost(1) }}/32"
           peerASN: {{ distribution.talos.bgp.peer_asn }}
         {% endif %}
 ---
