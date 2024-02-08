@@ -20,6 +20,9 @@ spec:
         - peerAddress: "{{ nodes.host_network | nthhost(1) }}/32"
           peerASN: {{ distribution.talos.bgp.peer_asn }}
         {% endif %}
+      serviceSelector:
+        matchExpressions:
+          - {key: somekey, operator: NotIn, values: ['never-used-value']}
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
