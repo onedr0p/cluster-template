@@ -10,7 +10,7 @@ distribution:
   # (Optional) Talos Specific Options
   talos: {}
     # # (Required) If you need any additional System Extensions and/or kernel arguments generate a schematic ID.
-    # # Go to https:tas//factory.talos.dev/ and choose the System Extensions you need and/or add extra kernel arguments.
+    # # Go to https://factory.talos.dev/ and choose the System Extensions you need and/or add extra kernel arguments.
     # # Otherwise use below default.
     # schematicID: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
     # # (Optional) Add vlan tag to network master device
