@@ -4,16 +4,7 @@ skip_tests: true
 distribution:
   type: talos
   talos:
-    schematics:
-      enabled: true
-      id: df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263
-      customization: |-
-        extraKernelArgs:
-          - net.ifnames=0
-        systemExtensions:
-          officialExtensions:
-            - siderolabs/intel-ucode
-            - siderolabs/i915-ucode
+    schematicID: "df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263"
 
 timezone: Etc/UTC
 

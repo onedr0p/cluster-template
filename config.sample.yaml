@@ -9,22 +9,10 @@ distribution:
   type: k3s
   # (Optional) Talos Specific Options
   talos: {}
-    # schematics:
-    #   # (Required) Disabling the schematic will disable the system-upgrade-controller and any
-    #   #   additional Talos customization you have defined.
-    #   enabled: false
-    #   # (Required) For use with the system-upgrade-controller generate a schematic ID
-    #   #   based on your System Extension requirements https://factory.talos.dev/
-    #   id: ""
-    #   # (Required) Additional NodeConfigs to apply to all nodes
-    #   #   See: https://budimanjojo.github.io/talhelper/latest/reference/configuration/#nodeconfigs
-    #   customization: |-
-    #     extraKernelArgs:
-    #       - net.ifnames=0
-    #     systemExtensions:
-    #       officialExtensions:
-    #         - siderolabs/intel-ucode
-    #         - siderolabs/i915-ucode
+    # # (Required) If you need any additional System Extensions and/or kernel arguments generate a schematic ID.
+    # # Go to https://factory.talos.dev/ and choose the System Extensions you need and/or add extra kernel arguments.
+    # # Otherwise use below default.
+    # schematicID: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
     # # (Optional) Add vlan tag to network master device
     # #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
     # vlan: 1

@@ -283,7 +283,7 @@ You have two different options for setting up your local workstation.
 
 #### Talos
 
-1. Create Talos Secrets
+1. Create Talos Secrets and configuration
 
     ```sh
     task talos:gensecret
