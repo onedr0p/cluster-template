@@ -9,6 +9,6 @@ resources:
   {% if distribution.type in ["k3s"] %}
   - ./k3s/ks.yaml
   {% endif %}
-  {% if distribution.type in ["talos"] and nodes.talos.schematics.enabled %}
+  {% if distribution.type in ["talos"] and distribution.talos.schematicID %}
   - ./talos/ks.yaml
   {% endif %}

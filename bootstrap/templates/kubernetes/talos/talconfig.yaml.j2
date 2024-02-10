@@ -31,6 +31,7 @@ nodes:
     installDiskSelector:
       serial: "{{ item.talos_disk_device }}"
     {% endif %}
+    talosImageURL: factory.talos.dev/installer/{{ distribution.talos.schematicID }}
     controlPlane: {{ (item.controller) | string | lower }}
     networkInterfaces:
       - interface: eth0
@@ -63,11 +64,6 @@ nodes:
   {% endfor %}
 
 controlPlane:
-{% if distribution.talos.schematics.enabled %}
-  schematic:
-    customization:
-{{ distribution.talos.schematics.customization | indent(6, first=True) }}
-{% endif %}
   patches:
     # Configure containerd
     - &containerdPatch |-
