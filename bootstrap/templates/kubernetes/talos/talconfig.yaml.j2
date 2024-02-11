@@ -192,13 +192,15 @@ controlPlane:
                 - rshared
                 - rw
 
+    # Disable predictable NIC naming
+    - &disablePredictableNICnaming |-
+      machine:
+        install:
+          extraKernelArgs:
+            - net.ifnames=0
+
 {% if nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
 worker:
-{% if distribution.talos.schematics.enabled %}
-  schematic:
-    customization:
-{{ distribution.talos.schematics.customization | indent(6, first=True) }}
-{% endif %}
   patches:
     - *containerdPatch
     - *disableSearchDomainPatch
@@ -209,4 +211,5 @@ worker:
     - *ntpPatch
     - *sysctlPatch
     - *openEbsPatch
+    - *disablePredictableNICnaming
 {% endif %}
