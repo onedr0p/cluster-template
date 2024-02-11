@@ -63,84 +63,97 @@ nodes:
         {% endif %}
   {% endfor %}
 
+patches:
+  # Configure containerd
+  - |-
+    machine:
+      files:
+        - op: create
+          path: /etc/cri/conf.d/20-customization.part
+          content: |-
+            [plugins."io.containerd.grpc.v1.cri"]
+              enable_unprivileged_ports = true
+              enable_unprivileged_icmp = true
+            [plugins."io.containerd.grpc.v1.cri".containerd]
+              discard_unpacked_layers = false
+            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+              discard_unpacked_layers = false
+
+  # Disable search domain everywhere
+  - |-
+    machine:
+      network:
+        disableSearchDomain: true
+
+  # Enable cluster discovery
+  - |-
+    cluster:
+      discovery:
+        registries:
+          kubernetes:
+            disabled: false
+          service:
+            disabled: false
+
+  # Configure kubelet
+  - |-
+    machine:
+      kubelet:
+        extraArgs:
+          image-gc-low-threshold: 50
+          image-gc-high-threshold: 55
+          rotate-server-certificates: true
+        nodeIP:
+          validSubnets:
+            - "{{ nodes.host_network }}"
+
+  # Force nameserver
+  - |-
+    machine:
+      network:
+        nameservers:
+          {% for item in nodes.dns_servers | default(['1.1.1.1', '1.0.0.1']) %}
+          - {{ item }}
+          {% endfor %}
+
+  # Configure NTP
+  - |-
+    machine:
+      time:
+        disabled: false
+        servers:
+          - time.cloudflare.com
+
+  # Custom sysctl settings
+  - |-
+    machine:
+      sysctls:
+        fs.inotify.max_queued_events: 65536
+        fs.inotify.max_user_watches: 524288
+        fs.inotify.max_user_instances: 8192
+
+  # Mount openebs-hostpath in kubelet
+  - |-
+    machine:
+      kubelet:
+        extraMounts:
+          - destination: /var/openebs/local
+            type: bind
+            source: /var/openebs/local
+            options:
+              - bind
+              - rshared
+              - rw
+
+  # Disable predictable NIC naming
+  - |-
+    machine:
+      install:
+        extraKernelArgs:
+          - net.ifnames=0
+
 controlPlane:
   patches:
-    # Configure containerd
-    - &containerdPatch |-
-      machine:
-        files:
-          - op: create
-            path: /etc/cri/conf.d/20-customization.part
-            content: |-
-              [plugins."io.containerd.grpc.v1.cri"]
-                enable_unprivileged_ports = true
-                enable_unprivileged_icmp = true
-              [plugins."io.containerd.grpc.v1.cri".containerd]
-                discard_unpacked_layers = false
-              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-                discard_unpacked_layers = false
-
-    # Disable search domain everywhere
-    - &disableSearchDomainPatch |-
-      machine:
-        network:
-          disableSearchDomain: true
-
-    # Enable cluster discovery
-    - &discoveryPatch |-
-      cluster:
-        discovery:
-          registries:
-            kubernetes:
-              disabled: false
-            service:
-              disabled: false
-
-    # Configure kubelet
-    - &kubeletPatch |-
-      machine:
-        kubelet:
-          extraArgs:
-            image-gc-low-threshold: 50
-            image-gc-high-threshold: 55
-            rotate-server-certificates: true
-          nodeIP:
-            validSubnets:
-              - "{{ nodes.host_network }}"
-
-    # Enable KubePrism
-    - &kubePrismPatch |-
-      machine:
-        features:
-          kubePrism:
-            enabled: true
-            port: 7445
-
-    # Force nameserver
-    - &nameserverPatch |-
-      machine:
-        network:
-          nameservers:
-            {% for item in nodes.dns_servers | default(['1.1.1.1', '1.0.0.1']) %}
-            - {{ item }}
-            {% endfor %}
-
-    # Configure NTP
-    - &ntpPatch |-
-      machine:
-        time:
-          disabled: false
-          servers:
-            - time.cloudflare.com
-
-    # Custom sysctl settings
-    - &sysctlPatch |-
-      machine:
-        sysctls:
-          fs.inotify.max_queued_events: 65536
-          fs.inotify.max_user_watches: 524288
-          fs.inotify.max_user_instances: 8192
-
     # Cluster configuration
     - |-
       cluster:
@@ -179,34 +192,3 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
-    # Mount openebs-hostpath in kubelet
-    - &openEbsPatch |-
-      machine:
-        kubelet:
-          extraMounts:
-            - destination: /var/openebs/local
-              type: bind
-              source: /var/openebs/local
-              options:
-                - bind
-                - rshared
-                - rw
-
-{% if nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
-worker:
-{% if distribution.talos.schematics.enabled %}
-  schematic:
-    customization:
-{{ distribution.talos.schematics.customization | indent(6, first=True) }}
-{% endif %}
-  patches:
-    - *containerdPatch
-    - *disableSearchDomainPatch
-    - *discoveryPatch
-    - *kubeletPatch
-    - *kubePrismPatch
-    - *nameserverPatch
-    - *ntpPatch
-    - *sysctlPatch
-    - *openEbsPatch
-{% endif %}
