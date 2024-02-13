@@ -55,7 +55,7 @@ nodes:
   # (Required) CIDR your nodes are on (e.g. 192.168.1.0/24)
   host_network: ""
   # (Optional) Talos only: If your gateway is not on the .1 address of above CIDR you can set it here (e.g. 192.168.1.254)
-  default_gateway: ""
+  # default_gateway: ""
   # (Optional) The DNS server to use for the cluster, this can be an existing
   #   local DNS server or a public one.
   #   Default is ["1.1.1.1", "1.0.0.1"]
