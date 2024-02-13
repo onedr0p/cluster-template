@@ -14,7 +14,6 @@ tasks:
 
   gensecret:
     desc: Generate talos secret
-    prompt: This will overwrite the existing secret... continue?
     dir: "{{.TALOS_DIR}}"
     cmds:
       - talhelper gensecret > {{.TALHELPER_SECRET_FILE}}
@@ -23,6 +22,8 @@ tasks:
           file: "{{.TALHELPER_SECRET_FILE}}"
     preconditions:
       - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
+    status:
+      - test -f "{{.TALHELPER_SECRET_FILE}}"
 
   genconfig:
     desc: Generate talos config
@@ -47,11 +48,8 @@ tasks:
 
   kubeconfig:
     desc: Generate talos kubeconfig
-    prompt: This will overwrite the existing kubeconfig... continue?
     dir: "{{.TALOS_DIR}}"
-    cmd: talosctl --nodes {{.node}} kubeconfig {{.ROOT_DIR}} --force
-    requires:
-      vars: ["node"]
+    cmd: talhelper gencommand kubeconfig --extra-flags "--force" | bash
 
   apply-extras:
     desc: Apply extras
@@ -61,6 +59,38 @@ tasks:
       - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./kubelet-csr-approver | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+
+  deploy:
+    desc: Deploys your Talos cluster in one command
+    dir: "{{.TALOS_DIR}}"
+    cmds:
+      - task: gensecret
+      - task: genconfig
+      - task: apply
+      - sleep 30
+      - echo "It might take some time to install Talos on your nodes and possibly reboot. Please ignore the errors and be patient"
+      - until talhelper gencommand bootstrap | bash ; do sleep 5; done
+      - sleep 5
+      - task: kubeconfig
+      - sleep 30
+      - echo "It might take some time for the controlplane to come up. Please ignore the errors and be patient"
+      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s ; do sleep 5; done
+      - task: apply-extras
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s ; do sleep 1; done
+      - talosctl health --server=false
+      - echo "All good to go!"
+
+  soft-nuke:
+    desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
+    prompt: "This will destroy your cluster and reset the nodes back to maintenance mode. Are you sure?"
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+
+  hard-nuke:
+    desc: Resets nodes back completely and reboots them
+    prompt: "This will destroy your cluster and reset the nodes. Are you sure?"
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper gencommand reset --extra-flags "--reboot --graceful=false --wait=false" | bash
 
   upgrade-talos:
     desc: Upgrade talos on a node
