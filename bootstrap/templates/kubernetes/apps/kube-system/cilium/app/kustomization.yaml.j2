@@ -6,7 +6,7 @@ resources:
   - ./cilium-bgp.yaml
   {% endif %}
   {% if ( (not distribution.talos.bgp.enabled) and
-          (feature_gates.dual_stack_ipv4_first) ) %}
+          (not feature_gates.dual_stack_ipv4_first) ) %}
   - ./cilium-l2.yaml
   {% endif %}
   - ./helmrelease.yaml
