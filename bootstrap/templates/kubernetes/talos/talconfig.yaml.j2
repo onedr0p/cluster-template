@@ -50,7 +50,11 @@ nodes:
             mtu: 1500
             routes:
               - network: 0.0.0.0/0
+                {% if nodes.default_gateway %}
+                gateway: "{{ nodes.default_gateway }}"
+                {% else %}
                 gateway: "{{ nodes.host_network | nthhost(1) }}"
+                {% endif %}
             {% if item.controller %}
             vip:
               ip: "{{ cluster.endpoint_vip }}"
@@ -61,7 +65,11 @@ nodes:
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
+            {% if nodes.default_gateway %}
+            gateway: "{{ nodes.default_gateway }}"
+            {% else %}
             gateway: "{{ nodes.host_network | nthhost(1) }}"
+            {% endif %}
         {% if item.controller %}
         vip:
           ip: "{{ cluster.endpoint_vip }}"

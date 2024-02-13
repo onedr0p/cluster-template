@@ -34,6 +34,7 @@ distribution:
     #   loadbalancer_network: 10.123.0.0/16
     # secureboot:
     #   # (Optional) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
+    #   # If you want to use this. Please make sure to boot from secureboot ISO and enroll keys first.
     #   #   See: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
     #   enabled: true
     #   # (Optional) Enable TPM-based disk encryption. Requires TPM 2.0
@@ -53,6 +54,8 @@ timezone: ""
 nodes:
   # (Required) CIDR your nodes are on (e.g. 192.168.1.0/24)
   host_network: ""
+  # (Optional) Talos only: If your gateway is not on the .1 address of above CIDR you can set it here (e.g. 192.168.1.254)
+  default_gateway: ""
   # (Optional) The DNS server to use for the cluster, this can be an existing
   #   local DNS server or a public one.
   #   Default is ["1.1.1.1", "1.0.0.1"]
