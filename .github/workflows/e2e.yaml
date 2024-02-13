@@ -89,8 +89,8 @@ jobs:
         if: ${{ startsWith(matrix.config-files, 'talos') }}
         shell: bash
         run: |
-          task talos:gensecret --yes
-          task talos:genconfig
+          task talos:bootstrap-gensecret
+          task talos:bootstrap-genconfig
 
       - name: Run Ansible tasks
         if: ${{ startsWith(matrix.config-files, 'k3s') }}
