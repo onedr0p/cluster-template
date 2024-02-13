@@ -17,7 +17,11 @@ spec:
           peerASN: {{ distribution.talos.bgp.peer_asn }}
         {% endfor %}
         {% else %}
+        {% if nodes.default_gateway %}
+        - peerAddress: "{{ nodes.default_gateway }}/32"
+        {% else %}
         - peerAddress: "{{ nodes.host_network | nthhost(1) }}/32"
+        {% endif %}
           peerASN: {{ distribution.talos.bgp.peer_asn }}
         {% endif %}
       serviceSelector:
