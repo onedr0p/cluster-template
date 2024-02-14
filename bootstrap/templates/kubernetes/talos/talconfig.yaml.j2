@@ -237,7 +237,8 @@ controlPlane:
     - "@./patches/controlPlane.yaml"
     {% endif %}
 
-{% if nodes.inventory | selectattr('controller', 'equalto', False) | list | length %}
+{% if ( (distribution.talos.user_patches) and
+        (nodes.inventory | selectattr('controller', 'equalto', False) | list | length) ) %}
 worker:
   patches:
     # User specified worker patches
