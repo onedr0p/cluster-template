@@ -40,6 +40,15 @@ distribution:
     #   # (Optional) Enable TPM-based disk encryption. Requires TPM 2.0
     #   #   See: https://www.talos.dev/v1.6/talos-guides/install/bare-metal-platforms/secureboot/#disk-encryption-with-tpm
     #   encrypt_disk_with_tpm: true
+    # user_patches: true
+    # # (Optional) Add includes for user provided patches to generated talconfig.yaml.
+    # #   See: https://github.com/budimanjojo/talhelper/blob/179ba9ed42f70069c7842109bea24f769f7af6eb/example/extraKernelArgs-patch.yaml
+    # #   Patches are applied in this order. (global overrides cp/worker which overrides node-specific).
+    # #   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
+    # #     kubernetes/talos/patches/node_<name>.yaml  # Patches for individual nodes
+    # #     kubernetes/talos/patches/controlPlane.yaml # Patches for controlplane nodes
+    # #     kubernetes/talos/patches/worker.yaml       # Patches for worker nodes
+    # #     kubernetes/talos/patches/global.yaml       # Patches for ALL nodes
 
 #
 # (Required) Timezone is your IANA formatted timezone (e.g. America/New_York)
