@@ -283,30 +283,10 @@ You have two different options for setting up your local workstation.
 
 #### Talos
 
-1. Create Talos Secrets and configuration
-
-    ```sh
-    task talos:gensecret
-    task talos:genconfig
-    ```
-
-2. Apply Talos Config
-
-    ```sh
-    task talos:apply
-    ```
-
-3. Boostrap Talos and get kubeconfig
+1. Deploy your cluster and bootstrap it. This generates secrets, generates the config files for your nodes and applies them. It bootstraps the cluster afterwards, fetches the kubeconfig file and installs Cilium and kubelet-csr-approver. It finishes with some health checks.
 
     ```sh
     task talos:bootstrap
-    task talos:kubeconfig node=$master_node_ip_address
-    ```
-
-4. Install Cilium and kubelet-csr-approver into the cluster
-
-    ```sh
-    task talos:apply-extras
     ```
 
 #### k3s
@@ -448,8 +428,14 @@ By default Flux will periodically check your git repository for changes. In orde
 There might be a situation where you want to destroy your Kubernetes cluster. This will completely clean the OS of all traces of the Kubernetes distribution you chose and then reboot the nodes.
 
 ```sh
-# Nuke k3s
+# k3s: Remove all traces of k3s from the nodes
 task ansible:run playbook=cluster-nuke
+
+# Talos: Reset your nodes back to maintenance mode and reboot
+task talos:soft-nuke
+
+# Talos: Comletely format your the Talos installation and reboot
+task talos:hard-nuke
 ```
 
 ## 🤖 Renovate
