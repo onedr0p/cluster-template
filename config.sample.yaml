@@ -1,5 +1,4 @@
 ---
-
 #
 # (Required) Distribution represents the Kubernetes distribution layer and any additional customizations
 #
@@ -9,6 +8,10 @@ distribution:
   type: k3s
   # (Optional) Talos Specific Options
   talos: {}
+    # # (Required) Get the latest Talos and corresponding kubernetes version from
+    # #   https://factory.talos.dev or https://github.com/siderolabs/talos/releases
+    # version: v1.6.4
+    # kubernetesversion: v1.29.1
     # # (Required) If you need any additional System Extensions and/or kernel arguments generate a schematic ID.
     # # Go to https://factory.talos.dev/ and choose the System Extensions you need and/or add extra kernel arguments.
     # # Otherwise use below default.
@@ -22,7 +25,7 @@ distribution:
     # bgp:
     #   enabled: true
     #   # (Optional) If using multiple BGP peers add them here.
-    #   #   Default is .1 derrived from host_network: ['x.x.x.1']
+    #   #   Default is .1 derived from host_network: ['x.x.x.1']
     #   peers: []
     #   # (Required) Set the BGP Autonomous System Number for the router(s) and nodes.
     #   #  If these match, iBGP will be used. If not, eBGP will be used.
@@ -72,7 +75,8 @@ nodes:
   search_domain: ""
   # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
   #   Worker nodes are optional
-  inventory: []
+  inventory:
+    []
     # - name: ""               # Name of the node (must match [a-z0-9-\.]+)
     #   address: ""            # IP address of the node
     #   controller: true       # (Required) Set to true if this is a controller node
