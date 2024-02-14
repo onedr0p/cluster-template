@@ -4,6 +4,8 @@ skip_tests: true
 distribution:
   type: talos
   talos:
+    version: v1.6.4
+    kubernetesversion: v1.29.1
     schematicID: "df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263"
 
 timezone: Etc/UTC
