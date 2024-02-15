@@ -75,6 +75,10 @@ nodes:
           ip: "{{ cluster.endpoint_vip }}"
         {% endif %}
         {% endif %}
+    {% if distribution.talos.user_patches %}
+    patches:
+      - "@./patches/node_{{ item.name }}.yaml"
+    {% endif %}
   {% endfor %}
 
 patches:
@@ -183,6 +187,10 @@ patches:
             - slot: 0
               tpm: {}
   {% endif %}
+  {% if distribution.talos.user_patches %}
+  # User specified global patches
+  - "@./patches/global.yaml"
+  {% endif %}
 
 controlPlane:
   patches:
@@ -224,3 +232,15 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
+    {% if distribution.talos.user_patches %}
+    # User specified controlPlane patches
+    - "@./patches/controlPlane.yaml"
+    {% endif %}
+
+{% if ( (distribution.talos.user_patches) and
+        (nodes.inventory | selectattr('controller', 'equalto', False) | list | length) ) %}
+worker:
+  patches:
+    # User specified worker patches
+    - "@./patches/worker.yaml"
+{% endif %}
