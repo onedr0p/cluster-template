@@ -24,6 +24,7 @@ for app in \
     "direnv/direnv!!?as=direnv&type=script" \
     "fluxcd/flux2!!?as=flux&type=script" \
     "go-task/task!!?as=task&type=script" \
+    "helmfile/helmfile!!?as=helmfile&type=script" \
     "kubecolor/kubecolor!!?as=kubecolor&type=script" \
     "kubernetes-sigs/krew!!?as=krew&type=script" \
     "kubernetes-sigs/kustomize!!?as=kustomize&type=script" \
@@ -40,7 +41,7 @@ done
 mkdir -p /home/vscode/.config/fish/{completions,conf.d}
 
 # Setup autocompletions for fish
-for tool in cilium flux helm k9s kubectl kustomize talhelper talosctl; do
+for tool in cilium flux helm helmfile k9s kubectl kustomize talhelper talosctl; do
     $tool completion fish > /home/vscode/.config/fish/completions/$tool.fish
 done
 gh completion --shell fish > /home/vscode/.config/fish/completions/gh.fish

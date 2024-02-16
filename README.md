@@ -6,17 +6,12 @@ At a high level this project makes use of [makejinja](https://github.com/mirkole
 
 ## ✨ Features
 
-The features included will depend on the type of configuration you want to use. There are currently **3 different types** of **configurations** available with this template.
+The features included will depend on the type of configuration you want to use. There are currently **2 different types** of **configurations** available with this template.
 
-1. **"Bare cluster"** - a Kubernetes distribution of your choosing: [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos)
+1. **"Flux cluster"** - a Kubernetes distribution of your choosing: [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos). Deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
 
-    - **Required:** Debian 12 or Talos Linux installed on bare metal (or VMs) and some knowledge of [Containers](https://opencontainers.org/) and [YAML](https://yaml.org/).
-    - **Components:** [Cilium](https://github.com/cilium/cilium) and [kube-vip](https://github.com/kube-vip/kube-vip) _(k3s)_
-
-2. **"Flux cluster"** - An addition to "**Bare cluster**" that deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
-
-    - **Required:** Some knowledge of [Git](https://git-scm.com/) practices & terminology.
-    - **Components:** [flux](https://github.com/fluxcd/flux2), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/XenitAB/spegel), [reloader](https://github.com/stakater/Reloader), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), and [openebs](https://github.com/openebs/openebs).
+    - **Required:** Debian 12 or Talos Linux installed on bare metal (or VMs) and some knowledge of [Containers](https://opencontainers.org/) and [YAML](https://yaml.org/). Some knowledge of [Git](https://git-scm.com/) practices & terminology is also required.
+    - **Components:** [Cilium](https://github.com/cilium/cilium) and [kube-vip](https://github.com/kube-vip/kube-vip) _(k3s)_. [flux](https://github.com/fluxcd/flux2), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/XenitAB/spegel), [reloader](https://github.com/stakater/Reloader), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), and [openebs](https://github.com/openebs/openebs).
 
 3. **"Flux cluster with Cloudflare"** - An addition to "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
 
@@ -259,25 +254,20 @@ You have two different options for setting up your local workstation.
     task ansible:deps
     ```
 
-4. Verify Ansible can view your config
+4. Verify Ansible can view your config and ping your nodes
 
     ```sh
     task ansible:list
-    ```
-
-5. Verify Ansible can ping your nodes
-
-    ```sh
     task ansible:ping
     ```
 
-6. Run the Ansible prepare playbook (nodes wil reboot when done)
+5. Run the Ansible prepare playbook (nodes wil reboot when done)
 
     ```sh
     task ansible:run playbook=cluster-prepare
     ```
 
-7. Continue on to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
+6. Continue on to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
 
 ### ⛵ Stage 5: Install Kubernetes
 
@@ -294,7 +284,6 @@ You have two different options for setting up your local workstation.
 1. Install Kubernetes depending on the distribution you chose
 
     ```sh
-    # Install k3s
     task ansible:run playbook=cluster-installation
     ```
 
@@ -317,9 +306,6 @@ You have two different options for setting up your local workstation.
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
-> [!NOTE]
-> Skip this stage if you have **disabled** Flux in the `config.yaml`
-
 1. Verify Flux can be installed
 
     ```sh
@@ -332,7 +318,7 @@ You have two different options for setting up your local workstation.
 
 2. Install Flux and sync the cluster to the Git repository
 
-  📍 _Run `task flux:github-deploy-key` first if using a private repository_
+  📍 _Run `task flux:github-deploy-key` first if using a private repository._
 
     ```sh
     task flux:bootstrap
@@ -352,7 +338,7 @@ You have two different options for setting up your local workstation.
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
 
-### 🎤 Flux w/ Cloudflare verification Steps
+### 🎤 Verification Steps
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
@@ -378,17 +364,17 @@ The `external-dns` application created in the `networking` namespace will handle
 
 #### 🏠 Home DNS
 
-`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${bootstrap_cloudflare_domain}` to `${bootstrap_k8s_gateway_addr}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
+`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${bootstrap_cloudflare.domain}` to `${bootstrap_cloudflare.gateway_vip}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
 > [!TIP]
 > Below is how to configure a Pi-hole for split DNS. Other platforms should be similar.
 > 1. Apply this file on the Pihole server while substituting the variables
 > ```sh
 > # /etc/dnsmasq.d/99-k8s-gateway-forward.conf
-> server=/${bootstrap_cloudflare_domain}/${bootstrap_k8s_gateway_addr}
+> server=/${bootstrap_cloudflare.domain}/${bootstrap_cloudflare.gateway_vip}
 > ```
 > 2. Restart dnsmasq on the server.
-> 3. Query an internal-only subdomain from your workstation (any `internal` class ingresses): `dig @${home-dns-server-ip} echo-server-internal.${bootstrap_cloudflare_domain}`. It should resolve to `${bootstrap_internal_ingress_addr}`.
+> 3. Query an internal-only subdomain from your workstation (any `internal` class ingresses): `dig @${home-dns-server-ip} echo-server-internal.${bootstrap_cloudflare.domain}`. It should resolve to `${bootstrap_cloudflare.ingress_vip}`.
 
 If you're having trouble with DNS be sure to check out these two GitHub discussions: [Internal DNS](https://github.com/onedr0p/cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/cluster-template/discussions/635).
 
@@ -418,10 +404,10 @@ By default Flux will periodically check your git repository for changes. In orde
 2. Piece together the full URL with the webhook path appended
 
     ```text
-    https://flux-webhook.${bootstrap_cloudflare_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    https://flux-webhook.${bootstrap_cloudflare.domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_flux_github_webhook_token` secret and save.
+3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook url and your `bootstrap_github_webhook_token` secret and save.
 
 ## 💥 Nuke
 
@@ -430,10 +416,8 @@ There might be a situation where you want to destroy your Kubernetes cluster. Th
 ```sh
 # k3s: Remove all traces of k3s from the nodes
 task ansible:run playbook=cluster-nuke
-
 # Talos: Reset your nodes back to maintenance mode and reboot
 task talos:soft-nuke
-
 # Talos: Comletely format your the Talos installation and reboot
 task talos:hard-nuke
 ```

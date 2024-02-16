@@ -1,4 +1,4 @@
-{% if cloudflare.enabled %}
+#% if bootstrap_cloudflare.enabled %#
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -22,4 +22,4 @@ spec:
   tls:
     - hosts:
         - *host
-{% endif %}
+#% endif %#

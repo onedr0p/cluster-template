@@ -32,7 +32,7 @@ spec:
       service:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
-          io.cilium/lb-ipam-ips: "{{ cloudflare.tunnel.ingress_vip }}"
+          io.cilium/lb-ipam-ips: "#{ bootstrap_cloudflare.tunnel.ingress_vip }#"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: external
@@ -70,11 +70,11 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        {% if cloudflare.acme.production %}
+        #% if bootstrap_cloudflare.acme.production %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-production-tls"
-        {% else %}
+        #% else %#
         default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-staging-tls"
-        {% endif %}
+        #% endif %#
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname

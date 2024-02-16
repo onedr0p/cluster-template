@@ -9,21 +9,21 @@ spec:
     matchLabels:
       kubernetes.io/os: linux
   virtualRouters:
-    - localASN: {{ distribution.talos.bgp.local_asn }}
+    - localASN: #{ bootstrap_bgp.local_asn }#
       neighbors:
-        {% if distribution.talos.bgp.peers %}
-        {% for item in distribution.talos.bgp.peers %}
-        - peerAddress: "{{ item }}/32"
-          peerASN: {{ distribution.talos.bgp.peer_asn }}
-        {% endfor %}
-        {% else %}
-        {% if nodes.default_gateway %}
-        - peerAddress: "{{ nodes.default_gateway }}/32"
-        {% else %}
-        - peerAddress: "{{ nodes.host_network | nthhost(1) }}/32"
-        {% endif %}
-          peerASN: {{ distribution.talos.bgp.peer_asn }}
-        {% endif %}
+        #% if bootstrap_bgp.peers %#
+        #% for item in bootstrap_bgp.peers %#
+        - peerAddress: "#{ item }#/32"
+          peerASN: #{ bootstrap_bgp.peer_asn }#
+        #% endfor %#
+        #% else %#
+        #% if bootstrap_node_default_gateway %#
+        - peerAddress: "#{ bootstrap_node_default_gateway }#/32"
+        #% else %#
+        - peerAddress: "#{ bootstrap_node_network | nthhost(1) }#/32"
+        #% endif %#
+          peerASN: #{ bootstrap_bgp.peer_asn }#
+        #% endif %#
       serviceSelector:
         matchExpressions:
           - {key: somekey, operator: NotIn, values: ['never-used-value']}
@@ -34,4 +34,4 @@ metadata:
   name: pool
 spec:
   cidrs:
-    - cidr: "${LOADBALANCER_CIDR}"
+    - cidr: "${BGP_ADVERTISED_CIDR}"

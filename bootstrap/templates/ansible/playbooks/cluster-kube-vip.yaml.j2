@@ -20,5 +20,5 @@
     - name: Upgrade kube-vip
       ansible.builtin.template:
         src: templates/kube-vip-ds.yaml.j2
-        dest: "{% raw %}{{ k3s_server_manifests_dir }}{% endraw %}/kube-vip-ds.yaml"
+        dest: "{{ k3s_server_manifests_dir }}/kube-vip-ds.yaml"
         mode: preserve

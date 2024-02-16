@@ -1,8 +1,6 @@
 autoDirectNodeRoutes: true
-{% if distribution.talos.bgp.enabled %}
 bgpControlPlane:
   enabled: true
-{% endif %}
 bpf:
   masquerade: true
 cgroup:
@@ -10,13 +8,13 @@ cgroup:
     enabled: false
   hostRoot: /sys/fs/cgroup
 cluster:
-  name: home-kubernetes
   id: 1
+  name: home-kubernetes
 containerRuntime:
   integration: containerd
-  {% if distribution.type in ["k3s"] %}
+  #% if bootstrap_distribution in ["k3s"] %#
   socketPath: /var/run/k3s/containerd/containerd.sock
-  {% endif %}
+  #% endif %#
 # NOTE: This might need to be set if you have more than one active NIC on your hosts
 # devices:
 #   - eno0
@@ -26,29 +24,27 @@ hubble:
   enabled: false
 ipam:
   mode: kubernetes
-ipv4NativeRoutingCIDR: "{{ cluster.pod_network }}"
-{% if feature_gates.dual_stack_ipv4_first %}
-ipv6NativeRoutingCIDR: "{{ cluster.pod_network_v6 }}"
+ipv4NativeRoutingCIDR: "#{ bootstrap_pod_network }#"
+#% if bootstrap_feature_gates.dual_stack_ipv4_first %#
+ipv6NativeRoutingCIDR: "#{ bootstrap_pod_network_v6 }#"
 ipv6:
   enabled: true
-{% endif %}
-{% if distribution.type in ["k3s"] %}
+#% endif %#
+#% if bootstrap_distribution in ["k3s"] %#
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 6444
-{% elif distribution.type in ["talos"] %}
+#% elif bootstrap_distribution in ["talos"] %#
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
-{% endif %}
+#% endif %#
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 l2announcements:
-  {% if ( (distribution.talos.bgp.enabled) or
-          (feature_gates.dual_stack_ipv4_first) ) %}
-  # https://github.com/cilium/cilium/issues/28985
-  enabled: false
-  {% else %}
+  #% if ((bootstrap_bgp.enabled) or (bootstrap_feature_gates.dual_stack_ipv4_first)) %#
+  enabled: false # https://github.com/cilium/cilium/issues/28985
+  #% else %#
   enabled: true
-  {% endif %}
+  #% endif %#
 loadBalancer:
   algorithm: maglev
   mode: dsr

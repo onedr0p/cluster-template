@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  TALOS_DIR: "{{.KUBERNETES_DIR}}/talos"
+  TALOS_DIR: "{{.KUBERNETES_DIR}}/bootstrap/talos"
   TALHELPER_SECRET_FILE: "{{.TALOS_DIR}}/talhelper.sops.yaml"
   TALHELPER_CONFIG_FILE: "{{.TALOS_DIR}}/talconfig.yaml"
 
@@ -21,7 +21,7 @@ tasks:
       - task: bootstrap-apply
       - task: bootstrap-install
       - task: fetch-kubeconfig
-      - task: bootstrap-core-apps
+      - task: bootstrap-apps
       - talosctl health --server=false
 
   bootstrap-gensecret:
@@ -61,14 +61,13 @@ tasks:
     preconditions:
       - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
 
-  bootstrap-core-apps:
-    desc: Bootstrap Helm apps
+  bootstrap-apps:
+    desc: Bootstrap core apps needed for Talos
     dir: "{{.TALOS_DIR}}"
     cmds:
-      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./cilium | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
-      - kubectl --kubeconfig {{.KUBECONFIG_FILE}} kustomize --enable-helm ./kubelet-csr-approver | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
-      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
+      - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
+      - helmfile --file ./apps/helmfile.yaml apply
+      - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
 
@@ -95,13 +94,13 @@ tasks:
 
   soft-nuke:
     desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
-    prompt: "This will destroy your cluster and reset the nodes back to maintenance mode. Are you sure?"
+    prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
   hard-nuke:
     desc: Resets nodes back completely and reboots them
-    prompt: "This will destroy your cluster and reset the nodes. Are you sure?"
+    prompt: This will destroy your cluster and reset the nodes... continue?
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand reset --extra-flags "--reboot --graceful=false --wait=false" | bash
 

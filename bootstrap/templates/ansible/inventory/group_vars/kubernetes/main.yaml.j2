@@ -2,7 +2,7 @@
 k3s_become: true
 k3s_etcd_datastore: true
 k3s_install_hard_links: true
-k3s_registration_address: "{{ cluster.endpoint_vip }}"
+k3s_registration_address: "#{ bootstrap_controllers_vip }#"
 k3s_registries:
   mirrors:
     docker.io:

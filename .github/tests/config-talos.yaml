@@ -1,47 +1,34 @@
 ---
 skip_tests: true
 
-distribution:
-  type: talos
-  talos:
-    schematicID: "df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263"
-
-timezone: Etc/UTC
-
-nodes:
-  host_network: 10.10.10.0/24
-  dns_servers: ["1.1.1.1"]
-  search_domain: "fake"
-  inventory:
-    - name: k8s-controller-0
-      address: 10.10.10.100
-      controller: true
-      talos_disk_device: fake
-    - name: k8s-worker-0
-      address: 10.10.10.101
-      controller: false
-      talos_disk_device: fake
-
-cluster:
-  pod_network: 10.69.0.0/16
-  service_network: 10.96.0.0/16
-  endpoint_vip: 10.10.10.254
-  tls_sans: ["fake"]
-
-flux:
-  enabled: true
-  github:
-    username: onedr0p
-    address: https://github.com/onedr0p/cluster-template
-    branch: main
-    webhook:
-      enabled: true
-      token: fake
-    private:
-      enabled: false
-  sops_age_public_key: $BOOTSTRAP_AGE_PUBLIC_KEY
-
-cloudflare:
+bootstrap_timezone: Etc/UTC
+bootstrap_distribution: talos
+boostrap_talos:
+  schematic_id: "df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263"
+bootstrap_node_network: 10.10.10.0/24
+bootstrap_node_default_gateway: 10.10.10.1
+bootstrap_node_inventory:
+  - name: k8s-controller-0
+    address: 10.10.10.100
+    controller: true
+    talos_disk: fake
+  - name: k8s-worker-0
+    address: 10.10.10.101
+    controller: false
+    talos_disk: fake
+bootstrap_dns_servers: ["1.1.1.1"]
+bootstrap_search_domain: "fake"
+bootstrap_pod_network: 10.69.0.0/16
+bootstrap_service_network: 10.96.0.0/16
+bootstrap_controllers_vip: 10.10.10.254
+bootstrap_tls_sans: ["fake"]
+bootstrap_sops_age_pubkey: $BOOTSTRAP_AGE_PUBLIC_KEY
+bootstrap_bgp:
+  enabled: false
+bootstrap_github_address: https://github.com/onedr0p/cluster-template
+bootstrap_github_branch: main
+bootstrap_github_webhook_token: fake
+bootstrap_cloudflare:
   enabled: true
   domain: fake
   token: take

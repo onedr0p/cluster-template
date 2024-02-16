@@ -1,6 +1,4 @@
 main = lambda data: (
-    data.get("distribution", {}).get("type", "k3s") in ["talos"] and
-        data.get("distribution", {})
-            .get("talos", {})
-            .get("schematicID", {})
+    data.get("bootstrap_distribution", "k3s") in ["talos"] and
+        data.get("talos", {}).get("schematic_id", {})
 )

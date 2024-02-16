@@ -3,7 +3,7 @@
   block:
     - name: Cruft | Get list of custom manifests
       ansible.builtin.find:
-        paths: "{% raw %}{{ k3s_server_manifests_dir }}{% endraw %}"
+        paths: "{{ k3s_server_manifests_dir }}"
         file_type: file
         use_regex: true
         patterns: ["^custom-.*"]
@@ -11,9 +11,9 @@
 
     - name: Cruft | Delete custom manifests
       ansible.builtin.file:
-        path: "{% raw %}{{ item.path }}{% endraw %}"
+        path: "{{ item.path }}"
         state: absent
-      loop: "{% raw %}{{ custom_manifest.files }}{% endraw %}"
+      loop: "{{ custom_manifest.files }}"
 
     - name: Cruft | Get list of custom addons
       kubernetes.core.k8s_info:
@@ -24,8 +24,8 @@
     - name: Cruft | Delete addons
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
-        name: "{% raw %}{{ item.metadata.name }}{% endraw %}"
+        name: "{{ item.metadata.name }}"
         kind: Addon
         namespace: kube-system
         state: absent
-      loop: "{% raw %}{{ addons_list.resources | selectattr('metadata.name', 'match', '^custom-.*') | list }}{% endraw %}"
+      loop: "{{ addons_list.resources | selectattr('metadata.name', 'match', '^custom-.*') | list }}"
