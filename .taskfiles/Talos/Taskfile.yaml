@@ -94,13 +94,13 @@ tasks:
 
   soft-nuke:
     desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
-    prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?"
+    prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
   hard-nuke:
     desc: Resets nodes back completely and reboots them
-    prompt: This will destroy your cluster and reset the nodes... continue?"
+    prompt: This will destroy your cluster and reset the nodes... continue?
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand reset --extra-flags "--reboot --graceful=false --wait=false" | bash
 
