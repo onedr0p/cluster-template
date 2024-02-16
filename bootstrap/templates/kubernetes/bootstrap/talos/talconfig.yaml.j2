@@ -6,80 +6,80 @@ talosVersion: v1.6.4
 kubernetesVersion: v1.29.1
 
 clusterName: &cluster home-kubernetes
-endpoint: https://{{ cluster.endpoint_vip }}:6443
+endpoint: https://#{ bootstrap_controllers_vip }#:6443
 clusterPodNets:
-  - "{{ cluster.pod_network.split(',')[0] }}"
+  - "#{ bootstrap_pod_network.split(',')[0] }#"
 clusterSvcNets:
-  - "{{ cluster.service_network.split(',')[0] }}"
+  - "#{ bootstrap_service_network.split(',')[0] }#"
 additionalApiServerCertSans: &sans
-  - "{{ cluster.endpoint_vip }}"
+  - "#{ bootstrap_controllers_vip }#"
   - 127.0.0.1 # KubePrism
-  {% for item in cluster.tls_sans %}
-  - "{{ item }}"
-  {% endfor %}
+  #% for item in bootstrap_tls_sans %#
+  - "#{ item }#"
+  #% endfor %#
 additionalMachineCertSans: *sans
 cniConfig:
   name: none
 
 nodes:
-  {% for item in nodes.inventory %}
-  - hostname: "{{ item.name }}"
-    ipAddress: "{{ item.address }}"
-    {% if item.talos_disk_device.startswith('/') %}
-    installDisk: "{{ item.talos_disk_device }}"
-    {% else %}
+  #% for item in bootstrap_node_inventory %#
+  - hostname: "#{ item.name }#"
+    ipAddress: "#{ item.address }#"
+    #% if item.talos_disk.startswith('/') %#
+    installDisk: "#{ item.talos_disk }#"
+    #% else %#
     installDiskSelector:
-      serial: "{{ item.talos_disk_device }}"
-    {% endif %}
-    {% if distribution.talos.secureboot.enabled %}
+      serial: "#{ item.talos_disk }#"
+    #% endif %#
+    #% if bootstrap_talos.secureboot.enabled %#
     machineSpec:
       secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/{{ distribution.talos.schematicID }}
-    {% else %}
-    talosImageURL: factory.talos.dev/installer/{{ distribution.talos.schematicID }}
-    {% endif %}
-    controlPlane: {{ (item.controller) | string | lower }}
+    talosImageURL: factory.talos.dev/installer-secureboot/#{ bootstrap_talos.schematic_id }#
+    #% else %#
+    talosImageURL: factory.talos.dev/installer/#{ bootstrap_talos.schematic_id }#
+    #% endif %#
+    controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
       - interface: eth0
         dhcp: false
-        {% if distribution.talos.vlan %}
+        #% if bootstrap_talos.vlan %#
         vlans:
-          - vlanId: {{ distribution.talos.vlan }}
+          - vlanId: #{ bootstrap_talos.vlan }#
             addresses:
-              - "{{ item.address }}/{{ nodes.host_network.split('/') | last }}"
+              - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
             mtu: 1500
             routes:
               - network: 0.0.0.0/0
-                {% if nodes.default_gateway %}
-                gateway: "{{ nodes.default_gateway }}"
-                {% else %}
-                gateway: "{{ nodes.host_network | nthhost(1) }}"
-                {% endif %}
-            {% if item.controller %}
+                #% if bootstrap_node_default_gateway %#
+                gateway: "#{ bootstrap_node_default_gateway }#"
+                #% else %#
+                gateway: "#{ bootstrap_node_network | nthhost(1) }#"
+                #% endif %#
+            #% if item.controller %#
             vip:
-              ip: "{{ cluster.endpoint_vip }}"
-            {% endif %}
-        {% else %}
+              ip: "#{ bootstrap_controllers_vip }#"
+            #% endif %#
+        #% else %#
         addresses:
-          - "{{ item.address }}/{{ nodes.host_network.split('/') | last }}"
+          - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            {% if nodes.default_gateway %}
-            gateway: "{{ nodes.default_gateway }}"
-            {% else %}
-            gateway: "{{ nodes.host_network | nthhost(1) }}"
-            {% endif %}
-        {% if item.controller %}
+            #% if bootstrap_node_default_gateway %#
+            gateway: "#{ bootstrap_node_default_gateway }#"
+            #% else %#
+            gateway: "#{ bootstrap_node_network | nthhost(1) }#"
+            #% endif %#
+        #% if item.controller %#
         vip:
-          ip: "{{ cluster.endpoint_vip }}"
-        {% endif %}
-        {% endif %}
-    {% if distribution.talos.user_patches %}
+          ip: "#{ bootstrap_controllers_vip }#"
+        #% endif %#
+        #% endif %#
+    #% if bootstrap_talos.user_patches %#
     patches:
-      - "@./patches/node_{{ item.name }}.yaml"
-    {% endif %}
-  {% endfor %}
+      - "@./patches/node_#{ item.name }#.yaml"
+    #% endif %#
+  #% endfor %#
 
 patches:
   # Configure containerd
@@ -123,16 +123,16 @@ patches:
           rotate-server-certificates: true
         nodeIP:
           validSubnets:
-            - "{{ nodes.host_network }}"
+            - "#{ bootstrap_node_network }#"
 
   # Force nameserver
   - |-
     machine:
       network:
         nameservers:
-          {% for item in nodes.dns_servers | default(['1.1.1.1', '1.0.0.1']) %}
-          - {{ item }}
-          {% endfor %}
+          #% for item in bootstrap_dns_servers | default(['1.1.1.1', '1.0.0.1']) %#
+          - #{ item }#
+          #% endfor %#
 
   # Configure NTP
   - |-
@@ -170,8 +170,7 @@ patches:
         extraKernelArgs:
           - net.ifnames=0
 
-  {% if distribution.talos.secureboot.enabled and
-        distribution.talos.secureboot.encrypt_disk_with_tpm %}
+  #% if bootstrap_talos.secureboot.enabled and bootstrap_talos.secureboot.encrypt_disk_with_tpm %#
   # Encrypt system disk with TPM
   - |-
     machine:
@@ -186,11 +185,11 @@ patches:
           keys:
             - slot: 0
               tpm: {}
-  {% endif %}
-  {% if distribution.talos.user_patches %}
+  #% endif %#
+  #% if bootstrap_talos.user_patches %#
   # User specified global patches
   - "@./patches/global.yaml"
-  {% endif %}
+  #% endif %#
 
 controlPlane:
   patches:
@@ -214,7 +213,7 @@ controlPlane:
           extraArgs:
             listen-metrics-urls: http://0.0.0.0:2381
           advertisedSubnets:
-            - "{{ nodes.host_network }}"
+            - "#{ bootstrap_node_network }#"
 
     # Disable default API server admission plugins.
     - |-
@@ -232,15 +231,14 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
-    {% if distribution.talos.user_patches %}
+    #% if bootstrap_talos.user_patches %#
     # User specified controlPlane patches
     - "@./patches/controlPlane.yaml"
-    {% endif %}
+    #% endif %#
 
-{% if ( (distribution.talos.user_patches) and
-        (nodes.inventory | selectattr('controller', 'equalto', False) | list | length) ) %}
+#% if ((bootstrap_talos.user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
 worker:
   patches:
     # User specified worker patches
     - "@./patches/worker.yaml"
-{% endif %}
+#% endif %#

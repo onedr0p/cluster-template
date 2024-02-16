@@ -11,9 +11,9 @@
         seconds: 5
   tasks:
     - name: Details
-      ansible.builtin.command: "k3s kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -o json"
+      ansible.builtin.command: "k3s kubectl get node {{ inventory_hostname }} -o json"
       register: kubectl_get_node
-      delegate_to: "{% raw %}{{ groups['controllers'][0] }}{% endraw %}"
+      delegate_to: "{{ groups['controllers'][0] }}"
       failed_when: false
       changed_when: false
 
@@ -26,14 +26,14 @@
       block:
         - name: Cordon
           kubernetes.core.k8s_drain:
-            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            name: "{{ inventory_hostname }}"
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             state: cordon
-          delegate_to: "{% raw %}{{ groups['controllers'][0] }}{% endraw %}"
+          delegate_to: "{{ groups['controllers'][0] }}"
 
         - name: Drain
           kubernetes.core.k8s_drain:
-            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            name: "{{ inventory_hostname }}"
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             state: drain
             delete_options:
@@ -43,7 +43,7 @@
               wait_timeout: 900
             pod_selectors:
               - app!=rook-ceph-osd # Rook Ceph
-          delegate_to: "{% raw %}{{ groups['controllers'][0] }}{% endraw %}"
+          delegate_to: "{{ groups['controllers'][0] }}"
 
         - name: Update
           ansible.builtin.apt:
@@ -64,7 +64,7 @@
 
         - name: Uncordon
           kubernetes.core.k8s_drain:
-            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            name: "{{ inventory_hostname }}"
             kubeconfig: /etc/rancher/k3s/k3s.yaml
             state: uncordon
-          delegate_to: "{% raw %}{{ groups['controllers'][0] }}{% endraw %}"
+          delegate_to: "{{ groups['controllers'][0] }}"

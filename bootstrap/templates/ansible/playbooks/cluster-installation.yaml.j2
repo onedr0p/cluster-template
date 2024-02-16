@@ -42,9 +42,9 @@
             or k3s_server_manifests_urls | length > 0)
       kubernetes.core.k8s_info:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
-        kind: "{% raw %}{{ item.kind }}{% endraw %}"
-        name: "{% raw %}{{ item.name }}{% endraw %}"
-        namespace: "{% raw %}{{ item.namespace | default('') }}{% endraw %}"
+        kind: "{{ item.kind }}"
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace | default('') }}"
         wait: true
         wait_sleep: 10
         wait_timeout: 360

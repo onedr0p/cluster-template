@@ -10,9 +10,9 @@ force = true
 undefined = "chainable"
 
 [makejinja.delimiter]
-block_start = "{%"
-block_end = "%}"
-comment_start = "{#"
-comment_end = "#}"
-variable_start = "{{"
-variable_end = "}}"
+block_start = "#%"
+block_end = "%#"
+comment_start = "#|"
+comment_end = "#|"
+variable_start = "#{"
+variable_end = "}#"

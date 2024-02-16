@@ -6,13 +6,13 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  url: "{{ flux.github.address }}"
-  {% if flux.github.private.enabled %}
+  url: "#{ bootstrap_github_address }#"
+  #% if bootstrap_github_private_key %#
   secretRef:
     name: github-deploy-key
-  {% endif %}
+  #% endif %#
   ref:
-    branch: "{{ flux.github.branch|default('main', true) }}"
+    branch: "#{ bootstrap_github_branch|default('main', true) }#"
   ignore: |
     # exclude all
     /*

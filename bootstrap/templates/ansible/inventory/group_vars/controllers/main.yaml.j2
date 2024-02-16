@@ -1,13 +1,13 @@
 ---
 k3s_control_node: true
 k3s_server:
-  {% if feature_gates.dual_stack_ipv4_first %}
-  cluster-cidr: "{{ cluster.pod_network.split(',')[0] }},{{ cluster.pod_network.split(',')[1] }}"
-  service-cidr: "{{ cluster.service_network.split(',')[0] }},{{ cluster.service_network.split(',')[1] }}"
-  {% else %}
-  cluster-cidr: "{{ cluster.pod_network }}"
-  service-cidr: "{{ cluster.service_network }}"
-  {% endif %}
+  #% if bootstrap_feature_gates.dual_stack_ipv4_first %#
+  cluster-cidr: "#{ bootstrap_pod_network.split(',')[0] }#,#{ bootstrap_pod_network.split(',')[1] }#"
+  service-cidr: "#{ bootstrap_service_network.split(',')[0] }#,#{ bootstrap_service_network.split(',')[1] }#"
+  #% else %#
+  cluster-cidr: "#{ bootstrap_pod_network }#"
+  service-cidr: "#{ bootstrap_service_network }#"
+  #% endif %#
   disable: ["flannel", "local-storage", "metrics-server", "servicelb", "traefik"]
   disable-cloud-controller: true
   disable-kube-proxy: true
@@ -25,16 +25,16 @@ k3s_server:
   kubelet-arg:
     - "image-gc-high-threshold=55"
     - "image-gc-low-threshold=50"
-  {% if feature_gates.dual_stack_ipv4_first %}
-  node-ip: "{% raw %}{{ ansible_host }}{% endraw %},{% raw %}{{ ansible_default_ipv6.address }}{% endraw %}"
-  {% else %}
-  node-ip: "{% raw %}{{ ansible_host }}{% endraw %}"
-  {% endif %}
+  #% if bootstrap_feature_gates.dual_stack_ipv4_first %#
+  node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
+  #% else %#
+  node-ip: "{{ ansible_host }}"
+  #% endif %#
   pause-image: registry.k8s.io/pause:3.9
   secrets-encryption: true
   tls-san:
-    - "{{ cluster.endpoint_vip }}"
-    {% for item in cluster.tls_sans %}
-    - "{{ item }}"
-    {% endfor %}
+    - "#{ bootstrap_controllers_vip }#"
+    #% for item in bootstrap_tls_sans %#
+    - "#{ item }#"
+    #% endfor %#
   write-kubeconfig-mode: "644"

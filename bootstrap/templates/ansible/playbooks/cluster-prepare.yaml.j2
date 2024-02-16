@@ -15,7 +15,7 @@
       block:
         - name: Locale | Set timezone
           community.general.timezone:
-            name: "{{ timezone }}"
+            name: "#{ bootstrap_timezone }#"
 
     - name: Packages
       block:
@@ -32,12 +32,12 @@
       block:
         - name: Network Configuration | Set hostname
           ansible.builtin.hostname:
-            name: "{% raw %}{{ inventory_hostname }}{% endraw %}"
+            name: "{{ inventory_hostname }}"
         - name: Network Configuration | Update hosts
           ansible.builtin.copy:
             content: |
               127.0.0.1 localhost
-              127.0.1.1 {% raw %}{{ inventory_hostname }}{% endraw %}
+              127.0.1.1 {{ inventory_hostname }}
 
               # The following lines are desirable for IPv6 capable hosts
               ::1     localhost ip6-localhost ip6-loopback
@@ -61,10 +61,10 @@
             mode: '0644'
             dest: /etc/resolv.conf
             content: |
-              search {{ nodes.search_domain|default('.', true) }}
-              {% for item in nodes.dns_servers | default(['1.1.1.1', '1.0.0.1']) %}
-              nameserver {{ item }}
-              {% endfor %}
+              search #{ bootstrap_search_domain|default('.', true) }#
+              #% for item in bootstrap_dns_servers | default(['1.1.1.1', '1.0.0.1']) %#
+              nameserver #{ item }#
+              #% endfor %#
 
     - name: System Configuration
       notify: Reboot
@@ -77,15 +77,15 @@
             masked: true
         - name: System Configuration | Disable swap
           ansible.posix.mount:
-            name: "{% raw %}{{ item }}{% endraw %}"
+            name: "{{ item }}"
             fstype: swap
             state: absent
           loop: ["none", "swap"]
         - name: System Configuration | Create Kernel modules
           ansible.builtin.copy:
-            dest: "/etc/modules-load.d/{% raw %}{{ item }}{% endraw %}.conf"
+            dest: "/etc/modules-load.d/{{ item }}.conf"
             mode: "0644"
-            content: "{% raw %}{{ item }}{% endraw %}"
+            content: "{{ item }}"
           loop: ["br_netfilter", "ceph", "ip_vs", "ip_vs_rr", "nbd", "overlay", "rbd"]
           register: modules_status
         - name: System Configuration | Reload Kernel modules # noqa: no-changed-when no-handler
@@ -95,11 +95,11 @@
             state: restarted
         - name: System Configuration | Sysctl
           ansible.posix.sysctl:
-            name: "{% raw %}{{ item.key }}{% endraw %}"
-            value: "{% raw %}{{ item.value }}{% endraw %}"
+            name: "{{ item.key }}"
+            value: "{{ item.value }}"
             sysctl_file: /etc/sysctl.d/99-kubernetes.conf
             reload: true
-          with_dict: "{% raw %}{{ sysctl_config }}{% endraw %}"
+          with_dict: "{{ sysctl_config }}"
           vars:
             sysctl_config:
               fs.inotify.max_queued_events: 65536

@@ -1,2 +1,2 @@
-providerRegex: ^({{ (nodes.inventory | map(attribute='name') | join('|')) }})$
+providerRegex: ^(#{ (bootstrap_node_inventory | map(attribute='name') | join('|')) }#)$
 bypassDnsResolution: true
