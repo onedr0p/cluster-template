@@ -30,10 +30,10 @@ bootstrap_talos:
   #   See: https://github.com/budimanjojo/talhelper/blob/179ba9ed42f70069c7842109bea24f769f7af6eb/example/extraKernelArgs-patch.yaml
   #   Patches are applied in this order. (global overrides cp/worker which overrides node-specific).
   #   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
-  #     kubernetes/talos/patches/node_<name>.yaml  # Patches for individual nodes
-  #     kubernetes/talos/patches/controlPlane.yaml # Patches for controlplane nodes
-  #     kubernetes/talos/patches/worker.yaml       # Patches for worker nodes
-  #     kubernetes/talos/patches/global.yaml       # Patches for ALL nodes
+  #     kubernetes/bootstrap/talos/patches/node_<name>.yaml  # Patches for individual nodes
+  #     kubernetes/bootstrap/talos/patches/controlPlane.yaml # Patches for controlplane nodes
+  #     kubernetes/bootstrap/talos/patches/worker.yaml       # Patches for worker nodes
+  #     kubernetes/bootstrap/talos/patches/global.yaml       # Patches for ALL nodes
   user_patches: false
 
 # (Required) The CIDR your nodes are on (e.g. 192.168.1.0/24)
