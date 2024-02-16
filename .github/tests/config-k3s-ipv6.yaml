@@ -9,11 +9,11 @@ bootstrap_node_inventory:
   - name: k8s-controller-0
     address: 10.10.10.100
     controller: true
-    ssh_username: fake
+    ssh_user: fake
   - name: k8s-worker-0
     address: 10.10.10.101
     controller: false
-    ssh_username: fake
+    ssh_user: fake
 bootstrap_dns_servers: ["1.1.1.1"]
 bootstrap_search_domain: "fake"
 bootstrap_pod_network: 10.42.0.0/16,fd7f:8f5:e87c:a::/64
