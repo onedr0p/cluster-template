@@ -8,7 +8,7 @@ At a high level this project makes use of [makejinja](https://github.com/mirkole
 
 The features included will depend on the type of configuration you want to use. There are currently **2 different types** of **configurations** available with this template.
 
-1. **"Flux cluster"** - Deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
+1. **"Flux cluster"** - a Kubernetes distribution of your choosing: [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos). Deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
 
     - **Required:** Debian 12 or Talos Linux installed on bare metal (or VMs) and some knowledge of [Containers](https://opencontainers.org/) and [YAML](https://yaml.org/). Some knowledge of [Git](https://git-scm.com/) practices & terminology is also required.
     - **Components:** [Cilium](https://github.com/cilium/cilium) and [kube-vip](https://github.com/kube-vip/kube-vip) _(k3s)_. [flux](https://github.com/fluxcd/flux2), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/XenitAB/spegel), [reloader](https://github.com/stakater/Reloader), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller), and [openebs](https://github.com/openebs/openebs).
