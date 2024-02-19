@@ -11,13 +11,3 @@ subjects:
   - kind: ServiceAccount
     name: system-upgrade
     namespace: system-upgrade
-#% if bootstrap_distribution in ["talos"] %#
----
-apiVersion: talos.dev/v1alpha1
-kind: ServiceAccount
-metadata:
-  name: talos
-spec:
-  roles:
-    - os:admin
-#% endif %#
