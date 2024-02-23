@@ -1,5 +1,5 @@
 [makejinja]
-inputs = ["./bootstrap/templates","./bootstrap/overrides"]
+inputs = ["./bootstrap/overrides","./bootstrap/templates"]
 output = "./"
 exclude_patterns = [".mjfilter.py", "*.partial.yaml.j2"]
 data = ["./config.yaml"]
