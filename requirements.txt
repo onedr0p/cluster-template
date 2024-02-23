@@ -1,5 +1,5 @@
 bcrypt==4.1.2
-cloudflare==2.19.0
+cloudflare==2.19.2
 email-validator==2.1.0.post1
 makejinja==2.5.0
 netaddr==1.2.1
