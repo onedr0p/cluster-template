@@ -318,7 +318,7 @@ You have two different options for setting up your local workstation.
 
 2. Install Flux and sync the cluster to the Git repository
 
-  📍 _Run `task flux:github-deploy-key` first if using a private repository._
+    📍 _Run `task flux:github-deploy-key` first if using a private repository._
 
     ```sh
     task flux:bootstrap
