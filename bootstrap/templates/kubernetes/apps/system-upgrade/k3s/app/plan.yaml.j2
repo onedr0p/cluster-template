@@ -45,6 +45,6 @@ spec:
         operator: DoesNotExist
   prepare:
     image: rancher/k3s-upgrade
-    args: ["prepare", "server"]
+    args: ["prepare", "controllers"]
   upgrade:
     image: rancher/k3s-upgrade
