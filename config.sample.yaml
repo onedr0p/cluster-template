@@ -46,11 +46,12 @@ bootstrap_node_default_gateway: ""
 # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
 #   Worker nodes are optional
 bootstrap_node_inventory: []
-    # - name: ""          # Name of the node (must match [a-z0-9-\.]+)
-    #   address: ""       # IP address of the node
-    #   controller: true  # (Required) Set to true if this is a controller node
-    #   ssh_user: ""      # (Required: k3s) SSH username of the node
-    #   talos_disk: ""    # (Required: Talos) Device path or serial number of the disk for this node
+    # - name: ""           # (Required) Name of the node (must match [a-z0-9-\.]+)
+    #   address: ""        # (Required) IP address of the node
+    #   controller: true   # (Required) Set to true if this is a controller node
+    #   ssh_user: ""       # (Required: k3s) SSH username of the node
+    #   talos_disk: ""     # (Required: Talos) Device path or serial number of the disk for this node
+    #   ssh_key: ""        # (Optional: k3s) Set specific SSH key for this node
     # ...
 
 # (Optional) The DNS server to use for the cluster, this can be an existing
