@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   path: ./kubernetes/apps/kube-system/kube-vip/app
-  prune: false # never should be deleted
+  prune: true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
