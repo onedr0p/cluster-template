@@ -6,12 +6,10 @@ resources:
   - ./cilium/ks.yaml
   #% if bootstrap_distribution in ["talos"] %#
   - ./kubelet-csr-approver/ks.yaml
+  - ./spegel/ks.yaml
   #% endif %#
   #% if bootstrap_distribution in ["k3s"] %#
   - ./kube-vip/ks.yaml
   #% endif %#
   - ./metrics-server/ks.yaml
-  #% if bootstrap_distribution in ["talos"] %#
-  - ./spegel/ks.yaml
-  #% endif %#
   - ./reloader/ks.yaml
