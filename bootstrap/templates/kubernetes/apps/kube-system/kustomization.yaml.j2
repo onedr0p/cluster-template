@@ -7,6 +7,7 @@ resources:
   #% if bootstrap_distribution in ["talos"] %#
   - ./kubelet-csr-approver/ks.yaml
   #% endif %#
+  - ./kube-vip/ks.yaml
   - ./metrics-server/ks.yaml
   #% if bootstrap_distribution in ["talos"] %#
   - ./spegel/ks.yaml
