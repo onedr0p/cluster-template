@@ -97,6 +97,23 @@ patches:
             [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
               discard_unpacked_layers = false
 
+  # Configure NFS Mounts
+  - |-
+    machine:
+      files:
+        - op: overwrite
+          path: /etc/nfsmount.conf
+          permissions: 420
+          content: |-
+            [ NFSMount_Global_Options ]
+              nfsvers = 4.2
+              hard = True
+              noatime = True
+              nodiratime = True
+              rsize = 131072
+              wsize = 131072
+              nconnect = 8
+
   # Disable search domain everywhere
   - |-
     machine:
