@@ -15,7 +15,7 @@ bootstrap_talos:
   # (Required: Talos) If you need any additional System Extensions, and/or add kernel arguments generate a schematic ID.
   #   Go to https://factory.talos.dev/ and choose the System Extensions, and/or add kernel arguments.
   schematic_id: ""
-  # (Optional: Talos) Add vlan tag to network master device
+  # (Optional: Talos) Add vlan tag to network master device, this is not needed if you tag ports on your switch with the VLAN
   #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
   vlan: ""
   # (Optional: Talos) Secureboot and TPM-based disk encryption
@@ -49,8 +49,8 @@ bootstrap_node_inventory: []
     # - name: ""           # (Required) Name of the node (must match [a-z0-9-\.]+)
     #   address: ""        # (Required) IP address of the node
     #   controller: true   # (Required) Set to true if this is a controller node
-    #   ssh_user: ""       # (Required: k3s) SSH username of the node
     #   talos_disk: ""     # (Required: Talos) Device path or serial number of the disk for this node
+    #   ssh_user: ""       # (Required: k3s) SSH username of the node
     #   ssh_key: ""        # (Optional: k3s) Set specific SSH key for this node
     # ...
 
@@ -72,12 +72,14 @@ bootstrap_search_domain: ""
 
 # (Required) The pod CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
-# If you want to use IPv6 check the advanced flags below
+# If you want to use IPv6 check the advanced flags below and be aware of
+# https://github.com/onedr0p/cluster-template/issues/1148
 bootstrap_pod_network: "10.69.0.0/16"
 
 # (Required) The service CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
-# If you want to use IPv6 check the advanced flags below
+# If you want to use IPv6 check the advanced flags below and be aware of
+# https://github.com/onedr0p/cluster-template/issues/1148
 bootstrap_service_network: "10.96.0.0/16"
 
 # (Required) The IP address of the Kube API, choose an available IP in
@@ -145,8 +147,9 @@ bootstrap_github_webhook_token: ""
 #
 
 bootstrap_cloudflare:
-  # (Required) Disable to use a different DNS provider
-  enabled: false
+  # (Required) Disable to manually setup and use a different DNS provider - setting this
+  #   to false will not deploy a network namespace or the workloads contained within.
+  enabled: true
   # (Required) Cloudflare Domain
   domain: ""
   # (Required) Cloudflare API Token (NOT API Key)
