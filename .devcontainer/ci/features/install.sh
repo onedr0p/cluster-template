@@ -3,7 +3,7 @@ set -e
 set -o noglob
 
 apk add --no-cache \
-    bash bind-tools ca-certificates curl python3 \
+    bash bind-tools ca-certificates curl gettext python3 \
     py3-pip moreutils jq git iputils openssh-client \
     starship fzf fish
 
