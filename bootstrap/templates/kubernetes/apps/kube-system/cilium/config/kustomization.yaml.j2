@@ -4,8 +4,7 @@ kind: Kustomization
 resources:
   #% if bootstrap_bgp.enabled %#
   - ./cilium-l3.yaml
-  #% else %#
-  #% if not bootstrap_feature_gates.dual_stack_ipv4_first %#
+  #% elif not bootstrap_feature_gates.dual_stack_ipv4_first %#
   - ./cilium-l2.yaml
   #% else %#
   []
