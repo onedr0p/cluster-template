@@ -3,7 +3,7 @@
 apiVersion: cilium.io/v2alpha1
 kind: CiliumBGPPeeringPolicy
 metadata:
-  name: policy
+  name: l3-policy
 spec:
   nodeSelector:
     matchLabels:
@@ -31,7 +31,8 @@ spec:
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: pool
+  name: l3-pool
 spec:
-  cidrs:
+  allowFirstLastIPs: "Yes"
+  blocks:
     - cidr: "${BGP_ADVERTISED_CIDR}"
