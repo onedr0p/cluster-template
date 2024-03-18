@@ -40,7 +40,8 @@ nodes:
     #% endif %#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
-      - interface: eth0
+      - deviceSelector:
+          hardwareAddr: "#{ item.talos_nic }#"
         dhcp: false
         #% if bootstrap_talos.vlan %#
         vlans:
@@ -122,8 +123,7 @@ patches:
           image-gc-high-threshold: 55
           rotate-server-certificates: true
         nodeIP:
-          validSubnets:
-            - "#{ bootstrap_node_network }#"
+          validSubnets: ["#{ bootstrap_node_network }#"]
 
   # Force nameserver
   - |-
@@ -139,8 +139,7 @@ patches:
     machine:
       time:
         disabled: false
-        servers:
-          - time.cloudflare.com
+        servers: ["time.cloudflare.com"]
 
   # Custom sysctl settings
   - |-
@@ -158,17 +157,7 @@ patches:
           - destination: /var/openebs/local
             type: bind
             source: /var/openebs/local
-            options:
-              - bind
-              - rshared
-              - rw
-
-  # Disable predictable NIC naming
-  - |-
-    machine:
-      install:
-        extraKernelArgs:
-          - net.ifnames=0
+            options: ["bind", "rshared", "rw"]
 
   #% if bootstrap_talos.secureboot.enabled and bootstrap_talos.secureboot.encrypt_disk_with_tpm %#
   # Encrypt system disk with TPM
@@ -186,6 +175,7 @@ patches:
             - slot: 0
               tpm: {}
   #% endif %#
+
   #% if bootstrap_talos.user_patches %#
   # User specified global patches
   - "@./patches/global.yaml"
@@ -226,10 +216,8 @@ controlPlane:
         features:
           kubernetesTalosAPIAccess:
             enabled: true
-            allowedRoles:
-              - os:admin
-            allowedKubernetesNamespaces:
-              - system-upgrade
+            allowedRoles: ["os:admin"]
+            allowedKubernetesNamespaces: ["system-upgrade"]
 
     #% if bootstrap_talos.user_patches %#
     # User specified controlPlane patches

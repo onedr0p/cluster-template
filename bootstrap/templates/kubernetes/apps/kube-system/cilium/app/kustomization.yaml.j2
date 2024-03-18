@@ -2,10 +2,4 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  #% if bootstrap_bgp.enabled %#
-  - ./cilium-bgp.yaml
-  #% endif %#
-  #% if ((not bootstrap_bgp.enabled) and (not bootstrap_feature_gates.dual_stack_ipv4_first)) %#
-  - ./cilium-l2.yaml
-  #% endif %#
   - ./helmrelease.yaml

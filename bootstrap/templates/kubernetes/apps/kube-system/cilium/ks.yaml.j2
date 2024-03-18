@@ -14,6 +14,28 @@ spec:
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app cilium-config
+  namespace: flux-system
+spec:
+  targetNamespace: kube-system
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: cilium
+  path: ./kubernetes/apps/kube-system/cilium/config
+  prune: false # never should be deleted
+  sourceRef:
+    kind: GitRepository
+    name: home-kubernetes
   wait: false
   interval: 30m
   retryInterval: 1m

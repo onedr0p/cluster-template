@@ -12,10 +12,12 @@ bootstrap_node_inventory:
     address: 10.10.10.100
     controller: true
     talos_disk: fake
+    talos_nic: fake
   - name: k8s-worker-0
     address: 10.10.10.101
     controller: false
     talos_disk: fake
+    talos_nic: fake
 bootstrap_dns_servers: ["1.1.1.1"]
 bootstrap_search_domain: "fake"
 bootstrap_pod_network: 10.69.0.0/16
