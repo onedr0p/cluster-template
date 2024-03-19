@@ -86,7 +86,7 @@
             dest: "/etc/modules-load.d/{{ item }}.conf"
             mode: "0644"
             content: "{{ item }}"
-          loop: ["br_netfilter", "ceph", "ip_vs", "ip_vs_rr", "nbd", "overlay", "rbd"]
+          loop: ["br_netfilter", "ceph", "ip_vs", "ip_vs_rr", "iptable_mangle", "iptable_raw", "nbd", "overlay", "rbd", "xt_socket"]
           register: modules_status
         - name: System Configuration | Reload Kernel modules # noqa: no-changed-when no-handler
           when: modules_status.changed
