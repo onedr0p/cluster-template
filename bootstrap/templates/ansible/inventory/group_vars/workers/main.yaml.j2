@@ -1,12 +1,8 @@
 ---
 k3s_control_node: false
 k3s_agent:
-  kubelet-arg:
-    - "image-gc-high-threshold=55"
-    - "image-gc-low-threshold=50"
   #% if bootstrap_feature_gates.dual_stack_ipv4_first %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
   #% else %#
   node-ip: "{{ ansible_host }}"
   #% endif %#
-  pause-image: registry.k8s.io/pause:3.9

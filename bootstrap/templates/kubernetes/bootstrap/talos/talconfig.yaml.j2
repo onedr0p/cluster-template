@@ -119,8 +119,6 @@ patches:
     machine:
       kubelet:
         extraArgs:
-          image-gc-low-threshold: 50
-          image-gc-high-threshold: 55
           rotate-server-certificates: true
         nodeIP:
           validSubnets: ["#{ bootstrap_node_network }#"]

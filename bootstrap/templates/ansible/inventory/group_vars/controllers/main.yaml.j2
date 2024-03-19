@@ -22,15 +22,11 @@ k3s_server:
     - "bind-address=0.0.0.0"
   kube-scheduler-arg:
     - "bind-address=0.0.0.0"
-  kubelet-arg:
-    - "image-gc-high-threshold=55"
-    - "image-gc-low-threshold=50"
   #% if bootstrap_feature_gates.dual_stack_ipv4_first %#
   node-ip: "{{ ansible_host }},{{ ansible_default_ipv6.address }}"
   #% else %#
   node-ip: "{{ ansible_host }}"
   #% endif %#
-  pause-image: registry.k8s.io/pause:3.9
   secrets-encryption: true
   tls-san:
     - "#{ bootstrap_controllers_vip }#"
