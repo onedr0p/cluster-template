@@ -27,7 +27,7 @@
   },
   "helmfile": {
     "fileMatch": [
-      "(^|/)helmfile\.ya?ml(?:\\.j2)?$"
+      "(^|/)helmfile\\.ya?ml(?:\\.j2)?$"
     ]
   },
   "kubernetes": {
