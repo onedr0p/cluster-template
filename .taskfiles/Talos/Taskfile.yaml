@@ -40,9 +40,10 @@ tasks:
   bootstrap-genconfig:
     desc: Generate the Talos configs
     dir: "{{.TALOS_DIR}}"
-    cmd: talhelper genconfig
+    cmd: talhelper genconfig --secret-file {{.TALHELPER_SECRET_FILE}}
     preconditions:
       - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
+      - { msg: "Missing talhelper secret file", sh: "test -f {{.TALHELPER_SECRET_FILE}}" }
 
   bootstrap-apply:
     desc: Apply the Talos configs to the nodes
