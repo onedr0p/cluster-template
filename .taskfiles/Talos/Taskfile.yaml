@@ -45,7 +45,7 @@ tasks:
       - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
 
   bootstrap-apply:
-    desc: Apply the Talos config on a node
+    desc: Apply the Talos configs to the nodes
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand apply --extra-flags=--insecure | bash
     preconditions:
