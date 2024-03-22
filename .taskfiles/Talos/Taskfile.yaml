@@ -90,7 +90,7 @@ tasks:
   fetch-kubeconfig:
     desc: Generate talos kubeconfig
     dir: "{{.TALOS_DIR}}"
-    cmd: until talhelper gencommand kubeconfig --extra-flags "--force" | bash; do sleep 10; done
+    cmd: until talhelper gencommand kubeconfig --extra-flags "{{.ROOT_DIR}} --force" | bash; do sleep 10; done
 
   soft-nuke:
     desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
