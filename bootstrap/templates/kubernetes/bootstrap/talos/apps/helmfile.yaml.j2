@@ -10,13 +10,12 @@ releases:
     namespace: kube-system
     chart: cilium/cilium
     version: 1.15.2
+    values: ["./cilium-values.yaml"]
     wait: true
-    values:
-      - ./cilium-values.yaml
   - name: kubelet-csr-approver
     namespace: kube-system
     chart: postfinance/kubelet-csr-approver
     version: 1.0.7
+    values: ["./kubelet-csr-approver-values.yaml"]
+    needs: ["cilium"]
     wait: true
-    values:
-      - ./kubelet-csr-approver-values.yaml
