@@ -187,22 +187,25 @@ bootstrap_cloudflare:
   #   in your nodes host network that is NOT being used. This is announced over L2.
   gateway_vip: ""
   # (Required) Options for Cloudflare Tunnel
-  # For a locally-managed (aka CLI) tunnel:
-  #   1. Authenticate cloudflared to your domain
-  #      > cloudflared tunnel login
-  #   2. Create the tunnel
-  #      > cloudflared tunnel create k8s
-  #   3. Copy the AccountTag, TunnelID, and TunnelSecret from the tunnel configuration file and paste them below
-  # For a remotely-managed (aka dashboard) tunnel: https://one.dash.cloudflare.com/
+  # There's two methods to create a tunnel, via the CLI or the Cloudflare dashboard.
+  #   CLI:
+  #     1. Authenticate cloudflared to your domain
+  #        > cloudflared tunnel login
+  #     2. Create the tunnel
+  #        > cloudflared tunnel create k8s
+  #     3. Copy the AccountTag, TunnelID, and TunnelSecret from the tunnel configuration file and paste them below
+  #   Dashboard:
+  #     1. Goto https://one.dash.cloudflare.com/ and create a new tunnel
+  #     2. Paste the tunnel id and token below (ignore account_id and secret)
   tunnel:
     # (Required) Cloudflared Tunnel ID
-    # If using CLI tunnel: (cat ~/.cloudflared/*.json | jq -r .TunnelID)
+    # If the tunnel was created by the CLI: (cat ~/.cloudflared/*.json | jq -r .TunnelID)
     id: ""
-    # (Required: CLI) Cloudflare Account ID (cat ~/.cloudflared/*.json | jq -r .AccountTag)
+    # (Required: CLI) Cloudflare Account ID: (cat ~/.cloudflared/*.json | jq -r .AccountTag)
     account_id: ""
-    # (Required: CLI) Cloudflared Tunnel Secret (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
+    # (Required: CLI) Cloudflared Tunnel Secret: (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
     secret: ""
-    # (Required: dashboard) Cloudflared Tunnel Token
+    # (Required: Dashboard) Cloudflared Tunnel Token
     token: ""
     # (Required) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
