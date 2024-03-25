@@ -187,18 +187,23 @@ bootstrap_cloudflare:
   #   in your nodes host network that is NOT being used. This is announced over L2.
   gateway_vip: ""
   # (Required) Options for Cloudflare Tunnel
-  # 1. Authenticate cloudflared to your domain
-  #    > cloudflared tunnel login
-  # 2. Create the tunnel
-  #    > cloudflared tunnel create k8s
-  # 3. Copy the AccountTag, TunnelID, and TunnelSecret from the tunnel configuration file and paste them below
+  # For a locally-managed (aka CLI) tunnel:
+  #   1. Authenticate cloudflared to your domain
+  #      > cloudflared tunnel login
+  #   2. Create the tunnel
+  #      > cloudflared tunnel create k8s
+  #   3. Copy the AccountTag, TunnelID, and TunnelSecret from the tunnel configuration file and paste them below
+  # For a remotely-managed (aka dashboard) tunnel: https://one.dash.cloudflare.com/
   tunnel:
-    # (Required) Cloudflare Account ID (cat ~/.cloudflared/*.json | jq -r .AccountTag)
-    account_id: ""
-    # (Required) Cloudflared Tunnel ID (cat ~/.cloudflared/*.json | jq -r .TunnelID)
+    # (Required) Cloudflared Tunnel ID
+    # If using CLI tunnel: (cat ~/.cloudflared/*.json | jq -r .TunnelID)
     id: ""
-    # (Required) Cloudflared Tunnel Secret (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
+    # (Required: CLI) Cloudflare Account ID (cat ~/.cloudflared/*.json | jq -r .AccountTag)
+    account_id: ""
+    # (Required: CLI) Cloudflared Tunnel Secret (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
     secret: ""
+    # (Required: dashboard) Cloudflared Tunnel Token
+    token: ""
     # (Required) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
     #   in your nodes host network that is NOT being used. This is announced over L2.
