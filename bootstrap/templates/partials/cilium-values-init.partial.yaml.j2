@@ -9,12 +9,7 @@ cgroup:
   hostRoot: /sys/fs/cgroup
 cluster:
   id: 1
-  name: "#{ bootstrap_cluster_name|default('home-kubernetes', true) }#"
-#% if bootstrap_distribution in ["k3s"] %#
-cni:
-  binPath: /var/lib/rancher/k3s/data/current/bin
-  confPath: /var/lib/rancher/k3s/agent/etc/cni/net.d
-#% endif %#
+  name: #{ bootstrap_cluster_name|default('home-kubernetes', true) }#
 containerRuntime:
   integration: containerd
   #% if bootstrap_distribution in ["k3s"] %#
