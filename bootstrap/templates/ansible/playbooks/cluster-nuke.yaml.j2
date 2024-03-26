@@ -52,7 +52,7 @@
           loop: ["filter", "nat", "mangle", "raw"]
         - name: Networking | Delete CNI directory
           ansible.builtin.file:
-            path: /var/lib/rancher/k3s/agent/etc/cni/net.d
+            path: /etc/cni/net.d
             state: absent
 
     - name: Check to see if k3s-killall.sh exits
