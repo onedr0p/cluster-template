@@ -50,7 +50,11 @@
             flush: true
             ip_version: ipv6
           loop: ["filter", "nat", "mangle", "raw"]
-        - name: Networking | Delete CNI directory
+        - name: Networking | Delete CNI bin link
+          ansible.builtin.file:
+            path: /opt/cni/bin
+            state: absent
+        - name: Networking | Delete CNI conf link
           ansible.builtin.file:
             path: /etc/cni/net.d
             state: absent
