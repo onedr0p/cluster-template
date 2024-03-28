@@ -134,4 +134,6 @@ def validate(data: dict) -> None:
     validate_distribution(data)
     validate_timezone(data)
     validate_age(data)
-    validate_nodes(data)
+
+    if not data.get("skip_tests", False):
+        validate_nodes(data)
