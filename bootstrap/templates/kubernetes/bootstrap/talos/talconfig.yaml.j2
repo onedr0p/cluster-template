@@ -80,6 +80,11 @@ nodes:
     patches:
       - "@./patches/node_#{ item.name }#.yaml"
     #% endif %#
+    #% if bootstrap_talos.machine_files %#
+    machineFiles:
+      - "@./machine_files/node_#{ item.name }#.yaml"
+    #% endif %#
+
   #% endfor %#
 
 patches:

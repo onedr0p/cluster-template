@@ -38,6 +38,11 @@ bootstrap_talos:
   #     kubernetes/bootstrap/talos/patches/worker.yaml       # Patches for worker nodes
   #     kubernetes/bootstrap/talos/patches/global.yaml       # Patches for ALL nodes
   user_patches: false
+  # (Optional) Add includes for user provided machineFiles to generated talconfig.yaml.
+  #   See: https://github.com/budimanjojo/talhelper/blob/179ba9ed42f70069c7842109bea24f769f7af6eb/example/talconfig.yaml#L54
+  #   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
+  #     kubernetes/bootstrap/talos/machine_files/node_<name>.yaml  # Machine file for individual nodes
+  machine_files: false
 
 # (Required) The CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_network: ""
