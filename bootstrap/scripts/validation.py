@@ -56,16 +56,20 @@ def validate_node(node: dict, node_cidr: str, distribution: str) -> None:
         raise ValueError(f"A node is missing a name")
     if not re.match(r"^[a-z0-9-\.]+$", node.get('name')):
         raise ValueError(f"Node {node.get('name')} has an invalid name")
-    if not node.get("ssh_user") and distribution in ["k3s"]:
-        raise ValueError(f"Node {node.get('name')} is missing ssh_user")
-    if not node.get("talos_disk") and distribution in ["talos"]:
-        raise ValueError(f"Node {node.get('name')} is missing talos_disk")
-    if not node.get("talos_nic") and distribution in ["talos"]:
-        raise ValueError(f"Node {node.get('name')} is missing talos_nic")
+    if distribution in ["k3s"]:
+        if not node.get("ssh_user") :
+            raise ValueError(f"Node {node.get('name')} is missing ssh_user")
+    if distribution in ["talos"]:
+        if not node.get("talos_disk"):
+            raise ValueError(f"Node {node.get('name')} is missing talos_disk")
+        if not node.get("talos_nic"):
+            raise ValueError(f"Node {node.get('name')} is missing talos_nic")
+        if not re.match(r"(?:[0-9a-fA-F]:?){12}", node.get("talos_nic")):
+            raise ValueError(f"Node {node.get('name')} has an invalid talos_nic, is this a MAC address?")
     ip = validate_ip(node.get("address"))
     if netaddr.IPAddress(ip, 4) not in netaddr.IPNetwork(node_cidr):
         raise ValueError(f"Node {node.get('name')} is not in the node CIDR {node_cidr}")
-    port = 50000 if distribution == "talos" else 22
+    port = 50000 if distribution in ["talos"] else 22
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(5)
         result = sock.connect_ex((ip, port))
