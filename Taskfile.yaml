@@ -49,13 +49,11 @@ tasks:
     cmds:
       - cp -n {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
       - cmd: echo === Configuration file copied ===
-        silent: true
       - cmd: echo Proceed with updating the configuration files...
-        silent: true
       - cmd: echo {{.BOOTSTRAP_CONFIG_FILE}}
-        silent: true
     status:
       - test -f "{{.BOOTSTRAP_CONFIG_FILE}}"
+    silent: true
 
   configure:
     desc: Configure repository from bootstrap vars
@@ -79,3 +77,17 @@ tasks:
     internal: true
     cmds:
       - task: kubernetes:kubeconform
+      - cmd: echo === Done rendering and validating YAML ===
+      - cmd: |
+          if [[ $KUBECONFIG != "{{.KUBECONFIG_FILE}}" ]]; then
+            echo WARNING: KUBECONFIG is not set to the expected value, this may cause conflicts.
+          fi
+      - cmd: |
+          if [[ $SOPS_AGE_KEY_FILE != "{{.AGE_FILE}}" ]]; then
+            echo WARNING: SOPS_AGE_KEY_FILE is not set to the expected value, this may cause conflicts.
+          fi
+      - cmd: |
+          if test -f ~/.config/sops/age/keys.txt; then
+            echo WARNING: SOPS Age key found in home directory, this may cause conflicts.
+          fi
+    silent: true
