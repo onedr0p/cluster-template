@@ -47,7 +47,6 @@ tasks:
   init:
     desc: Initialize configuration files
     cmds:
-      - mkdir -p {{.PRIVATE_DIR}}
       - cp -n {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
       - cmd: echo === Configuration file copied ===
         silent: true

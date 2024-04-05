@@ -9,6 +9,7 @@ on:
 
 jobs:
   release:
+    if: ${{ github.repository == 'onedr0p/cluster-template' }}
     name: Release
     runs-on: ubuntu-latest
     steps:

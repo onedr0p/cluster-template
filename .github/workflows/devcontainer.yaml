@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   devcontainer:
+    if: ${{ github.repository == 'onedr0p/cluster-template' }}
     name: publish
     runs-on: ubuntu-latest
     permissions:

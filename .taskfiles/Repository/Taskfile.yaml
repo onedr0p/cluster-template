@@ -7,9 +7,13 @@ tasks:
   clean:
     desc: Clean files and directories no longer needed after cluster bootstrap
     cmds:
+      - mkdir -p {{.PRIVATE_DIR}}
       # Clean up CI
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
+      # Clean up devcontainer
+      - rm -rf {{.ROOT_DIR}}/.devcontainer/ci
+      - rm -rf {{.ROOT_DIR}}/.github/workflows/devcontainer.yaml
       # Move bootstrap directory to gitignored directory
       - mv {{.BOOTSTRAP_DIR}} {{.PRIVATE_DIR}}/bootstrap-{{now | date "150405"}}
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.PRIVATE_DIR}}/makejinja-{{now | date "150405"}}.toml
