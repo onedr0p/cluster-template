@@ -54,7 +54,7 @@ bootstrap_node_inventory: []
     #   address: ""        # (Required) IP address of the node
     #   controller: true   # (Required) Set to true if this is a controller node
     #   talos_disk: ""     # (Required: Talos) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
-    #   talos_nic: ""      # (Required: Talos) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
+    #   talos_nic: ""      # (Required: Talos) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure) NOTE: the MAC address is CASE-SENSITIVE. Make sure the MAC address is lowercase.
     #   ssh_user: ""       # (Required: k3s) SSH username of the node
     #   ssh_key: ""        # (Optional: k3s) Set specific SSH key for this node
     # ...
