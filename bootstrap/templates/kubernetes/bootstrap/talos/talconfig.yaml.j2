@@ -41,7 +41,7 @@ nodes:
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
       - deviceSelector:
-          hardwareAddr: "#{ item.talos_nic }#"
+          hardwareAddr: "#{ item.talos_nic | lower }#"
         dhcp: false
         #% if bootstrap_talos.vlan %#
         vlans:
