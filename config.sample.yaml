@@ -206,7 +206,7 @@ bootstrap_cloudflare:
     account_id: ""
     # (Required: CLI) Cloudflared Tunnel Secret: (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
     secret: ""
-    # (Required: Dashboard) Cloudflared Tunnel Token
+    # (Optional: Dashboard) Cloudflared Tunnel Token managed via the Cloudflare dashboard, Dashboard take higher priority over locally managed tunnel
     token: ""
     # (Required) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
