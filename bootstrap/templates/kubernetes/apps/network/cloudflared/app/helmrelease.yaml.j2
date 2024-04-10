@@ -44,11 +44,13 @@ spec:
                   secretKeyRef:
                     name: cloudflared-secret
                     key: TUNNEL_ID
+              #% if bootstrap_cloudflare.tunnel.token %#
               TUNNEL_TOKEN:
                 valueFrom:
                   secretKeyRef:
                     name: cloudflared-secret
                     key: TUNNEL_TOKEN
+              #% endif %#
             args:
               - tunnel
               - --config
