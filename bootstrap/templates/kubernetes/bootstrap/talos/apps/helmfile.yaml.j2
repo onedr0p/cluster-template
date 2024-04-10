@@ -5,17 +5,22 @@ repositories:
   - name: postfinance
     url: https://postfinance.github.io/kubelet-csr-approver
 
+helmDefaults:
+  wait: true
+  waitForJobs: true
+  timeout: 600
+  recreatePods: true
+  force: true
+
 releases:
   - name: cilium
     namespace: kube-system
     chart: cilium/cilium
     version: 1.15.3
     values: ["./cilium-values.yaml"]
-    wait: true
   - name: kubelet-csr-approver
     namespace: kube-system
     chart: postfinance/kubelet-csr-approver
     version: 1.1.0
     values: ["./kubelet-csr-approver-values.yaml"]
     needs: ["cilium"]
-    wait: true
