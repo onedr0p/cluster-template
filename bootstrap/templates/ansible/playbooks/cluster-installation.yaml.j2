@@ -25,6 +25,36 @@
       when: k3s_installed.stat.exists
       ansible.builtin.include_tasks: tasks/version-check.yaml
 
+    - name: Ensure that the /opt/cni directory exists
+      ansible.builtin.file:
+        path: /opt/cni
+        mode: '755'
+        state: directory
+    - name: Ensure that the /opt/cni/bin is a link to /var/lib/rancher/k3s/data/current/bin
+      ansible.builtin.file:
+        src: /var/lib/rancher/k3s/data/current/bin
+        dest: /opt/cni/bin
+        follow: false
+        force: true
+        state: link
+
+    - name: Ensure that the /etc/cni directory exists
+      ansible.builtin.file:
+        path: /etc/cni
+        mode: '755'
+        state: directory
+    - name: Ensure that the /var/lib/rancher/k3s/agent/etc/cni/net.d directory exists
+      ansible.builtin.file:
+        path: /var/lib/rancher/k3s/agent/etc/cni/net.d
+        mode: '755'
+        state: directory
+    - name: Ensure that the /etc/cni/net.d is a link to /var/lib/rancher/k3s/agent/etc/cni/net.d
+      ansible.builtin.file:
+        src: /var/lib/rancher/k3s/agent/etc/cni/net.d
+        dest: /etc/cni/net.d
+        force: true
+        state: link
+
     - name: Install Kubernetes
       ansible.builtin.include_role:
         name: xanmanning.k3s
