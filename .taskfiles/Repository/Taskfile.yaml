@@ -21,7 +21,6 @@ tasks:
       - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
     preconditions:
       - { msg: "Missing bootstrap directory", sh: "test -d {{.BOOTSTRAP_DIR}}" }
-      - { msg: "Missing private directory", sh: "test -d {{.PRIVATE_DIR}}" }
       - { msg: "Missing Renovate config file", sh: "test -f {{.ROOT_DIR}}/.github/renovate.json5" }
 
   reset:
