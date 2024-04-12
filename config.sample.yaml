@@ -123,7 +123,7 @@ bootstrap_bgp:
 # 2. (Required) Flux details - Flux is used to manage the cluster configuration.
 #
 
-# (Required) GitHub repository URL (for private repos use the ssh:// URL)
+# (Required) GitHub repository URL (for private repos use the ssh:// URL replacing the colon after github.com with a /)
 bootstrap_github_address: ""
 
 # (Required) GitHub repository branch
