@@ -141,7 +141,7 @@ bootstrap_github_webhook_token: ""
 #   2. Make sure to paste public key from "github-deploy.key.pub" into
 #      the deploy keys section of your repository settings.
 #   3. Uncomment and paste the private key below
-#   4. Optionally set your repository on GitHub to private
+#   4. Optionally set your repository on GitHub to public
 # bootstrap_github_private_key: |
 #   -----BEGIN OPENSSH PRIVATE KEY-----
 #   ...
