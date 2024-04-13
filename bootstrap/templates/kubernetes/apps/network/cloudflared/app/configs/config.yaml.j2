@@ -1,7 +1,9 @@
 ---
 originRequest:
   originServerName: "external.${SECRET_DOMAIN}"
+  #% if not bootstrap_cloudflare.acme.production %#
   noTLSVerify: true
+  #% endif %#
 
 ingress:
   - hostname: "${SECRET_DOMAIN}"
