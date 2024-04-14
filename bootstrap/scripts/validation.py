@@ -87,12 +87,7 @@ def validate_cli_tools(distribution: str, cloudflare: dict, **_) -> None:
     for tool in TALOS_CLI_TOOLS if distribution in ["talos"] else []:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
-    for tool in (
-        CLOUDFLARE_TOOLS
-        if cloudflare.get("enabled", False)
-        and cast(dict, cloudflare.get("tunnel", {})).get("token", "") == ""
-        else []
-    ):
+    for tool in CLOUDFLARE_TOOLS if cloudflare.get("enabled", False) else []:
         if not which(tool):
             raise ValueError(f"Missing required CLI tool {tool}")
 
