@@ -111,7 +111,7 @@ bootstrap_bgp:
   #   Default is .1 derrived from host_network: ['x.x.x.1']
   peers: []
   # (Required) Set the BGP Autonomous System Number for the router(s) and nodes.
-  #  If these match, iBGP will be used. If not, eBGP will be used.
+  #   If these match, iBGP will be used. If not, eBGP will be used.
   peer_asn: ""  # Router(s) AS
   local_asn: "" # Node(s) AS
   # (Required) The advertised CIDR for the cluster, this must NOT overlap with any
@@ -123,7 +123,10 @@ bootstrap_bgp:
 # 2. (Required) Flux details - Flux is used to manage the cluster configuration.
 #
 
-# (Required) GitHub repository URL (for private repos use the ssh:// URL)
+# (Required) GitHub repository URL
+#   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
+#   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com:onedr0p/cluster-template.git")
+#     If using a private repo make sure to following the instructions with the 'bootstrap_github_private_key' option below.
 bootstrap_github_address: ""
 
 # (Required) GitHub repository branch
