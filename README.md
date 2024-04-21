@@ -191,7 +191,7 @@ You have two different options for setting up your local workstation.
     ```sh
     cd /path/to/repo
     direnv: loading /path/to/repo/.envrc
-    direnv: export +ANSIBLE_COLLECTIONS_PATH +ANSIBLE_INVENTORY_UNPARSED_WARNING +ANSIBLE_LOCALHOST_WARNING +ANSIBLE_ROLES_PATH +ANSIBLE_VARS_ENABLED +K8S_AUTH_KUBECONFIG +KUBECONFIG +PYTHONDONTWRITEBYTECODE +SOPS_AGE_KEY_FILE +TALOSCONFIG +VIRTUAL_ENV ~PATH
+    direnv: export +ANSIBLE_COLLECTIONS_PATH ...  +VIRTUAL_ENV ~PATH
     ```
 
 6. Install the additional **required** CLI tools
