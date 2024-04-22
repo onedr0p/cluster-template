@@ -30,3 +30,4 @@ spec:
       annotations:
         io.cilium/lb-ipam-ips: "#{ bootstrap_cloudflare.gateway_vip }#"
       externalTrafficPolicy: Cluster
+    watchedResources: ["Ingress", "Service"]
