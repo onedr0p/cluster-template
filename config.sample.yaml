@@ -125,7 +125,7 @@ bootstrap_bgp:
 
 # (Required) GitHub repository URL
 #   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
-#   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com:onedr0p/cluster-template.git")
+#   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
 #     If using a private repo make sure to following the instructions with the 'bootstrap_github_private_key' option below.
 bootstrap_github_address: ""
 
