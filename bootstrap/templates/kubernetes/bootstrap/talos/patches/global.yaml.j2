@@ -1,0 +1,10 @@
+---
+#% if bootstrap_tailsacle.enabled %#
+
+apiVersion: v1alpha1
+kind: ExtensionServiceConfig
+name: tailscale
+environment:
+  - TS_AUTHKEY="#{ bootstrap_tailsacle.auth_key }#"
+
+#% endif %#

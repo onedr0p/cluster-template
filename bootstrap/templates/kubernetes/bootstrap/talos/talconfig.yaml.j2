@@ -34,15 +34,15 @@ nodes:
     #% if bootstrap_talos.secureboot.enabled %#
     machineSpec:
       secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/#{ bootstrap_talos.schematic_id }#
+    talosImageURL: factory.talos.dev/installer-secureboot/#{ item.talos_schematic_id | default(bootstrap_talos.schematic_id) }#
     #% else %#
-    talosImageURL: factory.talos.dev/installer/#{ bootstrap_talos.schematic_id }#
+    talosImageURL: factory.talos.dev/installer/#{ item.talos_schematic_id | default(bootstrap_talos.schematic_id) }#
     #% endif %#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "#{ item.talos_nic | lower }#"
-        dhcp: false
+        dhcp: #{ bootstrap_talos.dhcp | default(false) | lower }#
         #% if bootstrap_talos.vlan %#
         vlans:
           - vlanId: #{ bootstrap_talos.vlan }#
