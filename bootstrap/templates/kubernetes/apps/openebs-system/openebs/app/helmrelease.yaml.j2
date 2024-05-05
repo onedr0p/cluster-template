@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: openebs
-      version: 3.10.0
+      version: 4.0.1
       sourceRef:
         kind: HelmRepository
         name: openebs
@@ -21,14 +21,23 @@ spec:
     remediation:
       retries: 3
   values:
-    ndm:
-      enabled: false
-    ndmOperator:
-      enabled: false
-    localprovisioner:
-      enabled: true
-      deviceClass:
-        enabled: false
+    engines:
+      local:
+        lvm:
+          enabled: false
+        zfs:
+          enabled: false
+      replicated:
+        mayastor:
+          enabled: false
+    openebs-crds:
+      csi:
+        volumeSnapshots:
+          enabled: false
+    localpv-provisioner:
+      localpv:
+        image:
+          registry: quay.io/
       hostpathClass:
         enabled: true
         name: openebs-hostpath
