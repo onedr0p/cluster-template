@@ -1,6 +1,6 @@
 tap "fluxcd/tap"
 tap "go-task/tap"
-tap "siderolabs/talos"
+tap "siderolabs/tap"
 brew "age"
 brew "cloudflared"
 brew "direnv"
