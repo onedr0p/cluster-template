@@ -16,24 +16,28 @@
   "flux": {
     "fileMatch": [
       "(^|/)ansible/.+\\.ya?ml(?:\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
+      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$",
+      "(^|/)partials/.+\\.ya?ml(?:\\.j2)?$"
     ]
   },
   "helm-values": {
     "fileMatch": [
       "(^|/)ansible/.+\\.ya?ml(?:\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
+      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$",
+      "(^|/)partials/.+\\.ya?ml(?:\\.j2)?$"
     ]
   },
   "helmfile": {
     "fileMatch": [
-      "(^|/)helmfile\\.ya?ml(?:\\.j2)?$"
+      "(^|/)helmfile\\.ya?ml(?:\\.j2)?$",
+      "(^|/)partials/.+\\.ya?ml(?:\\.j2)?$"
     ]
   },
   "kubernetes": {
     "fileMatch": [
       "(^|/)ansible/.+\\.ya?ml(?:\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
+      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$",
+      "(^|/)partials/.+\\.ya?ml(?:\\.j2)?$"
     ]
   },
   "kustomize": {
@@ -238,7 +242,8 @@
       "fileMatch": [
         "(^|/).taskfiles/.+\\.ya?ml$",
         "(^|/)ansible/.+\\.ya?ml(?:\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
+        "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$",
+        "(^|/)partials/.+\\.ya?ml(?:\\.j2)?$"
       ],
       "matchStrings": [
         // # renovate: datasource=github-releases depName=k3s-io/k3s
