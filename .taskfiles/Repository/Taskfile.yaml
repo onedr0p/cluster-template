@@ -23,7 +23,7 @@ tasks:
       - msg: Missing bootstrap directory
         sh: test -d {{.BOOTSTRAP_DIR}}
       - msg: Missing Renovate config file
-        sh: test -f {{.ROOT_DIR}}/.github/renovate.json5"
+        sh: test -f {{.ROOT_DIR}}/.github/renovate.json5
 
   reset:
     desc: Reset templated configuration files
