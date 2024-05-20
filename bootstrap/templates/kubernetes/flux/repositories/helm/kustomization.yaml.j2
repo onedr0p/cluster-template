@@ -4,16 +4,16 @@ kind: Kustomization
 resources:
   - ./bjw-s.yaml
   - ./cilium.yaml
+  - ./coredns.yaml
+  - ./jetstack.yaml
+  - ./metrics-server.yaml
+  - ./openebs.yaml
+  - ./postfinance.yaml
+  - ./prometheus-community.yaml
+  - ./spegel.yaml
+  - ./stakater.yaml
   #% if bootstrap_cloudflare.enabled %#
   - ./external-dns.yaml
   - ./ingress-nginx.yaml
   - ./k8s-gateway.yaml
   #% endif %#
-  - ./jetstack.yaml
-  - ./metrics-server.yaml
-  - ./openebs.yaml
-  #% if bootstrap_distribution in ["talos"] %#
-  - ./postfinance.yaml
-  - ./spegel.yaml
-  #% endif %#
-  - ./stakater.yaml

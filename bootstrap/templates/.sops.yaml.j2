@@ -1,20 +1,12 @@
 ---
 creation_rules:
-  #% if bootstrap_distribution in ["talos"] %#
   - # IMPORTANT: This rule MUST be above the others
     path_regex: talos/.*\.sops\.ya?ml
     key_groups:
       - age:
           - "#{ bootstrap_sops_age_pubkey }#"
-  #% endif %#
   - path_regex: kubernetes/.*\.sops\.ya?ml
     encrypted_regex: "^(data|stringData)$"
     key_groups:
       - age:
           - "#{ bootstrap_sops_age_pubkey }#"
-  #% if bootstrap_distribution in ["k3s"] %#
-  - path_regex: ansible/.*\.sops\.ya?ml
-    key_groups:
-      - age:
-          - "#{ bootstrap_sops_age_pubkey }#"
-  #% endif %#

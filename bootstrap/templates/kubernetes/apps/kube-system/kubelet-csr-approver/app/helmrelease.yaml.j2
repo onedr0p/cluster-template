@@ -20,10 +20,10 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: kubelet-csr-approver-helm-values
   values:
-    #% filter indent(width=4, first=True) %#
-    #% include 'partials/kubelet-csr-approver-values.partial.yaml.j2' %#
-    #% endfilter %#
     metrics:
       enable: true
       serviceMonitor:

@@ -1,4 +1,3 @@
-#% if bootstrap_distribution in ["talos"] %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
@@ -9,4 +8,3 @@ spec:
   type: oci
   interval: 5m
   url: oci://ghcr.io/spegel-org/helm-charts
-#% endif %#

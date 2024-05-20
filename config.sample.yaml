@@ -4,64 +4,29 @@
 # 1. (Required) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
 #
 
-# (Required) Timezone is your IANA formatted timezone (e.g. America/New_York)
-bootstrap_timezone: ""
-
-# (Required) Distribution can either be k3s or talos
-bootstrap_distribution: k3s
-
 # (Optional) Cluster name; affects Cilium and Talos
+#   Default is "home-kubernetes"
 bootstrap_cluster_name: ""
 
-# (Required: Talos) Talos Specific Options
-bootstrap_talos:
-  # (Optional: Talos) Go to https://factory.talos.dev/ and choose any System Extensions, and/or add kernel arguments you need.
-  #   Copy the generated schematic id and paste it below.
-  #   IMPORTANT: The default ID given here means no System Extensions or Kernel args will be used.
-  schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
-  # (Optional: Talos) Add vlan tag to network master device, this is not needed if you tag ports on your switch with the VLAN
-  #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
-  vlan: ""
-  # (Optional: Talos) Secureboot and TPM-based disk encryption
-  secureboot:
-    # (Optional) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
-    #   See: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
-    enabled: false
-    # (Optional) Enable TPM-based disk encryption. Requires TPM 2.0
-    #   See: https://www.talos.dev/v1.6/talos-guides/install/bare-metal-platforms/secureboot/#disk-encryption-with-tpm
-    encrypt_disk_with_tpm: false
-  # (Optional) Add includes for user provided patches to generated talconfig.yaml.
-  #   See: https://github.com/budimanjojo/talhelper/blob/179ba9ed42f70069c7842109bea24f769f7af6eb/example/extraKernelArgs-patch.yaml
-  #   Patches are applied in this order. (global overrides cp/worker which overrides node-specific).
-  #   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
-  #     kubernetes/bootstrap/talos/patches/node_<name>.yaml  # Patches for individual nodes
-  #     kubernetes/bootstrap/talos/patches/controlPlane.yaml # Patches for controlplane nodes
-  #     kubernetes/bootstrap/talos/patches/worker.yaml       # Patches for worker nodes
-  #     kubernetes/bootstrap/talos/patches/global.yaml       # Patches for ALL nodes
-  user_patches: false
+# (Required) Generated schematic id from https://factory.talos.dev/
+bootstrap_schematic_id: ""
 
 # (Required) The CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_network: ""
 
-# (Optional) The default gateway for the nodes
-#   Default is .1 derrived from bootstrap_node_network: 'x.x.x.1'
-bootstrap_node_default_gateway: ""
-
 # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
 #   Worker nodes are optional
 bootstrap_node_inventory: []
-    # - name: ""           # (Required) Name of the node (must match [a-z0-9-\.]+)
-    #   address: ""        # (Required) IP address of the node
-    #   controller: true   # (Required) Set to true if this is a controller node
-    #   talos_disk: ""     # (Required: Talos) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
-    #   talos_nic: ""      # (Required: Talos) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
-    #   ssh_user: ""       # (Required: k3s) SSH username of the node
-    #   ssh_key: ""        # (Optional: k3s) Set specific SSH key for this node
+    # - name: ""          # (Required) Name of the node (must match [a-z0-9-\]+)
+    #   address: ""       # (Optional) IP address of the node (Remove if node has a static DHCP reservation)
+    #   controller: true  # (Required) Set to true if this is a controller node
+    #   disk: ""          # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
+    #   mac_addr: ""      # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
+    #   mtu: ""           # (Optional) MTU for the NIC, default is 1500
     # ...
 
-# (Optional) The DNS server to use for the cluster, this can be an existing
-#   local DNS server or a public one.
-#   Default is ["1.1.1.1", "1.0.0.1"]
+# (Optional) The DNS servers to use for the cluster nodes.
+#   Default is pulled from your DHCP server.
 # If using a local DNS server make sure it meets the following requirements:
 #   1. your nodes can reach it
 #   2. it is configured to forward requests to a public DNS server
@@ -70,10 +35,9 @@ bootstrap_node_inventory: []
 #   guarantee that the first DNS server will always be used for every lookup.
 bootstrap_dns_servers: []
 
-# (Optional) The DNS search domain to use for the nodes.
-#   Default is "."
-# Use the default or leave empty to avoid possible DNS issues inside the cluster.
-bootstrap_search_domain: ""
+# (Optional) The NTP servers to use for the cluster nodes.
+#   Default is pulled from your DHCP server.
+bootstrap_ntp_servers: []
 
 # (Required) The pod CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
@@ -89,12 +53,19 @@ bootstrap_service_network: "10.96.0.0/16"
 
 # (Required) The IP address of the Kube API, choose an available IP in
 #   your nodes host network that is NOT being used. This is announced over L2.
-# For k3s kube-vip is used, built-in functionality is used with Talos
-bootstrap_controllers_vip: ""
+bootstrap_controller_vip: ""
 
 # (Optional) Add additional SANs to the Kube API cert, this is useful
 #   if you want to call the Kube API by hostname rather than IP
 bootstrap_tls_sans: []
+
+# (Optional) The default gateway for the nodes
+#   Default is .1 which is derrived from bootstrap_node_network (e.g. 192.168.1.1)
+bootstrap_node_default_gateway: ""
+
+# (Optional) Add vlan tag to network master device, this is not needed if you tag ports on your switch with the VLAN
+#   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
+bootstrap_vlan: ""
 
 # (Required) Age Public Key (e.g. age1...)
 # 1. Generate a new key with the following command:
@@ -118,6 +89,25 @@ bootstrap_bgp:
   #   existing networks and is usually a /16 (64K IPs).
   # If you want to use IPv6 check the advanced flags below
   advertised_network: ""
+
+# (Optional) Secureboot and TPM-based disk encryption
+bootstrap_secureboot:
+  # (Optional) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
+  #   See: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
+  enabled: false
+  # (Optional) Enable TPM-based disk encryption. Requires TPM 2.0
+  #   See: https://www.talos.dev/v1.6/talos-guides/install/bare-metal-platforms/secureboot/#disk-encryption-with-tpm
+  encrypt_disk_with_tpm: false
+
+# (Optional) Add includes for user provided patches to generated talconfig.yaml.
+#   See: https://github.com/budimanjojo/talhelper/blob/179ba9ed42f70069c7842109bea24f769f7af6eb/example/extraKernelArgs-patch.yaml
+#   Patches are applied in this order. (global overrides cp/worker which overrides node-specific).
+#   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
+#     kubernetes/bootstrap/talos/patches/node_<name>.yaml  # Patches for individual nodes
+#     kubernetes/bootstrap/talos/patches/controlPlane.yaml # Patches for controlplane nodes
+#     kubernetes/bootstrap/talos/patches/worker.yaml       # Patches for worker nodes
+#     kubernetes/bootstrap/talos/patches/global.yaml       # Patches for ALL nodes
+bootstrap_user_patches: false
 
 #
 # 2. (Required) Flux details - Flux is used to manage the cluster configuration.

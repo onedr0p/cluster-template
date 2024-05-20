@@ -32,25 +32,28 @@ tasks:
       - task: :sops:.encrypt-file
         vars:
           file: "{{.TALHELPER_SECRET_FILE}}"
+    status: ["test -f {{.TALHELPER_SECRET_FILE}}"]
     preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
-    status:
-      - test -f "{{.TALHELPER_SECRET_FILE}}"
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
   bootstrap-genconfig:
     desc: Generate the Talos configs
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper genconfig --secret-file {{.TALHELPER_SECRET_FILE}}
     preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
-      - { msg: "Missing talhelper secret file", sh: "test -f {{.TALHELPER_SECRET_FILE}}" }
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
+      - msg: Missing talhelper secret file
+        sh: test -f {{.TALHELPER_SECRET_FILE}}
 
   bootstrap-apply:
     desc: Apply the Talos configs to the nodes
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand apply --extra-flags=--insecure | bash
     preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
   bootstrap-install:
     desc: Install the Talos cluster
@@ -60,17 +63,19 @@ tasks:
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
       - sleep 10
     preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
   bootstrap-apps:
     desc: Bootstrap core apps needed for Talos
     dir: "{{.TALOS_DIR}}"
     cmds:
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file ./apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
+      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file helmfile.yaml apply --skip-diff-on-install --suppress-diff
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
     preconditions:
-      - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
+      - msg: Missing kubeconfig
+        sh: test -f {{.KUBECONFIG_FILE}}
 
   upgrade-talos:
     desc: Upgrade talos on a node
@@ -78,7 +83,8 @@ tasks:
     requires:
       vars: ["node", "image"]
     preconditions:
-      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
+      - msg: Node not found
+        sh: talosctl --nodes {{.node}} get machineconfig
 
   upgrade-k8s:
     desc: Upgrade k8s on a node
@@ -86,24 +92,19 @@ tasks:
     requires:
       vars: ["node", "to"]
     preconditions:
-      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
+      - msg: Node not found
+        sh: talosctl --nodes {{.node}} get machineconfig
 
   fetch-kubeconfig:
     desc: Generate talos kubeconfig
     dir: "{{.TALOS_DIR}}"
     cmd: until talhelper gencommand kubeconfig --extra-flags "{{.ROOT_DIR}} --force" | bash; do sleep 10; done
 
-  soft-nuke:
+  nuke:
     desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     dir: "{{.TALOS_DIR}}"
-    cmd: talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
-
-  hard-nuke:
-    desc: Resets nodes back completely and reboots them
-    prompt: This will destroy your cluster and reset the nodes... continue?
-    dir: "{{.TALOS_DIR}}"
-    cmd: talhelper gencommand reset --extra-flags "--reboot --graceful=false --wait=false" | bash
+    cmd: talhelper gencommand reset --extra-flags "--reboot {{- if eq .CLI_FORCE false }}--system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
 
   .reset:
     internal: true

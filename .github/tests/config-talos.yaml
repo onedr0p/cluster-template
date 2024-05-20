@@ -1,28 +1,26 @@
 ---
 skip_tests: true
 
-bootstrap_timezone: Etc/UTC
-bootstrap_distribution: talos
 boostrap_talos:
-  schematic_id: "df491c50a5acc05b977ef00c32050e1ceb0df746e40b33c643ac8a9bfb7c7263"
+  schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
 bootstrap_node_network: 10.10.10.0/24
 bootstrap_node_default_gateway: 10.10.10.1
 bootstrap_node_inventory:
   - name: k8s-controller-0
     address: 10.10.10.100
     controller: true
-    talos_disk: fake
-    talos_nic: fake
+    disk: fake
+    mac_addr: fake
   - name: k8s-worker-0
     address: 10.10.10.101
     controller: false
-    talos_disk: fake
-    talos_nic: fake
-bootstrap_dns_servers: ["1.1.1.1"]
-bootstrap_search_domain: "fake"
+    disk: fake
+    mac_addr: fake
+bootstrap_dns_servers: ["1.1.1.1", "1.0.0.1"]
+bootstrap_dntp_servers: ["time.cloudflare.com"]
 bootstrap_pod_network: 10.69.0.0/16
 bootstrap_service_network: 10.96.0.0/16
-bootstrap_controllers_vip: 10.10.10.254
+bootstrap_controller_vip: 10.10.10.254
 bootstrap_tls_sans: ["fake"]
 bootstrap_sops_age_pubkey: $BOOTSTRAP_AGE_PUBLIC_KEY
 bootstrap_bgp:
