@@ -6,6 +6,7 @@ vars:
   TALOS_DIR: "{{.KUBERNETES_DIR}}/bootstrap/talos"
   TALHELPER_SECRET_FILE: "{{.TALOS_DIR}}/talsecret.sops.yaml"
   TALHELPER_CONFIG_FILE: "{{.TALOS_DIR}}/talconfig.yaml"
+  HELMFILE_FILE: "{{.TALOS_DIR}}/helmfile.yaml"
 
 env:
   TALOSCONFIG: "{{.TALOS_DIR}}/clusterconfig/talosconfig"
@@ -16,66 +17,45 @@ tasks:
     desc: Bootstrap the Talos cluster
     dir: "{{.TALOS_DIR}}"
     cmds:
-      - task: bootstrap-gensecret
-      - task: bootstrap-genconfig
-      - task: bootstrap-apply
-      - task: bootstrap-install
-      - task: fetch-kubeconfig
-      - task: bootstrap-apps
-      - talosctl health --server=false
-
-  bootstrap-gensecret:
-    desc: Generate the Talos secrets
-    dir: "{{.TALOS_DIR}}"
-    cmds:
-      - talhelper gensecret > {{.TALHELPER_SECRET_FILE}}
-      - task: :sops:.encrypt-file
-        vars:
-          file: "{{.TALHELPER_SECRET_FILE}}"
-    status: ["test -f {{.TALHELPER_SECRET_FILE}}"]
-    preconditions:
-      - msg: Missing talhelper config file
-        sh: test -f {{.TALHELPER_CONFIG_FILE}}
-
-  bootstrap-genconfig:
-    desc: Generate the Talos configs
-    dir: "{{.TALOS_DIR}}"
-    cmd: talhelper genconfig --secret-file {{.TALHELPER_SECRET_FILE}}
-    preconditions:
-      - msg: Missing talhelper config file
-        sh: test -f {{.TALHELPER_CONFIG_FILE}}
-      - msg: Missing talhelper secret file
-        sh: test -f {{.TALHELPER_SECRET_FILE}}
-
-  bootstrap-apply:
-    desc: Apply the Talos configs to the nodes
-    dir: "{{.TALOS_DIR}}"
-    cmd: talhelper gencommand apply --extra-flags=--insecure | bash
-    preconditions:
-      - msg: Missing talhelper config file
-        sh: test -f {{.TALHELPER_CONFIG_FILE}}
-
-  bootstrap-install:
-    desc: Install the Talos cluster
-    dir: "{{.TALOS_DIR}}"
-    cmds:
-      - echo "Installing Talos... ignore the errors and be patient"
+      - |
+        if [ ! -f "{{.TALHELPER_SECRET_FILE}}" ]; then
+            talhelper gensecret > {{.TALHELPER_SECRET_FILE}}
+            sops --encrypt --in-place {{.TALHELPER_SECRET_FILE}}
+        fi
+      - talhelper genconfig --secret-file {{.TALHELPER_SECRET_FILE}}
+      - talhelper gencommand apply --extra-flags=--insecure | bash
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
-      - sleep 10
+      - task: fetch-kubeconfig
+      - task: install-helm-apps
+      - talosctl health --server=false
+    preconditions:
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
+      - msg: Missing Sops config file
+        sh: test -f {{.SOPS_CONFIG_FILE}}
+      - msg: Missing Sops Age key file
+        sh: test -f {{.AGE_FILE}}
+
+  fetch-kubeconfig:
+    desc: Fetch kubeconfig
+    dir: "{{.TALOS_DIR}}"
+    cmd: until talhelper gencommand kubeconfig --extra-flags "{{.ROOT_DIR}} --force" | bash; do sleep 10; done
     preconditions:
       - msg: Missing talhelper config file
         sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
-  bootstrap-apps:
+  install-helm-apps:
     desc: Bootstrap core apps needed for Talos
     dir: "{{.TALOS_DIR}}"
     cmds:
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file helmfile.yaml apply --skip-diff-on-install --suppress-diff
+      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG_FILE}}
+      - msg: Missing helmfile
+        sh: test -f {{.HELMFILE_FILE}}
 
   upgrade-talos:
     desc: Upgrade talos on a node
@@ -95,13 +75,8 @@ tasks:
       - msg: Node not found
         sh: talosctl --nodes {{.node}} get machineconfig
 
-  fetch-kubeconfig:
-    desc: Generate talos kubeconfig
-    dir: "{{.TALOS_DIR}}"
-    cmd: until talhelper gencommand kubeconfig --extra-flags "{{.ROOT_DIR}} --force" | bash; do sleep 10; done
-
   nuke:
-    desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
+    desc: Resets nodes back to maintenance mode
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand reset --extra-flags "--reboot {{- if eq .CLI_FORCE false }}--system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash

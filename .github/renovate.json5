@@ -12,36 +12,25 @@
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prEditedNotification", "prIgnoreNotification"],
   "rebaseWhen": "conflicted",
-  "schedule": ["on saturday"],
+  "schedule": ["every weekend"],
+  "ignorePaths": ["**/*.sops.*"],
   "flux": {
-    "fileMatch": [
-      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
-    ]
+    "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"]
   },
   "helm-values": {
-    "fileMatch": [
-      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
-    ]
+    "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"]
   },
   "helmfile": {
-    "fileMatch": [
-      "(^|/)helmfile\\.ya?ml(?:\\.j2)?$"
-    ]
+    "fileMatch": ["(^|/)helmfile\\.ya?ml(?:\\.j2)?$"]
   },
   "kubernetes": {
-    "fileMatch": [
-      "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
-    ]
+    "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"]
   },
   "kustomize": {
-    "fileMatch": [
-      "(^|/)kustomization\\.ya?ml(?:\\.j2)?$"
-    ]
+    "fileMatch": ["(^|/)kustomization\\.ya?ml(?:\\.j2)?$"]
   },
   "pip_requirements": {
-    "fileMatch": [
-      "(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(?:\\.j2)?$"
-    ]
+    "fileMatch": ["(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(?:\\.j2)?$"]
   },
   // commit message topics
   "commitMessageTopic": "{{depName}}",
@@ -62,7 +51,7 @@
     {
       "description": ["Flux Group"],
       "groupName": "Flux",
-      "matchPackagePatterns": ["flux"],
+      "matchPackagePatterns": ["fluxcd"],
       "matchDatasources": ["docker", "github-tags"],
       "versioning": "semver",
       "group": {
@@ -71,10 +60,13 @@
       "separateMinorPatch": true
     },
     {
-      "description": ["System Upgrade Controller Group"],
-      "groupName": "System Upgrade Controller",
-      "matchPackagePatterns": ["system-upgrade-controller"],
-      "matchDatasources": ["docker", "github-releases"],
+      "description": ["Talos Group"],
+      "groupName": "Talos",
+      "matchPackagePatterns": [
+        "siderolabs/talosctl",
+        "siderolabs/installer"
+      ],
+      "matchDatasources": ["docker"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },
@@ -199,10 +191,7 @@
     {
       "customType": "regex",
       "description": ["Process custom dependencies"],
-      "fileMatch": [
-        "(^|/).taskfiles/.+\\.ya?ml$",
-        "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
-      ],
+      "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"],
       "matchStrings": [
         // # renovate: datasource=helm depName=cilium repository=https://helm.cilium.io
         // version: 1.15.1

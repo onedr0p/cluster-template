@@ -14,6 +14,7 @@ vars:
   KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
   MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
   PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
+  SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
   # Binaries
   PYTHON_BIN: python3
 
@@ -24,23 +25,19 @@ env:
   VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
 
 includes:
-  kubernetes:
-    aliases: ["k8s"]
-    taskfile: .taskfiles/Kubernetes/Taskfile.yaml
-  flux: .taskfiles/Flux/Taskfile.yaml
-  repository:
-    aliases: ["repo"]
-    taskfile: .taskfiles/Repository/Taskfile.yaml
-  talos: .taskfiles/Talos/Taskfile.yaml
-  sops: .taskfiles/Sops/Taskfile.yaml
-  workstation: .taskfiles/Workstation/Taskfile.yaml
+  kubernetes: .taskfiles/Kubernetes
+  flux: .taskfiles/Flux
+  repository: .taskfiles/Repository
+  talos: .taskfiles/Talos
+  sops: .taskfiles/Sops
+  workstation: .taskfiles/Workstation
   user:
     taskfile: .taskfiles/User
     optional: true
 
 tasks:
 
-  default: task -l
+  default: task --list
 
   init:
     desc: Initialize configuration files
@@ -49,7 +46,8 @@ tasks:
       - cmd: echo === Configuration file copied ===
       - cmd: echo Proceed with updating the configuration files...
       - cmd: echo {{.BOOTSTRAP_CONFIG_FILE}}
-    status: ["test -f {{.BOOTSTRAP_CONFIG_FILE}}"]
+    status:
+      - test -f {{.BOOTSTRAP_CONFIG_FILE}}
     silent: true
 
   configure:
@@ -65,10 +63,14 @@ tasks:
     internal: true
     cmd: "{{.VIRTUAL_ENV}}/bin/makejinja"
     preconditions:
-      - { msg: "Missing virtual environment", sh: "test -d {{.VIRTUAL_ENV}}" }
-      - { msg: "Missing Makejinja config file", sh: "test -f {{.MAKEJINJA_CONFIG_FILE}}" }
-      - { msg: "Missing Makejinja plugin file", sh: "test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py" }
-      - { msg: "Missing bootstrap config file", sh: "test -f {{.BOOTSTRAP_CONFIG_FILE}}" }
+      - msg: Missing virtual environment
+        sh: test -d {{.VIRTUAL_ENV}}
+      - msg: Missing Makejinja config file
+        sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
+      - msg: Missing Makejinja plugin file
+        sh: test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py
+      - msg: Missing bootstrap config file
+        sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
   .validate:
     internal: true
