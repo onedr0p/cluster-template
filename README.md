@@ -38,7 +38,7 @@ The features included will depend on the type of configuration you want to use. 
 | Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 120GB _(500GB*)_ SSD/NVMe |
 | _\* recommended_ |
 
-1. Head over to <https://factory.talos.dev> and follow the instructions which will eventually lead you to download a Talos Linux iso file (or for SBCs the `.raw.xz`). Make sure to copy/paste the schematic ID you will need this later on.
+1. Head over to <https://factory.talos.dev> and follow the instructions which will eventually lead you to download a Talos Linux iso file (or for SBCs the `.raw.xz`). Make sure to note the schematic ID you will need this later on.
 
 2. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
 
@@ -46,7 +46,7 @@ The features included will depend on the type of configuration you want to use. 
 
 ## 🚀 Getting Started
 
-Once you have installed Talos or Debian on your nodes, there are six stages to getting a Flux-managed cluster up and runnning.
+Once you have installed Talos on your nodes, there are six stages to getting a Flux-managed cluster up and runnning.
 
 > [!NOTE]
 > For all stages below the commands **MUST** be ran on your personal workstation within your repository directory
