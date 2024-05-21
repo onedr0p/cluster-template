@@ -79,7 +79,7 @@ tasks:
     desc: Resets nodes back to maintenance mode
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     dir: "{{.TALOS_DIR}}"
-    cmd: talhelper gencommand reset --extra-flags "--reboot {{- if eq .CLI_FORCE false }}--system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
+    cmd: talhelper gencommand reset --extra-flags "--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
 
   .reset:
     internal: true
