@@ -20,8 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         config-files:
-          - k3s-ipv4
-          - k3s-ipv6
           - talos
     steps:
       - name: Checkout
@@ -92,14 +90,6 @@ jobs:
         run: |
           task talos:bootstrap-gensecret
           task talos:bootstrap-genconfig
-
-      - name: Run Ansible tasks
-        if: ${{ startsWith(matrix.config-files, 'k3s') }}
-        shell: bash
-        run: |
-          task ansible:deps force=false
-          task ansible:lint
-          task ansible:list
 
       - name: Run repo clean and reset tasks
         shell: bash

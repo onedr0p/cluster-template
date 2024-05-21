@@ -5,7 +5,6 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  TIMEZONE: "#{ bootstrap_timezone }#"
   CLUSTER_CIDR: "#{ bootstrap_pod_network.split(',')[0] }#"
   NODE_CIDR: "#{ bootstrap_node_network }#"
   #% if bootstrap_feature_gates.dual_stack_ipv4_first %#

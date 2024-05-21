@@ -20,14 +20,15 @@ tasks:
       # Update renovate.json5
       - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
     preconditions:
-      - { msg: "Missing bootstrap directory", sh: "test -d {{.BOOTSTRAP_DIR}}" }
-      - { msg: "Missing Renovate config file", sh: "test -f {{.ROOT_DIR}}/.github/renovate.json5" }
+      - msg: Missing bootstrap directory
+        sh: test -d {{.BOOTSTRAP_DIR}}
+      - msg: Missing Renovate config file
+        sh: test -f {{.ROOT_DIR}}/.github/renovate.json5
 
   reset:
     desc: Reset templated configuration files
     prompt: Reset templated configuration files... continue?
     cmds:
-      - task: :ansible:.reset
       - task: :kubernetes:.reset
       - task: :sops:.reset
       - task: :talos:.reset

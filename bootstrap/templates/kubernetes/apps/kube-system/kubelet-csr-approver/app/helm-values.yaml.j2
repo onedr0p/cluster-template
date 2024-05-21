@@ -1,0 +1,3 @@
+---
+providerRegex: ^(#{ (bootstrap_node_inventory | map(attribute='name') | join('|')) }#)$
+bypassDnsResolution: true

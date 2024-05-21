@@ -6,13 +6,13 @@ talosVersion: v1.7.2
 kubernetesVersion: v1.30.1
 
 clusterName: &cluster #{ bootstrap_cluster_name|default('home-kubernetes', true) }#
-endpoint: https://#{ bootstrap_controllers_vip }#:6443
+endpoint: https://#{ bootstrap_controller_vip }#:6443
 clusterPodNets:
   - "#{ bootstrap_pod_network.split(',')[0] }#"
 clusterSvcNets:
   - "#{ bootstrap_service_network.split(',')[0] }#"
 additionalApiServerCertSans: &sans
-  - "#{ bootstrap_controllers_vip }#"
+  - "#{ bootstrap_controller_vip }#"
   - 127.0.0.1 # KubePrism
   #% for item in bootstrap_tls_sans %#
   - "#{ item }#"
@@ -25,30 +25,29 @@ nodes:
   #% for item in bootstrap_node_inventory %#
   - hostname: "#{ item.name }#"
     ipAddress: "#{ item.address }#"
-    #% if item.talos_disk.startswith('/') %#
-    installDisk: "#{ item.talos_disk }#"
+    #% if item.disk.startswith('/') %#
+    installDisk: "#{ item.disk }#"
     #% else %#
     installDiskSelector:
-      serial: "#{ item.talos_disk }#"
+      serial: "#{ item.disk }#"
     #% endif %#
-    #% if bootstrap_talos.secureboot.enabled %#
+    #% if bootstrap_secureboot.enabled %#
     machineSpec:
       secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/#{ bootstrap_talos.schematic_id }#
+    talosImageURL: factory.talos.dev/installer-secureboot/#{ bootstrap_schematic_id }#
     #% else %#
-    talosImageURL: factory.talos.dev/installer/#{ bootstrap_talos.schematic_id }#
+    talosImageURL: factory.talos.dev/installer/#{ bootstrap_schematic_id }#
     #% endif %#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
       - deviceSelector:
-          hardwareAddr: "#{ item.talos_nic | lower }#"
-        dhcp: false
-        #% if bootstrap_talos.vlan %#
+          hardwareAddr: "#{ item.mac_addr | lower }#"
+        #% if bootstrap_vlan %#
         vlans:
-          - vlanId: #{ bootstrap_talos.vlan }#
+          - vlanId: #{ bootstrap_vlan }#
             addresses:
               - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
-            mtu: 1500
+            mtu: #{ item.mtu | default(1500) }#
             routes:
               - network: 0.0.0.0/0
                 #% if bootstrap_node_default_gateway %#
@@ -58,12 +57,13 @@ nodes:
                 #% endif %#
             #% if item.controller %#
             vip:
-              ip: "#{ bootstrap_controllers_vip }#"
+              ip: "#{ bootstrap_controller_vip }#"
             #% endif %#
         #% else %#
+        #% if item.address %#
+        dhcp: false
         addresses:
           - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
-        mtu: 1500
         routes:
           - network: 0.0.0.0/0
             #% if bootstrap_node_default_gateway %#
@@ -71,12 +71,16 @@ nodes:
             #% else %#
             gateway: "#{ bootstrap_node_network | nthhost(1) }#"
             #% endif %#
+        #% else %#
+        dhcp: true
+        #% endif %#
+        mtu: #{ item.mtu | default(1500) }#
         #% if item.controller %#
         vip:
-          ip: "#{ bootstrap_controllers_vip }#"
+          ip: "#{ bootstrap_controller_vip }#"
         #% endif %#
         #% endif %#
-    #% if bootstrap_talos.user_patches %#
+    #% if bootstrap_user_patches %#
     patches:
       - "@./patches/node_#{ item.name }#.yaml"
     #% endif %#
@@ -123,21 +127,28 @@ patches:
         nodeIP:
           validSubnets: ["#{ bootstrap_node_network }#"]
 
+  #% if bootstrap_dns_servers | length %#
   # Force nameserver
   - |-
     machine:
       network:
         nameservers:
-          #% for item in bootstrap_dns_servers | default(['1.1.1.1', '1.0.0.1']) %#
+          #% for item in bootstrap_dns_servers %#
           - #{ item }#
           #% endfor %#
+  #% endif %#
 
+  #% if bootstrap_ntp_servers | length %#
   # Configure NTP
   - |-
     machine:
       time:
         disabled: false
-        servers: ["time.cloudflare.com"]
+        servers:
+          #% for item in bootstrap_ntp_servers %#
+          - #{ item }#
+          #% endfor %#
+  #% endif %#
 
   # Custom sysctl settings
   - |-
@@ -159,7 +170,7 @@ patches:
             source: /var/openebs/local
             options: ["bind", "rshared", "rw"]
 
-  #% if bootstrap_talos.secureboot.enabled and bootstrap_talos.secureboot.encrypt_disk_with_tpm %#
+  #% if bootstrap_secureboot.enabled and bootstrap_secureboot.encrypt_disk_with_tpm %#
   # Encrypt system disk with TPM
   - |-
     machine:
@@ -176,7 +187,7 @@ patches:
               tpm: {}
   #% endif %#
 
-  #% if bootstrap_talos.user_patches %#
+  #% if bootstrap_user_patches %#
   # User specified global patches
   - "@./patches/global.yaml"
   #% endif %#
@@ -218,13 +229,11 @@ controlPlane:
             enabled: true
             allowedRoles: ["os:admin"]
             allowedKubernetesNamespaces: ["system-upgrade"]
-
-    #% if bootstrap_talos.user_patches %#
+    #% if bootstrap_user_patches %#
     # User specified controlPlane patches
     - "@./patches/controlPlane.yaml"
     #% endif %#
-
-#% if ((bootstrap_talos.user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
+#% if ((bootstrap_user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
 worker:
   patches:
     # User specified worker patches

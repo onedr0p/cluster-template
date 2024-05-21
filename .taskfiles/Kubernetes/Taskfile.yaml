@@ -28,7 +28,8 @@ tasks:
     desc: Validate Kubernetes manifests with kubeconform
     cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
     preconditions:
-      - { msg: "Missing kubeconform script", sh: "test -f {{.KUBECONFORM_SCRIPT}}" }
+      - msg: Missing kubeconform script
+        sh: test -f {{.KUBECONFORM_SCRIPT}}
 
   .reset:
     internal: true

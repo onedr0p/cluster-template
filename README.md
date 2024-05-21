@@ -8,12 +8,12 @@ At a high level this project makes use of [makejinja](https://github.com/mirkole
 
 The features included will depend on the type of configuration you want to use. There are currently **2 different types** of **configurations** available with this template.
 
-1. **"Flux cluster"** - a Kubernetes distribution of your choosing: [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos). Deploys an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
+1. **"Flux cluster"** - a Kubernetes cluster deployed on-top of [Talos Linux](https://github.com/siderolabs/talos) with an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
 
-    - **Required:** Debian 12 or Talos Linux installed on bare metal (or VMs) and some knowledge of [Containers](https://opencontainers.org/) and [YAML](https://yaml.org/). Some knowledge of [Git](https://git-scm.com/) practices & terminology is also required.
-    - **Components:** [Cilium](https://github.com/cilium/cilium) and [kube-vip](https://github.com/kube-vip/kube-vip) _(k3s)_. [flux](https://github.com/fluxcd/flux2), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) _(k3s)_, and [openebs](https://github.com/openebs/openebs).
+    - **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://yaml.org/), and [Git](https://git-scm.com/).
+    - **Components:** [flux](https://github.com/fluxcd/flux2), [Cilium](https://github.com/cilium/cilium),[cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), and [openebs](https://github.com/openebs/openebs).
 
-3. **"Flux cluster with Cloudflare"** - An addition to "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
+2. **"Flux cluster with Cloudflare"** - An addition to "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
 
     - **Required:** A Cloudflare account with a domain managed in your Cloudflare account.
     - **Components:** [ingress-nginx](https://github.com/kubernetes/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
@@ -25,113 +25,24 @@ The features included will depend on the type of configuration you want to use. 
 
 ## 💻 Machine Preparation
 
-Hopefully some of this peeked your interests!  If you are marching forward, now is a good time to choose whether you will deploy a Kubernetes cluster with [k3s](https://github.com/k3s-io/k3s) or [Talos](https://github.com/siderolabs/talos).
-
 ### System requirements
 
 > [!NOTE]
-> 1. The included behaviour of Talos or k3s is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
+> 1. The included behaviour of Talos is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
 > 2. Do you have 3 or more nodes? It is highly recommended to make 3 of them controller nodes for a highly available control plane.
 > 3. Running the cluster on Proxmox VE? My thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/notes/proxmox-considerations.html).
 
 | Role    | Cores    | Memory        | System Disk               |
 |---------|----------|---------------|---------------------------|
-| Control | 4 _(6*)_ | 8GB _(24GB*)_ | 100GB _(500GB*)_ SSD/NVMe |
-| Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 100GB _(500GB*)_ SSD/NVMe |
+| Control | 4 _(6*)_ | 8GB _(24GB*)_ | 120GB _(500GB*)_ SSD/NVMe |
+| Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 120GB _(500GB*)_ SSD/NVMe |
 | _\* recommended_ |
 
-### Talos
+1. Head over to <https://factory.talos.dev> and follow the instructions which will eventually lead you to download a Talos Linux iso file (or for SBCs the `.raw.xz`). Make sure to copy/paste the schematic ID you will need this later on.
 
-1. Download the latest stable release of Talos from their [GitHub releases](https://github.com/siderolabs/talos/releases). You will want to grab either `metal-amd64.iso` or `metal-rpi_generic-arm64.raw.xz` depending on your system.
+2. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
 
-2. Take note of the OS drive serial numbers you will need them later on.
-
-3. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
-
-4. Continue on to 🚀 [**Getting Started**](#-getting-started)
-
-### k3s (AMD64)
-
-1. Download the latest stable release of Debian from [here](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd), then follow [this guide](https://www.linuxtechi.com/how-to-install-debian-12-step-by-step) to get it installed. Deviations from the guide:
-
-    ```txt
-    Choose "Guided - use entire disk"
-    Choose "All files in one partition"
-    Delete Swap partition
-    Uncheck all Debian desktop environment options
-    ```
-
-2. [Post install] Remove CD/DVD as apt source
-
-    ```sh
-    su -
-    sed -i '/deb cdrom/d' /etc/apt/sources.list
-    apt update
-    exit
-    ```
-
-3. [Post install] Enable sudo for your non-root user
-
-    ```sh
-    su -
-    apt update
-    apt install -y sudo
-    usermod -aG sudo ${username}
-    echo "${username} ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${username}
-    exit
-    newgrp sudo
-    sudo apt update
-    ```
-
-4. [Post install] Add SSH keys (or use `ssh-copy-id` on the client that is connecting)
-
-    📍 _First make sure your ssh keys are up-to-date and added to your github account as [instructed](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)._
-
-    ```sh
-    mkdir -m 700 ~/.ssh
-    sudo apt install -y curl
-    curl https://github.com/${github_username}.keys > ~/.ssh/authorized_keys
-    chmod 600 ~/.ssh/authorized_keys
-    ```
-
-### k3s (RasPi4)
-
-<details>
-<summary><i>Click <b>here</b> to read about using a RasPi4</i></summary>
-
-
-> [!NOTE]
-> 1. It is recommended to have an 8GB RasPi model. Most important is to **boot from an external SSD/NVMe** rather than an SD card. This is [supported natively](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html), however if you have an early model you may need to [update the bootloader](https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb) first.
-> 2. Check the [power requirements](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply) if using a PoE Hat and a SSD/NVMe dongle.
-
-1. Download the latest stable release of Debian from [here](https://raspi.debian.net/tested-images). _**Do not** use Raspbian or DietPi or any other flavor Linux OS._
-
-2. Flash the image onto an SSD/NVMe drive.
-
-3. Re-mount the drive to your workstation and then do the following (per the [official documentation](https://raspi.debian.net/defaults-and-settings)):
-
-    ```txt
-    Open 'sysconf.txt' in a text editor and save it upon updating the information below
-      - Change 'root_authorized_key' to your desired public SSH key
-      - Change 'root_pw' to your desired root password
-      - Change 'hostname' to your desired hostname
-    ```
-
-4. Connect SSD/NVMe drive to the Raspberry Pi 4 and power it on.
-
-5. [Post install] SSH into the device with the `root` user and then create a normal user account with `adduser ${username}`
-
-6. [Post install] Follow steps 3 and 4 from [k3s (AMD64)](##k3s-amd64).
-
-7. [Post install] Install `python3` which is needed by Ansible.
-
-    ```sh
-    sudo apt install -y python3
-    ```
-
-8. Continue on to 🚀 [**Getting Started**](#-getting-started)
-
-</details>
+3. Continue on to 🚀 [**Getting Started**](#-getting-started)
 
 ## 🚀 Getting Started
 
@@ -188,13 +99,14 @@ You have two different options for setting up your local workstation.
     ```
 
     📍 _**Verify** that `direnv` is setup properly by opening a new terminal and `cd`ing into your repository. You should see something like:_
+
     ```sh
     cd /path/to/repo
     direnv: loading /path/to/repo/.envrc
     direnv: export +ANSIBLE_COLLECTIONS_PATH ...  +VIRTUAL_ENV ~PATH
     ```
 
-6. Install the additional **required** CLI tools
+4. Install the additional **required** CLI tools
 
    📍 _**Not using Homebrew or ArchLinux?** Try using the generic Linux task below, if that fails check out the [Brewfile](.taskfiles/Workstation/Brewfile)/[Archfile](.taskfiles/Workstation/Archfile) for what CLI tools needed and install them._
 
@@ -207,7 +119,7 @@ You have two different options for setting up your local workstation.
     task workstation:generic-linux
     ```
 
-7. Setup a Python virual environment by running the following task command.
+5. Setup a Python virual environment by running the following task command.
 
     📍 _This commands requires Python 3.11+ to be installed._
 
@@ -215,7 +127,7 @@ You have two different options for setting up your local workstation.
     task workstation:venv
     ```
 
-8. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
+6. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
 
 ### 🔧 Stage 3: Bootstrap configuration
 
@@ -246,43 +158,7 @@ You have two different options for setting up your local workstation.
     git push
     ```
 
-5.  Continue on to ⚡ [**Stage 4**](#-stage-4-prepare-your-nodes-for-kubernetes)
-
-### ⚡ Stage 4: Prepare your nodes for Kubernetes
-
-> [!NOTE]
-> For **Talos** skip ahead to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
-
-#### k3s
-
-📍 _Here we will be running an Ansible playbook to prepare your nodes for running a Kubernetes cluster._
-
-1. Ensure you are able to SSH into your nodes from your workstation using a private SSH key **without a passphrase** (for example using a SSH agent). This lets Ansible interact with your nodes.
-
-3. Install the Ansible dependencies
-
-    ```sh
-    task ansible:deps
-    ```
-
-4. Verify Ansible can view your config and ping your nodes
-
-    ```sh
-    task ansible:list
-    task ansible:ping
-    ```
-
-5. Run the Ansible prepare playbook (nodes wil reboot when done)
-
-    ```sh
-    task ansible:run playbook=cluster-prepare
-    ```
-
-6. Continue on to ⛵ [**Stage 5**](#-stage-5-install-kubernetes)
-
-### ⛵ Stage 5: Install Kubernetes
-
-#### Talos
+### ⛵ Stage 4: Install Kubernetes
 
 1. Deploy your cluster and bootstrap it. This generates secrets, generates the config files for your nodes and applies them. It bootstraps the cluster afterwards, fetches the kubeconfig file and installs Cilium and kubelet-csr-approver. It finishes with some health checks.
 
@@ -291,14 +167,6 @@ You have two different options for setting up your local workstation.
     ```
 
 2. ⚠️ It might take a while for the cluster to be setup (10+ minutes is normal), during which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. This is a normal. If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [nuke the cluster](#-Nuke) before trying again.
-
-#### k3s
-
-1. Install Kubernetes depending on the distribution you chose
-
-    ```sh
-    task ansible:run playbook=cluster-installation
-    ```
 
 #### Cluster validation
 
@@ -324,8 +192,8 @@ You have two different options for setting up your local workstation.
     ```sh
     flux check --pre
     # ► checking prerequisites
-    # ✔ kubectl 1.27.3 >=1.18.0-0
-    # ✔ Kubernetes 1.27.3+k3s1 >=1.16.0-0
+    # ✔ kubectl 1.30.1 >=1.18.0-0
+    # ✔ Kubernetes 1.30.1 >=1.16.0-0
     # ✔ prerequisites checks passed
     ```
 
@@ -424,15 +292,10 @@ By default Flux will periodically check your git repository for changes. In orde
 
 ## 💥 Nuke
 
-There might be a situation where you want to destroy your Kubernetes cluster. This will completely clean the OS of all traces of the Kubernetes distribution you chose and then reboot the nodes.
+There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode, append `--force` to completely format your the Talos installation. Either way the nodes should reboot after the command has run.
 
 ```sh
-# k3s: Remove all traces of k3s from the nodes
-task ansible:run playbook=cluster-nuke
-# Talos: Reset your nodes back to maintenance mode and reboot
-task talos:soft-nuke
-# Talos: Comletely format your the Talos installation and reboot
-task talos:hard-nuke
+task talos:nuke
 ```
 
 ## 🤖 Renovate
