@@ -6,13 +6,9 @@ from typing import Any
 
 from typing import Any
 from netaddr import IPNetwork
-from bcrypt import hashpw, gensalt
 
 import makejinja
 import validation
-
-def encrypt(value: str) -> str:
-    return hashpw(value.encode(), gensalt(rounds=10)).decode("ascii")
 
 
 def nthhost(value: str, query: int) -> str:
@@ -54,7 +50,7 @@ class Plugin(makejinja.plugin.Plugin):
 
 
     def filters(self) -> makejinja.plugin.Filters:
-        return [encrypt, nthhost]
+        return [nthhost]
 
 
     def path_filters(self):
