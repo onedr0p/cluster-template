@@ -23,9 +23,9 @@ hubble:
   enabled: false
 ipam:
   mode: kubernetes
-ipv4NativeRoutingCIDR: "${CLUSTER_CIDR}"
+ipv4NativeRoutingCIDR: #{ bootstrap_pod_network.split(',')[0] }#
 #% if bootstrap_feature_gates.dual_stack_ipv4_first %#
-ipv6NativeRoutingCIDR: "${CLUSTER_CIDR_V6}"
+ipv6NativeRoutingCIDR: "#{ bootstrap_pod_network.split(',')[1] }#"
 ipv6:
   enabled: true
 #% endif %#
