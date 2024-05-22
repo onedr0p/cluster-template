@@ -5,7 +5,4 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  NODE_CIDR: "#{ bootstrap_node_network }#"
-  #% if bootstrap_bgp.enabled %#
-  BGP_ADVERTISED_CIDR: "#{ bootstrap_bgp.advertised_network }#"
-  #% endif %#
+  SETTING_EXAMPLE: Global settings for your cluster go in this file, this file is NOT encrypted

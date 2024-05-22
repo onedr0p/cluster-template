@@ -36,5 +36,5 @@ metadata:
 spec:
   allowFirstLastIPs: "Yes"
   blocks:
-    - cidr: "${BGP_ADVERTISED_CIDR}"
+    - cidr: "#{ bootstrap_bgp.advertised_network }#"
 #% endif %#

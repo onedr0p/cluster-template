@@ -22,5 +22,5 @@ metadata:
 spec:
   allowFirstLastIPs: "Yes"
   blocks:
-    - cidr: "${NODE_CIDR}"
+    - cidr: "#{ bootstrap_node_network }#"
 #% endif %#
