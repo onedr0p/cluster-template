@@ -84,13 +84,6 @@ jobs:
         shell: bash
         run: task configure --yes
 
-      - name: Run Talos tasks
-        if: ${{ startsWith(matrix.config-files, 'talos') }}
-        shell: bash
-        run: |
-          task talos:bootstrap-gensecret
-          task talos:bootstrap-genconfig
-
       - name: Run repo clean and reset tasks
         shell: bash
         run: |
