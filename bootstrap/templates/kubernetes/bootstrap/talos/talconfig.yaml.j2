@@ -5,7 +5,7 @@ talosVersion: v1.7.2
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.30.1
 
-clusterName: &cluster #{ bootstrap_cluster_name|default('home-kubernetes', true) }#
+clusterName: "#{ bootstrap_cluster_name | default('home-kubernetes', true) }#"
 endpoint: https://#{ bootstrap_controller_vip }#:6443
 clusterPodNets:
   - "#{ bootstrap_pod_network.split(',')[0] }#"
@@ -18,6 +18,8 @@ additionalApiServerCertSans: &sans
   - "#{ item }#"
   #% endfor %#
 additionalMachineCertSans: *sans
+
+# Disable built-in Flannel to use Cilium
 cniConfig:
   name: none
 
@@ -125,7 +127,8 @@ patches:
         extraArgs:
           rotate-server-certificates: true
         nodeIP:
-          validSubnets: ["#{ bootstrap_node_network }#"]
+          validSubnets:
+            - #{ bootstrap_node_network }#
 
   #% if bootstrap_dns_servers | length %#
   # Force nameserver
@@ -168,7 +171,10 @@ patches:
           - destination: /var/openebs/local
             type: bind
             source: /var/openebs/local
-            options: ["bind", "rshared", "rw"]
+            options:
+              - bind
+              - rshared
+              - rw
 
   #% if bootstrap_secureboot.enabled and bootstrap_secureboot.encrypt_disk_with_tpm %#
   # Encrypt system disk with TPM
@@ -216,7 +222,7 @@ controlPlane:
           extraArgs:
             listen-metrics-urls: http://0.0.0.0:2381
           advertisedSubnets:
-            - "#{ bootstrap_node_network }#"
+            - #{ bootstrap_node_network }#
 
     # Disable default API server admission plugins.
     - |-
@@ -229,8 +235,10 @@ controlPlane:
         features:
           kubernetesTalosAPIAccess:
             enabled: true
-            allowedRoles: ["os:admin"]
-            allowedKubernetesNamespaces: ["system-upgrade"]
+            allowedRoles:
+              - os:admin
+            allowedKubernetesNamespaces:
+              - system-upgrade
     #% if bootstrap_user_patches %#
     # User specified controlPlane patches
     - "@./patches/controlPlane.yaml"
