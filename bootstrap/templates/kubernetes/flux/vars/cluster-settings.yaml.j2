@@ -5,11 +5,7 @@ metadata:
   name: cluster-settings
   namespace: flux-system
 data:
-  CLUSTER_CIDR: "#{ bootstrap_pod_network.split(',')[0] }#"
   NODE_CIDR: "#{ bootstrap_node_network }#"
-  #% if bootstrap_feature_gates.dual_stack_ipv4_first %#
-  CLUSTER_CIDR_V6: "#{ bootstrap_pod_network.split(',')[1] }#"
-  #% endif %#
   #% if bootstrap_bgp.enabled %#
   BGP_ADVERTISED_CIDR: "#{ bootstrap_bgp.advertised_network }#"
   #% endif %#
