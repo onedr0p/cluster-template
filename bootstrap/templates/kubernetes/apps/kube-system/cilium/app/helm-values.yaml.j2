@@ -1,7 +1,9 @@
 ---
 autoDirectNodeRoutes: true
+#% if bootstrap_bgp.enabled %#
 bgpControlPlane:
   enabled: true
+#% endif %#
 bpf:
   masquerade: false
 cgroup:

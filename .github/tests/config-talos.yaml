@@ -17,7 +17,7 @@ bootstrap_node_inventory:
     disk: fake
     mac_addr: fake
 bootstrap_dns_servers: ["1.1.1.1", "1.0.0.1"]
-bootstrap_dntp_servers: ["time.cloudflare.com"]
+bootstrap_ntp_servers: ["time.cloudflare.com"]
 bootstrap_pod_network: 10.69.0.0/16
 bootstrap_service_network: 10.96.0.0/16
 bootstrap_controller_vip: 10.10.10.254
