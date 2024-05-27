@@ -85,6 +85,9 @@ bootstrap_bgp:
   #   If these match, iBGP will be used. If not, eBGP will be used.
   peer_asn: ""  # Router(s) AS
   local_asn: "" # Node(s) AS
+  # (Optional) If using a non-default BGP port.
+  #   Default is 179 (tcp).
+  # peer_port: "" # BGP Port
   # (Required) The advertised CIDR for the cluster, this must NOT overlap with any
   #   existing networks and is usually a /16 (64K IPs).
   # If you want to use IPv6 check the advanced flags below
