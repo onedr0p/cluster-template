@@ -16,6 +16,9 @@ spec:
         #% for item in bootstrap_bgp.peers %#
         - peerAddress: "#{ item }#/32"
           peerASN: #{ bootstrap_bgp.peer_asn }#
+        #% if bootstrap_bgp.peer_port %#
+          peerPort: #{ bootstrap_bgp.peer_port }#
+        #% endif %#
         #% endfor %#
         #% else %#
         #% if bootstrap_node_default_gateway %#
