@@ -22,7 +22,7 @@ bootstrap_node_inventory: []
     #   controller: true  # (Required) Set to true if this is a controller node
     #   disk: ""          # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
     #   mac_addr: ""      # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
-    #   schematic_id: ""  # (Optional) Generated schematic id from https://factory.talos.dev/
+    #   schematic_id: ""  # (Optional) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
     #   mtu: ""           # (Optional) MTU for the NIC, default is 1500
     # ...
 
