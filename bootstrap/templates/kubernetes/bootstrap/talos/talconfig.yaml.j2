@@ -36,9 +36,9 @@ nodes:
     #% if bootstrap_secureboot.enabled %#
     machineSpec:
       secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/#{ bootstrap_schematic_id }#
+    talosImageURL: factory.talos.dev/installer-secureboot/#{ item.schematic_id | default(bootstrap_talos.schematic_id) }#
     #% else %#
-    talosImageURL: factory.talos.dev/installer/#{ bootstrap_schematic_id }#
+    talosImageURL: factory.talos.dev/installer/#{ item.schematic_id | default(bootstrap_talos.schematic_id) }#
     #% endif %#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
