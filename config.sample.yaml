@@ -24,6 +24,8 @@ bootstrap_node_inventory: []
     #   mac_addr: ""      # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
     #   schematic_id: ""  # (Optional) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
     #   mtu: ""           # (Optional) MTU for the NIC, default is 1500
+    #   manifests:        # (Optional) Additional manifests to include after MachineConfig
+    #     - extra.yaml    #            See: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
     # ...
 
 # (Optional) The DNS servers to use for the cluster nodes.
