@@ -86,6 +86,12 @@ nodes:
     patches:
       - "@./patches/node_#{ item.name }#.yaml"
     #% endif %#
+    #% if item.manifests %#
+    extraManifests:
+      #% for manifest in item.manifests %#
+      - #{ manifest }#
+      #% endfor %#
+    #% endif %#
   #% endfor %#
 
 patches:
