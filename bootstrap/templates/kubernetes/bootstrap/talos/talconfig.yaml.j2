@@ -99,7 +99,7 @@ nodes:
         configFiles:
         #% for cf in es.configFiles %#
           - content: |-
-              #{ cf.content }#
+#{ cf.content }#
             mountPath: #{ cf.mountPath }#
         #% endfor %#
         #% if es.environment %#
