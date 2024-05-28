@@ -17,15 +17,23 @@ bootstrap_node_network: ""
 # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
 #   Worker nodes are optional
 bootstrap_node_inventory: []
-    # - name: ""          # (Required) Name of the node (must match [a-z0-9-\]+)
-    #   address: ""       # (Optional) IP address of the node (Remove if node has a static DHCP reservation)
-    #   controller: true  # (Required) Set to true if this is a controller node
-    #   disk: ""          # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
-    #   mac_addr: ""      # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
-    #   schematic_id: ""  # (Optional) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
-    #   mtu: ""           # (Optional) MTU for the NIC, default is 1500
-    #   manifests:        # (Optional) Additional manifests to include after MachineConfig
-    #     - extra.yaml    #            See: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
+    # - name: ""            # (Required) Name of the node (must match [a-z0-9-\]+)
+    #   address: ""         # (Optional) IP address of the node (Remove if node has a static DHCP reservation)
+    #   controller: true    # (Required) Set to true if this is a controller node
+    #   disk: ""            # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
+    #   mac_addr: ""        # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
+    #   schematic_id: ""    # (Optional) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
+    #   mtu: ""             # (Optional) MTU for the NIC, default is 1500
+    #   manifests:          # (Optional) Additional manifests to include after MachineConfig
+    #     - extra.yaml      #            See: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
+    #   extension_services: # (Optional) Additional talhelper ExtensionServices (supports talenv.sops.yaml envsubst)
+    #     - name: name
+    #       configFiles:
+    #         - content: |-
+    #             ...
+    #       mountPath: ...
+    #       environment:
+    #         - key=value
     # ...
 
 # (Optional) The DNS servers to use for the cluster nodes.
