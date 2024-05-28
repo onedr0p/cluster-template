@@ -92,6 +92,24 @@ nodes:
       - #{ manifest }#
       #% endfor %#
     #% endif %#
+    #% if item.extension_services %#
+    extensionServices:
+      #% for es in item.extension_services %#
+      - name: #{ es.name }#
+        configFiles:
+        #% for cf in es.configFiles %#
+          - content: |-
+              #{ cf.content }#
+            mountPath: #{ cf.mountPath }#
+        #% endfor %#
+        #% if es.environment %#
+        environment:
+          #% for env in es.environment %#
+          - #{ env }#
+          #% endfor %#
+        #% endif %#
+      #% endfor %#
+    #% endif %#
   #% endfor %#
 
 patches:
