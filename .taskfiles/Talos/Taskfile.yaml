@@ -56,8 +56,10 @@ tasks:
         sh: test -f {{.HELMFILE_FILE}}
 
   upgrade:
-    desc: Upgrade talos on a node
-    cmd: talosctl --nodes {{.node}} upgrade --image {{.image}} --preserve=true --reboot-mode={{.mode}}
+    desc: Upgrade Talos on a node
+    cmds:
+      - talosctl --nodes {{.node}} upgrade --image {{.image}} --wait=true --timeout=10m --preserve=true --reboot-mode={{.mode}}
+      - talosctl --nodes {{.node}} health --wait-timeout=10m --server=false
     vars:
       mode: '{{.mode | default "default"}}'
     requires:
@@ -71,17 +73,17 @@ tasks:
         sh: talosctl --nodes {{.node}} get machineconfig >/dev/null 2>&1
 
   upgrade-k8s:
-    desc: Upgrade k8s on a node
-    cmd: talosctl --nodes {{.node}} upgrade-k8s --to {{.to}}
+    desc: Upgrade Kubernetes across the cluster
+    cmd: talosctl --nodes {{.controller}} upgrade-k8s --to {{.to}}
     requires:
-      vars: ["node", "to"]
+      vars: ["controller", "to"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
       - msg: Unable to retrieve Talos config
         sh: talosctl config info >/dev/null 2>&1
       - msg: Node not found
-        sh: talosctl --nodes {{.node}} get machineconfig >/dev/null 2>&1
+        sh: talosctl --nodes {{.controller}} get machineconfig >/dev/null 2>&1
 
   nuke:
     desc: Resets nodes back to maintenance mode

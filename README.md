@@ -358,6 +358,7 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 ```sh
 # Upgrade Talos to a newer version
+# NOTE: This needs to be run once on every node
 task talos:upgrade node=? image=?
 # e.g.
 # task talos:upgrade node=192.168.42.10 image=factory.talos.dev/installer/${schematic_id}:v1.7.4
@@ -365,9 +366,10 @@ task talos:upgrade node=? image=?
 
 ```sh
 # Upgrade Kubernetes to a newer version
-task talos:upgrade-k8s node=? to=?
+# NOTE: This only needs to be run once against a controller node
+task talos:upgrade-k8s controller=? to=?
 # e.g.
-# task talos:upgrade-k8s node=192.168.42.10 to=1.30.1
+# task talos:upgrade-k8s controller=192.168.42.10 to=1.30.1
 ```
 
 ## 👉 Help
