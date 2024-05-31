@@ -179,8 +179,8 @@ You have two different options for setting up your local workstation.
     ```sh
     kubectl get nodes -o wide
     # NAME           STATUS   ROLES                       AGE     VERSION
-    # k8s-0          Ready    control-plane,etcd,master   1h      v1.29.1
-    # k8s-1          Ready    worker                      1h      v1.29.1
+    # k8s-0          Ready    control-plane,etcd,master   1h      v1.30.1
+    # k8s-1          Ready    worker                      1h      v1.30.1
     ```
 
 3. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
@@ -352,6 +352,24 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
 Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
 
+## ⬆️ Upgrading Talos and Kubernetes
+
+### Manual
+
+```sh
+# Upgrade Talos to a newer version
+task talos:upgrade node=? image=?
+# e.g.
+# task talos:upgrade node=192.168.42.10 image=factory.talos.dev/installer/${schematic_id}:v1.7.4
+```
+
+```sh
+# Upgrade Kubernetes to a newer version
+task talos:upgrade-k8s node=? to=?
+# e.g.
+# task talos:upgrade-k8s node=192.168.42.10 to=1.30.1
+```
+
 ## 👉 Help
 
 - Make a post in this repository's Github [Discussions](https://github.com/onedr0p/cluster-template/discussions).
@@ -361,11 +379,11 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 The cluster is your oyster (or something like that). Below are some optional considerations you might want to review.
 
-#### Ship it
+### Ship it
 
 To browse or get ideas on applications people are running, community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) as a creative way to search Flux HelmReleases across Github and Gitlab.
 
-#### Storage
+### Storage
 
 The included CSI (openebs in local-hostpath mode) is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. If you need any of those features be sure to check out the projects like [rook-ceph](https://github.com/rook/rook), [longhorn](https://github.com/longhorn/longhorn), [openebs](https://github.com/openebs/openebs), [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs),
 and [synology-csi](https://github.com/SynologyOpenSource/synology-csi).
