@@ -154,8 +154,7 @@ patches:
           rotate-server-certificates: true
         nodeIP:
           validSubnets:
-            - #{ bootstrap_node_network }#
-            
+            - #{ bootstrap_node_network }#            
   # Enable host dns
   - |-
     machine:
@@ -276,10 +275,10 @@ controlPlane:
               - os:admin
             allowedKubernetesNamespaces:
               - system-upgrade
-    #% if bootstrap_talos_patches.controlPlane %#
-    # User specified controlPlane patches
-    #% for file in bootstrap_talos_patches.controlPlane %#
-    - "@./patches/controlPlane/#{ file }#"
+    #% if bootstrap_talos_patches.controller %#
+    # User specified controller patches
+    #% for file in bootstrap_talos_patches.controller %#
+    - "@./patches/controller/#{ file }#"
     #% endfor %#
     #% endif %#
 #% if ((bootstrap_talos_patches.worker) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
