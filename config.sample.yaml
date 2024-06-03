@@ -117,7 +117,7 @@ bootstrap_secureboot:
 #   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
 bootstrap_talos_patches: []
   # global: []        # (Optional) Patches for ALL nodes in kubernetes/bootstrap/talos/patches/global
-  # controller: []    # (Optional) Patches for controlplane nodes in kubernetes/bootstrap/talos/patches/controller
+  # controller: []    # (Optional) Patches for controller nodes in kubernetes/bootstrap/talos/patches/controller
   # worker: []        # (Optional) Patches for worker nodes in kubernetes/bootstrap/talos/patches/worker
   # node_<name>: []   # (Optional) Patches for individual nodes in kubernetes/bootstrap/talos/patches/node_<name>
 
