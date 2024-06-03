@@ -82,9 +82,11 @@ nodes:
           ip: "#{ bootstrap_controller_vip }#"
         #% endif %#
         #% endif %#
-    #% if bootstrap_user_patches %#
+    #% if bootstrap_talos_patches['node_' + item.name] %#
     patches:
-      - "@./patches/node_#{ item.name }#.yaml"
+      #% for file in bootstrap_talos_patches['node_' + item.name] %#
+      - "@./patches/node_#{ item.name }#/#{ file }#"
+      #% endfor %#
     #% endif %#
     #% if item.manifests %#
     extraManifests:
@@ -154,15 +156,6 @@ patches:
           validSubnets:
             - #{ bootstrap_node_network }#
 
-  # Enable host dns
-  - |-
-    machine:
-      features:
-        hostDNS:
-          enabled: true
-          resolveMemberNames: true
-          forwardKubeDNSToHost: false
-
   #% if bootstrap_dns_servers | length %#
   # Force nameserver
   - |-
@@ -226,9 +219,11 @@ patches:
               tpm: {}
   #% endif %#
 
-  #% if bootstrap_user_patches %#
+  #% if bootstrap_talos_patches.global %#
   # User specified global patches
-  - "@./patches/global.yaml"
+  #% for file in bootstrap_talos_patches.global %#
+  - "@./patches/global/#{ file }#"
+  #% endfor %#
   #% endif %#
 
 controlPlane:
@@ -272,13 +267,17 @@ controlPlane:
               - os:admin
             allowedKubernetesNamespaces:
               - system-upgrade
-    #% if bootstrap_user_patches %#
+    #% if bootstrap_talos_patches.controlPlane %#
     # User specified controlPlane patches
-    - "@./patches/controlPlane.yaml"
+    #% for file in bootstrap_talos_patches.controlPlane %#
+    - "@./patches/controlPlane/#{ file }#"
+    #% endfor %#
     #% endif %#
-#% if ((bootstrap_user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
+#% if ((bootstrap_talos_patches.worker) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
 worker:
   patches:
     # User specified worker patches
-    - "@./patches/worker.yaml"
+    #% for file in bootstrap_talos_patches.worker %#
+    - "@./patches/worker/#{ file }#"
+    #% endfor %#
 #% endif %#
