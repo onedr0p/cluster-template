@@ -39,6 +39,7 @@ tasks:
 
   fetch-kubeconfig:
     desc: Fetch kubeconfig
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
     preconditions:
       - msg: Missing talhelper config file
