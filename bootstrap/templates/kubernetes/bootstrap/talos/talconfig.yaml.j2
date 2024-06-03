@@ -154,6 +154,15 @@ patches:
           validSubnets:
             - #{ bootstrap_node_network }#
 
+  # Enable host dns
+  - |-
+    machine:
+      features:
+        hostDNS:
+          enabled: true
+          resolveMemberNames: true
+          forwardKubeDNSToHost: false
+
   #% if bootstrap_dns_servers | length %#
   # Force nameserver
   - |-
