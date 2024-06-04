@@ -47,6 +47,7 @@ tasks:
 
   install-helm-apps:
     desc: Bootstrap core apps needed for Talos
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmds:
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
       - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
@@ -59,6 +60,7 @@ tasks:
 
   upgrade:
     desc: Upgrade Talos on a node
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmds:
       - talosctl --nodes {{.node}} upgrade --image {{.image}} --wait=true --timeout=10m --preserve=true --reboot-mode={{.mode}}
       - talosctl --nodes {{.node}} health --wait-timeout=10m --server=false
@@ -76,6 +78,7 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade Kubernetes across the cluster
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: talosctl --nodes {{.controller}} upgrade-k8s --to {{.to}}
     requires:
       vars: ["controller", "to"]
