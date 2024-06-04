@@ -84,6 +84,7 @@ nodes:
         #% endif %#
     #% for file in talos_patches('%s' % (item.name)) %#
     #% if loop.index == 1 %#
+    # User-defined patches for the node #{ item.name }#
     patches:
     #% endif %#
       - "@./patches/#{ item.name }#/#{ file | basename }#"
@@ -229,7 +230,7 @@ patches:
   #% endif %#
   #% for file in talos_patches('global') %#
   #% if loop.index == 1 %#
-  # User-defined global patches
+  # User-defined patches for all nodes
   #% endif %#
   - "@./patches/global/#{ file | basename }#"
   #% endfor %#
@@ -278,7 +279,7 @@ controlPlane:
 
     #% for file in talos_patches('controller') %#
     #% if loop.index == 1 %#
-    # User-defined controller patches
+    # User-defined patches for the controller nodes
     #% endif %#
     - "@./patches/controller/#{ file | basename }#"
     #% endfor %#
@@ -287,7 +288,7 @@ controlPlane:
 worker:
   #% for file in talos_patches('worker') %#
   #% if loop.index == 1 %#
-  # User-defined worker patches
+  # User-defined patches for the worker nodes
   patches:
   #% endif %#
     - "@./patches/worker/#{ file | basename }#"

@@ -19,7 +19,7 @@ def talos_patches(value: str) -> list[str]:
     path = Path(f'bootstrap/templates/kubernetes/bootstrap/talos/patches/{value}')
     if not path.is_dir():
         return []
-    return [str(f) for f in path.glob('*') if f.is_file()]
+    return [str(f) for f in path.glob('*.yaml') if f.is_file()]
 
 
 def nthhost(value: str, query: int) -> str:
