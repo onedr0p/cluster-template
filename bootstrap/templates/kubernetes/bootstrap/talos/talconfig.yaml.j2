@@ -82,10 +82,12 @@ nodes:
           ip: "#{ bootstrap_controller_vip }#"
         #% endif %#
         #% endif %#
-    #% if bootstrap_user_patches %#
+    #% for file in talos_patches('%s' % (item.name)) %#
+    #% if loop.index == 1 %#
     patches:
-      - "@./patches/node_#{ item.name }#.yaml"
     #% endif %#
+      - "@./patches/#{ item.name }#/#{ file | basename }#"
+    #% endfor %#
     #% if item.manifests %#
     extraManifests:
       #% for manifest in item.manifests %#
@@ -225,11 +227,12 @@ patches:
             - slot: 0
               tpm: {}
   #% endif %#
-
-  #% if bootstrap_user_patches %#
-  # User specified global patches
-  - "@./patches/global.yaml"
+  #% for file in talos_patches('global') %#
+  #% if loop.index == 1 %#
+  # User-defined global patches
   #% endif %#
+  - "@./patches/global/#{ file | basename }#"
+  #% endfor %#
 
 controlPlane:
   patches:
@@ -272,13 +275,21 @@ controlPlane:
               - os:admin
             allowedKubernetesNamespaces:
               - system-upgrade
-    #% if bootstrap_user_patches %#
-    # User specified controlPlane patches
-    - "@./patches/controlPlane.yaml"
+
+    #% for file in talos_patches('controller') %#
+    #% if loop.index == 1 %#
+    # User-defined controller patches
     #% endif %#
-#% if ((bootstrap_user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
+    - "@./patches/controller/#{ file | basename }#"
+    #% endfor %#
+
+#% if (talos_patches('worker') | length) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length) %#
 worker:
+  #% for file in talos_patches('worker') %#
+  #% if loop.index == 1 %#
+  # User-defined worker patches
   patches:
-    # User specified worker patches
-    - "@./patches/worker.yaml"
+  #% endif %#
+    - "@./patches/worker/#{ file | basename }#"
+  #% endfor %#
 #% endif %#
