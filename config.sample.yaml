@@ -111,16 +111,6 @@ bootstrap_secureboot:
   #   See: https://www.talos.dev/v1.6/talos-guides/install/bare-metal-platforms/secureboot/#disk-encryption-with-tpm
   encrypt_disk_with_tpm: false
 
-# (Optional) Add includes for user provided patches to generated talconfig.yaml.
-#   See: https://github.com/budimanjojo/talhelper/blob/179ba9ed42f70069c7842109bea24f769f7af6eb/example/extraKernelArgs-patch.yaml
-#   Patches are applied in this order. (global overrides cp/worker which overrides node-specific).
-#   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
-#     kubernetes/bootstrap/talos/patches/node_<name>.yaml  # Patches for individual nodes
-#     kubernetes/bootstrap/talos/patches/controlPlane.yaml # Patches for controlplane nodes
-#     kubernetes/bootstrap/talos/patches/worker.yaml       # Patches for worker nodes
-#     kubernetes/bootstrap/talos/patches/global.yaml       # Patches for ALL nodes
-bootstrap_user_patches: false
-
 #
 # 2. (Required) Flux details - Flux is used to manage the cluster configuration.
 #
@@ -219,6 +209,4 @@ bootstrap_cloudflare:
 #   # IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
 #   #   Ref: https://github.com/onedr0p/cluster-template/issues/1148
 #   # Keep in mind that Cilium does not currently support IPv6 L2 announcements.
-#   # Make sure you set cluster.pod_cidr and cluster.service_cidr
-#   #   to a valid dual stack CIDRs, e.g. "10.42.0.0/16,fd00:10:244::/64"
 #   dual_stack_ipv4_first: false

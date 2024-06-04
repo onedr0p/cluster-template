@@ -82,10 +82,6 @@ nodes:
           ip: "#{ bootstrap_controller_vip }#"
         #% endif %#
         #% endif %#
-    #% if bootstrap_user_patches %#
-    patches:
-      - "@./patches/node_#{ item.name }#.yaml"
-    #% endif %#
     #% if item.manifests %#
     extraManifests:
       #% for manifest in item.manifests %#
@@ -110,62 +106,19 @@ nodes:
         #% endif %#
       #% endfor %#
     #% endif %#
+    #% for file in talos_patches('%s' % (item.name)) %#
+    #% if loop.index == 1 %#
+    patches:
+    #% endif %#
+      - "@./patches/#{ item.name }#/#{ file | basename }#"
+    #% endfor %#
   #% endfor %#
 
+# Global patches
 patches:
-  # Configure containerd
-  - |-
-    machine:
-      files:
-        - op: create
-          path: /etc/cri/conf.d/20-customization.part
-          content: |-
-            [plugins."io.containerd.grpc.v1.cri"]
-              enable_unprivileged_ports = true
-              enable_unprivileged_icmp = true
-            [plugins."io.containerd.grpc.v1.cri".containerd]
-              discard_unpacked_layers = false
-            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-              discard_unpacked_layers = false
-
-  # Disable search domain everywhere
-  - |-
-    machine:
-      network:
-        disableSearchDomain: true
-
-  # Enable cluster discovery
-  - |-
-    cluster:
-      discovery:
-        registries:
-          kubernetes:
-            disabled: false
-          service:
-            disabled: false
-
-  # Configure kubelet
-  - |-
-    machine:
-      kubelet:
-        extraArgs:
-          rotate-server-certificates: true
-        nodeIP:
-          validSubnets:
-            - #{ bootstrap_node_network }#
-
-  # Enable host dns
-  - |-
-    machine:
-      features:
-        hostDNS:
-          enabled: true
-          resolveMemberNames: true
-          forwardKubeDNSToHost: false
-
   #% if bootstrap_dns_servers | length %#
-  # Force nameserver
-  - |-
+  - # Force nameserver
+    |-
     machine:
       network:
         nameservers:
@@ -173,10 +126,9 @@ patches:
           - #{ item }#
           #% endfor %#
   #% endif %#
-
   #% if bootstrap_ntp_servers | length %#
-  # Configure NTP
-  - |-
+  - # Configure NTP
+    |-
     machine:
       time:
         disabled: false
@@ -185,33 +137,9 @@ patches:
           - #{ item }#
           #% endfor %#
   #% endif %#
-
-  # Custom sysctl settings
-  - |-
-    machine:
-      sysctls:
-        fs.inotify.max_queued_events: "65536"
-        fs.inotify.max_user_watches: "524288"
-        fs.inotify.max_user_instances: "8192"
-        net.core.rmem_max: "2500000"
-        net.core.wmem_max: "2500000"
-
-  # Mount openebs-hostpath in kubelet
-  - |-
-    machine:
-      kubelet:
-        extraMounts:
-          - destination: /var/openebs/local
-            type: bind
-            source: /var/openebs/local
-            options:
-              - bind
-              - rshared
-              - rw
-
   #% if bootstrap_secureboot.enabled and bootstrap_secureboot.encrypt_disk_with_tpm %#
-  # Encrypt system disk with TPM
-  - |-
+  - # Encrypt system disk with TPM
+    |-
     machine:
       systemDiskEncryption:
         ephemeral:
@@ -225,60 +153,26 @@ patches:
             - slot: 0
               tpm: {}
   #% endif %#
+  #% for file in talos_patches('global') %#
+  - "@./patches/global/#{ file | basename }#"
+  #% endfor %#
 
-  #% if bootstrap_user_patches %#
-  # User specified global patches
-  - "@./patches/global.yaml"
-  #% endif %#
-
+#% for file in talos_patches('controller') %#
+#% if loop.index == 1 %#
+# Controller patches
 controlPlane:
   patches:
-    # Cluster configuration
-    - |-
-      cluster:
-        allowSchedulingOnControlPlanes: true
-        controllerManager:
-          extraArgs:
-            bind-address: 0.0.0.0
-        coreDNS:
-          disabled: true
-        proxy:
-          disabled: true
-        scheduler:
-          extraArgs:
-            bind-address: 0.0.0.0
+#% endif %#
+    - "@./patches/controller/#{ file | basename }#"
+#% endfor %#
 
-    # ETCD configuration
-    - |-
-      cluster:
-        etcd:
-          extraArgs:
-            listen-metrics-urls: http://0.0.0.0:2381
-          advertisedSubnets:
-            - #{ bootstrap_node_network }#
-
-    # Disable default API server admission plugins.
-    - |-
-      - op: remove
-        path: /cluster/apiServer/admissionControl
-
-    # Enable K8s Talos API Access
-    - |-
-      machine:
-        features:
-          kubernetesTalosAPIAccess:
-            enabled: true
-            allowedRoles:
-              - os:admin
-            allowedKubernetesNamespaces:
-              - system-upgrade
-    #% if bootstrap_user_patches %#
-    # User specified controlPlane patches
-    - "@./patches/controlPlane.yaml"
-    #% endif %#
-#% if ((bootstrap_user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
+#% if (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length) and (talos_patches('worker') | length) %#
+#% for file in talos_patches('worker') %#
+#% if loop.index == 1 %#
+# Worker patches
 worker:
   patches:
-    # User specified worker patches
-    - "@./patches/worker.yaml"
+#% endif %#
+    - "@./patches/worker/#{ file | basename }#"
+#% endfor %#
 #% endif %#
