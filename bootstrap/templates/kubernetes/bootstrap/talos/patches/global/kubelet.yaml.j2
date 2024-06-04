@@ -1,0 +1,7 @@
+machine:
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+    nodeIP:
+      validSubnets:
+        - #{ bootstrap_node_network }#
