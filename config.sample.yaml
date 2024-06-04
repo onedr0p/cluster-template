@@ -115,7 +115,7 @@ bootstrap_secureboot:
 #   See: https://github.com/budimanjojo/talhelper/blob/179ba9ed42f70069c7842109bea24f769f7af6eb/example/extraKernelArgs-patch.yaml
 #   Patches are applied in this order. (global overrides cp/worker which overrides node-specific).
 #   Create these files to allow talos:bootstrap-genconfig to complete (empty files are ok).
-bootstrap_talos_patches: []
+bootstrap_talos_patches: {}
   # global: []        # (Optional) Patches for ALL nodes in kubernetes/bootstrap/talos/patches/global
   # controller: []    # (Optional) Patches for controller nodes in kubernetes/bootstrap/talos/patches/controller
   # worker: []        # (Optional) Patches for worker nodes in kubernetes/bootstrap/talos/patches/worker
