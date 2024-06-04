@@ -16,6 +16,7 @@ tasks:
 
   bootstrap:
     desc: Bootstrap the Talos cluster
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmds:
       - |
         if [ ! -f "{{.TALHELPER_SECRET_FILE}}" ]; then
@@ -38,6 +39,7 @@ tasks:
 
   fetch-kubeconfig:
     desc: Fetch kubeconfig
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
     preconditions:
       - msg: Missing talhelper config file
@@ -87,6 +89,7 @@ tasks:
 
   nuke:
     desc: Resets nodes back to maintenance mode
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     cmd: talhelper gencommand reset --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
 
