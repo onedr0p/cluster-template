@@ -29,7 +29,7 @@ tasks:
           file: "{{.ITEM}}"
     vars:
       file:
-        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -l "ENC\[AES256_GCM" {} \;
+        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM" {} \;
 
   .decrypt-file:
     internal: true
