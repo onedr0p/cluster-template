@@ -9,8 +9,19 @@ tasks:
     cmd: age-keygen --output {{.AGE_FILE}}
     status: ["test -f {{.AGE_FILE}}"]
 
+  decrypt:
+    desc: Decrypt one or all Kubernetes SOPS secrets
+    cmds:
+      - for: { var: file }
+        task: .decrypt-file
+        vars:
+          file: "{{.ITEM}}"
+    vars:
+      file:
+        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -l "ENC\[AES256_GCM" {} \;
+
   encrypt:
-    desc: Encrypt all Kubernetes SOPS secrets
+    desc: Encrypt one or all Kubernetes SOPS secrets
     cmds:
       - for: { var: file }
         task: .encrypt-file
@@ -18,7 +29,18 @@ tasks:
           file: "{{.ITEM}}"
     vars:
       file:
-        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM" {} \;
+        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -l "ENC\[AES256_GCM" {} \;
+
+  .decrypt-file:
+    internal: true
+    cmd: sops --decrypt --in-place {{.file}}
+    requires:
+      vars: ["file"]
+    preconditions:
+      - msg: Missing Sops config file
+        sh: test -f {{.SOPS_CONFIG_FILE}}
+      - msg: Missing Sops Age key file
+        sh: test -f {{.AGE_FILE}}
 
   .encrypt-file:
     internal: true
