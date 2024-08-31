@@ -1,3 +1,4 @@
+cattrs==23.2.3
 cloudflare==3.1.0
 email-validator==2.2.0
 makejinja==2.6.2
