@@ -4,7 +4,7 @@ set -o noglob
 
 apk add --no-cache \
     age bash bind-tools ca-certificates curl direnv gettext python3 \
-    py3-pip moreutils jq git iputils openssh-client \
+    py3-pip moreutils jq git iputils openssh-client openssl \
     starship fzf fish yq helm
 
 apk add --no-cache \
