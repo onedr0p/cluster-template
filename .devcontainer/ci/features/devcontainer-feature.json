@@ -1,6 +1,6 @@
 {
-  "name": "Flux Cluster Template (Tools)",
+  "name": "Cluster Template",
   "id": "cluster-template",
   "version": "1.0.0",
-  "description": "Install Tools"
+  "description": "Work environment for the Cluster Template project"
 }
