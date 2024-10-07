@@ -20,7 +20,7 @@ tasks:
             fi
           done
     preconditions:
-      - msg: Missing Sops config
+      - msg: Missing Sops config file
         sh: test -f {{.SOPS_CONFIG_FILE}}
       - msg: Missing Sops Age key file
         sh: test -f {{.AGE_FILE}}
