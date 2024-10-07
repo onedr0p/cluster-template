@@ -13,6 +13,14 @@ tasks:
     desc: Encrypt all Kubernetes SOPS secrets
     cmds:
       - cmd: |
+          if [ ! -f {{.SOPS_CONFIG_FILE}} ]; then
+            echo "Missing Sops config file"
+            exit 1
+          fi
+          if [ ! -f {{.AGE_FILE}} ]; then
+            echo "Missing Sops Age key file"
+            exit 1
+          fi
           find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" | while read -r file; do
             if sops filestatus "$file" | jq --exit-status ".encrypted == false" > /dev/null; then
               sops --encrypt --in-place "$file"
