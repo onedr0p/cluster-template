@@ -12,19 +12,13 @@ tasks:
   encrypt:
     desc: Encrypt all Kubernetes SOPS secrets
     cmds:
-      - for: { var: file }
-        task: .encrypt-file
-        vars:
-          file: "{{.ITEM}}"
-    vars:
-      file:
-        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" | xargs -I {} sh -c 'sops filestatus {} | jq --exit-status ".encrypted == false" > /dev/null && echo {}'
-
-  .encrypt-file:
-    internal: true
-    cmd: sops --encrypt --in-place {{.file}}
-    requires:
-      vars: ["file"]
+      - cmd: |
+          find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" | while read -r file; do
+            if sops filestatus "$file" | jq --exit-status ".encrypted == false" > /dev/null; then
+              sops --encrypt --in-place "$file"
+              echo "Encrypted $file"
+            fi
+          done
     preconditions:
       - msg: Missing Sops config file
         sh: test -f {{.SOPS_CONFIG_FILE}}
