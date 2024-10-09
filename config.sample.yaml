@@ -71,10 +71,10 @@ bootstrap_controller_vip: ""
 bootstrap_tls_sans: []
 
 # (Optional) The default gateway for the nodes
-#   Default is .1 which is derrived from bootstrap_node_network (e.g. 192.168.1.1)
+#   Default is derrived from bootstrap_node_network (e.g. 192.168.1.1)
 bootstrap_node_default_gateway: ""
 
-# (Optional) Add vlan tag to network master device, this is not needed if you tag ports on your switch with the VLAN
+# (Optional) Add vlan tag to network master device, leave blank if you tag ports on your switch instead
 #   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
 bootstrap_vlan: ""
 
@@ -183,7 +183,6 @@ bootstrap_cloudflare:
   #   in your nodes host network that is NOT being used. This is announced over L2.
   gateway_vip: ""
   # (Required) Options for Cloudflare Tunnel
-  # There's two methods to create a tunnel, via the CLI or the Cloudflare dashboard.
   #   1. Authenticate cloudflared to your domain with the following command:
   #     > cloudflared tunnel login
   #   2. Create the tunnel with the following command:
@@ -206,7 +205,7 @@ bootstrap_cloudflare:
 # (Optional) Feature gates are used to enable experimental features
 # bootstrap_feature_gates:
 #   # Enable Dual Stack IPv4 first
-#   # IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
-#   #   Ref: https://github.com/onedr0p/cluster-template/issues/1148
-#   # Keep in mind that Cilium does not currently support IPv6 L2 announcements.
+#   #   IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
+#   #     Ref: https://github.com/onedr0p/cluster-template/discussions/1510
+#   #   IMPORTANT: Cilium does not currently support IPv6 L2 announcements.
 #   dual_stack_ipv4_first: false
