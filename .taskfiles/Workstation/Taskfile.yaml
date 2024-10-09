@@ -1,54 +1,46 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-version: "3"
+version: '3'
 
 vars:
-  ARCHFILE: "{{.ROOT_DIR}}/.taskfiles/Workstation/Archfile"
-  BREWFILE: "{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile"
-  GENERIC_BIN_DIR: "{{.ROOT_DIR}}/.bin"
+  ARCHFILE: '{{.ROOT_DIR}}/.taskfiles/Workstation/Archfile'
+  BREWFILE: '{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile'
+  GENERIC_BIN_DIR: '{{.ROOT_DIR}}/.bin'
+  PIP_REQUIREMENTS_FILE: '{{.ROOT_DIR}}/requirements.txt'
+  PYTHON_BIN: python3
 
 tasks:
 
-  direnv:
-    desc: Run direnv hooks
-    cmd: direnv allow .
-    status:
-      - "[[ $(direnv status --json | jq '.state.foundRC.allowed') == 0 ]]"
-      - "[[ $(direnv status --json | jq '.state.loadedRC.allowed') == 0 ]]"
-
-  venv:
-    desc: Set up virtual environment
-    cmds:
-      - "{{.PYTHON_BIN}} -m venv {{.VIRTUAL_ENV}}"
-      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade pip setuptools wheel'
-      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade --requirement "{{.PIP_REQUIREMENTS_FILE}}"'
-    sources:
-      - "{{.PIP_REQUIREMENTS_FILE}}"
-    generates:
-      - "{{.VIRTUAL_ENV}}/pyvenv.cfg"
+  arch:
+    desc: Install Arch workstation dependencies with Paru Or Yay
+    cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ARCHFILE}} | xargs)'
+    vars:
+      PKGMGR:
+        sh: command -v yay || command -v paru
     preconditions:
-      - { msg: "Missing Pip requirements file", sh: "test -f {{.PIP_REQUIREMENTS_FILE}}" }
+      - msg: Missing Archfile
+        sh: test -f {{.ARCHFILE}}
 
   brew:
     desc: Install workstation dependencies with Brew
     cmd: brew bundle --file {{.BREWFILE}}
     preconditions:
-      - { msg: "Missing Homebrew", sh: "command -v brew" }
-      - { msg: "Missing Brewfile", sh: "test -f {{.BREWFILE}}" }
+      - msg: Missing Homebrew
+        sh: command -v brew
+      - msg: Missing Brewfile
+        sh: test -f {{.BREWFILE}}
 
-  arch:
-    desc: Install Arch workstation dependencies with Paru Or Yay
-    cmd: "{{.helper}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ARCHFILE}} | xargs)"
-    vars:
-      helper:
-        sh: "command -v yay || command -v paru"
-    preconditions:
-      - { msg: "Missing Archfile", sh: "test -f {{.ARCHFILE}}" }
+  direnv:
+    desc: Run direnv hooks
+    cmd: direnv allow .
+    status:
+      - '[[ $(direnv status --json | jq ".state.foundRC.allowed") == 0 ]]'
+      - '[[ $(direnv status --json | jq ".state.loadedRC.allowed") == 0 ]]'
 
   generic-linux:
-    desc: Install CLI tools into the projects .bin directory using curl
-    dir: "{{.GENERIC_BIN_DIR}}"
-    platforms: ["linux/amd64", "linux/arm64"]
+    desc: Try to install CLI tools into the projects .bin directory
+    dir: '{{.GENERIC_BIN_DIR}}'
+    platforms: ['linux/amd64', 'linux/arm64']
     cmds:
       - for:
           - budimanjojo/talhelper?as=talhelper&type=script
@@ -64,8 +56,22 @@ tasks:
           - mikefarah/yq?as=yq&type=script
         cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}" | bash
       - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        platforms: ["linux/amd64"]
+        platforms: ['linux/amd64']
       - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
-        platforms: ["linux/arm64"]
+        platforms: ['linux/arm64']
       - cmd: chmod +x kubectl
       - cmd: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | USE_SUDO="false" HELM_INSTALL_DIR="." bash
+
+  venv:
+    desc: Set up virtual environment
+    cmds:
+      - '{{.PYTHON_BIN}} -m venv {{.VIRTUAL_ENV}}'
+      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade pip setuptools wheel'
+      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade --requirement "{{.PIP_REQUIREMENTS_FILE}}"'
+    sources:
+      - '{{.PIP_REQUIREMENTS_FILE}}'
+    generates:
+      - '{{.VIRTUAL_ENV}}/pyvenv.cfg'
+    preconditions:
+      - msg: Missing Pip requirements file
+        sh: test -f {{.PIP_REQUIREMENTS_FILE}}

@@ -1,75 +1,48 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-version: "3"
+version: '3'
 
 vars:
-  CLUSTER_SECRET_SOPS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml"
-  CLUSTER_SETTINGS_FILE: "{{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml"
-  GITHUB_DEPLOY_KEY_FILE: "{{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml"
+  CLUSTER_SECRET_SOPS_FILE: '{{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml'
+  CLUSTER_SETTINGS_FILE: '{{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml'
+  GITHUB_DEPLOY_KEY_FILE: '{{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml'
 
 tasks:
 
   bootstrap:
     desc: Bootstrap Flux into a Kubernetes cluster
     cmds:
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap/flux
+      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap/flux
       - |
-        if ! kubectl --kubeconfig {{.KUBECONFIG_FILE}} -n flux-system get secret sops-age >/dev/null 2>&1; then
-          cat {{.AGE_FILE}} | kubectl --kubeconfig {{.KUBECONFIG_FILE}} -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
+        if ! kubectl --namespace flux-system get secret sops-age >/dev/null 2>&1; then
+          cat {{.SOPS_AGE_KEY_FILE}} | kubectl --namespace flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
         else
           echo "sops-age secret already exists, skipping creation."
         fi
-      - sops --decrypt {{.CLUSTER_SECRET_SOPS_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.CLUSTER_SETTINGS_FILE}}
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
+      - sops --decrypt {{.CLUSTER_SECRET_SOPS_FILE}} | kubectl apply --server-side --filename -
+      - kubectl apply --server-side --filename {{.CLUSTER_SETTINGS_FILE}}
+      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
       - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
+        sh: test -f {{.KUBECONFIG}}
       - msg: Missing Sops Age key file
-        sh: test -f {{.AGE_FILE}}
-
-  apply:
-    desc: Apply a Flux Kustomization resource for a cluster
-    summary: |
-      Args:
-        path: Path under apps containing the Flux Kustomization resource (ks.yaml) (required)
-        ns: Namespace the Flux Kustomization exists in (default: flux-system)
-    cmd: |
-      flux --kubeconfig {{.KUBECONFIG_FILE}} build ks $(basename {{.path}}) \
-          --namespace {{.ns}} \
-          --kustomization-file {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml \
-          --path {{.KUBERNETES_DIR}}/apps/{{.path}} \
-          {{- if contains "not found" .ks }}--dry-run \{{ end }}
-      | \
-      kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side \
-          --field-manager=kustomize-controller -f -
-    requires:
-      vars: ["path"]
-    vars:
-      ns: '{{.ns | default "flux-system"}}'
-      ks:
-        sh: flux --kubeconfig {{.KUBECONFIG_FILE}} --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
-    preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
-      - msg: Missing Flux Kustomization for app {{.path}}
-        sh: test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml
+        sh: test -f {{.SOPS_AGE_KEY_FILE}}
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
-    cmd: flux --kubeconfig {{.KUBECONFIG_FILE}} reconcile --namespace flux-system kustomization cluster --with-source
+    cmd: flux reconcile --namespace flux-system kustomization cluster --with-source
     preconditions:
       - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
+        sh: test -f {{.KUBECONFIG}}
 
   github-deploy-key:
     cmds:
-      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl --kubeconfig {{.KUBECONFIG_FILE}} apply --filename -
-      - sops --decrypt {{.GITHUB_DEPLOY_KEY_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply --filename -
+      - sops --decrypt {{.GITHUB_DEPLOY_KEY_FILE}} | kubectl apply --server-side --filename -
     preconditions:
       - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
+        sh: test -f {{.KUBECONFIG}}
       - msg: Missing Sops Age key file
-        sh: test -f {{.AGE_FILE}}
+        sh: test -f {{.SOPS_AGE_KEY_FILE}}
       - msg: Missing Github deploy key file
         sh: test -f {{.GITHUB_DEPLOY_KEY_FILE}}

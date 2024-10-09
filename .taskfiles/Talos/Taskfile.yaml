@@ -1,22 +1,21 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-version: "3"
+version: '3'
 
 vars:
-  TALHELPER_CLUSTER_DIR: "{{.KUBERNETES_DIR}}/bootstrap/talos/clusterconfig"
-  TALHELPER_SECRET_FILE: "{{.KUBERNETES_DIR}}/bootstrap/talos/talsecret.sops.yaml"
-  TALHELPER_CONFIG_FILE: "{{.KUBERNETES_DIR}}/bootstrap/talos/talconfig.yaml"
-  HELMFILE_FILE: "{{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml"
-  TALOSCONFIG_FILE: "{{.TALHELPER_CLUSTER_DIR}}/talosconfig"
+  TALHELPER_CLUSTER_DIR: '{{.KUBERNETES_DIR}}/bootstrap/talos/clusterconfig'
+  TALHELPER_SECRET_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talsecret.sops.yaml'
+  TALHELPER_CONFIG_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talconfig.yaml'
+  HELMFILE_FILE: '{{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml'
 
 env:
-  TALOSCONFIG: "{{.TALOSCONFIG_FILE}}"
+  TALOSCONFIG: '{{.TALHELPER_CLUSTER_DIR}}/talosconfig'
 
 tasks:
 
   bootstrap:
     desc: Bootstrap the Talos cluster
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
+    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
     cmds:
       - |
         if [ ! -f "{{.TALHELPER_SECRET_FILE}}" ]; then
@@ -26,8 +25,8 @@ tasks:
       - talhelper genconfig --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}}
       - talhelper gencommand apply --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--insecure" | bash
       - until talhelper gencommand bootstrap --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} | bash; do sleep 10; done
-      - task: fetch-kubeconfig
-      - task: install-helm-apps
+      - task: conf
+      - task: apps
       - talosctl health --server=false
     preconditions:
       - msg: Missing talhelper config file
@@ -35,42 +34,21 @@ tasks:
       - msg: Missing Sops config file
         sh: test -f {{.SOPS_CONFIG_FILE}}
       - msg: Missing Sops Age key file
-        sh: test -f {{.AGE_FILE}}
-
-  fetch-kubeconfig:
-    desc: Fetch kubeconfig
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
-    cmd: until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
-    preconditions:
-      - msg: Missing talhelper config file
-        sh: test -f {{.TALHELPER_CONFIG_FILE}}
-
-  install-helm-apps:
-    desc: Bootstrap core apps needed for Talos
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
-    cmds:
-      - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
-      - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
-    preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG_FILE}}
-      - msg: Missing helmfile
-        sh: test -f {{.HELMFILE_FILE}}
+        sh: test -f {{.SOPS_AGE_KEY_FILE}}
 
   upgrade:
     desc: Upgrade Talos on a node
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
+    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
     cmds:
-      - talosctl --nodes {{.node}} upgrade --image {{.image}} --wait=true --timeout=10m --preserve=true --reboot-mode={{.mode}}
-      - talosctl --nodes {{.node}} health --wait-timeout=10m --server=false
+      - talosctl --nodes {{.NODE}} upgrade --image {{.IMAGE}} --wait=true --timeout=10m --preserve=true --reboot-mode={{.MODE}}
+      - talosctl --nodes {{.NODE}} health --wait-timeout=10m --server=false
     vars:
-      mode: '{{.mode | default "default"}}'
+      MODE: '{{.MODE | default "default"}}'
     requires:
-      vars: ["node", "image"]
+      vars: ['NODE', 'IMAGE']
     preconditions:
       - msg: Missing talosconfig
-        sh: test -f {{.TALOSCONFIG_FILE}}
+        sh: test -f {{.TALOSCONFIG}}
       - msg: Unable to retrieve Talos config
         sh: talosctl config info >/dev/null 2>&1
       - msg: Node not found
@@ -78,17 +56,17 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade Kubernetes across the cluster
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
-    cmd: talosctl --nodes {{.controller}} upgrade-k8s --to {{.to}}
+    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
+    cmd: talosctl --nodes {{.CONTROLLER}} upgrade-k8s --to {{.TO}}
     requires:
-      vars: ["controller", "to"]
+      vars: ['CONTROLLER', 'TO']
     preconditions:
       - msg: Missing talosconfig
-        sh: test -f {{.TALOSCONFIG_FILE}}
+        sh: test -f {{.TALOSCONFIG}}
       - msg: Unable to retrieve Talos config
         sh: talosctl config info >/dev/null 2>&1
       - msg: Node not found
-        sh: talosctl --nodes {{.controller}} get machineconfig >/dev/null 2>&1
+        sh: talosctl --nodes {{.CONTROLLER}} get machineconfig >/dev/null 2>&1
 
   nuke:
     desc: Resets nodes back to maintenance mode
@@ -96,6 +74,27 @@ tasks:
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     cmd: talhelper gencommand reset --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
 
-  .reset:
+  conf:
+    internal: true
+    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
+    cmd: until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
+    preconditions:
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
+
+  apps:
+    internal: true
+    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
+    cmds:
+      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
+      - helmfile --file {{.HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
+    preconditions:
+      - msg: Missing kubeconfig
+        sh: test -f {{.KUBECONFIG}}
+      - msg: Missing helmfile
+        sh: test -f {{.HELMFILE_FILE}}
+
+  reset:
     internal: true
     cmd: rm -rf {{.TALHELPER_CLUSTER_DIR}} {{.TALHELPER_SECRET_FILE}} {{.TALHELPER_CONFIG_FILE}}

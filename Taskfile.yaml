@@ -1,28 +1,20 @@
 ---
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
-version: "3"
+version: '3'
 
 vars:
-  # Directories
-  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
-  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
-  PRIVATE_DIR: "{{.ROOT_DIR}}/.private"
-  SCRIPTS_DIR: "{{.ROOT_DIR}}/scripts"
-  # Files
-  AGE_FILE: "{{.ROOT_DIR}}/age.key"
-  BOOTSTRAP_CONFIG_FILE: "{{.ROOT_DIR}}/config.yaml"
-  KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
-  MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
-  PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
-  SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
-  # Binaries
-  PYTHON_BIN: python3
+  BOOTSTRAP_DIR: '{{.ROOT_DIR}}/bootstrap'
+  KUBERNETES_DIR: '{{.ROOT_DIR}}/kubernetes'
+  SCRIPTS_DIR: '{{.ROOT_DIR}}/scripts'
+  BOOTSTRAP_CONFIG_FILE: '{{.ROOT_DIR}}/config.yaml'
+  MAKEJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/makejinja.toml'
+  SOPS_CONFIG_FILE: '{{.ROOT_DIR}}/.sops.yaml'
 
 env:
-  KUBECONFIG: "{{.KUBECONFIG_FILE}}"
-  PYTHONDONTWRITEBYTECODE: "1"
-  SOPS_AGE_KEY_FILE: "{{.AGE_FILE}}"
-  VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
+  KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
+  PYTHONDONTWRITEBYTECODE: '1'
+  SOPS_AGE_KEY_FILE: '{{.ROOT_DIR}}/age.key'
+  VIRTUAL_ENV: '{{.ROOT_DIR}}/.venv'
 
 includes:
   kubernetes: .taskfiles/Kubernetes
@@ -53,15 +45,15 @@ tasks:
   configure:
     desc: Configure repository from bootstrap vars
     prompt: Any conflicting config in the kubernetes directory will be overwritten... continue?
-    deps: ["workstation:direnv", "workstation:venv", "sops:age-keygen", "init"]
+    deps: ['workstation:direnv', 'workstation:venv', 'sops:age-keygen', 'init']
     cmds:
-      - task: .template
+      - task: template
       - task: sops:encrypt
-      - task: .validate
+      - task: validate
 
-  .template:
+  template:
     internal: true
-    cmd: "{{.VIRTUAL_ENV}}/bin/makejinja"
+    cmd: '{{.VIRTUAL_ENV}}/bin/makejinja'
     preconditions:
       - msg: Missing virtual environment
         sh: test -d {{.VIRTUAL_ENV}}
@@ -72,19 +64,11 @@ tasks:
       - msg: Missing bootstrap config file
         sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
-  .validate:
+  validate:
     internal: true
     cmds:
       - task: kubernetes:kubeconform
       - cmd: echo === Done rendering and validating YAML ===
-      - cmd: |
-          if [[ $KUBECONFIG != "{{.KUBECONFIG_FILE}}" ]]; then
-            echo WARNING: KUBECONFIG is not set to the expected value, this may cause conflicts.
-          fi
-      - cmd: |
-          if [[ $SOPS_AGE_KEY_FILE != "{{.AGE_FILE}}" ]]; then
-            echo WARNING: SOPS_AGE_KEY_FILE is not set to the expected value, this may cause conflicts.
-          fi
       - cmd: |
           if test -f ~/.config/sops/age/keys.txt; then
             echo WARNING: SOPS Age key found in home directory, this may cause conflicts.
