@@ -47,11 +47,11 @@ tasks:
     prompt: Any conflicting config in the kubernetes directory will be overwritten... continue?
     deps: ['workstation:direnv', 'workstation:venv', 'sops:age-keygen', 'init']
     cmds:
-      - task: .template
+      - task: template
       - task: sops:encrypt
-      - task: .validate
+      - task: validate
 
-  .template:
+  template:
     internal: true
     cmd: '{{.VIRTUAL_ENV}}/bin/makejinja'
     preconditions:
@@ -64,7 +64,7 @@ tasks:
       - msg: Missing bootstrap config file
         sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
-  .validate:
+  validate:
     internal: true
     cmds:
       - task: kubernetes:kubeconform

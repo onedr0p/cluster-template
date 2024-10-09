@@ -26,6 +26,6 @@ tasks:
       - msg: Missing Sops Age key file
         sh: test -f {{.SOPS_AGE_KEY_FILE}}
 
-  .reset:
+  reset:
     internal: true
     cmd: rm -rf {{.SOPS_CONFIG_FILE}}

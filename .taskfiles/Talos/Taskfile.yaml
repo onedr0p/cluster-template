@@ -36,27 +36,6 @@ tasks:
       - msg: Missing Sops Age key file
         sh: test -f {{.SOPS_AGE_KEY_FILE}}
 
-  conf:
-    desc: Fetch kubeconfig
-    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
-    cmd: until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
-    preconditions:
-      - msg: Missing talhelper config file
-        sh: test -f {{.TALHELPER_CONFIG_FILE}}
-
-  apps:
-    desc: Bootstrap core apps needed for Talos
-    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
-    cmds:
-      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - helmfile --file {{.HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
-      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
-    preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG}}
-      - msg: Missing helmfile
-        sh: test -f {{.HELMFILE_FILE}}
-
   upgrade:
     desc: Upgrade Talos on a node
     dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
@@ -95,6 +74,27 @@ tasks:
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     cmd: talhelper gencommand reset --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
 
-  .reset:
+  conf:
+    internal: true
+    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
+    cmd: until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
+    preconditions:
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
+
+  apps:
+    internal: true
+    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
+    cmds:
+      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
+      - helmfile --file {{.HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
+    preconditions:
+      - msg: Missing kubeconfig
+        sh: test -f {{.KUBECONFIG}}
+      - msg: Missing helmfile
+        sh: test -f {{.HELMFILE_FILE}}
+
+  reset:
     internal: true
     cmd: rm -rf {{.TALHELPER_CLUSTER_DIR}} {{.TALHELPER_SECRET_FILE}} {{.TALHELPER_CONFIG_FILE}}

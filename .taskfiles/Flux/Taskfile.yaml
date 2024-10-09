@@ -28,29 +28,6 @@ tasks:
       - msg: Missing Sops Age key file
         sh: test -f {{.SOPS_AGE_KEY_FILE}}
 
-  apply-ks:
-    desc: Apply a Flux Kustomization resource
-    summary: |
-      PATH: Path to the Flux Kustomization resource from the apps base dir (required, e.g. default/plex)
-      NS: Namespace the Flux Kustomization exists in (default: flux-system)
-    cmd: |
-      flux build ks {{base .PATH}} \
-          --namespace {{.NS}} \
-          --kustomization-file {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml \
-          --path {{.KUBERNETES_DIR}}/apps/{{.PATH}} \
-          {{- if contains "not found" .KS }}--dry-run \{{ end }}
-      | \
-      kubectl apply --server-side --field-manager=kustomize-controller -f -
-    requires:
-      vars: ['PATH']
-    vars:
-      NS: '{{.NS | default "flux-system"}}'
-      KS:
-        sh: flux --namespace {{.NS}} get kustomizations {{base .PATH}} 2>&1
-    preconditions:
-      - msg: Missing Flux Kustomization for app {{.path}}
-        sh: test -f {{.KUBERNETES_DIR}}/apps/{{.path}}/ks.yaml
-
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmd: flux reconcile --namespace flux-system kustomization cluster --with-source
