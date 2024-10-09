@@ -6,6 +6,8 @@ vars:
   ARCHFILE: '{{.ROOT_DIR}}/.taskfiles/Workstation/Archfile'
   BREWFILE: '{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile'
   GENERIC_BIN_DIR: '{{.ROOT_DIR}}/.bin'
+  PIP_REQUIREMENTS_FILE: '{{.ROOT_DIR}}/requirements.txt'
+  PYTHON_BIN: python3
 
 tasks:
 
