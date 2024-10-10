@@ -369,7 +369,7 @@ task talos:upgrade NODE=? IMAGE=?
 # NOTE: This only needs to be run once against a controller node
 task talos:upgrade-k8s NODE=? VERSION=?
 # e.g.
-# task talos:upgrade-k8s CONTROLLER=192.168.42.10 VERSION=1.30.1
+# task talos:upgrade-k8s NODE=192.168.42.10 VERSION=1.30.1
 ```
 
 ## 👉 Help
