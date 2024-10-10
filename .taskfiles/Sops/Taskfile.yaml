@@ -15,7 +15,7 @@ tasks:
     cmds:
       - cmd: |
           find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" | while read -r file; do
-            if sops filestatus "$file" | jq --exit-status ".encrypted == false" > /dev/null; then
+            if sops filestatus "$file" | jq --exit-status ".encrypted == false" &>/dev/null; then
               sops --encrypt --in-place "$file"
               echo "Encrypted ${file}"
             fi

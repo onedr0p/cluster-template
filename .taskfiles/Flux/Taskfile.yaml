@@ -14,7 +14,7 @@ tasks:
     cmds:
       - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap/flux
       - |
-        if ! kubectl --namespace flux-system get secret sops-age >/dev/null 2>&1; then
+        if ! kubectl --namespace flux-system get secret sops-age &>/dev/null; then
           cat {{.SOPS_AGE_KEY_FILE}} | kubectl --namespace flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
         else
           echo "sops-age secret already exists, skipping creation."

@@ -50,9 +50,9 @@ tasks:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG}}
       - msg: Unable to retrieve Talos config
-        sh: talosctl config info >/dev/null 2>&1
+        sh: talosctl config info &>/dev/null
       - msg: Node not found
-        sh: talosctl --nodes {{.NODE}} get machineconfig >/dev/null 2>&1
+        sh: talosctl --nodes {{.NODE}} get machineconfig &>/dev/null
 
   upgrade-k8s:
     desc: Upgrade Kubernetes across the cluster
@@ -64,11 +64,11 @@ tasks:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG}}
       - msg: Unable to retrieve Talos config
-        sh: talosctl config info >/dev/null 2>&1
+        sh: talosctl config info &>/dev/null
       - msg: Node not found
-        sh: talosctl --nodes {{.NODE}} get machineconfig >/dev/null 2>&1
+        sh: talosctl --nodes {{.NODE}} get machineconfig &>/dev/null
       - msg: Node not controller
-        sh: talosctl config info --output json | jq --exit-status '.endpoints | index("{{.NODE}}") != null'
+        sh: talosctl config info --output json | jq --exit-status '.endpoints | index("{{.NODE}}") != null' &>/dev/null
 
   nuke:
     desc: Resets nodes back to maintenance mode
