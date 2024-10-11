@@ -56,7 +56,8 @@ tasks:
       - msg: Node not found
         sh: talosctl --nodes {{.NODE}} get machineconfig &>/dev/null
       - msg: Upstream Talos version not found
-        sh: curl -fsSL -H "Authorization: Bearer $(curl -fsSL 'https://ghcr.io/token?scope=repository:siderolabs/talos:pull' | jq -r '.token')" https://ghcr.io/v2/siderolabs/talos/manifests/{{.VERSION}} &>/dev/null
+        sh: |
+          curl -fsSL -H "Authorization: Bearer $(curl -fsSL 'https://ghcr.io/token?scope=repository:siderolabs/talos:pull' | jq -r '.token')" https://ghcr.io/v2/siderolabs/talos/manifests/{{.VERSION}} &>/dev/null
 
   upgrade-k8s:
     desc: Upgrade Kubernetes across the cluster
@@ -74,7 +75,8 @@ tasks:
       - msg: Node not controller
         sh: talosctl config info --output json | jq --exit-status '.endpoints | index("{{.NODE}}") != null' &>/dev/null
       - msg: Upstream Kubernetes version not found
-        sh: curl -fsSL -H "Authorization: Bearer $(curl -fsSL 'https://ghcr.io/token?scope=repository:siderolabs/kubelet:pull' | jq -r '.token')" https://ghcr.io/v2/siderolabs/kubelet/manifests/{{.VERSION}} &>/dev/null
+        sh: |
+          curl -fsSL -H "Authorization: Bearer $(curl -fsSL 'https://ghcr.io/token?scope=repository:siderolabs/kubelet:pull' | jq -r '.token')" https://ghcr.io/v2/siderolabs/kubelet/manifests/{{.VERSION}} &>/dev/null
 
   nuke:
     desc: Resets nodes back to maintenance mode
