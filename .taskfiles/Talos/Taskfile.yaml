@@ -55,6 +55,8 @@ tasks:
         sh: talosctl config info &>/dev/null
       - msg: Node not found
         sh: talosctl --nodes {{.NODE}} get machineconfig &>/dev/null
+      - msg: Talos version not found
+        sh: curl -fsSL "https://api.github.com/repos/siderolabs/talos/releases/tags/{{.VERSION}}" 2>/dev/null | jq --exit-status '.id' &>/dev/null
 
   upgrade-k8s:
     desc: Upgrade Kubernetes across the cluster
