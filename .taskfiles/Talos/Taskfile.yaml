@@ -44,7 +44,7 @@ tasks:
       - talosctl --nodes {{.NODE}} health --wait-timeout=10m --server=false
     vars:
       MODE: '{{.MODE | default "default"}}'
-      TALOS_SCEMATIC_ID:
+      TALOS_SCHEMATIC_ID:
         sh: talosctl get nodeannotationspecs --nodes {{.NODE}} -o jsonpath='{.spec.value}'
     requires:
       vars: ['NODE', 'VERSION']
