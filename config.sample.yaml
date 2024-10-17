@@ -25,7 +25,7 @@ bootstrap_node_inventory: []
     #   schematic_id: ""    # (Optional) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
     #   mtu: ""             # (Optional) MTU for the NIC, default is 1500
     #   manifests:          # (Optional) Additional manifests to include after MachineConfig
-    #     - extra.yaml      #            See: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
+    #     - extra.yaml      #            Ref: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
     #   extension_services: # (Optional) Additional talhelper ExtensionServices (supports talenv.sops.yaml envsubst)
     #     - name: name
     #       configFiles:
@@ -75,7 +75,7 @@ bootstrap_tls_sans: []
 bootstrap_node_default_gateway: ""
 
 # (Optional) Add vlan tag to network master device, leave blank if you tag ports on your switch instead
-#   See: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
+#   Ref: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
 bootstrap_vlan: ""
 
 # (Required) Age Public Key (e.g. age1...)
@@ -86,7 +86,7 @@ bootstrap_sops_age_pubkey: ""
 
 # (Optional) Use cilium BGP control plane when L2 announcements won't traverse VLAN network segments.
 #   Needs a BGP capable router setup with the node IPs as peers.
-#   See: https://docs.cilium.io/en/latest/network/bgp-control-plane/
+#   Ref: https://docs.cilium.io/en/latest/network/bgp-control-plane/
 bootstrap_bgp:
   enabled: false
   # (Optional) If using multiple BGP peers add them here.
@@ -105,11 +105,16 @@ bootstrap_bgp:
 # (Optional) Secureboot and TPM-based disk encryption
 bootstrap_secureboot:
   # (Optional) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
-  #   See: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
+  #   Ref: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
   enabled: false
   # (Optional) Enable TPM-based disk encryption. Requires TPM 2.0
-  #   See: https://www.talos.dev/v1.6/talos-guides/install/bare-metal-platforms/secureboot/#disk-encryption-with-tpm
+  #   Ref: https://www.talos.dev/v1.6/talos-guides/install/bare-metal-platforms/secureboot/#disk-encryption-with-tpm
   encrypt_disk_with_tpm: false
+
+# (Optional) Change Cilium load balancer mode
+#  Default is "dsr" (Direct Server Return)
+#  Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
+bootstrap_loadbalancer_mode: ""
 
 #
 # 2. (Required) Flux details - Flux is used to manage the cluster configuration.
