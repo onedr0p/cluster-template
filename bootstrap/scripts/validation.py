@@ -81,7 +81,7 @@ def validate_cli_tools(cloudflare: dict, **_) -> None:
             raise ValueError(f"Missing required CLI tool {tool}")
 
 
-@required("bootstrap_sops_age_pubkey")
+@required("bootstrap_age_pubkey")
 def validate_age(key: str, **_) -> None:
     if not re.match(r"^age1[a-z0-9]{0,58}$", key):
         raise ValueError(f"Invalid Age public key {key}")
