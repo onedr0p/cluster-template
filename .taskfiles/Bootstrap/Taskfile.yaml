@@ -110,7 +110,7 @@ tasks:
       # Update renovate.json5
       - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
     vars:
-      TS: '{{now | date "150405"}}'
+      TS: '{{now | unixEpoch}}'
     preconditions:
       - msg: Missing bootstrap directory
         sh: test -d {{.BOOTSTRAP_DIR}}
