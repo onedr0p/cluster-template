@@ -80,7 +80,8 @@ You have two different options for setting up your local workstation.
     # Homebrew
     brew install direnv go-task
     # or, Arch
-    pacman -S --noconfirm direnv go-task && ln -sf /usr/bin/go-task /usr/local/bin/task
+    pacman -S --noconfirm direnv go-task \
+      && ln -sf /usr/bin/go-task /usr/local/bin/task
     ```
 
 2. [Hook `direnv` into your preferred shell](https://direnv.net/docs/hook.html), then run:
@@ -154,7 +155,7 @@ You have two different options for setting up your local workstation.
 1. Deploy your cluster and bootstrap it. This generates secrets, generates the config files for your nodes and applies them. It bootstraps the cluster afterwards, fetches the kubeconfig file and installs Cilium and kubelet-csr-approver. It finishes with some health checks.
 
     ```sh
-    task talos:bootstrap
+    task bootstrap:talos
     ```
 
 2. ⚠️ It might take a while for the cluster to be setup (10+ minutes is normal), during which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. This is a normal. If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [nuke the cluster](#-Nuke) before trying again.
@@ -190,16 +191,14 @@ You have two different options for setting up your local workstation.
 
 2. Install Flux and sync the cluster to the Git repository
 
-    📍 _Run `task flux:github-deploy-key` first if using a private repository._
-
     ```sh
-    task flux:bootstrap
+    task bootstrap:flux
     # namespace/flux-system configured
     # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
     # ...
     ```
 
-1. Verify Flux components are running in the cluster
+3. Verify Flux components are running in the cluster
 
     ```sh
     kubectl -n flux-system get pods -o wide
@@ -281,12 +280,12 @@ By default Flux will periodically check your git repository for changes. In orde
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your `bootstrap_github_webhook_token` secret in `config.yaml`, Content type: `application/json`, Events: Choose Just the push event, and save.
 
-## 💥 Nuke
+## 💥 Reset
 
 There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode, append `--force` to completely format your the Talos installation. Either way the nodes should reboot after the command has run.
 
 ```sh
-task talos:nuke
+task talos:reset # --force
 ```
 
 ## 🤖 Renovate
@@ -345,22 +344,22 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 ## ⬆️ Upgrading Talos and Kubernetes
 
-### Manual
-
 ```sh
-# Upgrade Talos to a newer version
-# NOTE: This needs to be run once on every node
-task talos:upgrade NODE=? VERSION=?
-# e.g.
-# task talos:upgrade NODE=192.168.42.10 VERSION=v1.8.1
+# Upgrade cluster to a newer Talos version
+task talos:upgrade-cluster VERSION=?
+# e.g. task talos:upgrade-cluster VERSION=v1.8.1
 ```
 
 ```sh
-# Upgrade Kubernetes to a newer version
-# NOTE: This only needs to be run once against a controller node
-task talos:upgrade-k8s NODE=? VERSION=?
-# e.g.
-# task talos:upgrade-k8s NODE=192.168.42.10 VERSION=1.30.1
+# Upgrade node to a newer Talos version
+task talos:upgrade-node HOSTNAME=? VERSION=?
+# e.g. task talos:upgrade HOSTNAME=k8s-0 VERSION=v1.8.1
+```
+
+```sh
+# Upgrade cluster to a newer Kubernetes version
+task talos:upgrade-k8s VERSION=?
+# e.g. task talos:upgrade-k8s VERSION=1.30.1
 ```
 
 ## 👉 Help

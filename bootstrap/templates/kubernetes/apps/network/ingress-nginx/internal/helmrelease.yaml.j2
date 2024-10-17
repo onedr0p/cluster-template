@@ -27,10 +27,10 @@ spec:
       service:
         annotations:
           lbipam.cilium.io/ips: "#{ bootstrap_cloudflare.ingress_vip }#"
-        #% if bootstrap_loadbalancer_mode in ['dsr']  %#
-        externalTrafficPolicy: Cluster
-        #% else %#
+        #% if bgp.enabled %#
         externalTrafficPolicy: Local
+        #% else %#
+        externalTrafficPolicy: Cluster
         #% endif %#
       ingressClassResource:
         name: internal

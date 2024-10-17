@@ -80,9 +80,9 @@ bootstrap_vlan: ""
 
 # (Required) Age Public Key (e.g. age1...)
 # 1. Generate a new key with the following command:
-#    > task sops:age-keygen
+#    > task bootstrap:age-keygen
 # 2. Copy the PUBLIC key and paste it below
-bootstrap_sops_age_pubkey: ""
+bootstrap_age_pubkey: ""
 
 # (Optional) Use cilium BGP control plane when L2 announcements won't traverse VLAN network segments.
 #   Needs a BGP capable router setup with the node IPs as peers.

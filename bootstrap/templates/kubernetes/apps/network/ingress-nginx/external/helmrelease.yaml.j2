@@ -30,10 +30,10 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
           lbipam.cilium.io/ips: "#{ bootstrap_cloudflare.tunnel.ingress_vip }#"
-        #% if bootstrap_loadbalancer_mode in ['dsr']  %#
-        externalTrafficPolicy: Cluster
-        #% else %#
+        #% if bgp.enabled %#
         externalTrafficPolicy: Local
+        #% else %#
+        externalTrafficPolicy: Cluster
         #% endif %#
       ingressClassResource:
         name: external

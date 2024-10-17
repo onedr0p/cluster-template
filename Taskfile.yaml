@@ -17,11 +17,9 @@ env:
   VIRTUAL_ENV: '{{.ROOT_DIR}}/.venv'
 
 includes:
+  bootstrap: .taskfiles/Bootstrap
   kubernetes: .taskfiles/Kubernetes
-  flux: .taskfiles/Flux
-  repository: .taskfiles/Repository
   talos: .taskfiles/Talos
-  sops: .taskfiles/Sops
   workstation: .taskfiles/Workstation
   user:
     taskfile: .taskfiles/User
@@ -45,10 +43,10 @@ tasks:
   configure:
     desc: Configure repository from bootstrap vars
     prompt: Any conflicting config in the kubernetes directory will be overwritten... continue?
-    deps: ['workstation:direnv', 'workstation:venv', 'sops:age-keygen', 'init']
+    deps: ['workstation:direnv', 'workstation:venv', 'bootstrap:age-keygen', 'init']
     cmds:
       - task: template
-      - task: sops:encrypt
+      - task: bootstrap:encrypt
       - task: validate
 
   template:
