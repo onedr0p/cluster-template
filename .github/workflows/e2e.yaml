@@ -70,7 +70,7 @@ jobs:
 
       - name: Run Sops Age key task
         shell: bash
-        run: task sops:age-keygen
+        run: task bootstrap:age-keygen
 
       - name: Run init tasks
         shell: bash
@@ -84,8 +84,6 @@ jobs:
         shell: bash
         run: task configure --yes
 
-      - name: Run repo clean and reset tasks
+      - name: Run clean
         shell: bash
-        run: |
-          task repository:clean
-          task repository:reset --yes
+        run: task bootstrap:clean

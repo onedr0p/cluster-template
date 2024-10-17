@@ -2,33 +2,33 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 
-vars:
-  ARCHFILE: '{{.ROOT_DIR}}/.taskfiles/Workstation/Archfile'
-  BREWFILE: '{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile'
-  GENERIC_BIN_DIR: '{{.ROOT_DIR}}/.bin'
-  PIP_REQUIREMENTS_FILE: '{{.ROOT_DIR}}/requirements.txt'
-  PYTHON_BIN: python3
-
 tasks:
 
   arch:
-    desc: Install Arch workstation dependencies with Paru Or Yay
-    cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ARCHFILE}} | xargs)'
+    desc: Set up Arch Linux tools
+    cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/Workstation/Archfile | xargs)'
     vars:
       PKGMGR:
         sh: command -v yay || command -v paru
     preconditions:
+      - msg: Missing yay or paru
+        sh: command -v brew &>/dev/null || command -v paru &>/dev/null
       - msg: Missing Archfile
-        sh: test -f {{.ARCHFILE}}
+        sh: test -f {{.ROOT_DIR}}/.taskfiles/Workstation/Archfile
 
   brew:
-    desc: Install workstation dependencies with Brew
-    cmd: brew bundle --file {{.BREWFILE}}
+    desc: Set up Homebrew tools
+    cmds:
+      - brew bundle --file {{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile
+    sources:
+      - '{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile'
+    generates:
+      - '{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile.lock.json'
     preconditions:
-      - msg: Missing Homebrew
-        sh: command -v brew
+      - msg: Missing brew
+        sh: command -v brew &>/dev/null
       - msg: Missing Brewfile
-        sh: test -f {{.BREWFILE}}
+        sh: test -f {{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile
 
   direnv:
     desc: Run direnv hooks
@@ -36,10 +36,13 @@ tasks:
     status:
       - '[[ $(direnv status --json | jq ".state.foundRC.allowed") == 0 ]]'
       - '[[ $(direnv status --json | jq ".state.loadedRC.allowed") == 0 ]]'
+    preconditions:
+      - msg: Missing direnv
+        sh: command -v direnv &>/dev/null
 
   generic-linux:
-    desc: Try to install CLI tools into the projects .bin directory
-    dir: '{{.GENERIC_BIN_DIR}}'
+    desc: Setup CLI tools into the projects .bin directory
+    dir: '{{.ROOT_DIR}}/.bin'
     platforms: ['linux/amd64', 'linux/arm64']
     cmds:
       - for:
@@ -65,13 +68,15 @@ tasks:
   venv:
     desc: Set up virtual environment
     cmds:
-      - '{{.PYTHON_BIN}} -m venv {{.VIRTUAL_ENV}}'
+      - python3 -m venv {{.VIRTUAL_ENV}}
       - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade pip setuptools wheel'
-      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade --requirement "{{.PIP_REQUIREMENTS_FILE}}"'
+      - '{{.VIRTUAL_ENV}}/bin/python3 -m pip install --upgrade --requirement "{{.ROOT_DIR}}/requirements.txt"'
     sources:
-      - '{{.PIP_REQUIREMENTS_FILE}}'
+      - '{{.ROOT_DIR}}/requirements.txt'
     generates:
       - '{{.VIRTUAL_ENV}}/pyvenv.cfg'
     preconditions:
+      - msg: Missing python3
+        sh: command -v python3 &>/dev/null
       - msg: Missing Pip requirements file
-        sh: test -f {{.PIP_REQUIREMENTS_FILE}}
+        sh: test -f {{.ROOT_DIR}}/requirements.txt

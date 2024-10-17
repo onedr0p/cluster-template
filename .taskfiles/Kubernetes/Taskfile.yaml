@@ -7,6 +7,20 @@ vars:
 
 tasks:
 
+  reconcile:
+    desc: Force update Flux to pull in changes from your Git repository
+    cmd: flux reconcile --namespace flux-system kustomization cluster --with-source
+    preconditions:
+      - msg: Missing kubeconfig
+        sh: test -f {{.KUBECONFIG}}
+
+  kubeconform:
+    desc: Validate Kubernetes manifests with kubeconform
+    cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
+    preconditions:
+      - msg: Missing kubeconform script
+        sh: test -f {{.KUBECONFORM_SCRIPT}}
+
   resources:
     desc: Gather common resources in your cluster, useful when asking for support
     cmds:
@@ -23,14 +37,6 @@ tasks:
         certificaterequests
         ingresses
         pods
-
-  kubeconform:
-    desc: Validate Kubernetes manifests with kubeconform
-    cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
     preconditions:
-      - msg: Missing kubeconform script
-        sh: test -f {{.KUBECONFORM_SCRIPT}}
-
-  reset:
-    internal: true
-    cmd: rm -rf {{.KUBERNETES_DIR}}
+      - msg: Missing kubeconfig
+        sh: test -f {{.KUBECONFIG}}
