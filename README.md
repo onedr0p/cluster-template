@@ -359,7 +359,7 @@ task talos:upgrade-node HOSTNAME=? VERSION=?
 ```sh
 # Upgrade cluster to a newer Kubernetes version
 task talos:upgrade-k8s VERSION=?
-# e.g. task talos:upgrade-k8s VERSION=1.30.1
+# e.g. task talos:upgrade-k8s VERSION=v1.30.1
 ```
 
 ## 👉 Help
