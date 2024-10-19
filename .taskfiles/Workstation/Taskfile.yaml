@@ -6,7 +6,7 @@ tasks:
 
   arch:
     desc: Set up Arch Linux tools
-    cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/Workstation/Archfile | xargs)'
+    cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/workstation/Archfile | xargs)'
     vars:
       PKGMGR:
         sh: command -v yay || command -v paru
@@ -14,21 +14,21 @@ tasks:
       - msg: Missing yay or paru
         sh: command -v brew &>/dev/null || command -v paru &>/dev/null
       - msg: Missing Archfile
-        sh: test -f {{.ROOT_DIR}}/.taskfiles/Workstation/Archfile
+        sh: test -f {{.ROOT_DIR}}/.taskfiles/workstation/Archfile
 
   brew:
     desc: Set up Homebrew tools
     cmds:
-      - brew bundle --file {{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile
+      - brew bundle --file {{.ROOT_DIR}}/.taskfiles/workstation/Brewfile
     sources:
-      - '{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile'
+      - '{{.ROOT_DIR}}/.taskfiles/workstation/Brewfile'
     generates:
-      - '{{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile.lock.json'
+      - '{{.ROOT_DIR}}/.taskfiles/workstation/Brewfile.lock.json'
     preconditions:
       - msg: Missing brew
         sh: command -v brew &>/dev/null
       - msg: Missing Brewfile
-        sh: test -f {{.ROOT_DIR}}/.taskfiles/Workstation/Brewfile
+        sh: test -f {{.ROOT_DIR}}/.taskfiles/workstation/Brewfile
 
   direnv:
     desc: Run direnv hooks

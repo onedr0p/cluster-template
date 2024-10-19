@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-homebrew-packages
         with:
-          key: homebrew-${{ runner.os }}-${{ steps.setup-homebrew.outputs.gems-hash }}-${{ hashFiles('.taskfiles/Workstation/Brewfile') }}
+          key: homebrew-${{ runner.os }}-${{ steps.setup-homebrew.outputs.gems-hash }}-${{ hashFiles('.taskfiles/workstation/Brewfile') }}
           path: /home/linuxbrew/.linuxbrew
 
       - name: Cache venv
