@@ -3,33 +3,26 @@ set -e
 set -o noglob
 
 apk add --no-cache \
-    age bash bind-tools ca-certificates curl direnv gettext python3 \
-    py3-pip moreutils jq git iputils openssh-client openssl \
-    starship fzf fish yq helm
+    age bash bind-tools ca-certificates curl direnv fish fzf \
+    gettext git github-cli helm iputils jq k9s kubectl kustomize \
+    python3 py3-pip moreutils openssh-client openssl starship yq
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-        kubectl sops
+        go-task sops
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
-        lsd
+        cilium-cli kubeconform lsd stern
 
 for app in \
     "budimanjojo/talhelper!!?as=talhelper&type=script" \
-    "cilium/cilium-cli!!?as=cilium&type=script" \
-    "cli/cli!!?as=gh&type=script" \
     "cloudflare/cloudflared!!?as=cloudflared&type=script" \
-    "derailed/k9s!!?as=k9s&type=script" \
     "fluxcd/flux2!!?as=flux&type=script" \
-    "go-task/task!!?as=task&type=script" \
     "helmfile/helmfile!!?as=helmfile&type=script" \
     "kubecolor/kubecolor!!?as=kubecolor&type=script" \
     "kubernetes-sigs/krew!!?as=krew&type=script" \
-    "kubernetes-sigs/kustomize!!?as=kustomize&type=script" \
-    "stern/stern!!?as=stern&type=script" \
-    "siderolabs/talos!!?as=talosctl&type=script" \
-    "yannh/kubeconform!!?as=kubeconform&type=script"
+    "siderolabs/talos!!?as=talosctl&type=script"
 do
     echo "=== Installing ${app} ==="
     curl -fsSL "https://i.jpillora.com/${app}" | bash
@@ -59,6 +52,7 @@ tee /home/vscode/.config/fish/conf.d/aliases.fish > /dev/null <<EOF
 alias ls lsd
 alias kubectl kubecolor
 alias k kubectl
+alias task go-task
 EOF
 
 # Custom fish prompt
