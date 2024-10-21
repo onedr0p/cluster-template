@@ -4,24 +4,21 @@ set -o noglob
 
 apk add --no-cache \
     age bash bind-tools ca-certificates curl direnv fish fzf \
-    gettext git github-cli helm iputils jq k9s kubectl kustomize \
-    python3 py3-pip moreutils openssh-client openssl starship yq
+    gettext git github-cli helm iputils jq k9s python3 py3-pip \
+    moreutils openssh-client openssl starship yq
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-        go-task sops
+        kubectl kustomize go-task sops
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
-        cilium-cli kubeconform lsd stern
+        cloudflared cilium-cli helmfile kubeconform kubectl-krew lsd stern
 
 for app in \
     "budimanjojo/talhelper!!?as=talhelper&type=script" \
-    "cloudflare/cloudflared!!?as=cloudflared&type=script" \
     "fluxcd/flux2!!?as=flux&type=script" \
-    "helmfile/helmfile!!?as=helmfile&type=script" \
     "kubecolor/kubecolor!!?as=kubecolor&type=script" \
-    "kubernetes-sigs/krew!!?as=krew&type=script" \
     "siderolabs/talos!!?as=talosctl&type=script"
 do
     echo "=== Installing ${app} ==="
@@ -32,12 +29,11 @@ done
 mkdir -p /home/vscode/.config/fish/{completions,conf.d}
 
 # Setup autocompletions for fish
-for tool in cilium flux helm helmfile k9s kubectl kustomize talhelper talosctl; do
-    $tool completion fish > /home/vscode/.config/fish/completions/$tool.fish
-done
+flux completion fish > /home/vscode/.config/fish/completions/flux.fish
 gh completion --shell fish > /home/vscode/.config/fish/completions/gh.fish
-stern --completion fish > /home/vscode/.config/fish/completions/stern.fish
-yq shell-completion fish > /home/vscode/.config/fish/completions/yq.fish
+kubectl completion fish > /home/vscode/.config/fish/completions/kubectl.fish
+talhelper completion fish > /home/vscode/.config/fish/completions/talhelper.fish
+talosctl completion fish > /home/vscode/.config/fish/completions/talosctl.fish
 
 # Add hooks into fish
 tee /home/vscode/.config/fish/conf.d/hooks.fish > /dev/null <<EOF
