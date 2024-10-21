@@ -11,6 +11,26 @@ env:
 
 tasks:
 
+  apply-config:
+    desc: Apply Talos configuration to a node
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
+    cmd: talosctl apply-config --mode={{.MODE}} --nodes {{.HOSTNAME}} --file {{.TALHELPER_CLUSTER_DIR}}/{{.CLUSTER_NAME}}-{{.HOSTNAME}}.yaml
+    vars:
+      MODE: '{{.MODE | default "no-reboot"}}'
+      CLUSTER_NAME:
+        sh: yq '.clusterName' {{.TALHELPER_CONFIG_FILE}}
+    requires:
+      vars: [HOSTNAME]
+    preconditions:
+      - msg: Missing talosconfig
+        sh: test -f {{.TALOSCONFIG}}
+      - msg: Unable to retrieve Talos config
+        sh: talosctl config info &>/dev/null
+      - msg: Node not found
+        sh: talosctl --nodes {{.HOSTNAME}} get machineconfig &>/dev/null
+      - msg: Talos config for node not found
+        sh: test -f {{.TALHELPER_CLUSTER_DIR}}/{{.CLUSTER_NAME}}-{{.HOSTNAME}}.yaml
+
   upgrade-node:
     desc: Upgrade Talos on a single node
     dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
