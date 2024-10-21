@@ -9,7 +9,7 @@ apk add --no-cache \
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-        kubectl kustomize go-task sops
+        flux kubectl kustomize go-task sops
 
 apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
@@ -17,7 +17,6 @@ apk add --no-cache \
 
 for app in \
     "budimanjojo/talhelper!!?as=talhelper&type=script" \
-    "fluxcd/flux2!!?as=flux&type=script" \
     "kubecolor/kubecolor!!?as=kubecolor&type=script" \
     "siderolabs/talos!!?as=talosctl&type=script"
 do
@@ -29,7 +28,6 @@ done
 mkdir -p /home/vscode/.config/fish/{completions,conf.d}
 
 # Setup autocompletions for fish
-flux completion fish > /home/vscode/.config/fish/completions/flux.fish
 gh completion --shell fish > /home/vscode/.config/fish/completions/gh.fish
 kubectl completion fish > /home/vscode/.config/fish/completions/kubectl.fish
 talhelper completion fish > /home/vscode/.config/fish/completions/talhelper.fish
