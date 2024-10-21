@@ -81,8 +81,6 @@ tasks:
         sh: talosctl config info --output json | jq --raw-output '.endpoints[]' | shuf -n 1
       KUBERNETES_VERSION:
         sh: yq '.kubernetesVersion' {{.TALHELPER_CONFIG_FILE}}
-    requires:
-      vars: [VERSION]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG}}
