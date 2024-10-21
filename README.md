@@ -344,22 +344,24 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 ## ⬆️ Upgrading Talos and Kubernetes
 
+📍 _Ensure the `talosVersion` and `kubernetesVersion` in `talhelper.yaml` are up-to-date with the version you wish to upgrade to._
+
 ```sh
-# Upgrade cluster to a newer Talos version
-task talos:upgrade-cluster VERSION=?
-# e.g. task talos:upgrade-cluster VERSION=v1.8.1
+# Upgrade the whole cluster to a newer Talos version
+task talos:upgrade-cluster
+# e.g. task talos:upgrade-cluster
 ```
 
 ```sh
 # Upgrade node to a newer Talos version
-task talos:upgrade-node HOSTNAME=? VERSION=?
-# e.g. task talos:upgrade HOSTNAME=k8s-0 VERSION=v1.8.1
+task talos:upgrade-node HOSTNAME=?
+# e.g. task talos:upgrade HOSTNAME=k8s-0
 ```
 
 ```sh
 # Upgrade cluster to a newer Kubernetes version
-task talos:upgrade-k8s VERSION=?
-# e.g. task talos:upgrade-k8s VERSION=v1.30.1
+task talos:upgrade-k8s
+# e.g. task talos:upgrade-k8s
 ```
 
 ## 👉 Help
