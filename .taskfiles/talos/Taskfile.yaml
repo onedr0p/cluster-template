@@ -5,9 +5,10 @@ version: '3'
 vars:
   TALHELPER_CLUSTER_DIR: '{{.KUBERNETES_DIR}}/bootstrap/talos/clusterconfig'
   TALHELPER_CONFIG_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talconfig.yaml'
+  TALOSCONFIG: '{{.TALHELPER_CLUSTER_DIR}}/talosconfig'
 
 env:
-  TALOSCONFIG: '{{.TALHELPER_CLUSTER_DIR}}/talosconfig'
+  TALOSCONFIG: '{{.TALOSCONFIG}}'
 
 tasks:
 
