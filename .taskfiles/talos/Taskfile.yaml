@@ -13,7 +13,6 @@ tasks:
 
   apply-config:
     desc: Apply Talos configuration to a node
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: talosctl apply-config --mode={{.MODE}} --nodes {{.HOSTNAME}} --file {{.TALHELPER_CLUSTER_DIR}}/{{.CLUSTER_NAME}}-{{.HOSTNAME}}.yaml
     vars:
       MODE: '{{.MODE | default "no-reboot"}}'
@@ -33,7 +32,6 @@ tasks:
 
   upgrade-node:
     desc: Upgrade Talos on a single node
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmds:
       - task: '{{if ne .ROLLOUT true}}down{{else}}noop{{end}}'
       - talosctl --nodes {{.HOSTNAME}} upgrade --image="factory.talos.dev/installer/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" --timeout=10m
@@ -58,7 +56,6 @@ tasks:
 
   upgrade-cluster:
     desc: Upgrade Talos on the whole cluster
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmds:
       - task: down
       - for: { var: HOSTNAMES }
@@ -73,7 +70,6 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade Kubernetes
-    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmds:
       - talosctl --nodes {{.KUBERNETES_CONTROLLER}} upgrade-k8s --to {{.KUBERNETES_VERSION}}
     vars:
