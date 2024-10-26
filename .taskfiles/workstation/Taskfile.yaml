@@ -64,11 +64,10 @@ tasks:
         platforms: ['linux/arm64']
       - cmd: chmod +x kubectl
       # sops
-      - cmd: curl -sSfL https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.amd64;
+      - cmd: curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.amd64;
         platforms: ['linux/amd64']
-      - cmd: curl -sSfL https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.arm64;
+      - cmd: curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.arm64;
         platforms: ['linux/arm64']
-      - cmd: mv sops* sops
       - cmd: chmod +x sops
       # helm
       - cmd: curl -sSfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
