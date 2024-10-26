@@ -54,9 +54,10 @@ tasks:
           - helmfile/helmfile?as=helmfile&type=script
           - jqlang/jq?as=jq&type=script
           - kubernetes-sigs/kustomize?as=kustomize&type=script
+          - mikefarah/yq?as=yq&type=script
+          - mitsuhiko/minijinja?as=minijinja-cli&type=script
           - siderolabs/talos?as=talosctl&type=script
           - yannh/kubeconform?as=kubeconform&type=script
-          - mikefarah/yq?as=yq&type=script
         cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}" | bash
       - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         platforms: ['linux/amd64']
