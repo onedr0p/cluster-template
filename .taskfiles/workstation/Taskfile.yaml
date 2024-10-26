@@ -9,10 +9,10 @@ tasks:
     cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/workstation/Archfile | xargs)'
     vars:
       PKGMGR:
-        sh: command -v yay || command -v paru
+        sh: command -v paru || command -v yay
     preconditions:
-      - msg: Missing yay or paru
-        sh: command -v brew &>/dev/null || command -v paru &>/dev/null
+      - msg: Missing paru or yay
+        sh: command -v paru &>/dev/null || command -v yay &>/dev/null
       - msg: Missing Archfile
         sh: test -f {{.ROOT_DIR}}/.taskfiles/workstation/Archfile
 
@@ -46,24 +46,32 @@ tasks:
     platforms: ['linux/amd64', 'linux/arm64']
     cmds:
       - for:
-          - budimanjojo/talhelper?as=talhelper&type=script
-          - cloudflare/cloudflared?as=cloudflared&type=script
-          - FiloSottile/age?as=age&type=script
-          - fluxcd/flux2?as=flux&type=script
-          - getsops/sops?as=sops&type=script
-          - helmfile/helmfile?as=helmfile&type=script
-          - jqlang/jq?as=jq&type=script
-          - kubernetes-sigs/kustomize?as=kustomize&type=script
-          - siderolabs/talos?as=talosctl&type=script
-          - yannh/kubeconform?as=kubeconform&type=script
-          - mikefarah/yq?as=yq&type=script
-        cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}" | bash
-      - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          - budimanjojo/talhelper?as=talhelper
+          - cloudflare/cloudflared?as=cloudflared
+          - FiloSottile/age?as=age
+          - fluxcd/flux2?as=flux
+          - helmfile/helmfile?as=helmfile
+          - jqlang/jq?as=jq
+          - kubernetes-sigs/kustomize?as=kustomize
+          - mikefarah/yq?as=yq
+          - siderolabs/talos?as=talosctl
+          - yannh/kubeconform?as=kubeconform
+        cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}&type=script" | bash
+      - cmd: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl";
+          curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.amd64
         platforms: ['linux/amd64']
-      - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+      - cmd: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl";
+          curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.arm64
         platforms: ['linux/arm64']
-      - cmd: chmod +x kubectl
-      - cmd: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | USE_SUDO="false" HELM_INSTALL_DIR="." bash
+      - cmd: chmod +x kubectl sops
+      - cmd: curl -sSfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - cmd: curl -sSfL https://github.com/mitsuhiko/minijinja/releases/latest/download/minijinja-cli-installer.sh | bash
+    env:
+      MINIJINJA_CLI_INSTALL_DIR: '.'
+      HELM_INSTALL_DIR: '.'
+      USE_SUDO: 'false'
 
   venv:
     desc: Set up virtual environment

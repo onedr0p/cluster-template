@@ -2,6 +2,9 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 
+set: [pipefail]
+shopt: [globstar]
+
 vars:
   BOOTSTRAP_DIR: '{{.ROOT_DIR}}/bootstrap'
   KUBERNETES_DIR: '{{.ROOT_DIR}}/kubernetes'
@@ -31,44 +34,19 @@ tasks:
 
   init:
     desc: Initialize configuration files
-    cmds:
-      - cp {{if eq OS "darwin"}}-n{{else}}--update=none{{end}} {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
-      - echo "=== Configuration file copied ==="
-      - echo "Proceed with updating the configuration files..."
-      - echo "{{.BOOTSTRAP_CONFIG_FILE}}"
+    cmd: cp {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
     status:
       - test -f {{.BOOTSTRAP_CONFIG_FILE}}
-    silent: true
 
   configure:
-    desc: Configure repository from bootstrap vars
+    desc: Render and validate configuration files
     prompt: Any conflicting config in the kubernetes directory will be overwritten... continue?
-    deps: ['workstation:direnv', 'workstation:venv', 'bootstrap:age-keygen', 'init']
+    deps:
+      - init
+      - bootstrap:age-keygen
+      - workstation:direnv
+      - workstation:venv
     cmds:
-      - task: template
-      - task: bootstrap:encrypt
-      - task: validate
-
-  template:
-    internal: true
-    cmd: '{{.VIRTUAL_ENV}}/bin/makejinja'
-    preconditions:
-      - msg: Missing virtual environment
-        sh: test -d {{.VIRTUAL_ENV}}
-      - msg: Missing Makejinja config file
-        sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
-      - msg: Missing Makejinja plugin file
-        sh: test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py
-      - msg: Missing bootstrap config file
-        sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
-
-  validate:
-    internal: true
-    cmds:
+      - task: bootstrap:template
+      - task: bootstrap:secrets
       - task: kubernetes:kubeconform
-      - echo "=== Done rendering and validating YAML ==="
-      - '{{if eq .HOME_SOPS_AGE_KEY_FILE_EXISTS "true"}}echo "WARNING: SOPS Age key found in home directory, this may cause conflicts."{{end}}'
-    vars:
-      HOME_SOPS_AGE_KEY_FILE_EXISTS:
-        sh: test -f ~/.config/sops/age/keys.txt && echo true || echo false
-    silent: true

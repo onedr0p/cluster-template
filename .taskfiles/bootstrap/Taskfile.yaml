@@ -76,14 +76,30 @@ tasks:
     status:
       - test -f {{.SOPS_AGE_KEY_FILE}}
 
-  encrypt:
-    desc: Encrypt all Kubernetes SOPS secrets
-    cmd: |
-      find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" | while read -r file; do
-          if sops filestatus "${file}" | jq --exit-status ".encrypted == false" &>/dev/null; then
-              sops --encrypt --in-place "${file}"
+  template:
+    internal: true
+    cmd: '{{.VIRTUAL_ENV}}/bin/makejinja'
+    preconditions:
+      - msg: Missing virtual environment
+        sh: test -d {{.VIRTUAL_ENV}}
+      - msg: Missing Makejinja config file
+        sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
+      - msg: Missing Makejinja plugin file
+        sh: test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py
+      - msg: Missing bootstrap config file
+        sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
+
+  secrets:
+    internal: true
+    cmds:
+      - for: { var: SECRET_FILES }
+        cmd: |
+          if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == false" &>/dev/null; then
+              sops --encrypt --in-place "{{.ITEM}}"
           fi
-      done
+    vars:
+      SECRET_FILES:
+        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*"
     preconditions:
       - msg: Missing Sops config file
         sh: test -f {{.SOPS_CONFIG_FILE}}
