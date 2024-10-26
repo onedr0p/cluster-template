@@ -11,8 +11,8 @@ tasks:
       PKGMGR:
         sh: command -v yay || command -v paru
     preconditions:
-      - msg: Missing yay or paru
-        sh: command -v brew &>/dev/null || command -v paru &>/dev/null
+      # - msg: Missing yay or paru
+      #   sh: command -v brew &>/dev/null || command -v paru &>/dev/null
       - msg: Missing Archfile
         sh: test -f {{.ROOT_DIR}}/.taskfiles/workstation/Archfile
 
