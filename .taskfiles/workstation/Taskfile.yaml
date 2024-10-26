@@ -43,7 +43,7 @@ tasks:
   generic-linux:
     desc: Setup CLI tools into the projects .bin directory
     dir: '{{.ROOT_DIR}}/.bin'
-    # platforms: ['linux/amd64', 'linux/arm64']
+    platforms: ['linux/amd64', 'linux/arm64']
     cmds:
       - for:
           - budimanjojo/talhelper?as=talhelper
@@ -57,21 +57,16 @@ tasks:
           - siderolabs/talos?as=talosctl
           - yannh/kubeconform?as=kubeconform
         cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}&type=script" | bash
-      # kubectl
-      - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - cmd: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl";
+          curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.amd64
         platforms: ['linux/amd64']
-      - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+      - cmd: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl";
+          curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.arm64
         platforms: ['linux/arm64']
-      - cmd: chmod +x kubectl
-      # sops
-      - cmd: curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.amd64;
-        platforms: ['linux/amd64']
-      - cmd: curl -sSfL -o sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.arm64;
-        platforms: ['linux/arm64']
-      - cmd: chmod +x sops
-      # helm
+      - cmd: chmod +x kubectl sops
       - cmd: curl -sSfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-      # minijinja-cli
       - cmd: curl -sSfL https://github.com/mitsuhiko/minijinja/releases/latest/download/minijinja-cli-installer.sh | bash
     env:
       MINIJINJA_CLI_INSTALL_DIR: '.'
