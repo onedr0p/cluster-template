@@ -43,28 +43,41 @@ tasks:
   generic-linux:
     desc: Setup CLI tools into the projects .bin directory
     dir: '{{.ROOT_DIR}}/.bin'
-    platforms: ['linux/amd64', 'linux/arm64']
+    # platforms: ['linux/amd64', 'linux/arm64']
     cmds:
       - for:
-          - budimanjojo/talhelper?as=talhelper&type=script
-          - cloudflare/cloudflared?as=cloudflared&type=script
-          - FiloSottile/age?as=age&type=script
-          - fluxcd/flux2?as=flux&type=script
-          - getsops/sops?as=sops&type=script
-          - helmfile/helmfile?as=helmfile&type=script
-          - jqlang/jq?as=jq&type=script
-          - kubernetes-sigs/kustomize?as=kustomize&type=script
-          - mikefarah/yq?as=yq&type=script
-          - mitsuhiko/minijinja?as=minijinja-cli&type=script
-          - siderolabs/talos?as=talosctl&type=script
-          - yannh/kubeconform?as=kubeconform&type=script
-        cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}" | bash
+          - budimanjojo/talhelper?as=talhelper
+          - cloudflare/cloudflared?as=cloudflared
+          - FiloSottile/age?as=age
+          - fluxcd/flux2?as=flux
+          - helmfile/helmfile?as=helmfile
+          - jqlang/jq?as=jq
+          - kubernetes-sigs/kustomize?as=kustomize
+          - mikefarah/yq?as=yq
+          - siderolabs/talos?as=talosctl
+          - yannh/kubeconform?as=kubeconform
+        cmd: curl -fsSL "https://i.jpillora.com/{{.ITEM}}&type=script" | bash
+      # kubectl
       - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         platforms: ['linux/amd64']
       - cmd: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
         platforms: ['linux/arm64']
       - cmd: chmod +x kubectl
-      - cmd: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | USE_SUDO="false" HELM_INSTALL_DIR="." bash
+      # sops
+      - cmd: curl -sSfL https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.amd64;
+        platforms: ['linux/amd64']
+      - cmd: curl -sSfL https://github.com/getsops/sops/releases/latest/download/sops-v3.9.1.linux.arm64;
+        platforms: ['linux/arm64']
+      - cmd: mv sops* sops
+      - cmd: chmod +x sops
+      # helm
+      - cmd: curl -sSfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      # minijinja-cli
+      - cmd: curl -sSfL https://github.com/mitsuhiko/minijinja/releases/latest/download/minijinja-cli-installer.sh | bash
+    env:
+      MINIJINJA_CLI_INSTALL_DIR: '.'
+      HELM_INSTALL_DIR: '.'
+      USE_SUDO: 'false'
 
   venv:
     desc: Set up virtual environment
