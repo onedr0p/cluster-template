@@ -9,10 +9,10 @@ tasks:
     cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/workstation/Archfile | xargs)'
     vars:
       PKGMGR:
-        sh: command -v yay || command -v paru
+        sh: command -v paru || command -v yay
     preconditions:
-      # - msg: Missing yay or paru
-      #   sh: command -v brew &>/dev/null || command -v paru &>/dev/null
+      - msg: Missing paru or yay
+        sh: command -v paru &>/dev/null || command -v yay &>/dev/null
       - msg: Missing Archfile
         sh: test -f {{.ROOT_DIR}}/.taskfiles/workstation/Archfile
 
