@@ -10,7 +10,7 @@ jq
 kubeconform
 kubectl-bin
 kustomize
-minijinja
+minijinja-cli-bin
 moreutils
 sops
 stern-bin
