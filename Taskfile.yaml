@@ -41,7 +41,11 @@ tasks:
   configure:
     desc: Render and validate configuration files
     prompt: Any conflicting config in the kubernetes directory will be overwritten... continue?
-    deps: ['workstation:direnv', 'workstation:venv', 'bootstrap:age-keygen', 'init']
+    deps:
+      - init
+      - bootstrap:age-keygen
+      - workstation:direnv
+      - workstation:venv
     cmds:
       - task: bootstrap:template
       - task: bootstrap:secrets
