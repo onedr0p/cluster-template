@@ -45,4 +45,4 @@ tasks:
     cmds:
       - task: bootstrap:template
       - task: bootstrap:secrets
-      - task: bootstrap:validate
+      - task: kubernetes:kubeconform

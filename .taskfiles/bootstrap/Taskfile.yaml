@@ -89,15 +89,6 @@ tasks:
       - msg: Missing bootstrap config file
         sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
-  validate:
-    internal: true
-    cmds:
-      - task: :kubernetes:kubeconform
-      - '{{if eq .HOME_SOPS_AGE_KEY_FILE_EXISTS "true"}}echo "WARNING: Age key for SOPS found in home directory, this may cause conflicts"{{end}}'
-    vars:
-      HOME_SOPS_AGE_KEY_FILE_EXISTS:
-        sh: test -f ~/.config/sops/age/keys.txt && echo true || echo false
-
   secrets:
     internal: true
     cmds:
