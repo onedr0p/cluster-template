@@ -70,6 +70,7 @@ tasks:
       - cmd: curl -sSfL https://github.com/mitsuhiko/minijinja/releases/latest/download/minijinja-cli-installer.sh | bash
     env:
       MINIJINJA_CLI_INSTALL_DIR: '.'
+      MINIJINJA_CLI_UNMANAGED_INSTALL: 'true'
       HELM_INSTALL_DIR: '.'
       USE_SUDO: 'false'
 
