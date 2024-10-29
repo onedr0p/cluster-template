@@ -36,9 +36,9 @@ nodes:
     #% if bootstrap_secureboot.enabled %#
     machineSpec:
       secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/#{ item.schematic_id | default(bootstrap_schematic_id) }#
+    talosImageURL: factory.talos.dev/installer-secureboot/#{ item.schematic_id | default(bootstrap_schematic_id, true) }#
     #% else %#
-    talosImageURL: factory.talos.dev/installer/#{ item.schematic_id | default(bootstrap_schematic_id) }#
+    talosImageURL: factory.talos.dev/installer/#{ item.schematic_id | default(bootstrap_schematic_id, true) }#
     #% endif %#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
@@ -49,7 +49,7 @@ nodes:
           - vlanId: #{ bootstrap_vlan }#
             addresses:
               - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
-            mtu: #{ item.mtu | default(1500) }#
+            mtu: #{ item.mtu | default(1500, true) }#
             routes:
               - network: 0.0.0.0/0
                 #% if bootstrap_node_default_gateway %#
@@ -62,7 +62,6 @@ nodes:
               ip: "#{ bootstrap_controller_vip }#"
             #% endif %#
         #% else %#
-        #% if item.address %#
         dhcp: false
         addresses:
           - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
@@ -73,10 +72,7 @@ nodes:
             #% else %#
             gateway: "#{ bootstrap_node_network | nthhost(1) }#"
             #% endif %#
-        #% else %#
-        dhcp: true
-        #% endif %#
-        mtu: #{ item.mtu | default(1500) }#
+        mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
           ip: "#{ bootstrap_controller_vip }#"
@@ -116,27 +112,6 @@ nodes:
 
 # Global patches
 patches:
-  #% if bootstrap_dns_servers | length %#
-  - # Force nameserver
-    |-
-    machine:
-      network:
-        nameservers:
-          #% for item in bootstrap_dns_servers %#
-          - #{ item }#
-          #% endfor %#
-  #% endif %#
-  #% if bootstrap_ntp_servers | length %#
-  - # Configure NTP
-    |-
-    machine:
-      time:
-        disabled: false
-        servers:
-          #% for item in bootstrap_ntp_servers %#
-          - #{ item }#
-          #% endfor %#
-  #% endif %#
   #% if bootstrap_secureboot.enabled and bootstrap_secureboot.encrypt_disk_with_tpm %#
   - # Encrypt system disk with TPM
     |-

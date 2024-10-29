@@ -5,7 +5,7 @@
 #
 
 # (Optional) Cluster name; affects Cilium and Talos
-#   Default is "home-kubernetes"
+#   DEFAULT: "home-kubernetes"
 bootstrap_cluster_name: ""
 
 # (Required) Generated schematic id from https://factory.talos.dev/
@@ -18,12 +18,12 @@ bootstrap_node_network: ""
 #   Worker nodes are optional
 bootstrap_node_inventory: []
     # - name: ""            # (Required) Name of the node (must match [a-z0-9-\]+)
-    #   address: ""         # (Optional) IP address of the node (Remove if node has a static DHCP reservation)
+    #   address: ""         # (Optional) IP address of the node
     #   controller: true    # (Required) Set to true if this is a controller node
     #   disk: ""            # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
     #   mac_addr: ""        # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
     #   schematic_id: ""    # (Optional) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
-    #   mtu: ""             # (Optional) MTU for the NIC, default is 1500
+    #   mtu: ""             # (Optional) MTU for the NIC. DEFAULT: 1500
     #   manifests:          # (Optional) Additional manifests to include after MachineConfig
     #     - extra.yaml      #            Ref: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
     #   extension_services: # (Optional) Additional talhelper ExtensionServices (supports talenv.sops.yaml envsubst)
@@ -36,18 +36,15 @@ bootstrap_node_inventory: []
     #         - key=value
     # ...
 
-# (Optional) The DNS servers to use for the cluster nodes.
-#   Default is pulled from your DHCP server.
+# The DNS servers to use for the cluster nodes.
+#   DEFAULT: [1.1.1.1, 1.0.0.1]
 # If using a local DNS server make sure it meets the following requirements:
 #   1. your nodes can reach it
 #   2. it is configured to forward requests to a public DNS server
-#   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
-# If using multiple DNS servers make sure they are setup the same way, there is no
-#   guarantee that the first DNS server will always be used for every lookup.
 bootstrap_dns_servers: []
 
-# (Optional) The NTP servers to use for the cluster nodes.
-#   Default is pulled from your DHCP server.
+# The NTP servers to use for the cluster nodes.
+#   DEFAULT: [time.cloudflare.com]
 bootstrap_ntp_servers: []
 
 # (Required) The pod CIDR for the cluster, this must NOT overlap with any
@@ -71,7 +68,7 @@ bootstrap_controller_vip: ""
 bootstrap_tls_sans: []
 
 # (Optional) The default gateway for the nodes
-#   Default is derrived from bootstrap_node_network (e.g. 192.168.1.1)
+#   DEFAULT: .1 derrived from bootstrap_node_network (e.g. 192.168.1.1)
 bootstrap_node_default_gateway: ""
 
 # (Optional) Add vlan tag to network master device, leave blank if you tag ports on your switch instead
@@ -90,13 +87,13 @@ bootstrap_age_pubkey: ""
 bootstrap_bgp:
   enabled: false
   # (Optional) If using multiple BGP peers add them here.
-  #   Default is .1 derrived from host_network: ['x.x.x.1']
+  #   DEFAULT: .1 derrived from host_network: ['x.x.x.1']
   peers: []
   # (Required) Set the BGP Autonomous System Number for the router(s) and nodes.
   #   If these match, iBGP will be used. If not, eBGP will be used.
   peer_asn: ""   # Router(s) AS
   local_asn: ""  # Node(s) AS
-  peer_port: 179 # BGP Port - default is TCP port 179
+  peer_port: 179 # BGP Port. DEFAULT: 179
   # (Required) The advertised CIDR for the cluster, this must NOT overlap with any
   #   existing networks and is usually a /16 (64K IPs).
   # If you want to use IPv6 check the advanced flags below
@@ -112,7 +109,7 @@ bootstrap_secureboot:
   encrypt_disk_with_tpm: false
 
 # (Optional) Change Cilium load balancer mode
-#  Default is "dsr" (Direct Server Return)
+#  DEFAULT: "dsr"
 #  Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
 bootstrap_loadbalancer_mode: ""
 

@@ -12,7 +12,7 @@ spec:
     name: github-deploy-key
   #% endif %#
   ref:
-    branch: "#{ bootstrap_github_branch|default('main', true) }#"
+    branch: "#{ bootstrap_github_branch | default('main', true) }#"
   ignore: |
     # exclude all
     /*
