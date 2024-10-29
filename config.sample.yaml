@@ -18,7 +18,7 @@ bootstrap_node_network: ""
 #   Worker nodes are optional
 bootstrap_node_inventory: []
     # - name: ""            # (Required) Name of the node (must match [a-z0-9-\]+)
-    #   address: ""         # (Optional) IP address of the node (Remove if node has a static DHCP reservation)
+    #   address: ""         # (Optional) IP address of the node
     #   controller: true    # (Required) Set to true if this is a controller node
     #   disk: ""            # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
     #   mac_addr: ""        # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
@@ -36,18 +36,15 @@ bootstrap_node_inventory: []
     #         - key=value
     # ...
 
-# (Optional) The DNS servers to use for the cluster nodes.
-#   Default is pulled from your DHCP server.
+# The DNS servers to use for the cluster nodes.
+#   Default: [1.1.1.1, 1.0.0.1]
 # If using a local DNS server make sure it meets the following requirements:
 #   1. your nodes can reach it
 #   2. it is configured to forward requests to a public DNS server
-#   3. you are not force redirecting DNS requests to it - this will break cert generation over DNS01
-# If using multiple DNS servers make sure they are setup the same way, there is no
-#   guarantee that the first DNS server will always be used for every lookup.
 bootstrap_dns_servers: []
 
-# (Optional) The NTP servers to use for the cluster nodes.
-#   Default is pulled from your DHCP server.
+# The NTP servers to use for the cluster nodes.
+#   Default: [time.cloudflare.com]
 bootstrap_ntp_servers: []
 
 # (Required) The pod CIDR for the cluster, this must NOT overlap with any

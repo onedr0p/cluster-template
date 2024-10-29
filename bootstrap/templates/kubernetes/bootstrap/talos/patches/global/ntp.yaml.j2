@@ -1,0 +1,7 @@
+machine:
+  time:
+    disabled: false
+    servers:
+      #% for item in bootstrap_ntp_servers | default(["time.cloudflare.com"], true) %#
+      - #{ item }#
+      #% endfor %#
