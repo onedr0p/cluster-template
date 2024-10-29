@@ -5,6 +5,7 @@ version: '3'
 vars:
   TALHELPER_CLUSTER_DIR: '{{.KUBERNETES_DIR}}/bootstrap/talos/clusterconfig'
   TALHELPER_CONFIG_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talconfig.yaml'
+  TALHELPER_SECRET_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talsecret.sops.yaml'
   TALOSCONFIG: '{{.TALHELPER_CLUSTER_DIR}}/talosconfig'
 
 env:
@@ -12,9 +13,24 @@ env:
 
 tasks:
 
+  generate-config:
+    desc: Generate Talos configuration
+    cmd: talhelper genconfig --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}}
+    preconditions:
+      - msg: Missing talhelper config file
+        sh: test -f {{.TALHELPER_CONFIG_FILE}}
+      - msg: Missing Sops config file
+        sh: test -f {{.SOPS_CONFIG_FILE}}
+      - msg: Missing Sops Age key file
+        sh: test -f {{.SOPS_AGE_KEY_FILE}}
+
   apply-config:
     desc: Apply Talos configuration to a node
-    cmd: talosctl apply-config --mode={{.MODE}} --nodes {{.HOSTNAME}} --file {{.TALHELPER_CLUSTER_DIR}}/{{.CLUSTER_NAME}}-{{.HOSTNAME}}.yaml
+    cmds:
+      - '{{if eq .MODE "reboot"}}kubectl drain {{.HOSTNAME}} --ignore-daemonsets --delete-emptydir-data --force{{end}}'
+      - talosctl apply-config --mode={{.MODE}} --nodes {{.HOSTNAME}} --file {{.TALHELPER_CLUSTER_DIR}}/{{.CLUSTER_NAME}}-{{.HOSTNAME}}.yaml
+      - talosctl --nodes {{.HOSTNAME}} health --wait-timeout=10m --server=false
+      - '{{if eq .MODE "reboot"}}kubectl uncordon {{.HOSTNAME}}{{end}}'
     vars:
       MODE: '{{.MODE | default "no-reboot"}}'
       CLUSTER_NAME:
@@ -71,8 +87,7 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade Kubernetes
-    cmds:
-      - talosctl --nodes {{.KUBERNETES_CONTROLLER}} upgrade-k8s --to {{.KUBERNETES_VERSION}}
+    cmd: talosctl --nodes {{.KUBERNETES_CONTROLLER}} upgrade-k8s --to {{.KUBERNETES_VERSION}}
     vars:
       KUBERNETES_CONTROLLER:
         sh: talosctl config info --output json | jq --raw-output '.endpoints[]' | shuf -n 1
