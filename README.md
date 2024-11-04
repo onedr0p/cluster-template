@@ -46,7 +46,7 @@ The features included will depend on the type of configuration you want to use. 
 
 ## 🚀 Getting Started
 
-Once you have installed Talos on your nodes, there are six stages to getting a Flux-managed cluster up and runnning.
+Once you have installed Talos on your nodes, there are six stages to getting a Flux-managed cluster up and running.
 
 > [!NOTE]
 > For all stages below the commands **MUST** be ran on your personal workstation within your repository directory
