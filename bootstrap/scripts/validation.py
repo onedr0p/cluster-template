@@ -71,9 +71,9 @@ def validate_node(node: dict, node_cidr: str) -> None:
                 raise ValueError(f"Node {node.get('name')} port 50000 is not open")
 
 @required("bootstrap_cluster_name")
-def validate_cluster_name(cluster_name: str, **_) -> None:
-    if not re.match(r"^[a-z0-9-]+$", cluster_name):
-        raise ValueError(f"Cluster name {cluster_name} has an invalid name")
+def validate_cluster_name(name: str, **_) -> None:
+    if not re.match(r"^[a-z0-9-]+$", name):
+        raise ValueError(f"Cluster name {name} has invalid characters")
 
 @required("bootstrap_cloudflare")
 def validate_cli_tools(cloudflare: dict, **_) -> None:
@@ -111,6 +111,7 @@ def validate_nodes(node_cidr: str, nodes: dict[list], **_) -> None:
 def validate(data: dict) -> None:
     validate_python_version()
     validate_cli_tools(data)
+    validate_cluster_name(data)
     validate_age(data)
 
     if not data.get("skip_tests", False):
