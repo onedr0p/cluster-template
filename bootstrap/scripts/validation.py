@@ -70,6 +70,10 @@ def validate_node(node: dict, node_cidr: str) -> None:
             if result != 0:
                 raise ValueError(f"Node {node.get('name')} port 50000 is not open")
 
+@required("bootstrap_cluster_name")
+def validate_cluster_name(cluster_name: str, **_) -> None:
+    if not re.match(r"^[a-z0-9-]+$", cluster_name):
+        raise ValueError(f"Cluster name {cluster_name} has an invalid name")
 
 @required("bootstrap_cloudflare")
 def validate_cli_tools(cloudflare: dict, **_) -> None:
