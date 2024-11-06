@@ -8,39 +8,35 @@ vars:
 tasks:
 
   apply-ks:
-    desc: Apply a Flux Kustomization resource for a cluster
-    summary: |-
-      PATH: Path to the Flux Kustomization resource from the apps base dir (required, e.g. network/echo-server)
-      NS: Namespace the Flux Kustomization exists in (default: flux-system)
+    desc: Apply a Flux KS for a cluster [PATH=required]
     cmd: >
-      flux build --namespace {{.NS}} ks {{base .PATH}}
+      flux build --namespace flux-system ks {{base .PATH}}
       --kustomization-file {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
-      --path {{.KUBERNETES_DIR}}/apps/{{.PATH}}
-      {{- if contains "not found" .KS }}--dry-run \{{ end }}
-      | yq 'with(select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization"); .metadata.namespace = "{{.NS}}")' -
-      | kubectl apply --server-side --field-manager=kustomize-controller -f -
+      --path {{.KUBERNETES_DIR}}/apps/{{.PATH}}{{- if contains "not found" .KS }}--dry-run \{{ end }}
+      | yq 'with(select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization"); .metadata.namespace = "flux-system")' -
+      | kubectl apply --server-side --field-manager=kustomize-controller --filename -
     requires:
       vars: [PATH]
     vars:
-      NS: '{{.NS | default "flux-system"}}'
       KS:
-        sh: flux --namespace {{.NS}} get kustomizations {{base .PATH}} 2>&1
+        sh: flux --namespace flux-system get kustomizations {{base .PATH}} 2>&1
     preconditions:
       - test -f {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
+      - which flux kubectl yq
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
-    cmd: flux reconcile --namespace flux-system kustomization cluster --with-source
+    cmd: flux --namespace flux-system reconcile kustomization cluster --with-source
     preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG}}
+      - test -f {{.KUBECONFIG}}
+      - which flux
 
   kubeconform:
     desc: Validate Kubernetes manifests with kubeconform
     cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
     preconditions:
-      - msg: Missing kubeconform script
-        sh: test -f {{.KUBECONFORM_SCRIPT}}
+      - test -f {{.KUBECONFORM_SCRIPT}}
+      - which kubeconform
 
   resources:
     desc: Gather common resources in your cluster, useful when asking for support
@@ -59,5 +55,5 @@ tasks:
         ingresses
         pods
     preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG}}
+      - test -f {{.KUBECONFIG}}
+      - which kubectl

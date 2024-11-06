@@ -298,19 +298,13 @@ task talos:reset # --force
 # (Re)generate the Talos config
 task talos:generate-config
 # Apply the config to the node
-task talos:apply-config HOSTNAME=? MODE=?
-# e.g. task talos:apply-config HOSTNAME=k8s-0 MODE=reboot
+task talos:apply-node HOSTNAME=? MODE=?
+# e.g. task talos:apply-config HOSTNAME=k8s-0 MODE=auto
 ```
 
 #### ⬆️ Updating Talos and Kubernetes versions
 
 📍 _Ensure the `talosVersion` and `kubernetesVersion` in `talhelper.yaml` are up-to-date with the version you wish to upgrade to._
-
-```sh
-# Upgrade the whole cluster to a newer Talos version
-task talos:upgrade-cluster
-# e.g. task talos:upgrade-cluster
-```
 
 ```sh
 # Upgrade node to a newer Talos version

@@ -6,42 +6,38 @@ tasks:
 
   arch:
     desc: Set up Arch Linux tools
-    cmd: '{{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar $(cat {{.ROOT_DIR}}/.taskfiles/workstation/Archfile | xargs)'
+    cmd: >
+      {{.PKGMGR}} -Syu --needed --noconfirm --noprogressbar
+      $(cat {{.ROOT_DIR}}/.taskfiles/workstation/Archfile | xargs)
     vars:
       PKGMGR:
-        sh: command -v paru || command -v yay
+        sh: which paru || which yay
     preconditions:
-      - msg: Missing paru or yay
-        sh: command -v paru &>/dev/null || command -v yay &>/dev/null
-      - msg: Missing Archfile
-        sh: test -f {{.ROOT_DIR}}/.taskfiles/workstation/Archfile
+      - test -f {{.ROOT_DIR}}/.taskfiles/workstation/Archfile
+      - which paru || which yay
 
   brew:
     desc: Set up Homebrew tools
-    cmds:
-      - brew bundle --file {{.ROOT_DIR}}/.taskfiles/workstation/Brewfile
+    cmd: brew bundle --file {{.ROOT_DIR}}/.taskfiles/workstation/Brewfile
     sources:
       - '{{.ROOT_DIR}}/.taskfiles/workstation/Brewfile'
     generates:
       - '{{.ROOT_DIR}}/.taskfiles/workstation/Brewfile.lock.json'
     preconditions:
-      - msg: Missing brew
-        sh: command -v brew &>/dev/null
-      - msg: Missing Brewfile
-        sh: test -f {{.ROOT_DIR}}/.taskfiles/workstation/Brewfile
+      - test -f {{.ROOT_DIR}}/.taskfiles/workstation/Brewfile
+      - which brew
 
   direnv:
-    desc: Run direnv hooks
+    desc: Set up direnv hooks
     cmd: direnv allow .
     status:
       - '[[ $(direnv status --json | jq ".state.foundRC.allowed") == 0 ]]'
       - '[[ $(direnv status --json | jq ".state.loadedRC.allowed") == 0 ]]'
     preconditions:
-      - msg: Missing direnv
-        sh: command -v direnv &>/dev/null
+      - which direnv
 
   generic-linux:
-    desc: Setup CLI tools into the projects .bin directory
+    desc: Set up CLI tools into the projects .bin directory
     dir: '{{.ROOT_DIR}}/.bin'
     platforms: ['linux/amd64', 'linux/arm64']
     cmds:
@@ -85,7 +81,5 @@ tasks:
     generates:
       - '{{.VIRTUAL_ENV}}/pyvenv.cfg'
     preconditions:
-      - msg: Missing python3
-        sh: command -v python3 &>/dev/null
-      - msg: Missing Pip requirements file
-        sh: test -f {{.ROOT_DIR}}/requirements.txt
+      - test -f {{.ROOT_DIR}}/requirements.txt
+      - which python3

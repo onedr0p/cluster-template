@@ -40,13 +40,15 @@ tasks:
 
   configure:
     desc: Render and validate configuration files
-    prompt: Any conflicting config in the kubernetes directory will be overwritten... continue?
-    deps:
-      - init
-      - bootstrap:age-keygen
-      - workstation:direnv
-      - workstation:venv
+    prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
     cmds:
       - task: bootstrap:template
       - task: bootstrap:secrets
       - task: kubernetes:kubeconform
+      - >
+        {{if eq .HOME_SOPS_AGE_KEY_FILE_EXISTS "true"}}
+        echo "WARNING: SOPS Age key found in home directory, this may cause conflicts."
+        {{end}}
+    vars:
+      HOME_SOPS_AGE_KEY_FILE_EXISTS:
+        sh: test -f ~/.config/sops/age/keys.txt && echo true || echo false

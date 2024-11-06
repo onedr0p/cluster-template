@@ -7,9 +7,6 @@ import re
 import socket
 import sys
 
-GLOBAL_CLI_TOOLS = ["age", "flux", "helmfile", "sops", "jq", "kubeconform", "kustomize", "talosctl", "talhelper"]
-CLOUDFLARE_TOOLS = ["cloudflared"]
-
 
 def required(*keys: str):
     def wrapper_outter(func: Callable):
@@ -85,16 +82,6 @@ def validate_schematic_id(id: str, **_) -> None:
         raise ValueError(f"Schematic ID {id} has invalid characters")
 
 
-@required("bootstrap_cloudflare")
-def validate_cli_tools(cloudflare: dict, **_) -> None:
-    for tool in GLOBAL_CLI_TOOLS:
-        if not which(tool):
-            raise ValueError(f"Missing required CLI tool {tool}")
-    for tool in CLOUDFLARE_TOOLS if cloudflare.get("enabled", False) else []:
-        if not which(tool):
-            raise ValueError(f"Missing required CLI tool {tool}")
-
-
 @required("bootstrap_age_pubkey")
 def validate_age(key: str, **_) -> None:
     if not re.match(r"^age1[a-z0-9]{0,58}$", key):
@@ -120,7 +107,6 @@ def validate_nodes(node_cidr: str, nodes: dict[list], **_) -> None:
 
 def validate(data: dict) -> None:
     validate_python_version()
-    validate_cli_tools(data)
     validate_cluster_name(data)
     validate_schematic_id(data)
     validate_age(data)
