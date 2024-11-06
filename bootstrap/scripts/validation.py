@@ -59,7 +59,10 @@ def validate_node(node: dict, node_cidr: str) -> None:
     if not node.get("mac_addr"):
         raise ValueError(f"Node {node.get('name')} is missing mac_addr")
     if not re.match(r"(?:[0-9a-fA-F]:?){12}", node.get("mac_addr")):
-        raise ValueError(f"Node {node.get('name')} has an invalid mac_addr, is this a MAC address?")
+        raise ValueError(f"Node {node.get('name')} has an invalid mac address")
+    if node.get("schematic_id"):
+        if not re.match(r"^[a-z0-9]{64}$", node.get("schematic_id")):
+            raise ValueError(f"Node {node.get('name')} has an invalid schematic id")
     if node.get("address"):
         ip = validate_ip(node.get("address"))
         if netaddr.IPAddress(ip, 4) not in netaddr.IPNetwork(node_cidr):
@@ -74,6 +77,13 @@ def validate_node(node: dict, node_cidr: str) -> None:
 def validate_cluster_name(name: str, **_) -> None:
     if not re.match(r"^[a-z0-9-]+$", name):
         raise ValueError(f"Cluster name {name} has invalid characters")
+
+
+@required("bootstrap_schematic_id")
+def validate_schematic_id(id: str, **_) -> None:
+    if not re.match(r"^[a-z0-9]{64}$", id):
+        raise ValueError(f"Schematic ID {id} has invalid characters")
+
 
 @required("bootstrap_cloudflare")
 def validate_cli_tools(cloudflare: dict, **_) -> None:
@@ -112,6 +122,7 @@ def validate(data: dict) -> None:
     validate_python_version()
     validate_cli_tools(data)
     validate_cluster_name(data)
+    validate_schematic_id(data)
     validate_age(data)
 
     if not data.get("skip_tests", False):
