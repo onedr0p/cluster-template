@@ -5,8 +5,7 @@
 #
 
 # (Optional) Cluster name; affects Cilium and Talos
-#   DEFAULT: "home-kubernetes"
-bootstrap_cluster_name: ""
+bootstrap_cluster_name: "home-kubernetes"
 
 # (Required) Generated schematic id from https://factory.talos.dev/
 bootstrap_schematic_id: ""
@@ -37,15 +36,17 @@ bootstrap_node_inventory: []
     # ...
 
 # The DNS servers to use for the cluster nodes.
-#   DEFAULT: [1.1.1.1, 1.0.0.1]
 # If using a local DNS server make sure it meets the following requirements:
 #   1. your nodes can reach it
 #   2. it is configured to forward requests to a public DNS server
-bootstrap_dns_servers: []
+bootstrap_dns_servers:
+  - "1.1.1.1"
+  - "1.0.0.1"
 
 # The NTP servers to use for the cluster nodes.
-#   DEFAULT: [time.cloudflare.com]
-bootstrap_ntp_servers: []
+bootstrap_ntp_servers:
+  - "162.159.200.1"
+  - "162.159.200.123"
 
 # (Required) The pod CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
