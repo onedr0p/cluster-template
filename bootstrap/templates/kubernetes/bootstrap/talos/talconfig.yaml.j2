@@ -6,21 +6,15 @@ talosVersion: v1.8.2
 kubernetesVersion: v1.31.2
 
 clusterName: "#{ bootstrap_cluster_name | default('home-kubernetes', true) }#"
-#% if bootstrap_controller_vip %#
 endpoint: https://#{ bootstrap_controller_vip }#:6443
-#% else %#
-endpoint: https://#{ bootstrap_node_network | nthhost(254) }#:6443
-#% endif %#
+
 clusterPodNets:
   - "#{ bootstrap_pod_network.split(',')[0] }#"
 clusterSvcNets:
   - "#{ bootstrap_service_network.split(',')[0] }#"
+
 additionalApiServerCertSans: &sans
-  #% if bootstrap_controller_vip %#
   - "#{ bootstrap_controller_vip }#"
-  #% else %#
-  - "#{ bootstrap_node_network | nthhost(254) }#"
-  #% endif %#
   #% for item in bootstrap_tls_sans %#
   - "#{ item }#"
   #% endfor %#
@@ -67,11 +61,7 @@ nodes:
                 #% endif %#
             #% if item.controller %#
             vip:
-              #% if bootstrap_controller_vip %#
               ip: "#{ bootstrap_controller_vip }#"
-              #% else %#
-              ip: "#{ bootstrap_node_network | nthhost(254) }#"
-              #% endif %#
             #% endif %#
         #% else %#
         dhcp: false
@@ -87,11 +77,7 @@ nodes:
         mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
-          #% if bootstrap_controller_vip %#
           ip: "#{ bootstrap_controller_vip }#"
-          #% else %#
-          ip: "#{ bootstrap_node_network | nthhost(254) }#"
-          #% endif %#
         #% endif %#
         #% endif %#
     #% if item.manifests %#

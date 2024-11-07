@@ -57,9 +57,9 @@ bootstrap_pod_network: "10.69.0.0/16"
 # https://github.com/onedr0p/cluster-template/discussions/1510
 bootstrap_service_network: "10.96.0.0/16"
 
-# (Optional) The IP address of the Kube API, choose an available IP in
-#   your nodes host network that is NOT being used. This is announced over L2.
-#   Leave blank if you want to use the last IP in the network (.254)
+# (Optional) The IP address of the Kube API, choose an available IP
+#   in your nodes host network that is NOT being used.
+#   This is announced over L2.
 bootstrap_controller_vip: ""
 
 # (Optional) Add additional SANs to the Kube API cert, this is useful
