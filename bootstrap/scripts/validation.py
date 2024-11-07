@@ -31,37 +31,37 @@ def validate_python_version() -> None:
 
 
 def validate_node(node: dict, node_cidr: str) -> None:
-    if not node.get("name") or not re.match(r"^[a-z0-9-]+$", node.get('name')):
+    if not node.get('name') or not re.match(r"^[a-z0-9-]+$", node.get('name')):
         raise ValueError(
             f"Invalid node name {node.get('name')} for {node.get('name')}, must be not empty and match [a-z0-9-]"
         )
-    if not node.get("disk"):
+    if not node.get('disk'):
         raise ValueError(
             f"Invalid node disk {node.get('disk')} for {node.get('name')}, must be not empty"
         )
-    if not node.get("mac_addr") or not re.match(r"(?:[0-9a-fA-F]:?){12}", node.get("mac_addr")):
+    if not node.get('mac_addr') or not re.match(r"(?:[0-9a-fA-F]:?){12}", node.get('mac_addr')):
         raise ValueError(
             f"Invalid node mac_addr {node.get('mac_addr')} for {node.get('name')}, must be not empty and match [0-9a-fA-F]:?"
         )
-    if node.get("schematic_id"):
-        if not re.match(r"^[a-z0-9]{64}$", node.get("schematic_id")):
+    if node.get('schematic_id'):
+        if not re.match(r"^[a-z0-9]{64}$", node.get('schematic_id')):
             raise ValueError(
                 f"Invalid node schematic_id {node.get('schematic_id')} for {node.get('name')}, must match [a-z0-9]{64}"
             )
 
     try:
-        netaddr.IPAddress(node.get("address"))
+        netaddr.IPAddress(node.get('address'))
     except netaddr.core.AddrFormatError as e:
-        raise ValueError(f"Invalid IP address {node.get("address")}") from e
+        raise ValueError(f"Invalid IP address {node.get('address')}") from e
 
-    if netaddr.IPAddress(node.get("address"), 4) not in netaddr.IPNetwork(node_cidr):
+    if netaddr.IPAddress(node.get('address'), 4) not in netaddr.IPNetwork(node_cidr):
         raise ValueError(
-            f"Invalid node address {node.get("address")} for {node.get('name')}, must be in CIDR {node_cidr}"
+            f"Invalid node address {node.get('address')} for {node.get('name')}, must be in CIDR {node_cidr}"
         )
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(5)
-        result = sock.connect_ex((node.get("address"), 50000))
+        result = sock.connect_ex((node.get('address'), 50000))
         if result != 0:
             raise ValueError(
                 f"Unable to connect to node {node.get('name')}, port 50000 is not connectable"
@@ -135,5 +135,5 @@ def validate(data: dict) -> None:
     validate_schematic_id(data)
     validate_age(data)
 
-    if not data.get("skip_tests", False):
+    if not data.get('skip_tests', False):
         validate_nodes(data)
