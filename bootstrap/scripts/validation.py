@@ -93,6 +93,7 @@ def validate_dns_servers(servers: list = ["1.1.1.1","1.0.0.1"], **_) -> None:
     resolver = dns.resolver.Resolver()
     resolver.nameservers = servers
     resolver.timeout = 5
+    resolver.lifetime = 5
 
     try:
         resolver.resolve("cloudflare.com")
