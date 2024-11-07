@@ -32,22 +32,14 @@ def validate_python_version() -> None:
 
 def validate_node(node: dict, node_cidr: str) -> None:
     if not node.get('name') or not re.match(r"^[a-z0-9-]+$", node.get('name')):
-        raise ValueError(
-            f"Invalid node name {node.get('name')} for {node.get('name')}, must be not empty and match [a-z0-9-]"
-        )
+        raise ValueError(f"Invalid node name {node.get('name')} for {node.get('name')}, must be not empty and match [a-z0-9-]")
     if not node.get('disk'):
-        raise ValueError(
-            f"Invalid node disk {node.get('disk')} for {node.get('name')}, must be not empty"
-        )
+        raise ValueError(f"Invalid node disk {node.get('disk')} for {node.get('name')}, must be not empty")
     if not node.get('mac_addr') or not re.match(r"(?:[0-9a-fA-F]:?){12}", node.get('mac_addr')):
-        raise ValueError(
-            f"Invalid node mac_addr {node.get('mac_addr')} for {node.get('name')}, must be not empty and match [0-9a-fA-F]:?"
-        )
+        raise ValueError(f"Invalid node mac_addr {node.get('mac_addr')} for {node.get('name')}, must be not empty and match [0-9a-fA-F]:?")
     if node.get('schematic_id'):
         if not re.match(r"^[a-z0-9]{64}$", node.get('schematic_id')):
-            raise ValueError(
-                f"Invalid node schematic_id {node.get('schematic_id')} for {node.get('name')}, must match [a-z0-9]{64}"
-            )
+            raise ValueError(f"Invalid node schematic_id {node.get('schematic_id')} for {node.get('name')}, must match [a-z0-9]{64}")
 
     try:
         netaddr.IPAddress(node.get('address'))
@@ -128,7 +120,6 @@ def validate_age(key: str, **_) -> None:
         raise ValueError(f"Invalid bootstrap_age_pubkey {key}, must be not empty and match age1[a-z0-9]{0,58}")
 
 
-
 def validate(data: dict) -> None:
     validate_python_version()
     validate_cluster_name(data)
@@ -137,3 +128,6 @@ def validate(data: dict) -> None:
 
     if not data.get('skip_tests', False):
         validate_nodes(data)
+
+    validate_dns_servers(data)
+    validate_ntp_servers(data)
