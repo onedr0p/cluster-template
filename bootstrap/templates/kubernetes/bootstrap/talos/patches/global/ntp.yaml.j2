@@ -2,6 +2,6 @@ machine:
   time:
     disabled: false
     servers:
-      #% for item in bootstrap_ntp_servers | default(["time.cloudflare.com"], true) %#
+      #% for item in bootstrap_ntp_servers | default(["162.159.200.1","162.159.200.123"], true) %#
       - #{ item }#
       #% endfor %#

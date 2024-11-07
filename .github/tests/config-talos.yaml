@@ -1,8 +1,8 @@
 ---
 skip_tests: true
 
-boostrap_talos:
-  schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+bootstrap_cluster_name: fake
+bootstrap_schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
 bootstrap_node_network: 10.10.10.0/24
 bootstrap_node_default_gateway: 10.10.10.1
 bootstrap_node_inventory:

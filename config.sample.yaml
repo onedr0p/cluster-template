@@ -4,21 +4,20 @@
 # 1. (Required) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
 #
 
-# (Optional) Cluster name; affects Cilium and Talos
-#   DEFAULT: "home-kubernetes"
-bootstrap_cluster_name: ""
+# (Required) Cluster name; affects Cilium and Talos
+bootstrap_cluster_name: "home-kubernetes"
 
 # (Required) Generated schematic id from https://factory.talos.dev/
 bootstrap_schematic_id: ""
 
-# (Required) The CIDR your nodes are on (e.g. 192.168.1.0/24)
+# (Required) The network (in CIDR notation) your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_network: ""
 
 # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
 #   Worker nodes are optional
 bootstrap_node_inventory: []
     # - name: ""            # (Required) Name of the node (must match [a-z0-9-\]+)
-    #   address: ""         # (Optional) IP address of the node
+    #   address: ""         # (Required) IP address of the node
     #   controller: true    # (Required) Set to true if this is a controller node
     #   disk: ""            # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
     #   mac_addr: ""        # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
@@ -36,31 +35,31 @@ bootstrap_node_inventory: []
     #         - key=value
     # ...
 
-# The DNS servers to use for the cluster nodes.
-#   DEFAULT: [1.1.1.1, 1.0.0.1]
-# If using a local DNS server make sure it meets the following requirements:
-#   1. your nodes can reach it
-#   2. it is configured to forward requests to a public DNS server
-bootstrap_dns_servers: []
+# (Required) The DNS servers to use for the cluster nodes.
+bootstrap_dns_servers:
+  - "1.1.1.1"
+  - "1.0.0.1"
 
-# The NTP servers to use for the cluster nodes.
-#   DEFAULT: [time.cloudflare.com]
-bootstrap_ntp_servers: []
+# (Required) The NTP servers to use for the cluster nodes.
+bootstrap_ntp_servers:
+  - "162.159.200.1"
+  - "162.159.200.123"
 
 # (Required) The pod CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
 # If you want to use IPv6 check the advanced flags below and be aware of
-# https://github.com/onedr0p/cluster-template/issues/1148
+# https://github.com/onedr0p/cluster-template/discussions/1510
 bootstrap_pod_network: "10.69.0.0/16"
 
 # (Required) The service CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
 # If you want to use IPv6 check the advanced flags below and be aware of
-# https://github.com/onedr0p/cluster-template/issues/1148
+# https://github.com/onedr0p/cluster-template/discussions/1510
 bootstrap_service_network: "10.96.0.0/16"
 
-# (Required) The IP address of the Kube API, choose an available IP in
-#   your nodes host network that is NOT being used. This is announced over L2.
+# (Required) The IP address of the Kube API, choose an available IP
+#   in your nodes host network that is NOT being used.
+#   This is announced over L2.
 bootstrap_controller_vip: ""
 
 # (Optional) Add additional SANs to the Kube API cert, this is useful
@@ -68,10 +67,11 @@ bootstrap_controller_vip: ""
 bootstrap_tls_sans: []
 
 # (Optional) The default gateway for the nodes
-#   DEFAULT: .1 derrived from bootstrap_node_network (e.g. 192.168.1.1)
+#   Leave blank if your default gateway is the same as the first IP in the network (.1)
 bootstrap_node_default_gateway: ""
 
-# (Optional) Add vlan tag to network master device, leave blank if you tag ports on your switch instead
+# (Optional) Add vlan tag to network master device, leave blank if you tag
+#   ports on your switch or do not use VLANs at all.
 #   Ref: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
 bootstrap_vlan: ""
 
@@ -93,25 +93,23 @@ bootstrap_bgp:
   #   If these match, iBGP will be used. If not, eBGP will be used.
   peer_asn: ""   # Router(s) AS
   local_asn: ""  # Node(s) AS
-  peer_port: 179 # BGP Port. DEFAULT: 179
+  peer_port: 179 # BGP Port
   # (Required) The advertised CIDR for the cluster, this must NOT overlap with any
-  #   existing networks and is usually a /16 (64K IPs).
+  #   existing networks and is usually a /16
   # If you want to use IPv6 check the advanced flags below
   advertised_network: ""
 
 # (Optional) Secureboot and TPM-based disk encryption
+#   Ref: https://www.talos.dev/v1.8/talos-guides/install/bare-metal-platforms/secureboot
 bootstrap_secureboot:
   # (Optional) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
-  #   Ref: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
   enabled: false
   # (Optional) Enable TPM-based disk encryption. Requires TPM 2.0
-  #   Ref: https://www.talos.dev/v1.6/talos-guides/install/bare-metal-platforms/secureboot/#disk-encryption-with-tpm
   encrypt_disk_with_tpm: false
 
 # (Optional) Change Cilium load balancer mode
-#  DEFAULT: "dsr"
-#  Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
-bootstrap_loadbalancer_mode: ""
+#   Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
+bootstrap_loadbalancer_mode: "dsr"
 
 #
 # 2. (Required) Flux details - Flux is used to manage the cluster configuration.

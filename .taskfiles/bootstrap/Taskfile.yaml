@@ -29,12 +29,10 @@ tasks:
       TALHELPER_SECRET_EXISTS:
         sh: test -f {{.TALHELPER_SECRET_FILE}} && echo true || echo false
     preconditions:
-      - msg: Missing talhelper config file
-        sh: test -f {{.TALHELPER_CONFIG_FILE}}
-      - msg: Missing Sops config file
-        sh: test -f {{.SOPS_CONFIG_FILE}}
-      - msg: Missing Sops Age key file
-        sh: test -f {{.SOPS_AGE_KEY_FILE}}
+      - test -f {{.SOPS_CONFIG_FILE}}
+      - test -f {{.SOPS_AGE_KEY_FILE}}
+      - test -f {{.TALHELPER_CONFIG_FILE}}
+      - which talhelper sops
 
   flux:
     desc: Bootstrap Flux into the Talos cluster
@@ -52,10 +50,9 @@ tasks:
       SOPS_SECRET_EXISTS:
         sh: kubectl --namespace flux-system get secret sops-age &>/dev/null && echo true || echo false
     preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG}}
-      - msg: Missing Sops Age key file
-        sh: test -f {{.SOPS_AGE_KEY_FILE}}
+      - test -f {{.KUBECONFIG}}
+      - test -f {{.SOPS_AGE_KEY_FILE}}
+      - which flux kubectl sops
 
   apps:
     internal: true
@@ -65,29 +62,26 @@ tasks:
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff
       - until kubectl wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
     preconditions:
-      - msg: Missing kubeconfig
-        sh: test -f {{.KUBECONFIG}}
-      - msg: Missing helmfile
-        sh: test -f {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml
+      - test -f {{.KUBECONFIG}}
+      - test -f {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml
+      - which helmfile kubectl
 
   age-keygen:
     desc: Bootstrap the Sops Age key
     cmd: age-keygen --output {{.SOPS_AGE_KEY_FILE}}
     status:
       - test -f {{.SOPS_AGE_KEY_FILE}}
+    preconditions:
+      - which age-keygen
 
   template:
     internal: true
     cmd: '{{.VIRTUAL_ENV}}/bin/makejinja'
     preconditions:
-      - msg: Missing virtual environment
-        sh: test -d {{.VIRTUAL_ENV}}
-      - msg: Missing Makejinja config file
-        sh: test -f {{.MAKEJINJA_CONFIG_FILE}}
-      - msg: Missing Makejinja plugin file
-        sh: test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py
-      - msg: Missing bootstrap config file
-        sh: test -f {{.BOOTSTRAP_CONFIG_FILE}}
+      - test -d {{.VIRTUAL_ENV}}
+      - test -f {{.BOOTSTRAP_CONFIG_FILE}}
+      - test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py
+      - test -f {{.MAKEJINJA_CONFIG_FILE}}
 
   secrets:
     internal: true
@@ -101,10 +95,9 @@ tasks:
       SECRET_FILES:
         sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*"
     preconditions:
-      - msg: Missing Sops config file
-        sh: test -f {{.SOPS_CONFIG_FILE}}
-      - msg: Missing Sops Age key file
-        sh: test -f {{.SOPS_AGE_KEY_FILE}}
+      - test -f {{.SOPS_AGE_KEY_FILE}}
+      - test -f {{.SOPS_CONFIG_FILE}}
+      - which sops
 
   clean:
     desc: Clean files and directories no longer needed after cluster bootstrap
@@ -125,7 +118,5 @@ tasks:
     vars:
       TS: '{{now | unixEpoch}}'
     preconditions:
-      - msg: Missing bootstrap directory
-        sh: test -d {{.BOOTSTRAP_DIR}}
-      - msg: Missing Renovate config file
-        sh: test -f {{.ROOT_DIR}}/.github/renovate.json5
+      - test -d {{.BOOTSTRAP_DIR}}
+      - test -f {{.ROOT_DIR}}/.github/renovate.json5

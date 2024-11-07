@@ -7,16 +7,18 @@ kubernetesVersion: v1.31.2
 
 clusterName: "#{ bootstrap_cluster_name | default('home-kubernetes', true) }#"
 endpoint: https://#{ bootstrap_controller_vip }#:6443
+
 clusterPodNets:
   - "#{ bootstrap_pod_network.split(',')[0] }#"
 clusterSvcNets:
   - "#{ bootstrap_service_network.split(',')[0] }#"
+
 additionalApiServerCertSans: &sans
   - "#{ bootstrap_controller_vip }#"
-  - 127.0.0.1 # KubePrism
   #% for item in bootstrap_tls_sans %#
   - "#{ item }#"
   #% endfor %#
+  - "127.0.0.1"
 additionalMachineCertSans: *sans
 
 # Disable built-in Flannel to use Cilium
