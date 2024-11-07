@@ -10,7 +10,7 @@ bootstrap_cluster_name: "home-kubernetes"
 # (Required) Generated schematic id from https://factory.talos.dev/
 bootstrap_schematic_id: ""
 
-# (Required) The CIDR your nodes are on (e.g. 192.168.1.0/24)
+# (Required) The network in CIDR notation your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_network: ""
 
 # (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
@@ -57,8 +57,9 @@ bootstrap_pod_network: "10.69.0.0/16"
 # https://github.com/onedr0p/cluster-template/discussions/1510
 bootstrap_service_network: "10.96.0.0/16"
 
-# (Required) The IP address of the Kube API, choose an available IP in
+# (Optional) The IP address of the Kube API, choose an available IP in
 #   your nodes host network that is NOT being used. This is announced over L2.
+#   Leave blank if you want to use the last IP in the network (.254)
 bootstrap_controller_vip: ""
 
 # (Optional) Add additional SANs to the Kube API cert, this is useful
@@ -66,7 +67,7 @@ bootstrap_controller_vip: ""
 bootstrap_tls_sans: []
 
 # (Optional) The default gateway for the nodes, leave blank if your
-#   default gateway is the same as the first IP in the network.
+#   default gateway is the same as the first IP in the network (.1)
 bootstrap_node_default_gateway: ""
 
 # (Optional) Add vlan tag to network master device, leave blank if you tag
