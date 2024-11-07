@@ -95,7 +95,7 @@ def validate_nodes(node_cidr: str, nodes: dict[list], **_) -> None:
 @required("bootstrap_dns_servers")
 def validate_dns_servers(servers: list = ["1.1.1.1","1.0.0.1"], **_) -> None:
     resolver = dns.resolver.Resolver()
-    resolver.nameservers = [servers]
+    resolver.nameservers = servers
     resolver.timeout = 5
 
     try:
