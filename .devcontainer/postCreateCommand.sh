@@ -16,4 +16,5 @@ fisher install PatrickF1/fzf.fish
 if ! grep -q "venv /workspaces/" .venv/pyvenv.cfg; then
     rm -rf .venv
 fi
-task workstation:venv
+
+go-task workstation:venv
