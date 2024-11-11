@@ -1,0 +1,6 @@
+machine:
+  network:
+    nameservers:
+      - 10.0.40.1
+      - 1.1.1.1
+      - 8.8.8.8

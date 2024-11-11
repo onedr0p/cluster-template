@@ -1,0 +1,2 @@
+- op: remove
+  path: /cluster/apiServer/admissionControl
