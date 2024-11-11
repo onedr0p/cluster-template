@@ -1,31 +1,31 @@
 ---
 
 #
-# 1. (Required) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
+# 1. (REQUIRED) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
 #
 
-# (Required) Cluster name; affects Cilium and Talos
+# (REQUIRED) Cluster name; affects Cilium and Talos
 bootstrap_cluster_name: "home-kubernetes"
 
-# (Required) Generated schematic id from https://factory.talos.dev/
+# (REQUIRED) Generated schematic id from https://factory.talos.dev/
 bootstrap_schematic_id: ""
 
-# (Required) The network (in CIDR notation) your nodes are on (e.g. 192.168.1.0/24)
+# (REQUIRED) The network (in CIDR notation) your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_network: ""
 
-# (Required) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
+# (REQUIRED) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
 #   Worker nodes are optional
 bootstrap_node_inventory: []
-    # - name: ""            # (Required) Name of the node (must match [a-z0-9-\]+)
-    #   address: ""         # (Required) IP address of the node
-    #   controller: true    # (Required) Set to true if this is a controller node
-    #   disk: ""            # (Required) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
-    #   mac_addr: ""        # (Required) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
-    #   schematic_id: ""    # (Optional) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
-    #   mtu: ""             # (Optional) MTU for the NIC. DEFAULT: 1500
-    #   manifests:          # (Optional) Additional manifests to include after MachineConfig
+    # - name: ""            # (REQUIRED) Name of the node (must match [a-z0-9-\]+)
+    #   address: ""         # (REQUIRED) IP address of the node
+    #   controller: true    # (REQUIRED) Set to true if this is a controller node
+    #   disk: ""            # (REQUIRED) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
+    #   mac_addr: ""        # (REQUIRED) MAC address of the NIC for this node (talosctl get links -n <ip> --insecure)
+    #   schematic_id: ""    # (OPTIONAL) Override the 'bootstrap_schematic_id' with a node specific schematic ID from https://factory.talos.dev/
+    #   mtu: ""             # (OPTIONAL) MTU for the NIC. DEFAULT: 1500
+    #   manifests:          # (OPTIONAL) Additional manifests to include after MachineConfig
     #     - extra.yaml      #            Ref: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
-    #   extension_services: # (Optional) Additional talhelper ExtensionServices (supports talenv.sops.yaml envsubst)
+    #   extension_services: # (OPTIONAL) Additional talhelper ExtensionServices (supports talenv.sops.yaml envsubst)
     #     - name: name
     #       configFiles:
     #         - content: |-
@@ -35,102 +35,102 @@ bootstrap_node_inventory: []
     #         - key=value
     # ...
 
-# (Required) The DNS servers to use for the cluster nodes.
+# (REQUIRED) The DNS servers to use for the cluster nodes.
 bootstrap_dns_servers:
   - "1.1.1.1"
   - "1.0.0.1"
 
-# (Required) The NTP servers to use for the cluster nodes.
+# (REQUIRED) The NTP servers to use for the cluster nodes.
 bootstrap_ntp_servers:
   - "162.159.200.1"
   - "162.159.200.123"
 
-# (Required) The pod CIDR for the cluster, this must NOT overlap with any
+# (REQUIRED) The pod CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
 # If you want to use IPv6 check the advanced flags below and be aware of
 # https://github.com/onedr0p/cluster-template/discussions/1510
 bootstrap_pod_network: "10.69.0.0/16"
 
-# (Required) The service CIDR for the cluster, this must NOT overlap with any
+# (REQUIRED) The service CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
 # If you want to use IPv6 check the advanced flags below and be aware of
 # https://github.com/onedr0p/cluster-template/discussions/1510
 bootstrap_service_network: "10.96.0.0/16"
 
-# (Required) The IP address of the Kube API, choose an available IP
+# (REQUIRED) The IP address of the Kube API, choose an available IP
 #   in your nodes host network that is NOT being used.
 #   This is announced over L2.
 bootstrap_controller_vip: ""
 
-# (Optional) Add additional SANs to the Kube API cert, this is useful
-#   if you want to call the Kube API by hostname rather than IP
-bootstrap_tls_sans: []
-
-# (Optional) The default gateway for the nodes
-#   Leave blank if your default gateway is the same as the first IP in the network (.1)
-bootstrap_node_default_gateway: ""
-
-# (Optional) Add vlan tag to network master device, leave blank if you tag
-#   ports on your switch or do not use VLANs at all.
-#   Ref: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
-bootstrap_vlan: ""
-
-# (Required) Age Public Key (e.g. age1...)
+# (REQUIRED) Age Public Key (e.g. age1...)
 # 1. Generate a new key with the following command:
 #    > task bootstrap:age-keygen
 # 2. Copy the PUBLIC key and paste it below
 bootstrap_age_pubkey: ""
 
-# (Optional) Use cilium BGP control plane when L2 announcements won't traverse VLAN network segments.
+# (OPTIONAL) Add additional SANs to the Kube API cert, this is useful
+#   if you want to call the Kube API by hostname rather than IP
+bootstrap_tls_sans: []
+
+# (OPTIONAL) The default gateway for the nodes
+#   Leave blank if your default gateway is the same as the first IP in the network (.1)
+bootstrap_node_default_gateway: ""
+
+# (OPTIONAL) Add vlan tag to network master device, leave blank if you tag
+#   ports on your switch or do not use VLANs at all.
+#   Ref: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
+bootstrap_vlan: ""
+
+# (OPTIONAL) Use cilium BGP control plane when L2 announcements won't traverse VLAN network segments.
 #   Needs a BGP capable router setup with the node IPs as peers.
 #   Ref: https://docs.cilium.io/en/latest/network/bgp-control-plane/
 bootstrap_bgp:
   enabled: false
-  # (Optional) If using multiple BGP peers add them here.
+  # (OPTIONAL) If using multiple BGP peers add them here.
   #   DEFAULT: .1 derrived from host_network: ['x.x.x.1']
   peers: []
-  # (Required) Set the BGP Autonomous System Number for the router(s) and nodes.
+  # (REQUIRED) Set the BGP Autonomous System Number for the router(s) and nodes.
   #   If these match, iBGP will be used. If not, eBGP will be used.
   peer_asn: ""   # Router(s) AS
   local_asn: ""  # Node(s) AS
   peer_port: 179 # BGP Port
-  # (Required) The advertised CIDR for the cluster, this must NOT overlap with any
+  # (REQUIRED) The advertised CIDR for the cluster, this must NOT overlap with any
   #   existing networks and is usually a /16
   # If you want to use IPv6 check the advanced flags below
   advertised_network: ""
 
-# (Optional) Secureboot and TPM-based disk encryption
+# (OPTIONAL) Secureboot and TPM-based disk encryption
 #   Ref: https://www.talos.dev/v1.8/talos-guides/install/bare-metal-platforms/secureboot
 bootstrap_secureboot:
-  # (Optional) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
+  # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
   enabled: false
-  # (Optional) Enable TPM-based disk encryption. Requires TPM 2.0
+  # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
   encrypt_disk_with_tpm: false
 
-# (Optional) Change Cilium load balancer mode
+# (OPTIONAL) Change Cilium load balancer mode
 #   Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
 bootstrap_loadbalancer_mode: "dsr"
 
 #
-# 2. (Required) Flux details - Flux is used to manage the cluster configuration.
+# 2. (REQUIRED) Flux details - Flux is used to manage the cluster configuration.
 #
 
-# (Required) GitHub repository URL
+# (REQUIRED) GitHub repository URL
 #   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
 #   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
 #     If using a private repo make sure to following the instructions with the 'bootstrap_github_private_key' option below.
 bootstrap_github_address: ""
 
-# (Required) GitHub repository branch
+# (REQUIRED) GitHub repository branch
 bootstrap_github_branch: "main"
 
-# (Required) Token for GitHub push-based sync
+# (REQUIRED) Token for GitHub push-based sync
 # 1. Generate a new token with the following command:
 #    > openssl rand -hex 16
 # 2. Copy the token and paste it below
 bootstrap_github_webhook_token: ""
 
-# (Optional) Private key for Flux to access the GitHub repository
+# (OPTIONAL) Private key for Flux to access the GitHub repository
 #   1. Generate a new key with the following command:
 #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
 #   2. Make sure to paste public key from "github-deploy.key.pub" into
@@ -143,16 +143,16 @@ bootstrap_github_webhook_token: ""
 #   -----END OPENSSH PRIVATE KEY-----
 
 #
-# 3. (Optional) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
+# 3. (OPTIONAL) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
 #
 
 bootstrap_cloudflare:
-  # (Required) Disable to manually setup and use a different DNS provider - setting this
+  # (REQUIRED) Disable to manually setup and use a different DNS provider - setting this
   #   to false will not deploy a network namespace or the workloads contained within.
   enabled: true
-  # (Required) Cloudflare Domain
+  # (REQUIRED) Cloudflare Domain
   domain: ""
-  # (Required) Cloudflare API Token (NOT API Key)
+  # (REQUIRED) Cloudflare API Token (NOT API Key)
   #   1. Head over to Cloudflare and create a API Token by going to
   #      https://dash.cloudflare.com/profile/api-tokens
   #   2. Under the `API Tokens` section click the blue `Create Token` button.
@@ -165,47 +165,47 @@ bootstrap_cloudflare:
   #   7. Click the blue `Continue to Summary` button and then the blue `Create Token` button.
   #   8. Copy the token and paste it below.
   token: ""
-  # (Required) Optionals for Cloudflare Acme
+  # (REQUIRED) Optionals for Cloudflare Acme
   acme:
-    # (Required) Any email you want to be associated with the ACME account (used for TLS certs via letsencrypt.org)
+    # (REQUIRED) Any email you want to be associated with the ACME account (used for TLS certs via letsencrypt.org)
     email: ""
-    # (Required) Use the ACME production server when requesting the wildcard certificate.
+    # (REQUIRED) Use the ACME production server when requesting the wildcard certificate.
     #   By default the ACME staging server is used. This is to prevent being rate-limited.
     #   Update this option to `true` when you have verified the staging certificate
     #   works and then re-run `task configure` and push your changes to Github.
     production: false
-  # (Required) Provide LAN access to the cluster ingresses for internal ingress classes
+  # (REQUIRED) Provide LAN access to the cluster ingresses for internal ingress classes
   # The Load balancer IP for internal ingress, choose an available IP
   #   in your nodes host network that is NOT being used. This is announced over L2.
   ingress_vip: ""
-  # (Required) Gateway is used for providing DNS to your cluster on LAN
+  # (REQUIRED) Gateway is used for providing DNS to your cluster on LAN
   # The Load balancer IP for k8s_gateway, choose an available IP
   #   in your nodes host network that is NOT being used. This is announced over L2.
   gateway_vip: ""
-  # (Required) Options for Cloudflare Tunnel
+  # (REQUIRED) Options for Cloudflare Tunnel
   #   1. Authenticate cloudflared to your domain with the following command:
   #     > cloudflared tunnel login
   #   2. Create the tunnel with the following command:
   #     > cloudflared tunnel create k8s
   tunnel:
-    # (Required) Get the Cloudflared Tunnel ID with the following command:
+    # (REQUIRED) Get the Cloudflared Tunnel ID with the following command:
     #   > jq -r .TunnelID ~/.cloudflared/*.json
     id: ""
-    # (Required) Get the Cloudflare Account ID with the following command:
+    # (REQUIRED) Get the Cloudflare Account ID with the following command:
     #   > jq -r .AccountTag ~/.cloudflared/*.json
     account_id: ""
-    # (Required) Get the Cloudflared Tunnel Secret with the following command:
+    # (REQUIRED) Get the Cloudflared Tunnel Secret with the following command:
     #   > jq -r .TunnelSecret ~/.cloudflared/*.json
     secret: ""
-    # (Required) Provide WAN access to the cluster ingresses for external ingress classes
+    # (REQUIRED) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
     #   in your nodes host network that is NOT being used. This is announced over L2.
     ingress_vip: ""
 
-# (Optional) Feature gates are used to enable experimental features
-# bootstrap_feature_gates:
-#   # Enable Dual Stack IPv4 first
-#   #   IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
-#   #     Ref: https://github.com/onedr0p/cluster-template/discussions/1510
-#   #   IMPORTANT: Cilium does not currently support IPv6 L2 announcements.
-#   dual_stack_ipv4_first: false
+# (OPTIONAL) Feature gates are used to enable experimental features
+bootstrap_feature_gates:
+  # Enable Dual Stack IPv4 first
+  #   IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
+  #     Ref: https://github.com/onedr0p/cluster-template/discussions/1510
+  #   IMPORTANT: Cilium does not currently support IPv6 L2 announcements.
+  dual_stack_ipv4_first: false
