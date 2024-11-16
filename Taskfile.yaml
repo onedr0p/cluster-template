@@ -23,6 +23,7 @@ includes:
   bootstrap: .taskfiles/bootstrap
   kubernetes: .taskfiles/kubernetes
   talos: .taskfiles/talos
+  secrets: .taskfiles/secrets
   workstation: .taskfiles/workstation
   user:
     taskfile: .taskfiles/User
