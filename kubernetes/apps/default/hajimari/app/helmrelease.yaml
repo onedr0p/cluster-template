@@ -29,15 +29,20 @@ spec:
       - name: HAJIMARI_DEFAULT_GROUP
         value: "default"
 
-    persistence:
-      config:
-        enabled: true
-        storageClass: configs-nfs
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        volumeAttributes:
-          server: ${NAS_IP}
-          share: ${SETTINGS_NAS_APPDATA_PATH}
+persistence:
+  config:
+    enabled: true
+    existingClaim: hajimari-config  # Reference your existing PVC
+
+    # persistence:
+    #   config:
+    #     enabled: true
+    #     storageClass: configs-nfs
+    #     accessMode: ReadWriteOnce
+    #     size: 1Gi
+    #     volumeAttributes:
+    #       server: ${NAS_IP}
+    #       share: ${SETTINGS_NAS_APPDATA_PATH}
 
     hajimari:
       defaultEnable: true
