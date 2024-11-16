@@ -29,10 +29,10 @@ spec:
       - name: HAJIMARI_DEFAULT_GROUP
         value: "default"
 
-persistence:
-  config:
-    enabled: true
-    existingClaim: hajimari-config  # Reference your existing PVC
+    persistence:
+      config:
+        enabled: true
+        existingClaim: hajimari-config  # Reference your existing PVC
 
     # persistence:
     #   config:
