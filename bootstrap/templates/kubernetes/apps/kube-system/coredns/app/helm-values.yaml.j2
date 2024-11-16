@@ -6,6 +6,7 @@ serviceAccount:
 service:
   name: kube-dns
   clusterIP: "#{ bootstrap_service_network | nthhost(10) }#"
+replicaCount: 2
 servers:
   - zones:
       - zone: .
