@@ -1,0 +1,18 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: config-nfs
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: ${SETTINGS_NAS_IP}
+  share: ${SETTINGS_NAS_CONFIG_PATH}
+mountOptions:
+  - nfsvers=3
+  - hard
+  - noatime
+  - nolock
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
