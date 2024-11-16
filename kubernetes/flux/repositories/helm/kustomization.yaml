@@ -17,4 +17,4 @@ resources:
   - ./k8s-gateway.yaml
   - ./csi-driver-nfs.yaml
   - ./hajimari.yaml
-  - ./homepage-jameswynn.yaml
+  - ./homepage-jameswynn.yaml\

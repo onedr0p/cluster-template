@@ -1,0 +1,92 @@
+---
+#? https://github.com/gethomepage/homepage/blob/dev/kubernetes.md
+
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: homepage
+  namespace: default
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: homepage
+      version: 0.9.12
+      sourceRef:
+        kind: HelmRepository
+        name: jameswynn
+        namespace: flux-system
+  values:
+    image:
+      repository: ghcr.io/gethomepage/homepage
+      pullPolicy: IfNotPresent
+
+    enableRbac: true
+    serviceAccount:
+      create: true
+      name: homepage-sa
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          hajimari.io/enable: "true"
+        hosts:
+          - host: &host "homepage.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+            secretName: homepage-tls
+
+    persistence:
+      config:
+        enabled: true
+        existingClaim: homepage-config
+      logs:
+        enabled: true
+        type: emptyDir
+        mountPath: /app/config/logs
+
+    config:
+      kubernetes:
+        mode: cluster
+      widgets:
+        - resources:
+            backend: kubernetes
+            expanded: true
+            cpu: true
+            memory: true
+        - kubernetes:
+            cluster:
+              show: true
+              cpu: true
+              memory: true
+              showLabel: true
+        - search:
+            provider: duckduckgo
+            target: _blank
+      services:
+        - Infrastructure:
+            - Kubernetes Dashboard:
+                href: https://kubernetes.${SECRET_DOMAIN}
+                description: Kubernetes Dashboard
+            - Flux:
+                href: https://flux.${SECRET_DOMAIN}
+                description: GitOps Operator
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+
+    env:
+      - name: TZ
+        value: "${TIMEZONE}"

@@ -9,3 +9,4 @@ data:
   SETTINGS_NAS_IP: 10.0.40.250
   SETTINGS_NAS_CONFIG_PATH: /k8s-config
   SETTINGS_NAS_DATA_PATH: /k8s-data
+  TIMEZONE: Europe/London
