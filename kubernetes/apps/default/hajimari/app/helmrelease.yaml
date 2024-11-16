@@ -1,0 +1,107 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: hajimari
+  namespace: default
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: hajimari
+      version: 2.0.2
+      sourceRef:
+        kind: HelmRepository
+        name: hajimari
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controller:
+      strategy: RollingUpdate
+
+    env:
+      - name: HAJIMARI_DEFAULT_GROUP
+        value: "default"
+
+persistence:
+  config:
+    enabled: true
+    existingClaim: hajimari-config  # Reference your existing PVC
+
+    # persistence:
+    #   config:
+    #     enabled: true
+    #     storageClass: configs-nfs
+    #     accessMode: ReadWriteOnce
+    #     size: 1Gi
+    #     volumeAttributes:
+    #       server: ${NAS_IP}
+    #       share: ${SETTINGS_NAS_APPDATA_PATH}
+
+    hajimari:
+      defaultEnable: true
+      namespaceSelector:
+        matchNames:
+          - default
+          - networking
+      name: "Fabrice"
+      customApps:
+        - name: Some App
+          url: http://some-app.default.svc.cluster.local
+          icon: test-tube
+      groups:
+        - name: Kubernetes
+          links:
+            - name: Rancher
+              url: "https://rancher.example.com"
+            - name: Grafana
+              url: "https://grafana.example.com"
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+        hosts:
+          - host: &host "hajimari.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+
+    serviceMonitor:
+      main:
+        enabled: true
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
+
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      runAsGroup: 65534
+      fsGroup: 65534
+      seccompProfile:
+        type: RuntimeDefault

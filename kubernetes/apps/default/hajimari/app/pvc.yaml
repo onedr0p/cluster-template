@@ -1,0 +1,15 @@
+# /kubernetes/apps/default/hajimari/app/pvc.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hajimari-config
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: config-nfs
+  resources:
+    requests:
+      storage: 1Gi
+

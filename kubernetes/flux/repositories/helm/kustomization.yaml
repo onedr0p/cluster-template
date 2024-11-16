@@ -16,3 +16,4 @@ resources:
   - ./ingress-nginx.yaml
   - ./k8s-gateway.yaml
   - ./csi-driver-nfs.yaml
+  - ./hajimari.yaml
