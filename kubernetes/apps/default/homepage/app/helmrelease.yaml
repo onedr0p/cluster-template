@@ -57,28 +57,49 @@ spec:
       kubernetes:
         mode: cluster
       widgets:
-        - resources:
-            backend: kubernetes
-            expanded: true
-            cpu: true
-            memory: true
         - kubernetes:
             cluster:
+              # Shows the cluster node
               show: true
+              # Shows the aggregate CPU stats
               cpu: true
+              # Shows the aggregate memory stats
               memory: true
+              # Shows a custom label
               showLabel: true
-        - search:
-            provider: duckduckgo
-            target: _blank
-      services:
-        - Infrastructure:
-            - Kubernetes Dashboard:
-                href: https://kubernetes.${SECRET_DOMAIN}
-                description: Kubernetes Dashboard
-            - Flux:
-                href: https://flux.${SECRET_DOMAIN}
-                description: GitOps Operator
+              label: "cluster"
+            nodes:
+              # Shows the clusters
+              show: true
+              # Shows the CPU for each node
+              cpu: true
+              # Shows the memory for each node
+              memory: true
+              # Shows the label, which is always the node name
+              showLabel: true
+
+      #   - resources:
+      #       backend: kubernetes
+      #       expanded: true
+      #       cpu: true
+      #       memory: true
+      #   - kubernetes:
+      #       cluster:
+      #         show: true
+      #         cpu: true
+      #         memory: true
+      #         showLabel: true
+      #   - search:
+      #       provider: duckduckgo
+      #       target: _blank
+      # services:
+      #   - Infrastructure:
+      #       - Kubernetes Dashboard:
+      #           href: https://kubernetes.${SECRET_DOMAIN}
+      #           description: Kubernetes Dashboard
+      #       - Flux:
+      #           href: https://flux.${SECRET_DOMAIN}
+      #           description: GitOps Operator
 
     resources:
       requests:
