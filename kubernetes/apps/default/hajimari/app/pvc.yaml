@@ -1,6 +1,6 @@
 # /kubernetes/apps/default/hajimari/app/pvc.yaml
 ---
-aapiVersion: v1
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: hajimari-config
@@ -12,5 +12,4 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  volumeAttributes:
-    subPath: hajimari-config
+
