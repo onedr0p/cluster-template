@@ -6,3 +6,6 @@ metadata:
   namespace: flux-system
 data:
   SETTING_EXAMPLE: Global settings for your cluster go in this file, this file is NOT encrypted
+  SETTINGS_NAS_IP: 10.0.40.250
+  SETTINGS_NAS_CONFIG_PATH: /k8s-config
+  SETTINGS_NAS_DATA_PATH: /k8s-data
