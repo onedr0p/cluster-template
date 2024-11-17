@@ -54,9 +54,6 @@ spec:
         mountPath: /app/config/logs
 
     config:
-
-      # To use an existing ConfigMap uncomment this line and specify the name
-      # useExistingConfigMap: existing-homepage-configmap
       bookmarks:
         - Developer:
             - Github:
@@ -64,8 +61,8 @@ spec:
                   href: https://github.com/
             - KubeSearch:
                 - href: https://kubesearch.dev/
-             - OnedropClusterTemplate:
-                - href: https://github.com/onedr0p/cluster-template/
+            - OnedropClusterTemplate:
+                - href: https://github.com/onedr0p/cluster-template
         - Entertainment:
             - YouTube:
                 - abbr: YT
@@ -87,53 +84,22 @@ spec:
                 href: http://localhost/
                 description: Homepage is 😎
 
-      kubernetes:
-        mode: cluster
+    kubernetes:
+      mode: cluster
 
-      widgets:
-        - kubernetes:
-            cluster:
-              # Shows the cluster node
-              show: true
-              # Shows the aggregate CPU stats
-              cpu: true
-              # Shows the aggregate memory stats
-              memory: true
-              # Shows a custom label
-              showLabel: true
-              label: "cluster"
-            nodes:
-              # Shows the clusters
-              show: true
-              # Shows the CPU for each node
-              cpu: true
-              # Shows the memory for each node
-              memory: true
-              # Shows the label, which is always the node name
-              showLabel: true
-
-      #   - resources:
-      #       backend: kubernetes
-      #       expanded: true
-      #       cpu: true
-      #       memory: true
-      #   - kubernetes:
-      #       cluster:
-      #         show: true
-      #         cpu: true
-      #         memory: true
-      #         showLabel: true
-      #   - search:
-      #       provider: duckduckgo
-      #       target: _blank
-      # services:
-      #   - Infrastructure:
-      #       - Kubernetes Dashboard:
-      #           href: https://kubernetes.${SECRET_DOMAIN}
-      #           description: Kubernetes Dashboard
-      #       - Flux:
-      #           href: https://flux.${SECRET_DOMAIN}
-      #           description: GitOps Operator
+    widgets:
+      - kubernetes:
+          cluster:
+            show: true
+            cpu: true
+            memory: true
+            showLabel: true
+            label: "cluster"
+          nodes:
+            show: true
+            cpu: true
+            memory: true
+            showLabel: true
 
     resources:
       requests:
