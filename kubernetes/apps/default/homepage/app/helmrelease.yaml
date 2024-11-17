@@ -64,8 +64,8 @@ spec:
                   href: https://github.com/
             - KubeSearch:
                 - href: https://kubesearch.dev/
-            # - OnedropClusterTemplate:
-            #     - href: https://github.com/onedr0p/cluster-template/
+             - OnedropClusterTemplate:
+                 - href: https://github.com/onedr0p/cluster-template/
         - Entertainment:
             - YouTube:
                 - abbr: YT
