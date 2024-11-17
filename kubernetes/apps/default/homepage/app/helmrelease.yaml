@@ -63,11 +63,14 @@ spec:
                 - abbr: GH
                   href: https://github.com/
             - KubeSearch:
-                - abbr: KS
                   href: https://kubesearch.dev/
             - OnedropClusterTemplate:
-                - abbr: OT
                   href: https://github.com/onedr0p/cluster-template
+
+        - Entertainment:
+            - YouTube:
+                - abbr: YT
+                  href: https://youtube.com/
 
       services:
         - My First Group:
