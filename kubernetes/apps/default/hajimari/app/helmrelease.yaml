@@ -68,7 +68,15 @@ spec:
         enabled: true
         ingressClassName: external
         annotations:
+
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: Alternative to Homepage
+          gethomepage.dev/group: Operations
+          gethomepage.dev/icon: hajimari.png
+          gethomepage.dev/name: Toboshii
+
         hosts:
           - host: &host "hajimari.${SECRET_DOMAIN}"
             paths:

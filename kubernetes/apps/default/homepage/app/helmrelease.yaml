@@ -1,7 +1,7 @@
 ---
 #? https://github.com/gethomepage/homepage/blob/dev/kubernetes.md
+#? https://github.com/jameswynn/helm-charts/blob/main/charts/homepage/values.yaml
 
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -54,8 +54,40 @@ spec:
         mountPath: /app/config/logs
 
     config:
+
+      # To use an existing ConfigMap uncomment this line and specify the name
+      # useExistingConfigMap: existing-homepage-configmap
+      bookmarks:
+        - Developer:
+            - Github:
+                - abbr: GH
+                  href: https://github.com/
+            - KubeSearch:
+                - abbr: KS
+                  href: https://kubesearch.dev/
+            - OnedropClusterTemplate:
+                - abbr: OT
+                  href: https://github.com/onedr0p/cluster-template
+
+      services:
+        - My First Group:
+            - My First Service:
+                href: http://localhost/
+                description: Homepage is awesome
+
+        - My Second Group:
+            - My Second Service:
+                href: http://localhost/
+                description: Homepage is the best
+
+        - My Third Group:
+            - My Third Service:
+                href: http://localhost/
+                description: Homepage is 😎
+
       kubernetes:
         mode: cluster
+
       widgets:
         - kubernetes:
             cluster:
