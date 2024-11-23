@@ -45,40 +45,40 @@ spec:
     #       share: ${SETTINGS_NAS_APPDATA_PATH}
 
     hajimari:
-      defaultEnable: false
-      namespaceSelector:
-        any: true
-      name: "Fabrice"
+      defaultEnable: true
+      # namespaceSelector:
+      #   any: true
+      # name: "Fabrice"
 
-      groups:
-        - name: Development
-          links:
-            - name: Kubesearch
-              url: "https://kubesearch.dev"
-        - name: Communicate
-          links:
-            - name: Discord
-              url: "https://discord.com"
-            - name: Gmail
-              url: "https://gmail.com"
-        - name: Cloud
-          links:
-            - name: Cloudflare
-              url: "https://dash.cloudflare.com"
-            - name: Drive
-              url: "https://drive.google.com"
-            - name: UptimeRobot
-              url: "https://uptimerobot.com"
-        - name: Media
-          links:
-            - name: YouTube
-              url: "https://www.youtube.com/feed/playlists"
-            - name: Photos
-              url: "https://photos.google.com"
-        - name: Reading
-          links:
-            - name: Reddit
-              url: "http://reddit.com"
+      # groups:
+      #   - name: Development
+      #     links:
+      #       - name: Kubesearch
+      #         url: "https://kubesearch.dev"
+      #   - name: Communicate
+      #     links:
+      #       - name: Discord
+      #         url: "https://discord.com"
+      #       - name: Gmail
+      #         url: "https://gmail.com"
+      #   - name: Cloud
+      #     links:
+      #       - name: Cloudflare
+      #         url: "https://dash.cloudflare.com"
+      #       - name: Drive
+      #         url: "https://drive.google.com"
+      #       - name: UptimeRobot
+      #         url: "https://uptimerobot.com"
+      #   - name: Media
+      #     links:
+      #       - name: YouTube
+      #         url: "https://www.youtube.com/feed/playlists"
+      #       - name: Photos
+      #         url: "https://photos.google.com"
+      #   - name: Reading
+      #     links:
+      #       - name: Reddit
+      #         url: "http://reddit.com"
 
     ingress:
       main:
