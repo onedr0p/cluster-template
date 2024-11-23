@@ -46,12 +46,17 @@ spec:
 
     hajimari:
       defaultEnable: false
-      any: true
+      namespaceSelector:
+        any: true
       name: "Fabrice"
-      customApps:
-        - name: Some App
-          url: http://some-app.default.svc.cluster.local
-          icon: test-tube
+
+      showAppGroups: true
+      showAppUrls: true
+      customApps: true
+      showAppInfo: true
+      showBookmarkGroups: true
+      showGlobalBookmarks: true
+
       groups:
         - name: Development
           links:
