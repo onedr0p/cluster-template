@@ -56,6 +56,10 @@ spec:
           url: http://some-app.default.svc.cluster.local
           icon: test-tube
       groups:
+        - name: Development
+          links:
+            - name: kubesearch
+              url: "https://kubesearch.dev/"
         - name: Kubernetes
           links:
             - name: Rancher
