@@ -25,9 +25,9 @@ spec:
     controller:
       strategy: RollingUpdate
 
-    env:
-      - name: HAJIMARI_DEFAULT_GROUP
-        value: "default"
+    #env:
+      #- name: HAJIMARI_DEFAULT_GROUP
+        #value: "default"
 
     persistence:
       config:
