@@ -50,13 +50,6 @@ spec:
         any: true
       name: "Fabrice"
 
-      showAppGroups: true
-      showAppUrls: true
-      customApps: true
-      showAppInfo: true
-      showBookmarkGroups: true
-      showGlobalBookmarks: true
-
       groups:
         - name: Development
           links:
