@@ -46,9 +46,9 @@ spec:
 
     hajimari:
       defaultEnable: true
-      # namespaceSelector:
-      #   any: true
-      # name: "Fabrice"
+      namespaceSelector:
+        any: true
+      name: "Fabrice"
 
       # groups:
       #   - name: Development
