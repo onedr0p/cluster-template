@@ -50,8 +50,6 @@ spec:
         matchNames:
           - default
           - networking
-          - storage-system
-          - filerun
       name: "alekssro"
       # customApps:
       #   - name: Some External Cluster Service
