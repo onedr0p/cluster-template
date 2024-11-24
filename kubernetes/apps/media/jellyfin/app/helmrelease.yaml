@@ -80,7 +80,7 @@ spec:
     service:
       app:
         controller: jellyfin
-        type: ClusterIP
+        type: LoadBalancer
         ports:
           http:
             port: 8096
