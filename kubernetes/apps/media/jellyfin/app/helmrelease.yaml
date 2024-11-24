@@ -89,6 +89,7 @@ spec:
         enabled: true
         className: external
         annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
           hajimari.io/icon: mdi:play-circle
         hosts:
           - host: &host "jelly.${SECRET_DOMAIN}"
