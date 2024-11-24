@@ -1,9 +1,8 @@
-# /kubernetes/apps/default/hajimari/ks.yaml
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-apps-hajimari
+  name: cluster-apps-jellyfin
   namespace: flux-system
 spec:
   path: ./kubernetes/apps/media/jellyfin/app
