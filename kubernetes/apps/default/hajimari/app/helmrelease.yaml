@@ -4,8 +4,6 @@ kind: HelmRelease
 metadata:
   name: hajimari
   namespace: default
-  annotations:
-    reloader.stakater.com/auto: "true"
 spec:
   interval: 30m
   chart:
@@ -26,7 +24,8 @@ spec:
   values:
     controller:
       strategy: RollingUpdate
-
+      annotations:
+        reloader.stakater.com/auto: "true"
     #env:
       #- name: HAJIMARI_DEFAULT_GROUP
         #value: "default"
