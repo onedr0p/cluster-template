@@ -1,49 +1,37 @@
 ---
+# Defines that this is a Helm Release custom resource
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: hajimari
-  namespace: default
+  name: hajimari           # Name of the HelmRelease
+  namespace: default       # Namespace where the application will be deployed
 spec:
-  interval: 30m
+  interval: 30m           # How often Flux should check for updates
   chart:
     spec:
-      chart: hajimari
-      version: 2.0.2
+      chart: hajimari     # The name of the Helm chart to use
+      version: 2.0.2      # Specific version of the chart to deploy
       sourceRef:
-        kind: HelmRepository
-        name: hajimari
-        namespace: flux-system
+        kind: HelmRepository    # References a HelmRepository resource
+        name: hajimari          # Name of the HelmRepository
+        namespace: flux-system   # Namespace where the HelmRepository is located
   install:
     remediation:
-      retries: 3
+      retries: 3         # Number of install retries if failed
   upgrade:
-    cleanupOnFail: true
+    cleanupOnFail: true  # Clean up resources if upgrade fails
     remediation:
-      retries: 3
+      retries: 3         # Number of upgrade retries if failed
   values:
     controller:
-      strategy: RollingUpdate
+      strategy: RollingUpdate    # How to update pods during deployment
       annotations:
-        reloader.stakater.com/auto: "true"
-    #env:
-      #- name: HAJIMARI_DEFAULT_GROUP
-        #value: "default"
+        reloader.stakater.com/auto: "true"    # Auto reload on config changes
 
     persistence:
       config:
-        enabled: true
-        existingClaim: hajimari-config  # Reference your existing PVC
-
-    # persistence:
-    #   config:
-    #     enabled: true
-    #     storageClass: configs-nfs
-    #     accessMode: ReadWriteOnce
-    #     size: 1Gi
-    #     volumeAttributes:
-    #       server: ${NAS_IP}
-    #       share: ${SETTINGS_NAS_APPDATA_PATH}
+        enabled: true                         # Enable persistent storage
+        existingClaim: hajimari-config        # Use existing PVC
 
     hajimari:
       name: "Fabrice"
@@ -116,51 +104,49 @@ spec:
 
     ingress:
       main:
-        enabled: true
-        ingressClassName: external
-        annotations:
-
+        enabled: true                         # Enable ingress for external access
+        ingressClassName: external            # Use external ingress controller
+        annotations:                          # Ingress annotations for additional functionality
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: Alternative to Homepage
           gethomepage.dev/group: Operations
           gethomepage.dev/icon: hajimari.png
           gethomepage.dev/name: Toboshii
 
-        hosts:
+        hosts:                                # Ingress host configuration
           - host: &host "hajimari.${SECRET_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
 
-    resources:
+    resources:                    # Define resource requests and limits
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 100m                # Minimum CPU required
+        memory: 128Mi            # Minimum memory required
       limits:
-        memory: 256Mi
+        memory: 256Mi            # Maximum memory allowed
 
-    serviceMonitor:
+    serviceMonitor:              # Prometheus ServiceMonitor configuration
       main:
-        enabled: true
+        enabled: true           # Enable Prometheus monitoring
         endpoints:
           - port: http
             scheme: http
             path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
+            interval: 1m        # Scrape interval
+            scrapeTimeout: 10s  # Maximum time for each scrape
 
-    securityContext:
-      allowPrivilegeEscalation: false
-      readOnlyRootFilesystem: true
+    securityContext:             # Container security settings
+      allowPrivilegeEscalation: false    # Prevent privilege escalation
+      readOnlyRootFilesystem: true       # Make root filesystem read-only
       capabilities:
-        drop: ["ALL"]
+        drop: ["ALL"]                    # Drop all Linux capabilities
 
-    podSecurityContext:
-      runAsNonRoot: true
-      runAsUser: 65534
-      runAsGroup: 65534
-      fsGroup: 65534
+    podSecurityContext:          # Pod-level security settings
+      runAsNonRoot: true        # Run as non-root user
+      runAsUser: 65534          # Specific user ID to run as
+      runAsGroup: 65534         # Specific group ID to run as
+      fsGroup: 65534            # File system group ID
       seccompProfile:
-        type: RuntimeDefault
+        type: RuntimeDefault    # Use default seccomp profile
