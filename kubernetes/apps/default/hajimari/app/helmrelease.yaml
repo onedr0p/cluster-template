@@ -49,12 +49,12 @@ spec:
       lightTheme: cab
       darkTheme: horizon
       alwaysTargetBlank: true
-      showSearch: false
-      showGreeting: false
+      # showSearch: false
+      # showGreeting: false
       showAppGroups: false
       showAppStatus: false
-      showBookmarkGroups: false
-      showGlobalBookmarks: false
+      # showBookmarkGroups: false
+      # showGlobalBookmarks: false
       showAppUrls: false
       defaultEnable: true
       namespaceSelector:
