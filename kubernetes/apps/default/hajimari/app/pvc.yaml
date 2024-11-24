@@ -5,6 +5,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: hajimari-config
   namespace: default
+  annotations:
+    helm.sh/resource-policy: keep
+    kubernetes.io/reclaimPolicy: Delete
 spec:
   accessModes:
     - ReadWriteOnce
@@ -12,4 +15,3 @@ spec:
   resources:
     requests:
       storage: 1Gi
-

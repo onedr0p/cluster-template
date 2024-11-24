@@ -45,24 +45,40 @@ spec:
     #       share: ${SETTINGS_NAS_APPDATA_PATH}
 
     hajimari:
-      defaultEnable: true
+      title: Apps
+      lightTheme: cab
+      darkTheme: horizon
       alwaysTargetBlank: true
+      showSearch: false
+      showGreeting: false
+      showAppGroups: false
+      showAppStatus: false
+      showBookmarkGroups: false
+      showGlobalBookmarks: false
+      showAppUrls: false
+      defaultEnable: true
       namespaceSelector:
         matchNames:
           - default
-      name: "fabrice"
-      # customApps:
-      #   - name: Some External Cluster Service
-      #     url: http://192.168.1.100:5000
-      #     icon: test-tube
-
+          # - flux-system
+          # - monitoring
+          # - networking
+          # - rook-ceph
       customApps:
         - group: servers
           apps:
-            - name: qnap-nas
-              icon: mdi:nas
-              url: "https://10.0.40.250"
-
+            - name: unifi-controlller
+              icon: mdi:router-network
+              url: "https://unifi.ui.com/consoles/D8B37045EAC900000000077FBBDD0000000007DC745C00000000645EEBC7:1521887693/network/default/dashboard"
+            # - name: truenas-remote
+            #   icon: mdi:nas
+            #   url: "https://truenas-remote.${SECRET_DOMAIN}"
+            # - name: minio
+            #   icon: mdi:aws
+            #   url: "https://s3.${SECRET_INTERNAL_DOMAIN}"
+            # - name: pikvm
+            #   icon: mdi:ip-network
+            #   url: "https://pikvm.${SECRET_DOMAIN}"
       bookmarks:
         - group: Kubernetes
           bookmarks:
@@ -74,6 +90,7 @@ spec:
               icon: ''
               url: https://whazor.github.io/k8s-at-home-search/
               targetBlank: false
+
     ingress:
       main:
         enabled: true
