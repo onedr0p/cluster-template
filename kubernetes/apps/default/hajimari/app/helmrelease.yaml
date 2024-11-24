@@ -48,16 +48,9 @@ spec:
     hajimari:
       name: "Fabrice"
       title: Apps
-      lightTheme: cab
-      darkTheme: horizon
+
       alwaysTargetBlank: true
-      # showSearch: false
-      # showGreeting: false
-      showAppGroups: false
-      showAppStatus: false
-      showBookmarkGroups: true
-      showGlobalBookmarks: true
-      showAppUrls: false
+
       defaultEnable: true
       namespaceSelector:
         matchNames:
