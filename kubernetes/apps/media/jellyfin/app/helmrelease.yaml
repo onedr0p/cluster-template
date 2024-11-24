@@ -26,54 +26,99 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    controller:
-      type: statefulset
-      annotations:
-        reloader.stakater.com/auto: "true"
-
-    image:
-      repository: jellyfin/jellyfin
-      tag: 10.8.13
-
-    env:
-      TZ: "${TIMEZONE}"
-      JELLYFIN_PublishedServerUrl: "jellyfin.${SECRET_DOMAIN}"
+controllers:
+      jellyfin:
+        containers:
+          app:
+            image:
+              repository: jellyfin/jellyfin
+              tag: 10.10.3
+              pullPolicy: IfNotPresent
+            env:
+              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
+              JELLYFIN_FFmpeg__probesize: 50000000
+              JELLYFIN_FFmpeg__analyzeduration: 50000000
+              JELLYFIN_PublishedServerUrl: "https://jelly.${SECRET_DOMAIN}"
+              TZ: ${TIMEZONE}
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8096
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 4Gi
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [10000]
+            seccompProfile: { type: RuntimeDefault }
 
     service:
-      main:
+      app:
+        controller: jellyfin
+        type: LoadBalancer
         ports:
           http:
             port: 8096
-
     ingress:
       main:
         enabled: true
-        ingressClassName: external
+        className: external
         annotations:
           hajimari.io/icon: mdi:play-circle
         hosts:
-          - host: &host "jellyfin.${SECRET_DOMAIN}"
+          - host: &host "jelly.${SECRET_DOMAIN}"
             paths:
               - path: /
-                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
         tls:
-          - hosts:
-              - *host
-
+          - hosts: [*host]
+            secretName: "jelly-tls"
     persistence:
       config:
         enabled: true
         existingClaim: jellyfin-config
-      # media:
-      #   enabled: true
-      #   type: nfs
-      #   server: "${NAS_ADDR}"
-      #   path: /volume1/Media
-      #   mountPath: /media
+        globalMounts:
+          - path: /config
+      transcode:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /transcode
+      cache:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /cache
+      media:
+        type: nfs
+        server: 10.0.40.250
+        path: /docker-media
+        globalMounts:
+          - path: /media
 
-    resources:
-      requests:
-        cpu: 100m
-        memory: 1000Mi
-      limits:
-        memory: 4000Mi
+
