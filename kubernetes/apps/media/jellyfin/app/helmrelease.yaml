@@ -100,7 +100,7 @@ spec:
                   port: http
         tls:
           - hosts: [*host]
-            secretName: "jelly-tls"
+            # secretName: "jelly-tls"
     persistence:
       config:
         enabled: true
