@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -14,7 +15,6 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  maxHistory: 2
   install:
     remediation:
       retries: 3
@@ -23,10 +23,13 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  uninstall:
-    keepHistory: false
+  # dependsOn:
+  #   - name: rook-ceph-cluster
+  #     namespace: rook-ceph
+  #   - name: volsync
+  #     namespace: volsync-system
   values:
-controllers:
+    controllers:
       jellyfin:
         containers:
           app:
@@ -74,7 +77,6 @@ controllers:
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [10000]
             seccompProfile: { type: RuntimeDefault }
-
     service:
       app:
         controller: jellyfin
@@ -120,5 +122,3 @@ controllers:
         path: /docker-media
         globalMounts:
           - path: /media
-
-
