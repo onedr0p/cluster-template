@@ -85,18 +85,30 @@ spec:
               url: 'https://github.com/fabricesemti80/home-cluster-2024'
             - name: k8s-at-home-search
               url: 'https://whazor.github.io/k8s-at-home-search'
+            - name: HajimariDocumentation
+              url: 'https://hajimari.io'
         - group: Communication
           bookmarks:
             - name: Discord
               url: 'https://discord.com'
             - name: Gmail
               url: 'https://gmail.com'
+        - group: AI
+          bookmarks:
+            - name: ChatGPT
+              url: 'https://chatgpt.com'
+            - name: Claude
+              url: 'https://claude.ai/new'
         - group: Development
           bookmarks:
             - name: Dev
               url: 'https://dev.to'
             - name: Medium
               url: 'https://medium.com'
+        - group: Entertainment
+          bookmarks:
+            - name: YoutubeMusic
+              url: 'https://www.youtube.com/feed/playlists'
 
       namespaceSelector:
         matchNames:
