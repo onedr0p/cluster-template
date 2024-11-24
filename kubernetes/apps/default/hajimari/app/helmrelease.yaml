@@ -24,6 +24,8 @@ spec:
   values:
     controller:
       strategy: RollingUpdate
+      annotations:
+        checksum/config: ${sha256sum .Values.hajimari}
 
     #env:
       #- name: HAJIMARI_DEFAULT_GROUP
@@ -45,6 +47,7 @@ spec:
     #       share: ${SETTINGS_NAS_APPDATA_PATH}
 
     hajimari:
+      name: "Fabrice"
       title: Apps
       lightTheme: cab
       darkTheme: horizon
@@ -53,8 +56,8 @@ spec:
       # showGreeting: false
       showAppGroups: false
       showAppStatus: false
-      # showBookmarkGroups: false
-      # showGlobalBookmarks: false
+      showBookmarkGroups: true
+      showGlobalBookmarks: true
       showAppUrls: false
       defaultEnable: true
       namespaceSelector:
