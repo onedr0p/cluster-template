@@ -1,0 +1,78 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jellyfin
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controller:
+      type: statefulset
+      annotations:
+        reloader.stakater.com/auto: "true"
+
+    image:
+      repository: jellyfin/jellyfin
+      tag: 10.8.13
+
+    env:
+      TZ: "${TIMEZONE}"
+      JELLYFIN_PublishedServerUrl: "jellyfin.${SECRET_DOMAIN}"
+
+    service:
+      main:
+        ports:
+          http:
+            port: 8096
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        annotations:
+          hajimari.io/icon: mdi:play-circle
+        hosts:
+          - host: &host "jellyfin.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+
+    persistence:
+      config:
+        enabled: true
+        existingClaim: jellyfin-config
+      # media:
+      #   enabled: true
+      #   type: nfs
+      #   server: "${NAS_ADDR}"
+      #   path: /volume1/Media
+      #   mountPath: /media
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1000Mi
+      limits:
+        memory: 4000Mi
