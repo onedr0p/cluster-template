@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-config
+  namespace: media
+  annotations:
+    helm.sh/resource-policy: keep
+    kubernetes.io/reclaimPolicy: Delete
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: config-nfs
+  resources:
+    requests:
+      storage: 1Gi
