@@ -24,8 +24,8 @@ spec:
   values:
     controller:
       strategy: RollingUpdate
-      annotations:
-        checksum/config: ${sha256sum .Values.hajimari}
+      # annotations:
+      #   checksum/config: ${sha256sum .Values.hajimari}
 
     #env:
       #- name: HAJIMARI_DEFAULT_GROUP
