@@ -73,8 +73,10 @@ spec:
               url: 'https://github.com/fabricesemti80/home-cluster-2024'
             - name: k8s-at-home-search
               url: 'https://whazor.github.io/k8s-at-home-search'
-            - name: HajimariDocumentation
+            - name: 'Hajimari Documentation'
               url: 'https://hajimari.io'
+            - name: 'OneDrop cluster template'
+              url: 'https://github.com/onedr0p/cluster-template'
         - group: Communication
           bookmarks:
             - name: Discord
