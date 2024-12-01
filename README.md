@@ -111,7 +111,7 @@ You have two different options for setting up your local workstation.
     task workstation:generic-linux
     ```
 
-4. Setup a Python virual environment by running the following task command.
+4. Setup a Python virtual environment by running the following task command.
 
     📍 _This commands requires Python 3.11+ to be installed._
 
@@ -215,7 +215,7 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 1. Output all the common resources in your cluster.
 
-    📍 _Feel free to use the provided [kubernetes tasks](.taskfiles/Kubernetes/Taskfile.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
+    📍 _Feel free to use the provided [kubernetes tasks](.taskfiles/kubernetes/Taskfile.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
 
     ```sh
     task kubernetes:resources
