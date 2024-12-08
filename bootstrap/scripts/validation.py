@@ -7,6 +7,7 @@ import re
 import socket
 import sys
 
+RESERVED_NODE_NAMES = ["global", "controller", "worker"]
 
 def required(*keys: str):
     def wrapper_outter(func: Callable):
@@ -29,6 +30,8 @@ def validate_python_version() -> None:
 def validate_node(node: dict, node_cidr: str) -> None:
     if not node.get('name') or not re.match(r"^[a-z0-9-]+$", node.get('name')):
         raise ValueError(f"Invalid node name {node.get('name')} for {node.get('name')}, must be not empty and match [a-z0-9-]")
+    if node.get('name') in RESERVED_NODE_NAMES:
+        raise ValueError(f"Invalid node name {node.get('name')} for {node.get('name')}, must not be any of {', '.join(RESERVED_NODE_NAMES)}")
     if not node.get('disk'):
         raise ValueError(f"Invalid node disk {node.get('disk')} for {node.get('name')}, must be not empty")
     if not node.get('mac_addr') or not re.match(r"(?:[0-9a-fA-F]:?){12}", node.get('mac_addr')):
