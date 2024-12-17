@@ -34,8 +34,8 @@ def validate_node(node: dict, node_cidr: str) -> None:
         raise ValueError(f"Invalid node name {node.get('name')} for {node.get('name')}, must not be any of {', '.join(RESERVED_NODE_NAMES)}")
     if not node.get('disk'):
         raise ValueError(f"Invalid node disk {node.get('disk')} for {node.get('name')}, must be not empty")
-    if not node.get('mac_addr') or not re.match(r"(?:[0-9a-fA-F]:?){12}", node.get('mac_addr')):
-        raise ValueError(f"Invalid node mac_addr {node.get('mac_addr')} for {node.get('name')}, must be not empty and match [0-9a-fA-F]:?")
+    if not node.get('mac_addr') or not re.match(r"^([0-9a-f]{2}[:]){5}([0-9a-f]{2})$", node.get('mac_addr')):
+        raise ValueError(f"Invalid node mac_addr {node.get('mac_addr')} for {node.get('name')}, must be not empty and match ([0-9a-f]{{2}}[:]){{5}}([0-9a-f]{{2}})")
     if node.get('schematic_id'):
         if not re.match(r"^[a-z0-9]{64}$", node.get('schematic_id')):
             raise ValueError(f"Invalid node schematic_id {node.get('schematic_id')} for {node.get('name')}, must match [a-z0-9]{64}")
