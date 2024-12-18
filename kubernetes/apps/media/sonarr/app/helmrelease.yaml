@@ -1,9 +1,8 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: jellyfin
+  name: sonarr
   namespace: media
 spec:
   interval: 30m
@@ -23,25 +22,16 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  # dependsOn:
-  #   - name: rook-ceph-cluster
-  #     namespace: rook-ceph
-  #   - name: volsync
-  #     namespace: volsync-system
   values:
     controllers:
-      jellyfin:
+      main:
         containers:
           app:
             image:
-              repository: jellyfin/jellyfin
-              tag: 10.10.3
+              repository: ghcr.io/onedr0p/sonarr
+              tag: rolling
               pullPolicy: IfNotPresent
             env:
-              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
-              JELLYFIN_FFmpeg__probesize: 50000000
-              JELLYFIN_FFmpeg__analyzeduration: 50000000
-              JELLYFIN_PublishedServerUrl: "https://jelly.${SECRET_DOMAIN}"
               TZ: ${TIMEZONE}
             probes:
               liveness: &probes
@@ -49,8 +39,8 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /health
-                    port: &port 8096
+                    path: /ping
+                    port: &port 8989
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -58,68 +48,40 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 100m
-                memory: 512Mi
+                cpu: 10m
+                memory: 250Mi
               limits:
-                memory: 4Gi
-        pod:
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 568
-            runAsGroup: 568
-            fsGroup: 568
-            fsGroupChangePolicy: OnRootMismatch
-            supplementalGroups: [10000]
-            seccompProfile: { type: RuntimeDefault }
+                memory: 2Gi
     service:
-      app:
-        controller: jellyfin
-        type: ClusterIP
+      main:
         ports:
           http:
-            port: 8096
+            port: 8989
     ingress:
       main:
         enabled: true
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}" #TODO: set this if ingress is external
-          hajimari.io/icon: mdi:play-circle
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          hajimari.io/icon: mdi:television-classic
         hosts:
-          - host: &host "jelly.${SECRET_DOMAIN}"
+          - host: &host "sonarr.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
-                  identifier: app
+                  name: main
                   port: http
         tls:
           - hosts: [*host]
-            # secretName: "jelly-tls"
     persistence:
       config:
         enabled: true
-        existingClaim: jellyfin-config
-        globalMounts:
-          - path: /config
-      transcode:
-        enabled: true
-        type: emptyDir
-        globalMounts:
-          - path: /transcode
-      cache:
-        enabled: true
-        type: emptyDir
-        globalMounts:
-          - path: /cache
+        existingClaim: sonarr-config
       media:
+        enabled: true
         type: nfs
         server: 10.0.40.250
         path: /docker-media
-        globalMounts:
-          - path: /media
+        mountPath: /media
