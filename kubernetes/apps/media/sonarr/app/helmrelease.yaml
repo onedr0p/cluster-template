@@ -1,0 +1,125 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jellyfin
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  # dependsOn:
+  #   - name: rook-ceph-cluster
+  #     namespace: rook-ceph
+  #   - name: volsync
+  #     namespace: volsync-system
+  values:
+    controllers:
+      jellyfin:
+        containers:
+          app:
+            image:
+              repository: jellyfin/jellyfin
+              tag: 10.10.3
+              pullPolicy: IfNotPresent
+            env:
+              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
+              JELLYFIN_FFmpeg__probesize: 50000000
+              JELLYFIN_FFmpeg__analyzeduration: 50000000
+              JELLYFIN_PublishedServerUrl: "https://jelly.${SECRET_DOMAIN}"
+              TZ: ${TIMEZONE}
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8096
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 4Gi
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [10000]
+            seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: jellyfin
+        type: ClusterIP
+        ports:
+          http:
+            port: 8096
+    ingress:
+      main:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}" #TODO: set this if ingress is external
+          hajimari.io/icon: mdi:play-circle
+        hosts:
+          - host: &host "jelly.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts: [*host]
+            # secretName: "jelly-tls"
+    persistence:
+      config:
+        enabled: true
+        existingClaim: jellyfin-config
+        globalMounts:
+          - path: /config
+      transcode:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /transcode
+      cache:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /cache
+      media:
+        type: nfs
+        server: 10.0.40.250
+        path: /docker-media
+        globalMounts:
+          - path: /media
