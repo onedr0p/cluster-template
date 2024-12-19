@@ -74,52 +74,21 @@ You have two different options for setting up your local workstation.
 
 #### Non-devcontainer method
 
-1. Install the most recent version of [task](https://taskfile.dev/) and [direnv](https://direnv.net/)
+1. **Install** and **activate** [mise](https://mise.jdx.dev/) following the instructions for your workstation [here](https://mise.jdx.dev/getting-started.html).
+
+2. Trust mise config and install **required** CLI tools
 
     ```sh
-    # Homebrew
-    brew install direnv go-task
-    # or, Arch
-    pacman -S --noconfirm direnv go-task \
-      && ln -sf /usr/bin/go-task /usr/local/bin/task
+    mise trust && mise install
     ```
 
-2. [Hook `direnv` into your preferred shell](https://direnv.net/docs/hook.html), then run:
+3. Install **required** Python dependencies
 
     ```sh
-    task workstation:direnv
+    uv pip install --requirement requirements.txt
     ```
 
-    📍 _**Verify** that `direnv` is setup properly by opening a new terminal and `cd`ing into your repository. You should see something like:_
-
-    ```sh
-    cd /path/to/repo
-    direnv: loading ... .envrc
-    direnv: export +VIRTUAL_ENV ... ~PATH
-    ```
-
-3. Install the additional **required** CLI tools
-
-   📍 _**Not using Homebrew or ArchLinux?** Try using the generic Linux task below, if that fails check out the [Brewfile](.taskfiles/workstation/Brewfile)/[Archfile](.taskfiles/workstation/Archfile) for what CLI tools needed and install them._
-
-    ```sh
-    # Homebrew
-    task workstation:brew
-    # or, Arch with yay/paru
-    task workstation:arch
-    # or, Generic Linux (YMMV, this pulls binaires in to ./bin)
-    task workstation:generic-linux
-    ```
-
-4. Setup a Python virtual environment by running the following task command.
-
-    📍 _This commands requires Python 3.11+ to be installed._
-
-    ```sh
-    task workstation:venv
-    ```
-
-5. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
+4. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
 
 ### 🔧 Stage 3: Bootstrap configuration
 
@@ -166,7 +135,7 @@ You have two different options for setting up your local workstation.
 
 2. Verify the nodes are online
 
-    📍 _If this command **fails** you likely haven't configured `direnv` as [mentioned previously](#non-devcontainer-method) in the guide._
+    📍 _If this command **fails** you likely haven't configured `mise` as [mentioned previously](#non-devcontainer-method) in the guide._
 
     ```sh
     kubectl get nodes -o wide

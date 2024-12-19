@@ -1,0 +1,40 @@
+[env]
+_.python.venv = { path = "{{config_root}}/.venv", create = true }
+KUBECONFIG = "{{config_root}}/kubeconfig"
+PYTHONDONTWRITEBYTECODE = "1"
+SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
+TALOSCONFIG = "{{config_root}}/kubernetes/bootstrap/talos/clusterconfig/talosconfig"
+TASK_X_ENV_PRECEDENCE = 1
+TASK_X_MAP_VARIABLES = 0
+
+[tools]
+python = "3.13.0"
+"aqua:astral-sh/uv" = "latest"
+"aqua:cilium/cilium-cli" = "latest"
+"aqua:cli/cli" = "latest"
+"aqua:cloudflare/cloudflared" = "latest"
+"aqua:derailed/k9s" = "latest"
+"aqua:FiloSottile/age" = "latest"
+"aqua:fluxcd/flux2" = "latest"
+"aqua:getsops/sops" = "latest"
+"aqua:go-task/task" = "latest"
+"aqua:helm/helm" = "latest"
+"aqua:helmfile/helmfile" = "latest"
+"aqua:jqlang/jq" = "latest"
+"aqua:kubernetes-sigs/krew" = "latest"
+"aqua:kubernetes-sigs/kustomize" = "latest"
+"aqua:kubernetes/kubectl" = "latest"
+"aqua:mikefarah/yq" = "latest"
+"aqua:siderolabs/talos" = "latest"
+"aqua:stern/stern" = "latest"
+"aqua:yannh/kubeconform" = "latest"
+
+
+# apk add --no-cache \
+#     bash bind-tools ca-certificates curl fish fzf \
+#     gettext git iputils \
+#     moreutils openssh-client openssl starship
+
+# apk add --no-cache \
+#     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
+#         lsd
