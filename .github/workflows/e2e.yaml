@@ -26,20 +26,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Homebrew
-        id: setup-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-
       - name: Install mise
         shell: bash
         run: brew install mise
 
       - name: Setup mise
-        shell: bash
-        run: |
-          eval "$(mise activate bash)"
-          mise trust
-          mise install
+        uses: jdx/mise-action@v2
 
       - name: Install Python dependencies
         shell: bash
