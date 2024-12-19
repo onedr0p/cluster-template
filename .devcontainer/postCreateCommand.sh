@@ -17,7 +17,4 @@ if ! grep -q "venv /workspaces/" .venv/pyvenv.cfg; then
     rm -rf .venv
 fi
 
-mise trust
-mise install
-
-uv pip install --requirement requirements.txt
+go-task workstation:venv
