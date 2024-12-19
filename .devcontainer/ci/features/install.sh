@@ -6,6 +6,9 @@ apk add --no-cache \
     bash bind-tools ca-certificates curl fish fzf gettext git \
     iputils mise moreutils openssh-client openssl starship
 
+# Create the fish configuration directory
+mkdir -p /home/vscode/.config/fish/{completions,conf.d}
+
 # Add hooks into fish
 tee /home/vscode/.config/fish/conf.d/hooks.fish > /dev/null <<EOF
 if status is-interactive
@@ -23,13 +26,6 @@ EOF
 # Custom fish prompt
 tee /home/vscode/.config/fish/conf.d/fish_greeting.fish > /dev/null <<EOF
 set fish_greeting
-EOF
-
-# Add direnv whitelist for the workspace directory
-mkdir -p /home/vscode/.config/direnv
-tee /home/vscode/.config/direnv/direnv.toml > /dev/null <<EOF
-[whitelist]
-prefix = [ "/workspaces" ]
 EOF
 
 # Set ownership vscode .config directory to the vscode user
