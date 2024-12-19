@@ -36,7 +36,10 @@ jobs:
 
       - name: Setup mise
         shell: bash
-        run: mise trust && mise install
+        run: |
+          eval "$(mise activate bash)"
+          mise trust
+          mise install
 
       - name: Install Python dependencies
         shell: bash

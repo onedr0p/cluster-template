@@ -28,13 +28,3 @@ python = "3.13.0"
 "aqua:siderolabs/talos" = "latest"
 "aqua:stern/stern" = "latest"
 "aqua:yannh/kubeconform" = "latest"
-
-
-# apk add --no-cache \
-#     bash bind-tools ca-certificates curl fish fzf \
-#     gettext git iputils \
-#     moreutils openssh-client openssl starship
-
-# apk add --no-cache \
-#     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
-#         lsd
