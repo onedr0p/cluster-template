@@ -26,10 +26,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install mise
-        shell: bash
-        run: brew install mise
-
       - name: Setup mise
         uses: jdx/mise-action@v2
 
