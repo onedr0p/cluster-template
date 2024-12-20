@@ -61,25 +61,13 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
 
 ### 🌱 Stage 2: Setup your local workstation
 
-You have two different options for setting up your local workstation.
-
-- First option is using a `devcontainer` which requires you to have Docker and VSCode installed. This method is the fastest to get going because all the required CLI tools are provided for you in my [devcontainer](https://github.com/onedr0p/cluster-template/pkgs/container/cluster-template%2Fdevcontainer) image.
-- The second option is setting up the CLI tools directly on your workstation.
-
-#### Devcontainer method
-
-1. Start Docker and open your repository in VSCode. There will be a pop-up asking you to use the `devcontainer`, click the button to start using it.
-
-2. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
-
-#### Non-devcontainer method
-
 1. **Install** and **activate** [mise](https://mise.jdx.dev/) following the instructions for your workstation [here](https://mise.jdx.dev/getting-started.html).
 
 2. Trust mise config and install **required** CLI tools
 
     ```sh
-    mise trust && mise install
+    mise trust
+    mise install
     ```
 
 3. Install **required** Python dependencies
@@ -135,7 +123,7 @@ You have two different options for setting up your local workstation.
 
 2. Verify the nodes are online
 
-    📍 _If this command **fails** you likely haven't configured `mise` as [mentioned previously](#non-devcontainer-method) in the guide._
+    📍 _If this command **fails** you likely haven't configured `mise`._
 
     ```sh
     kubectl get nodes -o wide
