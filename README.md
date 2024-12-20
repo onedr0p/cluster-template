@@ -40,9 +40,11 @@ The features included will depend on the type of configuration you want to use. 
 | Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 120GB _(500GB*)_ SSD/NVMe |
 | _\* recommended_ |
 
-1. Head over to <https://factory.talos.dev> and follow the instructions which will eventually lead you to download a Talos Linux iso file (or for SBCs the `.raw.xz`). Make sure to note the schematic ID you will need this later on.
+1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. You can always add system extensions after Talos is installed and working.
 
-2. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
+2. This will eventually lead you to download a Talos Linux iso file (or for SBCs the `.raw.xz`). Make sure to note the schematic ID you will need this later on.
+
+3. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
 
 ## 🚀 Getting Started
 
