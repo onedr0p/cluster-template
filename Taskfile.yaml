@@ -15,15 +15,12 @@ vars:
 
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
-  PYTHONDONTWRITEBYTECODE: '1'
   SOPS_AGE_KEY_FILE: '{{.ROOT_DIR}}/age.key'
-  VIRTUAL_ENV: '{{.ROOT_DIR}}/.venv'
 
 includes:
   bootstrap: .taskfiles/bootstrap
   kubernetes: .taskfiles/kubernetes
   talos: .taskfiles/talos
-  workstation: .taskfiles/workstation
   user:
     taskfile: .taskfiles/User
     optional: true

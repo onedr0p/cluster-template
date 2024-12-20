@@ -12,43 +12,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  archlinux:
-    name: workstation (archlinux)
-    runs-on: ubuntu-latest
-    container:
-      image: greyltc/archlinux-aur:yay
-      options: --user root
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Test Arch dependencies
-        shell: bash
-        run: >-
-          sudo -E -u ab -D~ bash -c '
-          cd $GITHUB_WORKSPACE;
-          yay -Syu --needed --noconfirm --noprogressbar go-task;
-          go-task workstation:arch
-          '
-
-  generic-linux:
-    name: workstation (generic-linux)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Homebrew
-        id: setup-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-
-      - name: Setup Workflow Tools
-        shell: bash
-        run: brew install go-task
-
-      - name: Run Workstation Generic linux tasks
-        shell: bash
-        run: task workstation:generic-linux
 
   configure:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
@@ -63,48 +26,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Homebrew
-        id: setup-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+      - name: Setup mise
+        uses: jdx/mise-action@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        id: setup-python
-        with:
-          python-version: "3.11"
-
-      - name: Cache homebrew packages
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/cache@v4
-        id: cache-homebrew-packages
-        with:
-          key: homebrew-${{ runner.os }}-${{ steps.setup-homebrew.outputs.gems-hash }}-${{ hashFiles('.taskfiles/workstation/Brewfile') }}
-          path: /home/linuxbrew/.linuxbrew
-
-      - name: Cache venv
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/cache@v4
-        with:
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt', 'requirements.yaml') }}
-          path: .venv
-
-      - name: Setup Workflow Tools
-        if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
+      - name: Install Python dependencies
         shell: bash
-        run: brew install go-task
-
-      - name: Run Workstation Brew tasks
-        if: ${{ github.event_name == 'pull_request' && steps.cache-homebrew-packages.outputs.cache-hit != 'true' }}
-        shell: bash
-        run: task workstation:brew
-
-      - name: Run Workstation venv tasks
-        shell: bash
-        run: task workstation:venv
-
-      - name: Run Workstation direnv tasks
-        shell: bash
-        run: task workstation:direnv
+        run: mise run install
 
       - name: Run Sops Age key task
         shell: bash
@@ -116,7 +43,7 @@ jobs:
           task init
           cp ./.github/tests/config-${{ matrix.config-files }}.yaml ./config.yaml
           export BOOTSTRAP_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
-          envsubst < ./config.yaml | sponge ./config.yaml
+          envsubst < ./config.yaml > ./config.yaml.tmp && mv ./config.yaml.tmp ./config.yaml
 
       - name: Run configure task
         shell: bash

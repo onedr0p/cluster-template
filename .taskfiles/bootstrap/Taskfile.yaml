@@ -107,9 +107,6 @@ tasks:
       # Clean up CI
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
-      # Clean up devcontainer
-      - rm -rf {{.ROOT_DIR}}/.devcontainer/ci
-      - rm -rf {{.ROOT_DIR}}/.github/workflows/devcontainer.yaml
       # Move bootstrap directory to gitignored directory
       - mv {{.BOOTSTRAP_DIR}} {{.ROOT_DIR}}/.private/bootstrap-{{.TS}}
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.ROOT_DIR}}/.private/makejinja-{{.TS}}.toml
