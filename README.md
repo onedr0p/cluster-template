@@ -20,7 +20,8 @@ The features included will depend on the type of configuration you want to use. 
 
 **Other features include:**
 
-- A [Renovate](https://www.mend.io/renovate)-ready repository with pull request diffs provided by [flux-local](https://github.com/allenporter/flux-local)
+- [mise](https://mise.jdx.dev/) integration for managing your dev env.
+- [Renovate](https://www.mend.io/renovate)-ready repository with pull request diffs provided by [flux-local](https://github.com/allenporter/flux-local)
 - Integrated [GitHub Actions](https://github.com/features/actions) with helpful workflows.
 
 ## 💻 Machine Preparation
@@ -42,8 +43,6 @@ The features included will depend on the type of configuration you want to use. 
 
 2. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
 
-3. Continue on to 🚀 [**Getting Started**](#-getting-started)
-
 ## 🚀 Getting Started
 
 Once you have installed Talos on your nodes, there are six stages to getting a Flux-managed cluster up and running.
@@ -56,8 +55,6 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
 1. Create a new **public** repository by clicking the big green "Use this template" button at the top of this page.
 
 2. Clone **your new repo** to you local workstation and `cd` into it.
-
-3. Continue on to 🌱 [**Stage 2**](#-stage-2-setup-your-local-workstation-environment)
 
 ### 🌱 Stage 2: Setup your local workstation
 
@@ -75,8 +72,6 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     ```sh
     uv pip install --requirement requirements.txt
     ```
-
-4. Continue on to 🔧 [**Stage 3**](#-stage-3-bootstrap-configuration)
 
 ### 🔧 Stage 3: Bootstrap configuration
 
@@ -115,7 +110,7 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     task bootstrap:talos
     ```
 
-2. ⚠️ It might take a while for the cluster to be setup (10+ minutes is normal), during which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. This is a normal. If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [nuke the cluster](#-Nuke) before trying again.
+2. ⚠️ It might take a while for the cluster to be setup (10+ minutes is normal), during which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. This is a normal. If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
 
 #### Cluster validation
 
@@ -131,8 +126,6 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     # k8s-0          Ready    control-plane,etcd,master   1h      v1.30.1
     # k8s-1          Ready    worker                      1h      v1.30.1
     ```
-
-3. Continue on to 🔹 [**Stage 6**](#-stage-6-install-flux-in-your-cluster)
 
 ### 🔹 Stage 6: Install Flux in your cluster
 
