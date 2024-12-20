@@ -20,9 +20,10 @@ The features included will depend on the type of configuration you want to use. 
 
 **Other features include:**
 
-- [mise](https://mise.jdx.dev/) integration for managing your dev env.
-- [Renovate](https://www.mend.io/renovate)-ready repository with pull request diffs provided by [flux-local](https://github.com/allenporter/flux-local)
-- Integrated [GitHub Actions](https://github.com/features/actions) with helpful workflows.
+- Dev env managed w/ [mise](https://mise.jdx.dev/)
+- Workflow automation w/ [GitHub Actions](https://github.com/features/actions)
+- Dependency automation w/ [Renovate](https://www.mend.io/renovate)
+- Flux HelmRelease and Kustomization diffs w/ [flux-local](https://github.com/allenporter/flux-local)
 
 ## 💻 Machine Preparation
 
@@ -54,20 +55,20 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
 
 1. Create a new **public** repository by clicking the big green "Use this template" button at the top of this page.
 
-2. Clone **your new repo** to you local workstation and `cd` into it.
+2. Use `git clone` to download **the repo you just created** to your local workstation and `cd` into it.
 
 ### 🌱 Stage 2: Setup your local workstation
 
 1. **Install** and **activate** [mise](https://mise.jdx.dev/) following the instructions for your workstation [here](https://mise.jdx.dev/getting-started.html).
 
-2. Trust mise config and install **required** CLI tools
+2. Use mise to install the **required** CLI tools.
 
     ```sh
     mise trust
     mise install
     ```
 
-3. Install **required** Python dependencies
+3. Use mise to install the **required** Python dependencies.
 
     ```sh
     mise run install
@@ -79,6 +80,8 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
 > The [config.sample.yaml](./config.sample.yaml) file contains config that is **vital** to the bootstrap process.
 
 1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file.
+
+   📍 _If the below command fails `mise` is either not install or configured incorrectly._
 
     ```sh
     task init
@@ -117,8 +120,6 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
 1. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
 
 2. Verify the nodes are online
-
-    📍 _If this command **fails** you likely haven't configured `mise`._
 
     ```sh
     kubectl get nodes -o wide

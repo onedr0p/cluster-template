@@ -7,6 +7,10 @@ TALOSCONFIG = "{{config_root}}/kubernetes/bootstrap/talos/clusterconfig/taloscon
 TASK_X_ENV_PRECEDENCE = 1
 TASK_X_MAP_VARIABLES = 0
 
+[tasks.install]
+description = "Install Python dependencies"
+run = "uv pip install -r requirements.txt"
+
 [tools]
 python = "3.13"
 "aqua:astral-sh/uv" = "latest"
@@ -25,7 +29,3 @@ python = "3.13"
 "aqua:siderolabs/talos" = "latest"
 "aqua:stern/stern" = "latest"
 "aqua:yannh/kubeconform" = "latest"
-
-[tasks.install]
-description = "Install Python dependencies"
-run = "uv pip install -r requirements.txt"
