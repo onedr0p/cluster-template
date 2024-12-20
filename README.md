@@ -70,7 +70,7 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
 3. Install **required** Python dependencies
 
     ```sh
-    uv pip install --requirement requirements.txt
+    mise run install
     ```
 
 ### 🔧 Stage 3: Bootstrap configuration

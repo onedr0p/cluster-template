@@ -25,3 +25,7 @@ python = "3.13"
 "aqua:siderolabs/talos" = "latest"
 "aqua:stern/stern" = "latest"
 "aqua:yannh/kubeconform" = "latest"
+
+[tasks.install]
+description = "Install Python dependencies"
+run = "uv pip install -r requirements.txt"
