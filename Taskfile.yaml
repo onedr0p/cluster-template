@@ -16,6 +16,7 @@ vars:
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
   SOPS_AGE_KEY_FILE: '{{.ROOT_DIR}}/age.key'
+  VIRTUAL_ENV: '{{.ROOT_DIR}}/.venv'
 
 includes:
   bootstrap: .taskfiles/bootstrap
