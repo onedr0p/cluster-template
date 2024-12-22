@@ -76,12 +76,12 @@ tasks:
 
   template:
     internal: true
-    cmd: '{{.VIRTUAL_ENV}}/bin/makejinja'
+    cmd: makejinja
     preconditions:
-      - test -d {{.VIRTUAL_ENV}}
       - test -f {{.BOOTSTRAP_CONFIG_FILE}}
       - test -f {{.BOOTSTRAP_DIR}}/scripts/plugin.py
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
+      - which makejinja
 
   secrets:
     internal: true
