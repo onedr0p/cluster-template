@@ -7,19 +7,20 @@ vars:
 
 tasks:
 
-  apply-ks:
-    desc: Apply a Flux KS for a cluster [PATH=required]
+  ks-*:
+    desc: Apply a Flux KS [PATH=required]
     cmd: >
       flux build --namespace flux-system ks {{base .PATH}}
       --kustomization-file {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
-      --path {{.KUBERNETES_DIR}}/apps/{{.PATH}}{{- if contains "not found" .KS }} --dry-run \{{ end }}
+      --path {{.KUBERNETES_DIR}}/apps/{{.PATH}}{{if contains .KUSTOMIZATION "not found"}} --dry-run{{end}}
       | yq 'with(select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization"); .metadata.namespace = "flux-system")' -
-      | kubectl apply --server-side --field-manager=kustomize-controller --filename -
+      | kubectl {{.OPERATION}} {{if eq .OPERATION "apply"}}--server-side  --field-manager=kustomize-controller{{end}} --filename -
     requires:
       vars: [PATH]
     vars:
-      KS:
-        sh: flux --namespace flux-system get kustomizations {{base .PATH}} 2>&1
+      OPERATION: '{{index .MATCH 0}}'
+      KUSTOMIZATION:
+        sh: flux --namespace flux-system get kustomizations {{base .PATH}}
     preconditions:
       - test -f {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
       - which flux kubectl yq
