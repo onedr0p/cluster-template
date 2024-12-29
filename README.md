@@ -70,10 +70,10 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     mise install
     ```
 
-3. Use mise to install the **required** Python dependencies.
+3. Use mise to install the **required** Python dependencies with `pip`.
 
     ```sh
-    mise run install
+    mise run pip
     ```
 
 ### 🔧 Stage 3: Bootstrap configuration
