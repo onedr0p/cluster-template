@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Python dependencies
         shell: bash
-        run: mise run install
+        run: mise run pip
 
       - name: Run Sops Age key task
         shell: bash
