@@ -28,10 +28,12 @@ jobs:
 
       - name: Setup mise
         uses: jdx/mise-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Python dependencies
         shell: bash
-        run: mise run install
+        run: mise run pip
 
       - name: Run Sops Age key task
         shell: bash

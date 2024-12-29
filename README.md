@@ -70,10 +70,10 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     mise install
     ```
 
-3. Use mise to install the **required** Python dependencies.
+3. Use mise to install the **required** Python dependencies with `pip`.
 
     ```sh
-    mise run install
+    mise run pip
     ```
 
 ### 🔧 Stage 3: Bootstrap configuration
@@ -311,8 +311,6 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
     ```sh
     kubectl -n <namespace> logs <pod-name> -f
-    # or
-    stern -n <namespace> <fuzzy-name>
     ```
 
 5. If a resource exists try to describe it to see what problems it might have.
