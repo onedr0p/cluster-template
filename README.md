@@ -25,14 +25,18 @@ The features included will depend on the type of configuration you want to use. 
 - Dependency automation w/ [Renovate](https://www.mend.io/renovate)
 - Flux HelmRelease and Kustomization diffs w/ [flux-local](https://github.com/allenporter/flux-local)
 
-## 💻 Machine Preparation
+## 🚀 Let's Go!
 
-### System requirements
+There are **6 stages** outlined below for completing this project, make sure you follow the stages in order.
+
+### Stage 1: Machine Preparation
+
+**System Requirements**
 
 > [!NOTE]
 > 1. The included behaviour of Talos is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
 > 2. Do you have 3 or more nodes? It is highly recommended to make 3 of them controller nodes for a highly available control plane.
-> 3. Running the cluster on Proxmox VE? My thoughts and recommendations about that are documented [here](https://onedr0p.github.io/home-ops/archive/proxmox-considerations.html).
+> 3. Running the cluster on Proxmox? My thoughts and recommendations about that are [here](https://onedr0p.github.io/home-ops/archive/proxmox-considerations.html).
 
 | Role    | Cores    | Memory        | System Disk               |
 |---------|----------|---------------|---------------------------|
@@ -42,44 +46,30 @@ The features included will depend on the type of configuration you want to use. 
 
 1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. You can always add system extensions after Talos is installed and working.
 
-2. This will eventually lead you to download a Talos Linux iso file (or for SBCs the `.raw.xz`). Make sure to note the schematic ID you will need this later on.
+2. This will eventually lead you to download a Talos Linux ISO file (or for SBCs the RAW file). Make sure to note the schematic ID you will need this later on.
 
-3. Flash the iso or raw file to a USB drive and boot to Talos on your nodes with it.
+3. Flash the Talos ISO or RAW file to a USB drive and boot from it on your nodes.
 
-## 🚀 Getting Started
-
-Once you have installed Talos on your nodes, there are six stages to getting a Flux-managed cluster up and running.
-
-> [!NOTE]
-> For all stages below the commands **MUST** be ran on your personal workstation within your repository directory
-
-### 🎉 Stage 1: Create a Git repository
+### Stage 2: Local Workstation
 
 1. Create a new **public** repository by clicking the big green "Use this template" button at the top of this page.
 
 2. Use `git clone` to download **the repo you just created** to your local workstation and `cd` into it.
 
-### 🌱 Stage 2: Setup your local workstation
+3. **Install** and **activate** [mise](https://mise.jdx.dev/) following the instructions for your workstation [here](https://mise.jdx.dev/getting-started.html).
 
-1. **Install** and **activate** [mise](https://mise.jdx.dev/) following the instructions for your workstation [here](https://mise.jdx.dev/getting-started.html).
-
-2. Use mise to install the **required** CLI tools.
+4. Use `mise` to install the **required** CLI tools.
 
     ```sh
     mise trust
     mise install
-    ```
-
-3. Use mise to install the **required** Python dependencies with `pip`.
-
-    ```sh
     mise run pip
     ```
 
-### 🔧 Stage 3: Bootstrap configuration
+### Stage 3: Bootstrap Configuration
 
 > [!NOTE]
-> The [config.sample.yaml](./config.sample.yaml) file contains config that is **vital** to the bootstrap process.
+> The [config.sample.yaml](./config.sample.yaml) file contains config that are **vital** to the bootstrap process.
 
 1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file.
 
@@ -107,7 +97,7 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     git push
     ```
 
-### ⛵ Stage 4: Install Kubernetes
+### Stage 4: Install Kubernetes
 
 1. Deploy your cluster and bootstrap it. This generates secrets, generates the config files for your nodes and applies them. It bootstraps the cluster afterwards, fetches the kubeconfig file and installs Cilium and kubelet-csr-approver. It finishes with some health checks.
 
@@ -117,11 +107,9 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
 
 2. ⚠️ It might take a while for the cluster to be setup (10+ minutes is normal), during which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. This is a normal. If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
 
-#### Cluster validation
+3. Verify the nodes are online
 
-1. The `kubeconfig` for interacting with your cluster should have been created in the root of your repository.
-
-2. Verify the nodes are online
+   📍 _The `kubeconfig` for interacting with your cluster is in the root of your repository._
 
     ```sh
     kubectl get nodes -o wide
@@ -130,7 +118,7 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     # k8s-1          Ready    worker                      1h      v1.30.1
     ```
 
-### 🔹 Stage 6: Install Flux in your cluster
+### Stage 5: Install Flux
 
 1. Verify Flux can be installed
 
@@ -162,7 +150,7 @@ Once you have installed Talos on your nodes, there are six stages to getting a F
     # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
     ```
 
-### 🎤 Verification Steps
+### Stage 6: Cluster Verification
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
@@ -182,13 +170,13 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 ## 📣 Flux w/ Cloudflare post installation
 
-#### 🌐 Public DNS
+### 🌐 Public DNS
 
   📍 _Use the `external` ingress class to make applications public to the internet_
 
 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must set set the correct ingress class name and ingress annotations like in the HelmRelease for `echo-server`.
 
-#### 🏠 Home DNS
+### 🏠 Home DNS
 
   📍 _Use the `internal` ingress class to make applications private to your network_
 
@@ -208,13 +196,13 @@ If you're having trouble with DNS be sure to check out these two GitHub discussi
 
 ... Nothing working? That is expected, this is DNS after all!
 
-#### 📜 Certificates
+### 📜 Certificates
 
 By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration). Once you are sure you will keep the cluster up for more than a few hours be sure to switch to the production servers as outlined in `config.yaml`.
 
 📍 _You will need a production certificate to reach internet-exposed applications through `cloudflared`._
 
-#### 🪝 Github Webhook
+### 🪝 Github Webhook
 
 By default Flux will periodically check your git repository for changes. In order to have Flux reconcile on `git push` you must configure Github to send `push` events to Flux.
 
@@ -247,7 +235,7 @@ task talos:reset # --force
 
 ## 🛠️ Talos and Kubernetes Maintenance
 
-#### ⚙️ Updating Talos node configuration
+### ⚙️ Updating Talos node configuration
 
 📍 _Ensure you have updated `talconfig.yaml` and any patches with your updated configuration._
 
@@ -259,7 +247,7 @@ task talos:apply-node HOSTNAME=? MODE=?
 # e.g. task talos:apply-config HOSTNAME=k8s-0 MODE=auto
 ```
 
-#### ⬆️ Updating Talos and Kubernetes versions
+### ⬆️ Updating Talos and Kubernetes versions
 
 📍 _Ensure the `talosVersion` and `kubernetesVersion` in `talhelper.yaml` are up-to-date with the version you wish to upgrade to._
 
@@ -336,10 +324,6 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 The cluster is your oyster (or something like that). Below are some optional considerations you might want to review.
 
-### Ship it
-
-To browse or get ideas on applications people are running, community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) as a creative way to search Flux HelmReleases across Github and Gitlab.
-
 ### DNS
 
 Instead of using [k8s_gateway](https://github.com/ori-edge/k8s_gateway) to provide DNS for your applications you might want to check out [external-dns](https://github.com/kubernetes-sigs/external-dns), it has wide support for many different providers such as [Pi-hole](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/pihole.md), [UniFi](https://github.com/kashalls/external-dns-unifi-webhook), [Adguard Home](https://github.com/muhlba91/external-dns-provider-adguard), [Bind](https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/rfc2136.md) and more.
@@ -348,6 +332,10 @@ Instead of using [k8s_gateway](https://github.com/ori-edge/k8s_gateway) to provi
 
 The included CSI (openebs in local-hostpath mode) is a great start for storage but soon you might find you need more features like replicated block storage, or to connect to a NFS/SMB/iSCSI server. If you need any of those features be sure to check out the projects like [rook-ceph](https://github.com/rook/rook), [longhorn](https://github.com/longhorn/longhorn), [openebs](https://github.com/openebs/openebs), [democratic-csi](https://github.com/democratic-csi/democratic-csi), [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs),
 and [synology-csi](https://github.com/SynologyOpenSource/synology-csi).
+
+### Community Repositories
+
+To get ideas on applications people are running, community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) as a creative way to search Flux HelmReleases across Github and Gitlab.
 
 ## 🙌 Related Projects
 
