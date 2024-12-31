@@ -31,10 +31,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Python dependencies
-        shell: bash
-        run: mise run pip
-
       - name: Run Sops Age key task
         shell: bash
         run: task bootstrap:age-keygen
