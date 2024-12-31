@@ -8,6 +8,7 @@ TASK_X_ENV_PRECEDENCE = 1
 TASK_X_MAP_VARIABLES = 0
 
 [tools]
+python = "3.12"
 uv = "latest"
 "pipx:cloudflare" = "3.1.1"
 "pipx:dnspython" = "2.7.0"
