@@ -1,6 +1,5 @@
 [env]
-_.python.venv = { path = "{{config_root}}/.venv", create = true }
-UV_PYTHON = "3.12"
+_.python.venv = { path = "{{config_root}}/.venv", create = true, python = "3.12" }
 KUBECONFIG = "{{config_root}}/kubeconfig"
 PYTHONDONTWRITEBYTECODE = "1"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
@@ -9,7 +8,6 @@ TASK_X_ENV_PRECEDENCE = 1
 TASK_X_MAP_VARIABLES = 0
 
 [tools]
-python = "3.12"
 uv = "latest"
 "pipx:cloudflare" = "3.1.1"
 "pipx:dnspython" = "2.7.0"
