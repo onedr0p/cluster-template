@@ -12,7 +12,7 @@ python_venv_auto_create = true
 pipx_uvx = true
 
 [tools]
-python = "3.13"
+python = "3.12"
 uv = "latest"
 "pipx:cloudflare" = "3.1.1"
 "pipx:dnspython" = "2.7.0"
