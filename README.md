@@ -265,6 +265,14 @@ task talos:upgrade-k8s
 # e.g. task talos:upgrade-k8s
 ```
 
+## 🧹 Tidy up
+
+After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove all references to the bootstrap process like the [bootstrap](./bootstrap) directory and any files related to the bootstrap process. This will also remove most of the cruft brought in from the upstream template repo.
+
+```sh
+task bootstrap:clean
+```
+
 ## 🤖 Renovate
 
 [Renovate](https://www.mend.io/renovate) is a tool that automates dependency management. It is designed to scan your repository around the clock and open PRs for out-of-date dependencies it finds. Common dependencies it can discover are Helm charts, container images, GitHub Actions, Ansible roles... even Flux itself! Merging a PR will cause Flux to apply the update to your cluster.
