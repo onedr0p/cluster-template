@@ -60,7 +60,7 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 4. Use `mise` to install the **required** CLI tools.
 
-   📍 _If `mise` is having trouble compiling Python, try running `mise settings python.compile=1` and try these commands again_
+   📍 _If `mise` is having trouble compiling Python, try running `mise settings python.compile=0` and try these commands again_
 
     ```sh
     mise trust
