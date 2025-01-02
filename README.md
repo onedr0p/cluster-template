@@ -33,7 +33,7 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 **System Requirements**
 
-> [!NOTE]
+> [!IMPORTANT]
 > 1. The included behaviour of Talos is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
 > 2. Do you have 3 or more nodes? It is highly recommended to make 3 of them controller nodes for a highly available control plane.
 > 3. Running the cluster on Proxmox? My thoughts and recommendations about that are [here](https://onedr0p.github.io/home-ops/archive/proxmox-considerations.html).
@@ -70,7 +70,7 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 ### Stage 3: Bootstrap Configuration
 
-> [!NOTE]
+> [!IMPORTANT]
 > The [config.sample.yaml](./config.sample.yaml) file contains config that are **vital** to the bootstrap process.
 
 1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file.
@@ -101,17 +101,22 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 ### Stage 4: Install Kubernetes
 
-1. Deploy your cluster and bootstrap it. This generates secrets, generates the config files for your nodes and applies them. It bootstraps the cluster afterwards, fetches the kubeconfig file and installs Cilium and kubelet-csr-approver. It finishes with some health checks.
+> [!IMPORTANT]
+> After running either of the next two commands it might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
+
+1. Bootstrap Talos. This generates secrets, generates the Talos config files for your nodes and applies them to the nodes. After it has completed a `kubeconfig` will be placed in the root of your repository.
 
     ```sh
     task bootstrap:talos
     ```
 
-2. ⚠️ It might take a while for the cluster to be setup (10+ minutes is normal), during which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. This is a normal. If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
+2. Bootstrap the essential cluster applications. This command will install the apps from the [helmfile](./bootstrap/templates/kubernetes/bootstrap/helmfile.yaml.j2) configuration file into your cluster.
+
+    ```sh
+    task bootstrap:apps
+    ```
 
 3. Verify the nodes are online
-
-   📍 _The `kubeconfig` for interacting with your cluster is in the root of your repository._
 
     ```sh
     kubectl get nodes -o wide
@@ -156,9 +161,7 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
-1. Output all the common resources in your cluster.
-
-    📍 _Feel free to use the provided [kubernetes tasks](.taskfiles/kubernetes/Taskfile.yaml) for validation of cluster resources or continue to get familiar with the `kubectl` and `flux` CLI tools._
+1. Output common resources in your cluster.
 
     ```sh
     task kubernetes:resources
@@ -174,27 +177,17 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 
 ### 🌐 Public DNS
 
-  📍 _Use the `external` ingress class to make applications public to the internet_
+> [!TIP]
+> Use the `external` ingress class to make applications public to the internet.
 
 The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must set set the correct ingress class name and ingress annotations like in the HelmRelease for `echo-server`.
 
 ### 🏠 Home DNS
 
-  📍 _Use the `internal` ingress class to make applications private to your network_
+> [!TIP]
+> Use the `internal` ingress class to make applications private to your network. If you're having trouble with internal DNS resolution check out [this](https://github.com/onedr0p/cluster-template/discussions/719) GitHub discussion.
 
 `k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${bootstrap_cloudflare.domain}` to `${bootstrap_cloudflare.gateway_vip}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
-
-> [!TIP]
-> Below is how to configure a Pi-hole for split DNS. Other platforms should be similar.
-> 1. Apply this file on the Pihole server while substituting the variables
-> ```sh
-> # /etc/dnsmasq.d/99-k8s-gateway-forward.conf
-> server=/${bootstrap_cloudflare.domain}/${bootstrap_cloudflare.gateway_vip}
-> ```
-> 2. Restart dnsmasq on the server.
-> 3. Query an internal-only subdomain from your workstation (any `internal` class ingresses): `dig @${home-dns-server-ip} echo-server-internal.${bootstrap_cloudflare.domain}`. It should resolve to `${bootstrap_cloudflare.ingress_vip}`.
-
-If you're having trouble with DNS be sure to check out these two GitHub discussions: [Internal DNS](https://github.com/onedr0p/cluster-template/discussions/719) and [Pod DNS resolution broken](https://github.com/onedr0p/cluster-template/discussions/635).
 
 ... Nothing working? That is expected, this is DNS after all!
 
@@ -202,13 +195,11 @@ If you're having trouble with DNS be sure to check out these two GitHub discussi
 
 By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration). Once you are sure you will keep the cluster up for more than a few hours be sure to switch to the production servers as outlined in `config.yaml`.
 
-📍 _You will need a production certificate to reach internet-exposed applications through `cloudflared`._
-
 ### 🪝 Github Webhook
 
 By default Flux will periodically check your git repository for changes. In order to have Flux reconcile on `git push` you must configure Github to send `push` events to Flux.
 
-> [!NOTE]
+> [!IMPORTANT]
 > This will only work after you have switched over certificates to the Let's Encrypt Production servers.
 
 1. Obtain the webhook path
@@ -239,7 +230,8 @@ task talos:reset # --force
 
 ### ⚙️ Updating Talos node configuration
 
-📍 _Ensure you have updated `talconfig.yaml` and any patches with your updated configuration._
+> [!IMPORTANT]
+> Ensure you have updated `talconfig.yaml` and any patches with your updated configuration. In some cases you **not only need to apply the configuration but also upgrade talos** to apply new configuration.
 
 ```sh
 # (Re)generate the Talos config
@@ -251,7 +243,8 @@ task talos:apply-node HOSTNAME=? MODE=?
 
 ### ⬆️ Updating Talos and Kubernetes versions
 
-📍 _Ensure the `talosVersion` and `kubernetesVersion` in `talhelper.yaml` are up-to-date with the version you wish to upgrade to._
+> [!IMPORTANT]
+> Ensure the `talosVersion` and `kubernetesVersion` in `talhelper.yaml` are up-to-date with the version you wish to upgrade to.
 
 ```sh
 # Upgrade node to a newer Talos version
@@ -345,7 +338,7 @@ and [synology-csi](https://github.com/SynologyOpenSource/synology-csi).
 
 ### Community Repositories
 
-To get ideas on applications people are running, community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) as a creative way to search Flux HelmReleases across Github and Gitlab.
+Community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) to allow searching Flux HelmReleases across Github and Gitlab repositories with the `kubesearch` topic.
 
 ## 🙌 Related Projects
 
