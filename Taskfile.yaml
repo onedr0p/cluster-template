@@ -31,7 +31,7 @@ tasks:
 
   init:
     desc: Initialize configuration files
-    cmd: cp {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
+    cmd: mv {{.BOOTSTRAP_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.BOOTSTRAP_CONFIG_FILE}}
     status:
       - test -f {{.BOOTSTRAP_CONFIG_FILE}}
 
