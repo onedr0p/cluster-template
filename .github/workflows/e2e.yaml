@@ -34,10 +34,10 @@ jobs:
       - name: Install Python dependencies
         run: mise run pip
 
-      - name: Run Sops Age key task
+      - name: Run age task
         run: task bootstrap:age-keygen
 
-      - name: Run init tasks
+      - name: Run init task
         run: |
           task init
           cp ./.github/tests/config-${{ matrix.config-files }}.yaml ./config.yaml
