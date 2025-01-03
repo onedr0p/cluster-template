@@ -32,15 +32,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Python dependencies
-        shell: bash
         run: mise run pip
 
       - name: Run Sops Age key task
-        shell: bash
         run: task bootstrap:age-keygen
 
       - name: Run init tasks
-        shell: bash
         run: |
           task init
           cp ./.github/tests/config-${{ matrix.config-files }}.yaml ./config.yaml
@@ -48,9 +45,7 @@ jobs:
           envsubst < ./config.yaml > ./config.yaml.tmp && mv ./config.yaml.tmp ./config.yaml
 
       - name: Run configure task
-        shell: bash
         run: task configure --yes
 
       - name: Run clean
-        shell: bash
         run: task bootstrap:clean
