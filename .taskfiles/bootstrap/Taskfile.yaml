@@ -100,7 +100,7 @@ tasks:
   clean:
     desc: Clean files and directories no longer needed after cluster bootstrap
     cmds:
-      - mkdir -p {{.ROOT_DIR}}/.private/{{.TS}
+      - mkdir -p {{.ROOT_DIR}}/.private/{{.TS}}
       - mv {{.BOOTSTRAP_DIR}} {{.ROOT_DIR}}/.private/{{.TS}}/bootstrap
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/makejinja.toml
       - mv {{.ROOT_DIR}}/requirements.txt {{.ROOT_DIR}}/.private/{{.TS}}/requirements.txt
