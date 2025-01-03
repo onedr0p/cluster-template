@@ -260,7 +260,7 @@ task talos:upgrade-k8s
 
 ## 🧹 Tidy up
 
-After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove all references to the bootstrap process like the [bootstrap](./bootstrap) directory and any files related to the bootstrap process. This will also remove most of the cruft brought in from the upstream template repo.
+After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove the [bootstrap](./bootstrap) directory and any files related to the templating bootstrap process. This will also remove most of the cruft brought in from the upstream template repo.
 
 ```sh
 task bootstrap:clean
