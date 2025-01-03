@@ -100,19 +100,18 @@ tasks:
   clean:
     desc: Clean files and directories no longer needed after cluster bootstrap
     cmds:
-      # Create backup directory
-      - mkdir -p {{.ROOT_DIR}}/.private
-      # Clean up CI
+      - mkdir -p {{.ROOT_DIR}}/.private/{{.TS}}
+      - mv {{.BOOTSTRAP_DIR}} {{.ROOT_DIR}}/.private/{{.TS}}/bootstrap
+      - mv {{.MAKEJINJA_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/makejinja.toml
+      - mv {{.ROOT_DIR}}/requirements.txt {{.ROOT_DIR}}/.private/{{.TS}}/requirements.txt
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
-      # Move bootstrap directory to gitignored directory
-      - mv {{.BOOTSTRAP_DIR}} {{.ROOT_DIR}}/.private/bootstrap-{{.TS}}
-      - mv {{.MAKEJINJA_CONFIG_FILE}} {{.ROOT_DIR}}/.private/makejinja-{{.TS}}.toml
-      - mv {{.ROOT_DIR}}/requirements.txt {{.ROOT_DIR}}/.private/requirements.txt
-      # Update renovate.json5
       - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
     vars:
       TS: '{{now | unixEpoch}}'
     preconditions:
       - test -d {{.BOOTSTRAP_DIR}}
+      - test -d {{.ROOT_DIR}}/.github/tests
+      - test -f {{.MAKEJINJA_CONFIG_FILE}}
       - test -f {{.ROOT_DIR}}/.github/renovate.json5
+      - test -f {{.ROOT_DIR}}/requirements.txt
