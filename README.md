@@ -65,13 +65,13 @@ There are **6 stages** outlined below for completing this project, make sure you
     ```sh
     mise trust
     mise install
-    mise run pip
+    mise run deps
     ```
 
-### Stage 3: Bootstrap Configuration
+### Stage 3: Template Configuration
 
 > [!IMPORTANT]
-> The [config.sample.yaml](./config.sample.yaml) file contains config that are **vital** to the bootstrap process.
+> The [config.sample.yaml](./config.sample.yaml) file contains config that are **vital** to the template process.
 
 1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file.
 
@@ -99,18 +99,18 @@ There are **6 stages** outlined below for completing this project, make sure you
     git push
     ```
 
-### Stage 4: Install Kubernetes
+### Stage 4: Bootstrap Talos & Kubernetes
 
 > [!IMPORTANT]
 > After running either of the next two commands it might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
 
-1. Bootstrap Talos. This generates secrets, generates the Talos config files for your nodes and applies them to the nodes. After it has completed a `kubeconfig` will be placed in the root of your repository.
+1. Install Talos. This generates secrets, generates the Talos config files for your nodes and applies them to the nodes. After it has completed a `kubeconfig` will be placed in the root of your repository.
 
     ```sh
     task bootstrap:talos
     ```
 
-2. Bootstrap the essential cluster applications. This command will install the apps from the [helmfile](./bootstrap/templates/kubernetes/bootstrap/helmfile.yaml.j2) configuration file into your cluster.
+2. Install the essential cluster applications. This command will install the apps from the [helmfile](./templates/config/kubernetes/bootstrap/helmfile.yaml.j2) configuration file into your cluster.
 
     ```sh
     task bootstrap:apps
@@ -125,7 +125,7 @@ There are **6 stages** outlined below for completing this project, make sure you
     # k8s-1          Ready    worker                      1h      v1.30.1
     ```
 
-### Stage 5: Install Flux
+### Stage 5: Bootstrap Flux
 
 1. Verify Flux can be installed
 
@@ -161,7 +161,7 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
-1. Output common resources in your cluster.
+1. View common resources in your cluster.
 
     ```sh
     task kubernetes:resources
@@ -187,7 +187,7 @@ The `external-dns` application created in the `networking` namespace will handle
 > [!TIP]
 > Use the `internal` ingress class to make applications private to your network. If you're having trouble with internal DNS resolution check out [this](https://github.com/onedr0p/cluster-template/discussions/719) GitHub discussion.
 
-`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${bootstrap_cloudflare.domain}` to `${bootstrap_cloudflare.gateway_vip}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
+`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare.domain}` to `${cloudflare.gateway_vip}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
 ... Nothing working? That is expected, this is DNS after all!
 
@@ -213,14 +213,14 @@ By default Flux will periodically check your git repository for changes. In orde
 2. Piece together the full URL with the webhook path appended
 
     ```text
-    https://flux-webhook.${bootstrap_cloudflare.domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    https://flux-webhook.${cloudflare.domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your `bootstrap_github_webhook_token` secret in `config.yaml`, Content type: `application/json`, Events: Choose Just the push event, and save.
+3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your `github_webhook_token` secret in `config.yaml`, Content type: `application/json`, Events: Choose Just the push event, and save.
 
 ## 💥 Reset
 
-There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode, append `--force` to completely format your the Talos installation. Either way the nodes should reboot after the command has run.
+There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode, append `--force` to completely format your the Talos installation. Either way the nodes should reboot after the command has sucessfully ran.
 
 ```sh
 task talos:reset # --force
@@ -260,10 +260,10 @@ task talos:upgrade-k8s
 
 ## 🧹 Tidy up
 
-After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove the [bootstrap](./bootstrap) directory and any files related to the templating bootstrap process. This will also remove most of the cruft brought in from the upstream template repo.
+After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove the [templates](./templates) directory and any files related to the templating process. This will also remove most of the cruft brought in from the upstream template repo.
 
 ```sh
-task bootstrap:clean
+task template:cleanup
 ```
 
 ## 🤖 Renovate

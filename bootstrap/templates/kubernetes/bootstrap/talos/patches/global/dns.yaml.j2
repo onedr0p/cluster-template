@@ -1,6 +1,0 @@
-machine:
-  network:
-    nameservers:
-      #% for item in bootstrap_dns_servers | default(["1.1.1.1","1.0.0.1"], true) %#
-      - #{ item }#
-      #% endfor %#

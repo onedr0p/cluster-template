@@ -1,7 +1,7 @@
 ---
-area/bootstrap:
+area/templates:
   - changed-files:
-      - any-glob-to-any-file: bootstrap/**/*
+      - any-glob-to-any-file: templates/**/*
 area/github:
   - changed-files:
       - any-glob-to-any-file: .github/**/*

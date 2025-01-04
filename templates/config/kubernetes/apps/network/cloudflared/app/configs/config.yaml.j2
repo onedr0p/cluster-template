@@ -1,0 +1,18 @@
+---
+originRequest:
+  originServerName: "external.${SECRET_DOMAIN}"
+
+ingress:
+  - hostname: "${SECRET_DOMAIN}"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    #% if not cloudflare.acme.production %#
+    originRequest:
+      noTLSVerify: true
+    #% endif %#
+  - hostname: "*.${SECRET_DOMAIN}"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    #% if not cloudflare.acme.production %#
+    originRequest:
+      noTLSVerify: true
+    #% endif %#
+  - service: http_status:404

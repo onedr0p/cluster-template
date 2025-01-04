@@ -1,0 +1,41 @@
+#% if bgp.enabled %#
+---
+# https://docs.cilium.io/en/latest/network/bgp-control-plane/
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: l3-policy
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  virtualRouters:
+    - localASN: #{ bgp.local_asn }#
+      neighbors:
+        #% if bgp.peers %#
+        #% for item in bgp.peers %#
+        - peerAddress: "#{ item }#/32"
+          peerASN: #{ bgp.peer_asn }#
+          peerPort: #{ bgp.peer_port | default(179, true) }#
+        #% endfor %#
+        #% else %#
+        #% if node_default_gateway %#
+        - peerAddress: "#{ node_default_gateway }#/32"
+        #% else %#
+        - peerAddress: "#{ node_network | nthhost(1) }#/32"
+        #% endif %#
+          peerASN: #{ bgp.peer_asn }#
+        #% endif %#
+      serviceSelector:
+        matchExpressions:
+          - {key: somekey, operator: NotIn, values: ['never-used-value']}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: l3-pool
+spec:
+  allowFirstLastIPs: "Yes"
+  blocks:
+    - cidr: "#{ bgp.advertised_network }#"
+#% endif %#

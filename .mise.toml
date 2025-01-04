@@ -1,18 +1,18 @@
 [env]
 _.python.venv = { path = "{{config_root}}/.venv", create = true }
 KUBECONFIG = "{{config_root}}/kubeconfig"
-PYTHONDONTWRITEBYTECODE = "1"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/kubernetes/bootstrap/talos/clusterconfig/talosconfig"
 TASK_X_ENV_PRECEDENCE = 1
 TASK_X_MAP_VARIABLES = 0
 
-[tasks.pip]
-description = "Install Python dependencies"
-run = "pip install -r requirements.txt"
+[tasks.deps]
+description = "Install dependencies"
+run = "uv pip install -r requirements.txt"
 
 [tools]
 python = "3.13"
+uv = "latest"
 "aqua:budimanjojo/talhelper" = "latest"
 "aqua:cloudflare/cloudflared" = "latest"
 "aqua:FiloSottile/age" = "latest"
