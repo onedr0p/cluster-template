@@ -6,13 +6,13 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  url: "#{ template_github_address }#"
-  #% if template_github_private_key %#
+  url: "#{ github_address }#"
+  #% if github_private_key %#
   secretRef:
     name: github-deploy-key
   #% endif %#
   ref:
-    branch: "#{ template_github_branch | default('main', true) }#"
+    branch: "#{ github_branch | default('main', true) }#"
   ignore: |
     # exclude all
     /*

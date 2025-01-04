@@ -12,7 +12,7 @@ resources:
   - ./prometheus-community.yaml
   - ./spegel.yaml
   - ./stakater.yaml
-  #% if template_cloudflare.enabled %#
+  #% if cloudflare.enabled %#
   - ./external-dns.yaml
   - ./ingress-nginx.yaml
   - ./k8s-gateway.yaml

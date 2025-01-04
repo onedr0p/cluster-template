@@ -4,9 +4,9 @@ creation_rules:
     path_regex: talos/.*\.sops\.ya?ml
     key_groups:
       - age:
-          - "#{ template_age_pubkey }#"
+          - "#{ age_pubkey }#"
   - path_regex: kubernetes/.*\.sops\.ya?ml
     encrypted_regex: "^(data|stringData)$"
     key_groups:
       - age:
-          - "#{ template_age_pubkey }#"
+          - "#{ age_pubkey }#"

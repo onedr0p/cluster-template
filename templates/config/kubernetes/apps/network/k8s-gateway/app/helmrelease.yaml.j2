@@ -28,7 +28,7 @@ spec:
       type: LoadBalancer
       port: 53
       annotations:
-        lbipam.cilium.io/ips: "#{ template_cloudflare.gateway_vip }#"
+        lbipam.cilium.io/ips: "#{ cloudflare.gateway_vip }#"
       #% if bgp.enabled %#
       externalTrafficPolicy: Local
       #% else %#

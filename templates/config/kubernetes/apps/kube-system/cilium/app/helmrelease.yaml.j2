@@ -24,7 +24,7 @@ spec:
     - kind: ConfigMap
       name: cilium-helm-values
   values:
-    #% if template_cloudflare.enabled %#
+    #% if cloudflare.enabled %#
     hubble:
       enabled: true
       metrics:

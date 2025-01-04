@@ -1,11 +1,11 @@
 ---
 skip_tests: true
 
-template_cluster_name: fake
-template_schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
-template_node_network: 10.10.10.0/24
-template_node_default_gateway: 10.10.10.1
-template_node_inventory:
+cluster_name: fake
+schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+node_network: 10.10.10.0/24
+node_default_gateway: 10.10.10.1
+node_inventory:
   - name: k8s-controller-0
     address: 10.10.10.100
     controller: true
@@ -16,19 +16,19 @@ template_node_inventory:
     controller: false
     disk: fake
     mac_addr: fake
-template_dns_servers: ["1.1.1.1", "1.0.0.1"]
-template_ntp_servers: ["time.cloudflare.com"]
-template_pod_network: 10.69.0.0/16
-template_service_network: 10.96.0.0/16
-template_controller_vip: 10.10.10.254
-template_tls_sans: ["fake"]
-template_age_pubkey: $TEMPLATE_AGE_PUBLIC_KEY
-template_bgp:
+dns_servers: ["1.1.1.1", "1.0.0.1"]
+ntp_servers: ["time.cloudflare.com"]
+pod_network: 10.69.0.0/16
+service_network: 10.96.0.0/16
+controller_vip: 10.10.10.254
+tls_sans: ["fake"]
+age_pubkey: $TEMPLATE_AGE_PUBLIC_KEY
+bgp:
   enabled: false
-template_github_address: https://github.com/onedr0p/cluster-template
-template_github_branch: main
-template_github_webhook_token: fake
-template_cloudflare:
+github_address: https://github.com/onedr0p/cluster-template
+github_branch: main
+github_webhook_token: fake
+cloudflare:
   enabled: true
   domain: fake
   token: take

@@ -1,4 +1,4 @@
-#% if ((not template_bgp.enabled) and (not template_feature_gates.dual_stack_ipv4_first)) %#
+#% if ((not bgp.enabled) and (not feature_gates.dual_stack_ipv4_first)) %#
 ---
 # https://docs.cilium.io/en/latest/network/l2-announcements
 apiVersion: cilium.io/v2alpha1
@@ -22,5 +22,5 @@ metadata:
 spec:
   allowFirstLastIPs: "Yes"
   blocks:
-    - cidr: "#{ template_node_network }#"
+    - cidr: "#{ node_network }#"
 #% endif %#

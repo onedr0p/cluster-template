@@ -59,26 +59,26 @@ def validate_node(node: dict, node_cidr: str) -> None:
             )
 
 
-@required("template_cluster_name")
+@required("cluster_name")
 def validate_cluster_name(name: str = "home-kubernetes", **_) -> None:
     if not re.match(r"^[a-z0-9-]+$", name):
-        raise ValueError(f"Invalid template_cluster_name {name}, must be not empty and match [a-z0-9-]+")
+        raise ValueError(f"Invalid cluster_name {name}, must be not empty and match [a-z0-9-]+")
 
 
-@required("template_schematic_id")
+@required("schematic_id")
 def validate_schematic_id(id: str, **_) -> None:
     if not re.match(r"^[a-z0-9]{64}$", id):
-        raise ValueError(f"Invalid template_schematic_id {id}, must be not empty and match [a-z0-9]{64}")
+        raise ValueError(f"Invalid schematic_id {id}, must be not empty and match [a-z0-9]{64}")
 
 
-@required("template_node_network", "template_node_inventory")
+@required("node_network", "node_inventory")
 def validate_nodes(node_cidr: str, nodes: dict[list], **_) -> None:
     try:
         network = netaddr.IPNetwork(node_cidr)
         if network.version != 4:
-            raise ValueError(f"Invalid template_node_network {network.version}, must be IPv4")
+            raise ValueError(f"Invalid node_network {network.version}, must be IPv4")
     except netaddr.core.AddrFormatError as e:
-        raise ValueError(f"Invalid template_node_network {node_cidr}") from e
+        raise ValueError(f"Invalid node_network {node_cidr}") from e
 
     controllers = [node for node in nodes if node.get('controller') == True]
     if len(controllers) < 1 or len(controllers) % 2 == 0:
@@ -91,7 +91,7 @@ def validate_nodes(node_cidr: str, nodes: dict[list], **_) -> None:
         validate_node(node, node_cidr)
 
 
-@required("template_dns_servers")
+@required("dns_servers")
 def validate_dns_servers(servers: list = ["1.1.1.1","1.0.0.1"], **_) -> None:
     resolver = dns.resolver.Resolver()
     resolver.nameservers = servers
@@ -104,7 +104,7 @@ def validate_dns_servers(servers: list = ["1.1.1.1","1.0.0.1"], **_) -> None:
         raise ValueError(f"Unable to resolve cloudflare.com with DNS servers {servers}") from e
 
 
-@required("template_ntp_servers")
+@required("ntp_servers")
 def validate_ntp_servers(servers: list = ["162.159.200.1","162.159.200.123"], **_) -> None:
     client = ntplib.NTPClient()
     for server in servers:
@@ -114,10 +114,10 @@ def validate_ntp_servers(servers: list = ["162.159.200.1","162.159.200.123"], **
             raise ValueError(f"Unable to connect to NTP server {server}") from e
 
 
-@required("template_age_pubkey")
+@required("age_pubkey")
 def validate_age(key: str, **_) -> None:
     if not re.match(r"^age1[a-z0-9]{0,58}$", key):
-        raise ValueError(f"Invalid template_age_pubkey {key}, must be not empty and match age1[a-z0-9]{0,58}")
+        raise ValueError(f"Invalid age_pubkey {key}, must be not empty and match age1[a-z0-9]{0,58}")
 
 
 def validate(data: dict) -> None:

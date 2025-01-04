@@ -17,7 +17,7 @@ spec:
   wait: true
   interval: 30m
   timeout: 5m
-#% if template_cloudflare.enabled %#
+#% if cloudflare.enabled %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
