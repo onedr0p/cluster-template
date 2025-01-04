@@ -161,7 +161,7 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 
-1. Output common resources in your cluster.
+1. View common resources in your cluster.
 
     ```sh
     task kubernetes:resources
