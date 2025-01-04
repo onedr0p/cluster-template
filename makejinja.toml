@@ -1,9 +1,9 @@
 [makejinja]
-inputs = ["./bootstrap/overrides","./bootstrap/templates"]
+inputs = ["./templates/overrides","./templates/config"]
 output = "./"
 exclude_patterns = [".mjfilter.py", "*.partial.yaml.j2"]
 data = ["./config.yaml"]
-import_paths = ["./bootstrap/scripts"]
+import_paths = ["./templates/scripts"]
 loaders = ["plugin:Plugin"]
 jinja_suffix = ".j2"
 force = true

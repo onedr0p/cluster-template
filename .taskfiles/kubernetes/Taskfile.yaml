@@ -2,42 +2,14 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 
-vars:
-  KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubeconform.sh"
-
 tasks:
 
-  ks-*:
-    desc: Apply a Flux KS [PATH=required]
-    cmd: >
-      flux build --namespace flux-system ks {{base .PATH}}
-      --kustomization-file {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
-      --path {{.KUBERNETES_DIR}}/apps/{{.PATH}}{{if contains .KUSTOMIZATION "not found"}} --dry-run{{end}}
-      | yq 'with(select(.apiVersion == "kustomize.toolkit.fluxcd.io/v1" and .kind == "Kustomization"); .metadata.namespace = "flux-system")' -
-      | kubectl {{.OPERATION}} {{if eq .OPERATION "apply"}}--server-side  --field-manager=kustomize-controller{{end}} --filename -
-    requires:
-      vars: [PATH]
-    vars:
-      OPERATION: '{{index .MATCH 0}}'
-      KUSTOMIZATION:
-        sh: flux --namespace flux-system get kustomizations {{base .PATH}}
-    preconditions:
-      - test -f {{.KUBERNETES_DIR}}/apps/{{.PATH}}/ks.yaml
-      - which flux kubectl yq
-
   reconcile:
-    desc: Force update Flux to pull in changes from your Git repository
+    desc: Force Flux to pull in changes from your Git repository
     cmd: flux --namespace flux-system reconcile kustomization cluster --with-source
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which flux
-
-  kubeconform:
-    desc: Validate Kubernetes manifests with kubeconform
-    cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}
-    preconditions:
-      - test -f {{.KUBECONFORM_SCRIPT}}
-      - which kubeconform
 
   resources:
     desc: Gather common resources in your cluster, useful when asking for support

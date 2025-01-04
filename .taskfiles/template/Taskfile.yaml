@@ -1,0 +1,96 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+vars:
+  MAKEJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/makejinja.toml'
+  TEMPLATE_DIR: '{{.ROOT_DIR}}/templates'
+  TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/config.yaml'
+  TEMPLATE_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/template/resources'
+
+tasks:
+
+  :init:
+    desc: Initialize configuration files
+    cmd: mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+    status:
+      - test -f {{.TEMPLATE_CONFIG_FILE}}
+
+  :configure:
+    desc: Render and validate configuration files
+    prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
+    cmds:
+      - task: render-configs
+      - task: encrypt-secrets
+      - task: kubeconform
+    preconditions:
+      - msg: |
+          An existing Age key interferes with age key in this repository.
+          Rename or delete ~/.config/sops/age/keys.txt
+        sh: '! test -f ~/.config/sops/age/keys.txt'
+
+  generate-age-key:
+    desc: Create the Sops Age key
+    cmd: age-keygen --output {{.SOPS_AGE_KEY_FILE}}
+    status:
+      - test -f {{.SOPS_AGE_KEY_FILE}}
+    preconditions:
+      - which age-keygen
+
+  render-configs:
+    desc: Template the configuration files
+    cmd: makejinja
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    preconditions:
+      - test -f {{.TEMPLATE_CONFIG_FILE}}
+      - test -f {{.TEMPLATE_DIR}}/scripts/plugin.py
+      - test -f {{.MAKEJINJA_CONFIG_FILE}}
+      - which makejinja
+
+  encrypt-secrets:
+    desc: Encrypt secrets with Sops
+    cmds:
+      - for: { var: SECRET_FILES }
+        cmd: |
+          if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == false" &>/dev/null; then
+              sops --encrypt --in-place "{{.ITEM}}"
+          fi
+    vars:
+      SECRET_FILES:
+        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*"
+    preconditions:
+      - test -f {{.SOPS_AGE_KEY_FILE}}
+      - test -f {{.SOPS_CONFIG_FILE}}
+      - which sops
+
+  kubeconform:
+    desc: Validate Kubernetes manifests with kubeconform
+    cmd: bash {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh {{.KUBERNETES_DIR}}
+    preconditions:
+      - test -f {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh
+      - which kubeconform
+
+  cleanup:
+    desc: Remove or archive template files and directories no longer needed after cluster bootstrap
+    prompt: All files and directories related to the templating process will be removed... continue?
+    cmds:
+      - mkdir -p {{.ROOT_DIR}}/.private/{{.TS}}/{.taskfiles}
+      - rm -rf {{.ROOT_DIR}}/.github/tests
+      - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
+      - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
+      - mv {{.TEMPLATE_DIR}} {{.ROOT_DIR}}/.private/{{.TS}}/templates
+      - mv {{.MAKEJINJA_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/makejinja.toml
+      - mv {{.ROOT_DIR}}/requirements.txt {{.ROOT_DIR}}/.private/{{.TS}}/requirements.txt
+      - mv {{.TEMPLATE_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/config.yaml
+      - sed -i {{if eq OS "darwin"}}''{{end}} '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
+      - mv {{.ROOT_DIR}}/.taskfiles/template {{.ROOT_DIR}}/.private/{{.TS}}/.taskfiles/
+    vars:
+      TS: '{{now | unixEpoch}}'
+    preconditions:
+      - test -d {{.ROOT_DIR}}/.github/tests
+      - test -d {{.ROOT_DIR}}/.taskfiles/template
+      - test -d {{.TEMPLATE_DIR}}
+      - test -f {{.MAKEJINJA_CONFIG_FILE}}
+      - test -f {{.ROOT_DIR}}/.github/renovate.json5
+      - test -f {{.ROOT_DIR}}/requirements.txt
