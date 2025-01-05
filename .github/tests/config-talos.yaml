@@ -25,9 +25,10 @@ tls_sans: ["fake"]
 age_pubkey: $TEMPLATE_AGE_PUBLIC_KEY
 bgp:
   enabled: false
-github_address: https://github.com/onedr0p/cluster-template
-github_branch: main
-github_webhook_token: fake
+github:
+  address: https://github.com/onedr0p/cluster-template
+  branch: main
+  webhook_token: fake
 cloudflare:
   enabled: true
   domain: fake

@@ -1,7 +1,7 @@
 ---
 
 #
-# 1. (REQUIRED) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
+# (REQUIRED) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
 #
 
 # (REQUIRED) Cluster name; affects Cilium and Talos
@@ -25,12 +25,12 @@ node_inventory: []
   #   mtu: ""             # (OPTIONAL) MTU for the NIC. DEFAULT: 1500
   # ...
 
-# (REQUIRED) The DNS servers to use for the cluster nodes.
+# (REQUIRED) The DNS servers to use for the cluster nodes. (DEFAULT: Cloudflare DNS)
 dns_servers:
   - "1.1.1.1"
   - "1.0.0.1"
 
-# (REQUIRED) The NTP servers to use for the cluster nodes.
+# (REQUIRED) The NTP servers to use for the cluster nodes. (DEFAULT: Cloudflare NTP)
 ntp_servers:
   - "162.159.200.1"
   - "162.159.200.123"
@@ -89,51 +89,38 @@ bgp:
   # If you want to use IPv6 check the advanced flags below
   advertised_network: ""
 
-# (OPTIONAL) Secureboot and TPM-based disk encryption
-#   Ref: https://www.talos.dev/v1.8/talos-guides/install/bare-metal-platforms/secureboot
-secureboot:
-  # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
-  enabled: false
-  # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
-  encrypt_disk: false
-
 # (OPTIONAL) Change Cilium load balancer mode
 #   Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
 loadbalancer_mode: "dsr"
 
-#
-# 2. (REQUIRED) Flux details - Flux is used to manage the cluster configuration.
-#
-
-# (REQUIRED) GitHub repository URL
-#   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
-#   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
-#     If using a private repo make sure to following the instructions with the 'github_private_key' option below.
-github_address: ""
-
-# (REQUIRED) GitHub repository branch
-github_branch: "main"
-
-# (REQUIRED) Token for GitHub push-based sync
-# 1. Generate a new token with the following command:
-#    > openssl rand -hex 16
-# 2. Copy the token and paste it below
-github_webhook_token: ""
-
-# (OPTIONAL) Private key for Flux to access the GitHub repository
-#   1. Generate a new key with the following command:
-#      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
-#   2. Make sure to paste public key from "github-deploy.key.pub" into
-#      the deploy keys section of your GitHub repository settings.
-#   3. Uncomment and paste the private key below
-#   4. Optionally set your repository on GitHub to private
-# github_private_key: |
-#   -----BEGIN OPENSSH PRIVATE KEY-----
-#   ...
-#   -----END OPENSSH PRIVATE KEY-----
+# (REQUIRED) GitHub details for Flux - Flux is used to manage the cluster configuration.
+github:
+  # (REQUIRED) GitHub repository URL
+  #   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
+  #   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
+  #     If using a private repo make sure to following the instructions with the 'github_private_key' option below.
+  address: ""
+  # (REQUIRED) GitHub repository branch
+  branch: "main"
+  # (REQUIRED) Token for GitHub push-based sync
+  # 1. Generate a new token with the following command:
+  #    > openssl rand -hex 16
+  # 2. Copy the token and paste it below
+  webhook_token: ""
+  # (OPTIONAL) Private key for Flux to access the GitHub repository
+  #   1. Generate a new key with the following command:
+  #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
+  #   2. Make sure to paste public key from "github-deploy.key.pub" into
+  #      the deploy keys section of your GitHub repository settings.
+  #   3. Uncomment and paste the private key below
+  #   4. Optionally set your repository on GitHub to private
+  # private_key: |
+  #   -----BEGIN OPENSSH PRIVATE KEY-----
+  #   ...
+  #   -----END OPENSSH PRIVATE KEY-----
 
 #
-# 3. (OPTIONAL) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
+# (OPTIONAL) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
 #
 
 cloudflare:
@@ -191,6 +178,18 @@ cloudflare:
     # The Load balancer IP for external ingress, choose an available IP
     #   in your nodes host network that is NOT being used. This is announced over L2.
     ingress_vip: ""
+
+#
+# (ADVANCED) Here be dragons - Advanced settings for the brave
+#
+
+# (OPTIONAL) Secureboot and TPM-based disk encryption
+#   Ref: https://www.talos.dev/v1.9/talos-guides/install/bare-metal-platforms/secureboot
+secureboot:
+  # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
+  enabled: false
+  # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
+  encrypt_disk: false
 
 # (OPTIONAL) Feature gates are used to enable experimental features
 feature_gates:
