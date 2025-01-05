@@ -7,7 +7,7 @@ metadata:
 spec:
   interval: 30m
   url: "#{ github.address }#"
-  #% if github_private_key %#
+  #% if github.private_key %#
   secretRef:
     name: github-deploy-key
   #% endif %#
