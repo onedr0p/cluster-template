@@ -80,30 +80,6 @@ nodes:
           ip: "#{ controller_vip }#"
         #% endif %#
         #% endif %#
-    #% if item.manifests %#
-    extraManifests:
-      #% for manifest in item.manifests %#
-      - #{ manifest }#
-      #% endfor %#
-    #% endif %#
-    #% if item.extension_services %#
-    extensionServices:
-      #% for es in item.extension_services %#
-      - name: #{ es.name }#
-        configFiles:
-        #% for cf in es.configFiles %#
-          - content: |-
-              #{ cf.content | indent(14, yes) }#
-            mountPath: #{ cf.mountPath }#
-        #% endfor %#
-        #% if es.environment %#
-        environment:
-          #% for env in es.environment %#
-          - #{ env }#
-          #% endfor %#
-        #% endif %#
-      #% endfor %#
-    #% endif %#
     #% for file in talos_patches('%s' % (item.name)) %#
     #% if loop.index == 1 %#
     patches:
@@ -114,7 +90,7 @@ nodes:
 
 # Global patches
 patches:
-  #% if secureboot.enabled and secureboot.encrypt_disk_with_tpm %#
+  #% if secureboot.enabled and secureboot.encrypt_disk %#
   - # Encrypt system disk with TPM
     |-
     machine:

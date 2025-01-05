@@ -23,16 +23,6 @@ node_inventory: []
   #   mac_addr: ""        # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
   #   schematic_id: ""    # (OPTIONAL) Override the 'schematic_id' with a node specific schematic ID from https://factory.talos.dev/
   #   mtu: ""             # (OPTIONAL) MTU for the NIC. DEFAULT: 1500
-  #   manifests:          # (OPTIONAL) Additional manifests to include after MachineConfig
-  #     - extra.yaml      #            Ref: https://www.talos.dev/v1.7/reference/configuration/extensions/extensionserviceconfig/
-  #   extension_services: # (OPTIONAL) Additional talhelper ExtensionServices (supports talenv.sops.yaml envsubst)
-  #     - name: name
-  #       configFiles:
-  #         - content: |-
-  #             ...
-  #       mountPath: ...
-  #       environment:
-  #         - key=value
   # ...
 
 # (REQUIRED) The DNS servers to use for the cluster nodes.
@@ -105,7 +95,7 @@ secureboot:
   # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
   enabled: false
   # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
-  encrypt_disk_with_tpm: false
+  encrypt_disk: false
 
 # (OPTIONAL) Change Cilium load balancer mode
 #   Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
