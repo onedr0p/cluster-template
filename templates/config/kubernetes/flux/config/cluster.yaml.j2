@@ -2,17 +2,17 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: home-kubernetes
+  name: kubernetes
   namespace: flux-system
 spec:
   interval: 30m
-  url: "#{ github.address }#"
-  #% if github.private_key %#
+  url: "#{ flux.github.address }#"
+  #% if github_private_key %#
   secretRef:
     name: github-deploy-key
   #% endif %#
   ref:
-    branch: "#{ github.branch | default('main', true) }#"
+    branch: "#{ flux.github.branch | default('main', true) }#"
   ignore: |
     # exclude all
     /*
@@ -31,7 +31,7 @@ spec:
   wait: false
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: kubernetes
   decryption:
     provider: sops
     secretRef:

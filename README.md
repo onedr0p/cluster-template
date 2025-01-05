@@ -6,7 +6,7 @@ At a high level this project makes use of [makejinja](https://github.com/mirkole
 
 ## ✨ Features
 
-The features included will depend on the type of configuration you want to use. There are currently **2 different types** of **configurations** available with this template.
+The features included will depend on the type of configuration you want to use. There are currently **3 different types** of **configurations** available with this template.
 
 1. **"Flux cluster"** - a Kubernetes cluster deployed on-top of [Talos Linux](https://github.com/siderolabs/talos) with an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
 

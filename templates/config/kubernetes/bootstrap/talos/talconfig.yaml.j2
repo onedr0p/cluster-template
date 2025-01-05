@@ -5,17 +5,17 @@ talosVersion: v1.9.1
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.32.0
 
-clusterName: "#{ cluster_name | default('home-kubernetes', true) }#"
-endpoint: https://#{ controller_vip }#:6443
+clusterName: "#{ cluster.name | default('kubernetes', true) }#"
+endpoint: https://#{ cluster.api.address }#:6443
 
 clusterPodNets:
-  - "#{ pod_network.split(',')[0] }#"
+  - "#{ cluster.network.podCidr }#"
 clusterSvcNets:
-  - "#{ service_network.split(',')[0] }#"
+  - "#{ cluster.network.serviceCidr }#"
 
 additionalApiServerCertSans: &sans
-  - "#{ controller_vip }#"
-  #% for item in tls_sans %#
+  - "#{ cluster.api.address }#"
+  #% for item in cluster.api.sans | default ([], true) %#
   - "#{ item }#"
   #% endfor %#
   - "127.0.0.1"
@@ -26,7 +26,7 @@ cniConfig:
   name: none
 
 nodes:
-  #% for item in node_inventory %#
+  #% for item in cluster.nodes.inventory %#
   - hostname: "#{ item.name }#"
     ipAddress: "#{ item.address }#"
     #% if item.disk.startswith('/') %#
@@ -35,49 +35,43 @@ nodes:
     installDiskSelector:
       serial: "#{ item.disk }#"
     #% endif %#
-    #% if secureboot.enabled %#
-    machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/#{ item.schematic_id | default(schematic_id, true) }#
-    #% else %#
-    talosImageURL: factory.talos.dev/installer/#{ item.schematic_id | default(schematic_id, true) }#
-    #% endif %#
+    talosImageURL: factory.talos.dev/installer/#{ item.schematicId | default(schematicId, true) }#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
       - deviceSelector:
-          hardwareAddr: "#{ item.mac_addr | lower }#"
-        #% if vlan %#
+          hardwareAddr: "#{ item.macAddr | lower }#"
+        #% if cluster.nodes.vlan %#
         vlans:
-          - vlanId: #{ vlan }#
+          - vlanId: #{ cluster.nodes.vlan }#
             addresses:
-              - "#{ item.address }#/#{ node_network.split('/') | last }#"
+              - "#{ item.address }#/#{ cluster.nodes.network.split('/') | last }#"
             mtu: #{ item.mtu | default(1500, true) }#
             routes:
               - network: 0.0.0.0/0
-                #% if node_default_gateway %#
-                gateway: "#{ node_default_gateway }#"
+                #% if cluster.nodes.defaultGateway %#
+                gateway: "#{ cluster.nodes.defaultGateway }#"
                 #% else %#
-                gateway: "#{ node_network | nthhost(1) }#"
+                gateway: "#{ cluster.nodes.network | nthhost(1) }#"
                 #% endif %#
             #% if item.controller %#
             vip:
-              ip: "#{ controller_vip }#"
+              ip: "#{ cluster.api.address }#"
             #% endif %#
         #% else %#
         dhcp: false
         addresses:
-          - "#{ item.address }#/#{ node_network.split('/') | last }#"
+          - "#{ item.address }#/#{ cluster.nodes.network.split('/') | last }#"
         routes:
           - network: 0.0.0.0/0
-            #% if node_default_gateway %#
-            gateway: "#{ node_default_gateway }#"
+            #% if cluster.nodes.defaultGateway %#
+            gateway: "#{ cluster.nodes.defaultGateway }#"
             #% else %#
-            gateway: "#{ node_network | nthhost(1) }#"
+            gateway: "#{ cluster.nodes.network | nthhost(1) }#"
             #% endif %#
         mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
-          ip: "#{ controller_vip }#"
+          ip: "#{ cluster.api.address }#"
         #% endif %#
         #% endif %#
     #% for file in talos_patches('%s' % (item.name)) %#
@@ -90,22 +84,6 @@ nodes:
 
 # Global patches
 patches:
-  #% if secureboot.enabled and secureboot.encrypt_disk %#
-  - # Encrypt system disk with TPM
-    |-
-    machine:
-      systemDiskEncryption:
-        ephemeral:
-          provider: luks2
-          keys:
-            - slot: 0
-              tpm: {}
-        state:
-          provider: luks2
-          keys:
-            - slot: 0
-              tpm: {}
-  #% endif %#
   #% for file in talos_patches('global') %#
   - "@./patches/global/#{ file | basename }#"
   #% endfor %#
@@ -119,7 +97,7 @@ controlPlane:
     - "@./patches/controller/#{ file | basename }#"
 #% endfor %#
 
-#% if (node_inventory | selectattr('controller', 'equalto', False) | list | length) and (talos_patches('worker') | length) %#
+#% if (cluster.nodes.inventory | selectattr('controller', 'equalto', False) | list | length) and (talos_patches('worker') | length) %#
 #% for file in talos_patches('worker') %#
 #% if loop.index == 1 %#
 # Worker patches

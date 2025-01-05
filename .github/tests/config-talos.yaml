@@ -23,8 +23,6 @@ service_network: 10.96.0.0/16
 controller_vip: 10.10.10.254
 tls_sans: ["fake"]
 age_pubkey: $TEMPLATE_AGE_PUBLIC_KEY
-bgp:
-  enabled: false
 github:
   address: https://github.com/onedr0p/cluster-template
   branch: main

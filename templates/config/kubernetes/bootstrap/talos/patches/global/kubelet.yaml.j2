@@ -4,4 +4,4 @@ machine:
       rotate-server-certificates: true
     nodeIP:
       validSubnets:
-        - #{ node_network }#
+        - #{ cluster.nodes.network }#

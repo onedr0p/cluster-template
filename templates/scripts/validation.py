@@ -60,7 +60,7 @@ def validate_node(node: dict, node_cidr: str) -> None:
 
 
 @required("cluster_name")
-def validate_cluster_name(name: str = "home-kubernetes", **_) -> None:
+def validate_cluster_name(name: str = "kubernetes", **_) -> None:
     if not re.match(r"^[a-z0-9-]+$", name):
         raise ValueError(f"Invalid cluster_name {name}, must be not empty and match [a-z0-9-]+")
 
@@ -114,7 +114,7 @@ def validate_ntp_servers(servers: list = ["162.159.200.1","162.159.200.123"], **
             raise ValueError(f"Unable to connect to NTP server {server}") from e
 
 
-@required("age_pubkey")
+@required("cluster.sops.publicKey")
 def validate_age(key: str, **_) -> None:
     if not re.match(r"^age1[a-z0-9]{0,58}$", key):
         raise ValueError(f"Invalid age_pubkey {key}, must be not empty and match age1[a-z0-9]{0,58}")

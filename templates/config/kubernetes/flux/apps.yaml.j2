@@ -10,7 +10,7 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: kubernetes
   decryption:
     provider: sops
     secretRef:
@@ -19,13 +19,9 @@ spec:
     substituteFrom:
       - kind: ConfigMap
         name: cluster-settings
-      - kind: Secret
-        name: cluster-secrets
-      - kind: ConfigMap
-        name: cluster-user-settings
         optional: true
       - kind: Secret
-        name: cluster-user-secrets
+        name: cluster-secrets
         optional: true
   patches:
     - patch: |-
@@ -42,13 +38,9 @@ spec:
             substituteFrom:
               - kind: ConfigMap
                 name: cluster-settings
-              - kind: Secret
-                name: cluster-secrets
-              - kind: ConfigMap
-                name: cluster-user-settings
                 optional: true
               - kind: Secret
-                name: cluster-user-secrets
+                name: cluster-secrets
                 optional: true
       target:
         group: kustomize.toolkit.fluxcd.io
