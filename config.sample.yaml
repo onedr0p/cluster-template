@@ -95,7 +95,7 @@ secureboot:
   # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
   enabled: false
   # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
-  encrypt_disk_with_tpm: false
+  encrypt_disk: false
 
 # (OPTIONAL) Change Cilium load balancer mode
 #   Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
