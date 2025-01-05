@@ -90,7 +90,7 @@ nodes:
 
 # Global patches
 patches:
-  #% if secureboot.enabled and secureboot.encrypt %#
+  #% if secureboot.enabled and secureboot.encrypt_disk %#
   - # Encrypt system disk with TPM
     |-
     machine:
