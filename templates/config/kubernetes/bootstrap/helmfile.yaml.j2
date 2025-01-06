@@ -27,6 +27,9 @@ releases:
     version: 1.16.5
     values:
       - ../apps/kube-system/cilium/app/helm-values.yaml
+      - commonLabels:
+          helm.toolkit.fluxcd.io/name: cilium
+          helm.toolkit.fluxcd.io/namespace: kube-system
     needs:
       - observability/prometheus-operator-crds
 
@@ -36,6 +39,9 @@ releases:
     version: 1.37.0
     values:
       - ../apps/kube-system/coredns/app/helm-values.yaml
+      - customLabels:
+          helm.toolkit.fluxcd.io/name: coredns
+          helm.toolkit.fluxcd.io/namespace: kube-system
     needs:
       - kube-system/cilium
 
