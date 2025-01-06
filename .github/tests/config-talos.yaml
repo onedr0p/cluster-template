@@ -2,7 +2,7 @@
 cluster:
   name: "kubernetes"
   sops:
-    publicKey: "age1ysewna25vlvtw6fgusfv5sjv76pudqtd34cnakkhuak8y6z76vfs58rh3x"
+    publicKey: "${TEMPLATE_AGE_PUBLIC_KEY}"
   nodes:
     schematicId: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
     network: 10.10.10.0/24
