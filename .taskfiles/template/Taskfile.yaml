@@ -6,6 +6,7 @@ vars:
   MAKEJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/makejinja.toml'
   TEMPLATE_DIR: '{{.ROOT_DIR}}/templates'
   TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/config.yaml'
+  TEMPLATE_CONFIG_SCHEMA_FILE: '{{.ROOT_DIR}}/config.schema.cue'
   TEMPLATE_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/template/resources'
 
 tasks:
@@ -20,6 +21,7 @@ tasks:
     desc: Render and validate configuration files
     prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
     cmds:
+      - task: vet
       - task: render-configs
       - task: encrypt-secrets
       - task: kubeconform
@@ -36,6 +38,14 @@ tasks:
       - test -f {{.SOPS_AGE_KEY_FILE}}
     preconditions:
       - which age-keygen
+
+  vet:
+    desc: Vet config.yaml
+    cmd: cue vet {{.TEMPLATE_CONFIG_FILE}} {{.TEMPLATE_CONFIG_SCHEMA_FILE}}
+    preconditions:
+      - test -f {{.TEMPLATE_CONFIG_FILE}}
+      - test -f {{.TEMPLATE_CONFIG_SCHEMA_FILE}}
+      - which cue
 
   render-configs:
     desc: Template the configuration files
@@ -83,6 +93,7 @@ tasks:
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/makejinja.toml
       - mv {{.ROOT_DIR}}/requirements.txt {{.ROOT_DIR}}/.private/{{.TS}}/requirements.txt
       - mv {{.TEMPLATE_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/config.yaml
+      - mv {{.TEMPLATE_CONFIG_SCHEMA_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/config.schema.cue
       - sed -i {{if eq OS "darwin"}}''{{end}} '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.ROOT_DIR}}/.private/{{.TS}}/.taskfiles/
     vars:
@@ -94,3 +105,5 @@ tasks:
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
       - test -f {{.ROOT_DIR}}/.github/renovate.json5
       - test -f {{.ROOT_DIR}}/requirements.txt
+      - test -f {{.TEMPLATE_CONFIG_FILE}}
+      - test -f {{.TEMPLATE_CONFIG_SCHEMA_FILE}}

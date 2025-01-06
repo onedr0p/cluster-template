@@ -20,26 +20,26 @@ cluster:
     network: ""
     # (OPTIONAL) The default gateway for the nodes
     #   Leave blank if your default gateway is the same as the first IP in the network (.1)
-    defaultGateway: ""
-    # (REQUIRED) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
-    #   Worker nodes are optional
-    inventory:
-      # - name: ""         # (REQUIRED) Name of the node (must match [a-z0-9-\]+)
-      #   address: ""      # (REQUIRED) IP address of the node
-      #   controller: true # (REQUIRED) Set to true if this is a controller node
-      #   disk: ""         # (REQUIRED) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
-      #   macAddr: ""      # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
-      #   mtu:             # (OPTIONAL) MTU for the NIC. DEFAULT: 1500
-      #   schematicId: ""  # (OPTIONAL) Schematic ID for the node, if different from the cluster schematicId
-      # ...
+    # defaultGateway: ""
     # (OPTIONAL) Add vlan tag to network master device, leave blank if you tag
     #   ports on your switch or do not use VLANs at all.
     #   Ref: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
-    vlan:
+    # vlan:
     # (REQUIRED) The DNS servers to use for the cluster nodes. (DEFAULT: Cloudflare DNS)
     dns: ["1.1.1.1", "1.0.0.1"]
     # (REQUIRED) The NTP servers to use for the cluster nodes. (DEFAULT: Cloudflare NTP)
     ntp: ["162.159.200.1", "162.159.200.123"]
+    # (REQUIRED) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
+    #   Worker nodes are optional
+    inventory:
+      # - name: ""          # (REQUIRED) Name of the node
+      #   address: ""       # (REQUIRED) IP address of the node
+      #   controller: true  # (REQUIRED) Set to true if this is a controller node, false if worker
+      #   disk: ""          # (REQUIRED) Device path or serial number of the disk for this node (talosctl get disks -n <ip> --insecure)
+      #   macAddr: ""       # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
+      #   mtu: 1500         # (OPTIONAL) MTU for the NIC
+      #   schematicId: ""   # (OPTIONAL) Schematic ID for the node, if different from the cluster schematicId
+      # ...
 
   # (REQUIRED) Network options for the cluster
   network:
