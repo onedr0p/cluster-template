@@ -1,0 +1,15 @@
+#% if gitops.enabled %#
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./namespace.yaml
+  #% if external_services.cloudflare.enabled %#
+  - ./cloudflared/ks.yaml
+  - ./echo-server/ks.yaml
+  - ./external-dns/ks.yaml
+  - ./ingress-nginx-certificates/ks.yaml
+  - ./ingress-nginx-external/ks.yaml
+  - ./ingress-nginx-internal/ks.yaml
+  - ./k8s-gateway/ks.yaml
+#% endif %#

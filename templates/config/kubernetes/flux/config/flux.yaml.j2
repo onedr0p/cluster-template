@@ -1,3 +1,4 @@
+#% if gitops.enabled %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: OCIRepository
@@ -117,3 +118,4 @@ spec:
       target:
         kind: Deployment
         name: helm-controller
+#% endif %#

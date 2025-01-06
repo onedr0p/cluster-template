@@ -1,3 +1,4 @@
+#% if gitops.enabled %#
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -9,3 +10,4 @@ configMapGenerator:
       - values.yaml=./helm-values.yaml
 configurations:
   - kustomizeconfig.yaml
+#% endif %#

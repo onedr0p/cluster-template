@@ -1,8 +1,6 @@
 ---
 cluster:
   name: "kubernetes"
-  sops:
-    publicKey: "${TEMPLATE_AGE_PUBLIC_KEY}"
   nodes:
     schematicId: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
     network: 10.10.10.0/24
@@ -38,6 +36,7 @@ cluster:
   api:
     address: "192.168.42.100"
     sans: ["fake.internal"]
+
 flux:
   github:
     address: "https://github.com/onedr0p/cluster-template.git"
@@ -47,6 +46,9 @@ flux:
       -----BEGIN OPENSSH PRIVATE KEY-----
       ...
       -----END OPENSSH PRIVATE KEY-----
+  sops:
+    publicKey: "${TEMPLATE_AGE_PUBLIC_KEY}"
+
 cloudflare:
   enabled: true
   domain: "example.com"

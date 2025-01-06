@@ -1,34 +1,14 @@
 ---
 # (REQUIRED) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
 cluster:
-  # (REQUIRED) Cluster name; affects Cilium and Talos
-  name: "kubernetes"
-
-  # (REQUIRED) Sops options for the cluster
-  sops:
-    # (REQUIRED) Age Public Key (e.g. age1...)
-    # 1. Generate a new key with the following command:
-    #    > task template:generate-age-key
-    # 2. Copy the PUBLIC key and paste it below
-    publicKey: ""
-
   # (REQUIRED) Node options for nodes in the cluster
   nodes:
     # (REQUIRED) Generated Talos Schematic ID from https://factory.talos.dev/
     schematicId: ""
     # (REQUIRED) The network (in CIDR notation) your nodes are on (e.g.
     network: ""
-    # (OPTIONAL) The default gateway for the nodes
-    #   Leave blank if your default gateway is the same as the first IP in the network (.1)
-    # defaultGateway: ""
-    # (OPTIONAL) Add vlan tag to network master device, leave blank if you tag
-    #   ports on your switch or do not use VLANs at all.
-    #   Ref: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
-    # vlan:
     # (REQUIRED) The DNS servers to use for the cluster nodes. (DEFAULT: Cloudflare DNS)
     dns: ["1.1.1.1", "1.0.0.1"]
-    # (REQUIRED) The NTP servers to use for the cluster nodes. (DEFAULT: Cloudflare NTP)
-    ntp: ["162.159.200.1", "162.159.200.123"]
     # (REQUIRED) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
     #   Worker nodes are optional
     inventory:
@@ -37,10 +17,8 @@ cluster:
       #   controller: true  # (REQUIRED) Set to true if this is a controller node, false if worker
       #   disk: ""          # (REQUIRED) Device path or serial number of the disk for this node (talosctl get disks -n <ip> --insecure)
       #   macAddr: ""       # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
-      #   mtu: 1500         # (OPTIONAL) MTU for the NIC
       #   schematicId: ""   # (OPTIONAL) Schematic ID for the node, if different from the cluster schematicId
       # ...
-
   # (REQUIRED) Network options for the cluster
   network:
     # (REQUIRED) The pod network (in CIDR notation) for the cluster, this must NOT overlap with any
@@ -49,10 +27,6 @@ cluster:
     # (REQUIRED) The service network (in CIDR notation) for the cluster, this must NOT overlap with any
     #   existing networks and is usually a /16 (64K IPs).
     serviceCidr: "10.96.0.0/16"
-    # (OPTIONAL) Change Cilium load balancer mode
-    #   Ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
-    loadBalancerMode: "dsr"
-
   # (REQUIRED) API options for the cluster
   api:
     # (REQUIRED) The IP address of the Kube API, choose an available IP
@@ -64,7 +38,7 @@ cluster:
     sans: []
 
 # (REQUIRED) Flux details - Flux is used for GitOps and syncing the cluster
-flux:
+gitops:
   # (REQUIRED) GitHub details the cluster
   github:
     # (REQUIRED) GitHub repository URL
@@ -90,9 +64,16 @@ flux:
     #   -----BEGIN OPENSSH PRIVATE KEY-----
     #   ...
     #   -----END OPENSSH PRIVATE KEY-----
+  # (REQUIRED) Sops options for the cluster
+  sops:
+    # (REQUIRED) Age Public Key (e.g. age1...)
+    # 1. Generate a new key with the following command:
+    #    > task template:generate-age-key
+    # 2. Copy the PUBLIC key and paste it below
+    publicKey: ""
 
 # (OPTIONAL) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
-cloudflare:
+externalServices:
   # (REQUIRED) Disable to manually setup and use a different DNS provider - setting this
   #   to false will not deploy a network namespace or the workloads contained within.
   enabled: true

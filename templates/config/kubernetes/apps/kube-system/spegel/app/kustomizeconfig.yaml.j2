@@ -1,3 +1,4 @@
+#% if gitops.enabled %#
 ---
 nameReference:
   - kind: ConfigMap
@@ -5,3 +6,4 @@ nameReference:
     fieldSpecs:
       - path: spec/valuesFrom/name
         kind: HelmRelease
+#% endif %#

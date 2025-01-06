@@ -1,3 +1,4 @@
+#% if gitops.enabled %#
 ---
 apiVersion: notification.toolkit.fluxcd.io/v1
 kind: Receiver
@@ -23,3 +24,4 @@ spec:
       kind: Kustomization
       name: cluster-apps
       namespace: flux-system
+#% endif %#

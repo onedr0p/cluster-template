@@ -5,7 +5,7 @@ talosVersion: v1.9.1
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.32.0
 
-clusterName: "#{ cluster.name | default('kubernetes', true) }#"
+clusterName: "kubernetes"
 endpoint: https://#{ cluster.api.address }#:6443
 
 clusterPodNets:
@@ -21,9 +21,8 @@ additionalApiServerCertSans: &sans
   - "127.0.0.1"
 additionalMachineCertSans: *sans
 
-# Disable built-in Flannel to use Cilium
-cniConfig:
-  name: none
+# Disable built-in CNI to use Cilium
+cniConfig: { name: none }
 
 nodes:
   #% for item in cluster.nodes.inventory %#
@@ -35,44 +34,21 @@ nodes:
     installDiskSelector:
       serial: "#{ item.disk }#"
     #% endif %#
-    talosImageURL: factory.talos.dev/installer/#{ item.schematicId | default(schematicId, true) }#
+    talosImageURL: factory.talos.dev/installer/#{ item.schematicId }#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
-      - deviceSelector:
-          hardwareAddr: "#{ item.macAddr | lower }#"
-        #% if cluster.nodes.vlan %#
-        vlans:
-          - vlanId: #{ cluster.nodes.vlan }#
-            addresses:
-              - "#{ item.address }#/#{ cluster.nodes.network.split('/') | last }#"
-            mtu: #{ item.mtu | default(1500, true) }#
-            routes:
-              - network: 0.0.0.0/0
-                #% if cluster.nodes.defaultGateway %#
-                gateway: "#{ cluster.nodes.defaultGateway }#"
-                #% else %#
-                gateway: "#{ cluster.nodes.network | nthhost(1) }#"
-                #% endif %#
-            #% if item.controller %#
-            vip:
-              ip: "#{ cluster.api.address }#"
-            #% endif %#
-        #% else %#
-        dhcp: false
-        addresses:
+      - addresses:
           - "#{ item.address }#/#{ cluster.nodes.network.split('/') | last }#"
+        deviceSelector:
+          hardwareAddr: "#{ item.macAddr | lower }#"
+        dhcp: false
+        mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            #% if cluster.nodes.defaultGateway %#
-            gateway: "#{ cluster.nodes.defaultGateway }#"
-            #% else %#
             gateway: "#{ cluster.nodes.network | nthhost(1) }#"
-            #% endif %#
-        mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
           ip: "#{ cluster.api.address }#"
-        #% endif %#
         #% endif %#
     #% for file in talos_patches('%s' % (item.name)) %#
     #% if loop.index == 1 %#

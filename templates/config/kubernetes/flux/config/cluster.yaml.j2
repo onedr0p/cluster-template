@@ -1,3 +1,4 @@
+#% if gitops.enabled %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
@@ -6,13 +7,13 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  url: "#{ flux.github.address }#"
-  #% if github_private_key %#
+  url: "#{ gitops.repository.url }#"
+  #% if gitops.repository.auth.ssh_key %#
   secretRef:
     name: github-deploy-key
   #% endif %#
   ref:
-    branch: "#{ flux.github.branch | default('main', true) }#"
+    branch: "#{ gitops.repository.branch | default('main', true) }#"
   ignore: |
     # exclude all
     /*
@@ -42,3 +43,4 @@ spec:
         name: cluster-settings
       - kind: Secret
         name: cluster-secrets
+#% endif %#

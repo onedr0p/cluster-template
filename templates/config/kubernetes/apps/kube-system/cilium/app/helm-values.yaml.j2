@@ -1,16 +1,11 @@
 ---
 autoDirectNodeRoutes: true
 bpf:
-  masquerade: false # Required for Talos `forwardKubeDNSToHost`
+  masquerade: false # https://github.com/siderolabs/talos/issues/10002
 cgroup:
   automount:
     enabled: false
   hostRoot: /sys/fs/cgroup
-cluster:
-  id: 1
-  name: "#{ cluster.name | default('kubernetes', true) }#"
-cni:
-  exclusive: false
 # NOTE: devices might need to be set if you have more than one active NIC on your hosts
 # devices: eno+ eth+
 endpointRoutes:
@@ -30,7 +25,7 @@ l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-  mode: "#{ cluster.network.loadBalancerMode | default('dsr', true) }#"
+  mode: dsr
 localRedirectPolicy: true
 operator:
   replicas: 1
@@ -55,5 +50,3 @@ securityContext:
       - NET_ADMIN
       - SYS_ADMIN
       - SYS_RESOURCE
-socketLB:
-  hostNamespaceOnly: true

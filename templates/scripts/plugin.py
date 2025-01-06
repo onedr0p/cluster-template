@@ -60,7 +60,7 @@ class Plugin(makejinja.plugin.Plugin):
                 if filter_func(data) is False:
                     self._excluded_dirs.add(filter_file.parent)
 
-        validation.validate(data)
+        validation.validate()
 
 
     def filters(self) -> makejinja.plugin.Filters:

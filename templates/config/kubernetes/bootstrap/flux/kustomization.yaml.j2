@@ -1,3 +1,4 @@
+#% if gitops.enabled
 # IMPORTANT: This file is not tracked by flux and should never be. Its
 # purpose is to only install the Flux components and CRDs into your cluster.
 ---
@@ -142,3 +143,4 @@ patches:
       - op: replace
         path: /metadata/name
         value: flux-view-flux-system
+#% endif %#

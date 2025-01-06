@@ -1,3 +1,4 @@
+#% if gitops.enabled %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -23,8 +24,4 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: spegel-helm-values
-  values:
-    grafanaDashboard:
-      enabled: true
-    serviceMonitor:
-      enabled: true
+#% endif %#

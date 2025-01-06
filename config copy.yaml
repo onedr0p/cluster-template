@@ -1,0 +1,36 @@
+---
+api_address: "192.168.42.101"
+api_sans: []
+dns_servers: ["1.1.1.1", "1.0.0.1"]
+node_cidr: "10.10.0.0/16"
+ntp_servers: ["162.159.200.1","162.159.200.123"]
+pod_cidr: "10.69.0.0/16"
+service_cidr: "10.96.0.0/16"
+nodes:
+  - address: "192.168.42.10"
+    controller: true
+    disk: "/dev/sda"
+    mac_addr: "aa:aa:aa:aa:aa:aa"
+    name: "k8s-0"
+    schematic_id: "a76567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+
+encryption_age_public_key: "age1dahpclja2jd49cjt0e0yrlse0g0zljy3wshtnw80h0jzrjkcxuls3leyj4"
+external_services_enabled: true
+external_services_dns_address: "10.10.10.253"
+external_services_ingress_address: "10.10.10.251"
+external_services_cloudflare_enabled: true
+external_services_cloudflare_domain: "example.com"
+external_services_cloudflare_token: "fake"
+external_services_cloudflare_acme_email: "fake@example.com"
+external_services_cloudflare_acme_production: false
+external_services_cloudflare_tunnel_id: "fake"
+external_services_cloudflare_tunnel_account_id: "fake"
+external_services_cloudflare_tunnel_secret: "fake"
+external_services_cloudflare_tunnel_ingress_address: "10.10.10.252"
+repository_url: "ssh://git@github.com/onedr0p/cluster-template.git"
+repository_branch: "main"
+repository_auth_token: "cc2b419973672bae9e25cf670e4374da"
+repository_auth_: |
+  -----BEGIN OPENSSH PRIVATE KEY-----
+  ...
+  -----END OPENSSH PRIVATE KEY-----

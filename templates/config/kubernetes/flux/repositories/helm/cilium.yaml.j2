@@ -1,3 +1,4 @@
+#% if gitops.enabled %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
@@ -7,3 +8,4 @@ metadata:
 spec:
   interval: 1h
   url: https://helm.cilium.io
+#% endif %#
