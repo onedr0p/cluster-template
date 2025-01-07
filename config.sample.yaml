@@ -98,7 +98,7 @@ github:
   # (REQUIRED) GitHub repository URL
   #   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
   #   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
-  #     If using a private repo make sure to following the instructions with the 'github_private_key' option below.
+  #     If using a private repo make sure to following the instructions with the 'github.private_key' option below.
   address: ""
   # (REQUIRED) GitHub repository branch
   branch: "main"
