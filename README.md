@@ -27,7 +27,7 @@ The features included will depend on the type of configuration you want to use. 
 
 ## 🚀 Let's Go!
 
-There are **6 stages** outlined below for completing this project, make sure you follow the stages in order.
+There are **5 stages** outlined below for completing this project, make sure you follow the stages in order.
 
 ### Stage 1: Machine Preparation
 
@@ -99,10 +99,10 @@ There are **6 stages** outlined below for completing this project, make sure you
     git push
     ```
 
-### Stage 4: Bootstrap Talos & Kubernetes
+### Stage 4: Bootstrap Talos, Kubernetes, and Flux
 
 > [!IMPORTANT]
-> After running either of the next two commands it might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
+> After running the `task bootstrap:talos` command it might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
 
 1. Install Talos. This generates secrets, generates the Talos config files for your nodes and applies them to the nodes. After it has completed a `kubeconfig` will be placed in the root of your repository.
 
@@ -116,7 +116,7 @@ There are **6 stages** outlined below for completing this project, make sure you
     task bootstrap:apps
     ```
 
-3. Verify the nodes are online
+3. Verify the nodes are online and ready
 
     ```sh
     kubectl get nodes -o wide
@@ -125,39 +125,13 @@ There are **6 stages** outlined below for completing this project, make sure you
     # k8s-1          Ready    worker                      1h      v1.30.1
     ```
 
-### Stage 5: Bootstrap Flux
-
-1. Verify Flux can be installed
-
-    ```sh
-    flux check --pre
-    # ► checking prerequisites
-    # ✔ kubectl 1.30.1 >=1.18.0-0
-    # ✔ Kubernetes 1.30.1 >=1.16.0-0
-    # ✔ prerequisites checks passed
-    ```
-
-2. Install Flux and sync the cluster to the Git repository
+4. Sync the cluster to the Git repository state
 
     ```sh
     task bootstrap:flux
-    # namespace/flux-system configured
-    # customresourcedefinition.apiextensions.k8s.io/alerts.notification.toolkit.fluxcd.io created
-    # ...
     ```
 
-3. Verify Flux components are running in the cluster
-
-    ```sh
-    kubectl -n flux-system get pods -o wide
-    # NAME                                       READY   STATUS    RESTARTS   AGE
-    # helm-controller-5bbd94c75-89sb4            1/1     Running   0          1h
-    # kustomize-controller-7b67b6b77d-nqc67      1/1     Running   0          1h
-    # notification-controller-7c46575844-k4bvr   1/1     Running   0          1h
-    # source-controller-7d6875bcb4-zqw9f         1/1     Running   0          1h
-    ```
-
-### Stage 6: Cluster Verification
+### Stage 5: Cluster Verification
 
 _Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
 

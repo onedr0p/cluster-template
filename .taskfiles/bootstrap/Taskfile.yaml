@@ -47,9 +47,7 @@ tasks:
   flux:
     desc: Bootstrap Flux into the Talos cluster
     cmds:
-      - '{{if eq .GITHUB_DEPLOY_KEY_EXISTS "true"}}kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply --filename -{{end}}'
       - '{{if eq .GITHUB_DEPLOY_KEY_EXISTS "true"}}sops exec-file {{.GITHUB_DEPLOY_KEY_FILE}} "kubectl apply --server-side --filename {}"{{end}}'
-      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap/flux
       - '{{if eq .SOPS_SECRET_EXISTS "false"}}cat {{.SOPS_AGE_KEY_FILE}} | kubectl --namespace flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin{{end}}'
       - sops exec-file {{.KUBERNETES_DIR}}/flux/vars/cluster-secrets.sops.yaml "kubectl apply --server-side --filename {}"
       - kubectl apply --server-side --filename {{.KUBERNETES_DIR}}/flux/vars/cluster-settings.yaml

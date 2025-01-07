@@ -1,0 +1,29 @@
+---
+crds:
+  annotations:
+    helm.sh/resource-policy: keep
+
+helmController:
+  create: true
+
+imageAutomationController:
+  create: false
+
+imageReflectionController:
+  create: false
+
+kustomizeController:
+  create: true
+
+notificationController:
+  create: true
+
+sourceController:
+  create: true
+
+policies:
+  create: false
+
+prometheus:
+  podMonitor:
+    create: true
