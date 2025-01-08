@@ -110,19 +110,7 @@ There are **5 stages** outlined below for completing this project, make sure you
     task bootstrap:talos
     ```
 
-2. Install the Prometheus CRDs, Cilium, Coredns and Spegel:
-
-    ```sh
-    task bootstrap:core
-    ```
-
-3. Verify the nodes are all in a `ready` state:
-
-    ```sh
-    kubectl get nodes -owide
-    ```
-
-4. Install Flux Operator, Flux Instance and sync your repository to your cluster:
+2. Install Cilium, Coredns, Spegel, Flux and sync the cluster to the repository state:
 
     ```sh
     task bootstrap:apps

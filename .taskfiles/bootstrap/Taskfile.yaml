@@ -32,22 +32,13 @@ tasks:
       - test -f {{.TALHELPER_CONFIG_FILE}}
       - which talhelper sops
 
-  core:
-    desc: Bootstrap core apps into the Talos cluster
+  apps:
+    desc: Bootstrap apps into the Talos cluster
     dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
     cmds:
       - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml apply --selector tier=core --skip-diff-on-install --suppress-diff
       - until kubectl wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
-    preconditions:
-      - test -f {{.KUBECONFIG}}
-      - test -f {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml
-      - which helmfile kubectl
-
-  apps:
-    desc: Bootstrap apps into the Talos cluster
-    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
-    cmds:
       - '{{if eq .GITHUB_DEPLOY_KEY_EXISTS "true"}}sops exec-file {{.GITHUB_DEPLOY_KEY_FILE}} "kubectl apply --server-side --filename {}"{{end}}'
       - '{{if eq .SOPS_SECRET_EXISTS "false"}}cat {{.SOPS_AGE_KEY_FILE}} | kubectl --namespace flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin{{end}}'
       - sops exec-file {{.KUBERNETES_DIR}}/flux/settings/cluster-secrets.sops.yaml "kubectl apply --server-side --filename {}"
