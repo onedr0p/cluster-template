@@ -5,22 +5,21 @@ bgpControlPlane:
   enabled: true
 #% endif %#
 bpf:
-  masquerade: false # Required for Talos `.machine.features.hostDNS.forwardKubeDNSToHost`
+  masquerade: true
+  # Ref: https://github.com/siderolabs/talos/issues/10002
+  hostLegacyRouting: true
 cgroup:
   automount:
     enabled: false
   hostRoot: /sys/fs/cgroup
-cluster:
-  id: 1
-  name: "#{ cluster_name | default('home-kubernetes', true) }#"
-cni:
-  exclusive: false
 # NOTE: devices might need to be set if you have more than one active NIC on your hosts
 # devices: eno+ eth+
 endpointRoutes:
   enabled: true
 envoy:
   enabled: false
+dashboards:
+  enabled: true
 hubble:
   enabled: false
 ipam:
@@ -48,6 +47,17 @@ localRedirectPolicy: true
 operator:
   replicas: 1
   rollOutPods: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  dashboards:
+    enabled: true
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    trustCRDsExist: true
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
@@ -70,3 +80,7 @@ securityContext:
       - SYS_RESOURCE
 socketLB:
   hostNamespaceOnly: true
+# Graceful Helmfile to HelmRelease takeover
+commonLabels:
+  helm.toolkit.fluxcd.io/name: cilium
+  helm.toolkit.fluxcd.io/namespace: kube-system

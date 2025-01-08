@@ -1,10 +1,16 @@
 ---
+# Graceful Helmfile to HelmRelease takeover
+x-shared-labels: &labels
+  helm.toolkit.fluxcd.io/name: flux
+  helm.toolkit.fluxcd.io/namespace: flux-system
+
 crds:
   annotations:
     helm.sh/resource-policy: keep
 
 helmController:
   create: true
+  labels: *labels
 
 imageAutomationController:
   create: false
@@ -14,12 +20,15 @@ imageReflectionController:
 
 kustomizeController:
   create: true
+  labels: *labels
 
 notificationController:
   create: true
+  labels: *labels
 
 sourceController:
   create: true
+  labels: *labels
 
 policies:
   create: false

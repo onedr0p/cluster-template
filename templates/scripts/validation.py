@@ -59,12 +59,6 @@ def validate_node(node: dict, node_cidr: str) -> None:
             )
 
 
-@required("cluster_name")
-def validate_cluster_name(name: str = "home-kubernetes", **_) -> None:
-    if not re.match(r"^[a-z0-9-]+$", name):
-        raise ValueError(f"Invalid cluster_name {name}, must be not empty and match [a-z0-9-]+")
-
-
 @required("schematic_id")
 def validate_schematic_id(id: str, **_) -> None:
     if not re.match(r"^[a-z0-9]{64}$", id):
@@ -122,7 +116,6 @@ def validate_age(key: str, **_) -> None:
 
 def validate(data: dict) -> None:
     validate_python_version()
-    validate_cluster_name(data)
     validate_schematic_id(data)
     validate_age(data)
 
