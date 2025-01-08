@@ -78,14 +78,18 @@ tasks:
       - mkdir -p {{.ROOT_DIR}}/.private/{{.TS}}/{.taskfiles}
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
-      - sed -i {{if eq OS "darwin"}}''{{end}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
+      - |
+        {{SED}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
       - mv {{.TEMPLATE_DIR}} {{.ROOT_DIR}}/.private/{{.TS}}/templates
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/makejinja.toml
       - mv {{.ROOT_DIR}}/requirements.txt {{.ROOT_DIR}}/.private/{{.TS}}/requirements.txt
       - mv {{.TEMPLATE_CONFIG_FILE}} {{.ROOT_DIR}}/.private/{{.TS}}/config.yaml
-      - sed -i {{if eq OS "darwin"}}''{{end}} '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
+      - |
+        {{SED}} '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.ROOT_DIR}}/.private/{{.TS}}/.taskfiles/
     vars:
+      SED:
+        sh: which gsed || which sed
       TS: '{{now | unixEpoch}}'
     preconditions:
       - test -d {{.ROOT_DIR}}/.github/tests
