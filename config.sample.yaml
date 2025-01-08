@@ -131,7 +131,7 @@ cloudflare:
   #      https://dash.cloudflare.com/profile/api-tokens
   #   2. Under the `API Tokens` section click the blue `Create Token` button.
   #   3. Click the blue `Use template` button for the `Edit zone DNS` template.
-  #   4. Name your token something like `home-kubernetes`
+  #   4. Name your token something like `kubernetes`
   #   5. Under `Permissions`, click `+ Add More` and add each permission below:
   #      `Zone - DNS - Edit`
   #      `Account - Cloudflare Tunnel - Read`

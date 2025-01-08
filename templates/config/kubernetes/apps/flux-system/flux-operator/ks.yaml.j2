@@ -3,18 +3,18 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app flux
+  name: &app flux-operator
   namespace: flux-system
 spec:
   targetNamespace: flux-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/flux-system/flux/app
+  path: ./kubernetes/apps/flux-system/flux-operator/app
   prune: false # never should be deleted
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
   wait: false
   interval: 30m
   timeout: 5m
@@ -23,18 +23,20 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app flux-github
+  name: &app flux-instance
   namespace: flux-system
 spec:
   targetNamespace: flux-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/flux-system/flux/github
-  prune: true
+  dependsOn:
+    - name: flux-operator
+  path: ./kubernetes/apps/flux-system/flux-operator/instance
+  prune: false # never should be deleted
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
   wait: false
   interval: 30m
   timeout: 5m
