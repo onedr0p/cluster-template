@@ -20,8 +20,6 @@ releases:
     namespace: observability
     chart: oci://ghcr.io/prometheus-community/charts/prometheus-operator-crds
     version: 17.0.2
-    labels:
-      tier: core
 
   - name: cilium
     namespace: kube-system
@@ -31,8 +29,6 @@ releases:
       - ../apps/kube-system/cilium/app/helm-values.yaml
     needs:
       - observability/prometheus-operator-crds
-    labels:
-      tier: core
 
   - name: coredns
     namespace: kube-system
@@ -42,8 +38,6 @@ releases:
       - ../apps/kube-system/coredns/app/helm-values.yaml
     needs:
       - kube-system/cilium
-    labels:
-      tier: core
 
   - name: spegel
     namespace: kube-system
@@ -52,9 +46,7 @@ releases:
     values:
       - ../apps/kube-system/spegel/app/helm-values.yaml
     needs:
-      - kube-system/cilium
-    labels:
-      tier: core
+      - kube-system/coredns
 
   - name: flux-operator
     namespace: flux-system
@@ -63,10 +55,7 @@ releases:
     values:
       - ../apps/flux-system/flux-operator/app/helm-values.yaml
     needs:
-      - kube-system/coredns
       - kube-system/spegel
-    labels:
-      tier: core
 
   - name: flux-instance
     namespace: flux-system
@@ -77,5 +66,3 @@ releases:
       - ../apps/flux-system/flux-operator/instance/helm-values.yaml
     needs:
       - flux-system/flux-operator
-    labels:
-      tier: apps
