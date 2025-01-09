@@ -5,7 +5,6 @@ helmDefaults:
   wait: true
   waitForJobs: true
   timeout: 600
-  recreatePods: true
   force: true
 
 repositories:
@@ -46,14 +45,23 @@ releases:
     values:
       - ../apps/kube-system/spegel/app/helm-values.yaml
     needs:
-      - kube-system/cilium
-
-  - name: flux
-    namespace: flux-system
-    chart: oci://ghcr.io/fluxcd-community/charts/flux2
-    version: 2.14.0
-    values:
-      - ../apps/flux-system/flux/app/helm-values.yaml
-    needs:
       - kube-system/coredns
+
+  - name: flux-operator
+    namespace: flux-system
+    chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
+    version: 0.12.0
+    values:
+      - ../apps/flux-system/flux-operator/app/helm-values.yaml
+    needs:
       - kube-system/spegel
+
+  - name: flux-instance
+    namespace: flux-system
+    chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
+    version: 0.12.0
+    wait: false
+    values:
+      - ../apps/flux-system/flux-operator/instance/helm-values.yaml
+    needs:
+      - flux-system/flux-operator

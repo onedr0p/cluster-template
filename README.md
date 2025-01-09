@@ -101,34 +101,18 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 ### Stage 4: Bootstrap Talos, Kubernetes, and Flux
 
-> [!IMPORTANT]
-> After running the `task bootstrap:talos` command it might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
+1. Install Talos:
 
-1. Install Talos. This generates secrets, generates the Talos config files for your nodes and applies them to the nodes. After it has completed a `kubeconfig` will be placed in the root of your repository.
+   📍 _It might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again_
 
     ```sh
     task bootstrap:talos
     ```
 
-2. Install the essential cluster applications. This command will install the apps from the [helmfile](./templates/config/kubernetes/bootstrap/helmfile.yaml.j2) configuration file into your cluster.
+2. Install cilium, coredns, spegel, flux and sync the cluster to the repository state:
 
     ```sh
     task bootstrap:apps
-    ```
-
-3. Verify the nodes are online and ready
-
-    ```sh
-    kubectl get nodes -o wide
-    # NAME           STATUS   ROLES                       AGE     VERSION
-    # k8s-0          Ready    control-plane,etcd,master   1h      v1.30.1
-    # k8s-1          Ready    worker                      1h      v1.30.1
-    ```
-
-4. Sync the cluster to the Git repository state
-
-    ```sh
-    task bootstrap:flux
     ```
 
 ### Stage 5: Cluster Verification
