@@ -76,7 +76,7 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        default-ssl-certificate: "${SECRET_DOMAIN/./-}-#{ 'production' if cloudflare.acme.production else 'staging' }#-tls"
+        default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-#{ 'production' if cloudflare.acme.production else 'staging' }#-tls"
       resources:
         requests:
           cpu: 100m
