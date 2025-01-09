@@ -101,16 +101,15 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 ### Stage 4: Bootstrap Talos, Kubernetes, and Flux
 
-> [!IMPORTANT]
-> After running the `task bootstrap:talos` command it might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again.
-
 1. Install Talos:
+
+   📍 _It might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again_
 
     ```sh
     task bootstrap:talos
     ```
 
-2. Install Cilium, Coredns, Spegel, Flux and sync the cluster to the repository state:
+2. Install cilium, coredns, spegel, flux and sync the cluster to the repository state:
 
     ```sh
     task bootstrap:apps
