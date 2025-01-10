@@ -11,8 +11,8 @@ metadata:
 spec:
   allowFirstLastIPs: "Yes"
   blocks:
-#% if bootstrap_bgp.enabled %#
+#% if bgp.enabled %#
     - cidr: "#{ bgp.advertised_network }#"
-#% elif not bootstrap_feature_gates.dual_stack_ipv4_first %#
+#% elif not feature_gates.dual_stack_ipv4_first %#
     - cidr: "#{ node_network }#"
 #% endif %#
