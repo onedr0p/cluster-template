@@ -1,6 +1,6 @@
 #% if ((not bgp.enabled) and (not feature_gates.dual_stack_ipv4_first)) %#
 ---
-# https://docs.cilium.io/en/latest/network/l2-announcements
+# yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/cilium.io/ciliuml2announcementpolicy_v2alpha1.json
 apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy
 metadata:
@@ -14,13 +14,4 @@ spec:
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
----
-apiVersion: cilium.io/v2alpha1
-kind: CiliumLoadBalancerIPPool
-metadata:
-  name: l2-pool
-spec:
-  allowFirstLastIPs: "Yes"
-  blocks:
-    - cidr: "#{ node_network }#"
 #% endif %#

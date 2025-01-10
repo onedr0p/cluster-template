@@ -1,6 +1,6 @@
 #% if bgp.enabled %#
 ---
-# https://docs.cilium.io/en/latest/network/bgp-control-plane/
+# yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/cilium.io/ciliumbgppeeringpolicy_v2alpha1.json
 apiVersion: cilium.io/v2alpha1
 kind: CiliumBGPPeeringPolicy
 metadata:
@@ -29,13 +29,4 @@ spec:
       serviceSelector:
         matchExpressions:
           - {key: somekey, operator: NotIn, values: ['never-used-value']}
----
-apiVersion: cilium.io/v2alpha1
-kind: CiliumLoadBalancerIPPool
-metadata:
-  name: l3-pool
-spec:
-  allowFirstLastIPs: "Yes"
-  blocks:
-    - cidr: "#{ bgp.advertised_network }#"
 #% endif %#
