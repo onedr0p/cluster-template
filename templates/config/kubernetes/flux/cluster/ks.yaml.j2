@@ -3,11 +3,11 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-settings
+  name: cluster-meta
   namespace: flux-system
 spec:
   interval: 30m
-  path: ./kubernetes/flux/settings
+  path: ./kubernetes/flux/meta
   prune: true
   wait: true
   sourceRef:
@@ -22,28 +22,12 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: cluster-repos
-  namespace: flux-system
-spec:
-  interval: 30m
-  path: ./kubernetes/flux/repos
-  prune: true
-  wait: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
   name: cluster-apps
   namespace: flux-system
 spec:
   interval: 30m
   dependsOn:
-    - name: cluster-settings
-    - name: cluster-repos
+    - name: cluster-meta
   path: ./kubernetes/apps
   prune: true
   sourceRef:

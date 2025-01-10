@@ -11,7 +11,7 @@ instance:
     kind: GitRepository
     url: "#{ github.address }#"
     ref: refs/heads/main
-    path: kubernetes/flux/config
+    path: kubernetes/flux/cluster
     #% if github.private_key %#
     pullSecret: github-deploy-key
     #% endif %#
