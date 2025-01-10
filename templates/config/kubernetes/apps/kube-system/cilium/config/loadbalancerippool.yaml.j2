@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/cilium.io/ciliumloadbalancerippool_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+#% if bgp.enabled %#
+  name: l3-pool
+#% elif not feature_gates.dual_stack_ipv4_first %#
+  name: l2-pool
+#% endif %#
+spec:
+  allowFirstLastIPs: "Yes"
+  blocks:
+#% if bgp.enabled %#
+    - cidr: "#{ bgp.advertised_network }#"
+#% elif not feature_gates.dual_stack_ipv4_first %#
+    - cidr: "#{ node_network }#"
+#% endif %#
