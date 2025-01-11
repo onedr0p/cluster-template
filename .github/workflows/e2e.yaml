@@ -49,4 +49,4 @@ jobs:
         run: task configure --yes
 
       - name: Run cleanup task
-        run: task template:cleanup --yes
+        run: task template:tidy --yes

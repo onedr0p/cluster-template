@@ -58,7 +58,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 3. **Install** and **activate** [mise](https://mise.jdx.dev/) following the instructions for your workstation [here](https://mise.jdx.dev/getting-started.html).
 
-4. Use `mise` to install the **required** CLI tools.
+4. Use `mise` to install the **required** CLI tools:
 
    📍 _If `mise` is having trouble compiling Python, try running `mise settings python.compile=0` and try these commands again_
 
@@ -73,7 +73,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 > [!IMPORTANT]
 > The [config.sample.yaml](./config.sample.yaml) file contains config that are **vital** to the template process.
 
-1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file.
+1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file:
 
    📍 _If the below command fails `mise` is either not install or configured incorrectly._
 
@@ -83,19 +83,19 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 2. Fill out the `config.yaml` configuration file using the comments in that file as a guide.
 
-3. Run the following command which will generate all the files needed to continue.
+3. Template out all the configuration files:
 
     ```sh
     task configure
     ```
 
-4. Push your changes to git
+4. Push your changes to git:
 
    📍 _**Verify** all the `./kubernetes/**/*.sops.*` files are **encrypted** with SOPS_
 
     ```sh
     git add -A
-    git commit -m "Initial commit :rocket:"
+    git commit -m "chore: initial commit :rocket:"
     git push
     ```
 
@@ -109,11 +109,11 @@ There are **4 stages** outlined below for completing this project, make sure you
     task bootstrap:talos
     ```
 
-2. Push your changes to git
+2. Push your changes to git:
 
     ```sh
     git add -A
-    git commit -m "Add talhelper encrypted secret :lock:"
+    git commit -m "chore: add talhelper encrypted secret :lock:"
     git push
     ```
 
@@ -160,7 +160,7 @@ By default Flux will periodically check your git repository for changes. In orde
 > [!IMPORTANT]
 > This will only work after you have switched over certificates to the Let's Encrypt Production servers.
 
-1. Obtain the webhook path
+1. Obtain the webhook path:
 
     📍 _Hook id and path should look like `/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123`_
 
@@ -168,7 +168,7 @@ By default Flux will periodically check your git repository for changes. In orde
     kubectl -n flux-system get receiver github-receiver -o jsonpath='{.status.webhookPath}'
     ```
 
-2. Piece together the full URL with the webhook path appended
+2. Piece together the full URL with the webhook path appended:
 
     ```text
     https://flux-webhook.${cloudflare.domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
@@ -220,9 +220,19 @@ task talos:upgrade-k8s
 
 After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove the [templates](./templates) directory and any files related to the templating process. This will also remove most of the cruft brought in from the upstream template repo.
 
-```sh
-task template:cleanup
-```
+1. Tidy up your repository:
+
+    ```sh
+    task template:tidy
+    ```
+
+2. Push your changes to git:
+
+    ```sh
+    git add -A
+    git commit -m "chore: tidy up :broom:"
+    git push
+    ```
 
 ## 🤖 Renovate
 

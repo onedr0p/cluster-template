@@ -1,7 +1,6 @@
 {
     "files.associations": {
-        "*.json5": "jsonc",
-        "./kubernetes/**/*.sops.toml": "plaintext"
+        "*.json5": "jsonc"
     },
     "sops.defaults.ageKeyFile": "age.key",
     "yaml.schemas": {
