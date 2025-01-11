@@ -34,7 +34,6 @@ tasks:
 
   apps:
     desc: Bootstrap apps into the Talos cluster
-    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
     cmds:
       - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
       - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply --server-side --filename -

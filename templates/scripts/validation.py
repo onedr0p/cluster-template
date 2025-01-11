@@ -36,9 +36,8 @@ def validate_node(node: dict, node_cidr: str) -> None:
         raise ValueError(f"Invalid node disk {node.get('disk')} for {node.get('name')}, must be not empty")
     if not node.get('mac_addr') or not re.match(r"^([0-9a-f]{2}[:]){5}([0-9a-f]{2})$", node.get('mac_addr')):
         raise ValueError(f"Invalid node mac_addr {node.get('mac_addr')} for {node.get('name')}, must be not empty and match ([0-9a-f]{{2}}[:]){{5}}([0-9a-f]{{2}})")
-    if node.get('schematic_id'):
-        if not re.match(r"^[a-z0-9]{64}$", node.get('schematic_id')):
-            raise ValueError(f"Invalid node schematic_id {node.get('schematic_id')} for {node.get('name')}, must match [a-z0-9]{64}")
+    if not re.match(r"^[a-z0-9]{64}$", node.get('schematic_id')):
+        raise ValueError(f"Invalid node schematic_id {node.get('schematic_id')} for {node.get('name')}, must match [a-z0-9]{64}")
 
     try:
         netaddr.IPAddress(node.get('address'))
@@ -57,12 +56,6 @@ def validate_node(node: dict, node_cidr: str) -> None:
             raise ValueError(
                 f"Unable to connect to node {node.get('name')}, port 50000 is not connectable"
             )
-
-
-@required("schematic_id")
-def validate_schematic_id(id: str, **_) -> None:
-    if not re.match(r"^[a-z0-9]{64}$", id):
-        raise ValueError(f"Invalid schematic_id {id}, must be not empty and match [a-z0-9]{64}")
 
 
 @required("node_network", "node_inventory")
@@ -116,7 +109,6 @@ def validate_age(key: str, **_) -> None:
 
 def validate(data: dict) -> None:
     validate_python_version()
-    validate_schematic_id(data)
     validate_age(data)
 
     if not data.get('skip_tests', False):

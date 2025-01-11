@@ -35,13 +35,9 @@ nodes:
     installDiskSelector:
       serial: "#{ item.disk }#"
     #% endif %#
-    #% if secureboot.enabled %#
     machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/#{ item.schematic_id | default(schematic_id, true) }#
-    #% else %#
-    talosImageURL: factory.talos.dev/installer/#{ item.schematic_id | default(schematic_id, true) }#
-    #% endif %#
+      secureboot: #{ true if secureboot.enabled else false | lower }#
+    talosImageURL: factory.talos.dev/installer#{ "-secureboot" if secureboot.enabled else ""}#/#{ item.schematic_id }#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
       - deviceSelector:
@@ -53,7 +49,7 @@ nodes:
               - "#{ item.address }#/#{ node_network.split('/') | last }#"
             mtu: #{ item.mtu | default(1500, true) }#
             routes:
-              - network: 0.0.0.0/0
+              - network: "0.0.0.0/0"
                 #% if node_default_gateway %#
                 gateway: "#{ node_default_gateway }#"
                 #% else %#
@@ -68,7 +64,7 @@ nodes:
         addresses:
           - "#{ item.address }#/#{ node_network.split('/') | last }#"
         routes:
-          - network: 0.0.0.0/0
+          - network: "0.0.0.0/0"
             #% if node_default_gateway %#
             gateway: "#{ node_default_gateway }#"
             #% else %#

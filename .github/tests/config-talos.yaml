@@ -1,7 +1,6 @@
 ---
 skip_tests: true
 
-schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
 node_network: 10.10.10.0/24
 node_default_gateway: 10.10.10.1
 node_inventory:
@@ -10,11 +9,13 @@ node_inventory:
     controller: true
     disk: fake
     mac_addr: fake
+    schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
   - name: k8s-worker-0
     address: 10.10.10.101
     controller: false
     disk: fake
     mac_addr: fake
+    schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
 dns_servers: ["1.1.1.1", "1.0.0.1"]
 ntp_servers: ["time.cloudflare.com"]
 pod_network: 10.69.0.0/16

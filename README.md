@@ -27,7 +27,7 @@ The features included will depend on the type of configuration you want to use. 
 
 ## 🚀 Let's Go!
 
-There are **5 stages** outlined below for completing this project, make sure you follow the stages in order.
+There are **4 stages** outlined below for completing this project, make sure you follow the stages in order.
 
 ### Stage 1: Machine Preparation
 
@@ -46,7 +46,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. You can always add system extensions after Talos is installed and working.
 
-2. This will eventually lead you to download a Talos Linux ISO file (or for SBCs the RAW file). Make sure to note the schematic ID you will need this later on.
+2. This will eventually lead you to download a Talos Linux ISO file (or for SBCs the RAW file). Make sure to note the **schematic ID** you will need this later on.
 
 3. Flash the Talos ISO or RAW file to a USB drive and boot from it on your nodes.
 
@@ -89,7 +89,7 @@ There are **5 stages** outlined below for completing this project, make sure you
     task configure
     ```
 
-4. Push you changes to git
+4. Push your changes to git
 
    📍 _**Verify** all the `./kubernetes/**/*.sops.*` files are **encrypted** with SOPS_
 
@@ -109,27 +109,27 @@ There are **5 stages** outlined below for completing this project, make sure you
     task bootstrap:talos
     ```
 
-2. Install cilium, coredns, spegel, flux and sync the cluster to the repository state:
+2. Push your changes to git
+
+    ```sh
+    git add -A
+    git commit -m "Add talhelper encrypted secret :lock:"
+    git push
+    ```
+
+3. Install cilium, coredns, spegel, flux and sync the cluster to the repository state:
 
     ```sh
     task bootstrap:apps
     ```
 
-### Stage 5: Cluster Verification
+4. Watch the rollout of your cluster happen:
 
-_Mic check, 1, 2_ - In a few moments applications should be lighting up like Christmas in July 🎄
-
-1. View common resources in your cluster.
+   📍 _Depending on the features you choose a successful rollout will include pods being deployed into the **cert-manager, flux-system, network and openebs-system** namespaces_
 
     ```sh
-    task kubernetes:resources
+    watch kubectl get pods --all-namespaces
     ```
-
-2. ⚠️ It might take `cert-manager` awhile to generate certificates, this is normal so be patient.
-
-3. 🏆 **Congratulations** if all goes smooth you will have a Kubernetes cluster managed by Flux and your Git repository is driving the state of your cluster.
-
-4. 🧠 Now it's time to pause and go get some motel motor oil ☕ and admire you made it this far!
 
 ## 📣 Flux w/ Cloudflare post installation
 

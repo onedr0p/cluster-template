@@ -4,9 +4,6 @@
 # (REQUIRED) Cluster details - Cluster represents the Kubernetes cluster layer and any additional customizations
 #
 
-# (REQUIRED) Generated schematic id from https://factory.talos.dev/
-schematic_id: ""
-
 # (REQUIRED) The network (in CIDR notation) your nodes are on (e.g. 192.168.1.0/24)
 node_network: ""
 
@@ -18,7 +15,7 @@ node_inventory: []
   #   controller: true    # (REQUIRED) Set to true if this is a controller node
   #   disk: ""            # (REQUIRED) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
   #   mac_addr: ""        # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
-  #   schematic_id: ""    # (OPTIONAL) Override the 'schematic_id' with a node specific schematic ID from https://factory.talos.dev/
+  #   schematic_id: ""    # (REQUIRED) Schematic ID from https://factory.talos.dev/
   #   mtu: ""             # (OPTIONAL) MTU for the NIC. DEFAULT: 1500
   # ...
 
