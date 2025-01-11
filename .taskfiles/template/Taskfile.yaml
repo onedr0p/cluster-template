@@ -75,7 +75,7 @@ tasks:
     desc: Remove or archive template files and directories no longer needed after cluster bootstrap
     prompt: All files and directories related to the templating process will be removed... continue?
     cmds:
-      - mkdir -p {{.ROOT_DIR}}/.private/{{.TS}}/{.taskfiles}
+      - mkdir -p {{.ROOT_DIR}}/.private/{{.TS}}
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
       - |
