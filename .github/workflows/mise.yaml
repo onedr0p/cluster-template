@@ -35,7 +35,7 @@ jobs:
 
       - name: Get diff of mise.toml
         run: |
-          diff -u ./default/.mise.toml ./pull/.mise.toml  > diff.patch
+          diff -u ./default/.mise.toml ./pull/.mise.toml > diff.patch || true
 
       - name: Generate Diff
         id: diff
