@@ -23,19 +23,29 @@ jobs:
       - name: Install dependencies
         run: mise upgrade --bump
 
-      - name: Get diff of mise.toml
+      - name: Get diff of .mise.toml
         run: |
           git diff > diff.patch
 
       - name: Generate Diff
         id: diff
         run: |
-          cat diff.patch
-          echo "diff<<EOF" >> $GITHUB_OUTPUT
-          cat diff.patch >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          cat diff.patch;
+          {
+              echo 'diff<<EOF'
+              cat diff.patch
+              echo EOF
+          } >> "$GITHUB_OUTPUT";
+          {
+              echo "### Diff"
+              echo '```diff'
+              cat diff.patch
+              echo '```'
+          } >> "$GITHUB_STEP_SUMMARY";
+          rm diff.patch
 
-      - name: Create Pull Request
+      - if: ${{ steps.diff.outputs.diff != '' }}
+        name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
