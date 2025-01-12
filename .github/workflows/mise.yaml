@@ -6,6 +6,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 1 * * 0" # once a week at midnight
+  pull_request:
+    branches: ["main"]
 
 jobs:
   mise:
@@ -51,8 +53,11 @@ jobs:
           title: "chore(mise): upgrade dependencies"
           commit-message: "chore(mise): upgrade dependencies"
           body: |
-            Dependency upgraded in `.mise.toml`
+            Dependency upgraded in `.mise.toml`:
 
             ```diff
             ${{ steps.diff.outputs.diff }}
             ```
+
+            > [!TIP]
+            > Run `mise upgrade --bump` to apply the changes.
