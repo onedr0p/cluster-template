@@ -10,7 +10,7 @@ instance:
   sync:
     kind: GitRepository
     url: "#{ github.address }#"
-    ref: refs/heads/main
+    ref: "refs/heads/#{ github.branch | default('main', true) }#"
     path: kubernetes/flux/cluster
     #% if github.private_key %#
     pullSecret: github-deploy-key
