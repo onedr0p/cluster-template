@@ -14,14 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: pull
-
-      - name: Checkout Default Branch
-        uses: actions/checkout@v4
-        with:
-          ref: "${{ github.event.repository.default_branch }}"
-          path: default
 
       - name: Setup mise
         uses: jdx/mise-action@v2
@@ -33,7 +25,7 @@ jobs:
 
       - name: Get diff of mise.toml
         run: |
-          diff -u pull/.mise.toml default/.mise.toml > diff.patch
+          git diff > diff.patch
 
       - name: Generate Diff
         id: diff
@@ -47,12 +39,14 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
-          path: pull
           title: "chore(mise): upgrade dependencies"
           commit-message: "chore(mise): upgrade dependencies"
           body: |
-            Dependency upgraded in `.mise.toml`
+            Upgraded dependencies found in `.mise.toml`:
 
             ```diff
             ${{ steps.diff.outputs.diff }}
             ```
+
+            > [!TIP]
+            > Merge this pull request and then run `mise upgrade --bump` on your workstation.
