@@ -1,16 +1,19 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: "mise"
+name: "Mise"
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 1 * * 0" # once a week at midnight
+    - cron: "0 0 * * *" # once a day at midnight
 
 jobs:
   mise:
-    name: upgrade
+    name: upgrade-tools
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +23,7 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Install dependencies
+      - name: Upgrade dependencies
         run: mise upgrade --bump
 
       - name: Get diff of .mise.toml
@@ -51,6 +54,7 @@ jobs:
           token: "${{ secrets.GITHUB_TOKEN }}"
           title: "chore(mise): upgrade dependencies"
           commit-message: "chore(mise): upgrade dependencies"
+          branch: "mise-upgrade-dependencies"
           body: |
             Upgraded dependencies found in `.mise.toml`:
 
