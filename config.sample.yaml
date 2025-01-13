@@ -31,14 +31,12 @@ ntp_servers:
 
 # (REQUIRED) The pod CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
-# If you want to use IPv6 check the advanced flags below and be aware of
-# https://github.com/onedr0p/cluster-template/discussions/1510
+# If you want to use IPv6 check the advanced flags below
 pod_network: "10.69.0.0/16"
 
 # (REQUIRED) The service CIDR for the cluster, this must NOT overlap with any
 #   existing networks and is usually a /16 (64K IPs).
-# If you want to use IPv6 check the advanced flags below and be aware of
-# https://github.com/onedr0p/cluster-template/discussions/1510
+# If you want to use IPv6 check the advanced flags below
 service_network: "10.96.0.0/16"
 
 # (REQUIRED) The IP address of the Kube API, choose an available IP

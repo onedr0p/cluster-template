@@ -9,7 +9,8 @@ bgpControlPlane:
   enabled: true
 #% endif %#
 cni:
-  exclusive: false # Required for pairing with Multus CNI
+  # Required for pairing with Multus CNI
+  exclusive: false
 cgroup:
   automount:
     enabled: false
@@ -40,6 +41,7 @@ l2announcements:
   #% if not feature_gates.dual_stack_ipv4_first %#
   enabled: true
   #% else %#
+  # Ref: https://github.com/cilium/cilium/issues/28985
   enabled: false
   #% endif %#
 loadBalancer:
