@@ -9,7 +9,3 @@ serviceMonitor:
 spegel:
   containerdSock: /run/containerd/containerd.sock
   containerdRegistryConfigPath: /etc/cri/conf.d/hosts
-# Graceful Helmfile to HelmRelease takeover
-commonLabels:
-  helm.toolkit.fluxcd.io/name: spegel
-  helm.toolkit.fluxcd.io/namespace: kube-system
