@@ -178,10 +178,8 @@ secureboot:
   # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
   encrypt_disk: false
 
-# (OPTIONAL) Feature gates are used to enable experimental features
-feature_gates:
-  # Enable Dual Stack IPv4 first
-  #   IMPORTANT: I am looking for people to help maintain IPv6 support since I cannot test it.
-  #     Ref: https://github.com/onedr0p/cluster-template/discussions/1510
-  #   IMPORTANT: Cilium does not currently support IPv6 L2 announcements.
-  dual_stack_ipv4_first: false
+# (OPTIONAL) Enable Dual Stack IPv4 first
+#   IMPORTANT: I am looking for people to help contribute IPv6 support since I cannot test it.
+#     Ref: https://github.com/onedr0p/cluster-template/discussions/1510
+#   IMPORTANT: Cilium does not currently support IPv6 L2 announcements.
+dual_stack_ipv4_first: false
