@@ -183,3 +183,25 @@ secureboot:
 #     Ref: https://github.com/onedr0p/cluster-template/discussions/1510
 #   IMPORTANT: Cilium does not currently support IPv6 L2 announcements.
 dual_stack_ipv4_first: false
+
+# (OPTIONAL) Node Advanced Options
+#  Add the 
+# node_inventory: []
+  # - name: ""            # (REQUIRED) Name of the node (must match [a-z0-9-\]+)
+  ##  ...
+  ## Secureboot and TPM-based disk encryption
+  ## Ref: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
+  #   secureboot: false   # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
+  #   encrypt_disk: false # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
+  ##  ...
+  #   manifests:          # (OPTIONAL) Additional manifests to include after MachineConfig
+  #     - extra.yaml      #            Ref: https://www.talos.dev/latest/reference/configuration/extensions/extensionserviceconfig/
+  #   extension_services: # (OPTIONAL) Additional talhelper ExtensionServices (supports talenv.sops.yaml envsubst)
+  #     - name: name
+  #       configFiles:
+  #         - content: |-
+  #             ...
+  #       mountPath: ...
+  #       environment:
+  #         - key=value
+  # ...
