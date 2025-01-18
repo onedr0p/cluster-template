@@ -17,6 +17,9 @@ node_inventory: []
   #   mac_addr: ""        # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
   #   schematic_id: ""    # (REQUIRED) Schematic ID from https://factory.talos.dev/
   #   mtu: ""             # (OPTIONAL) MTU for the NIC. DEFAULT: 1500
+  ## For secureboot/encrypt_disk, please refer to https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
+  #   secureboot: false   # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
+  #   encrypt_disk: false # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
   # ...
 
 # (REQUIRED) The DNS servers to use for the cluster nodes. (DEFAULT: Cloudflare DNS)
@@ -169,14 +172,6 @@ bgp:
   router_asn: 64513
   # (REQUIRED) Node ASN
   node_asn: 64514
-
-# (OPTIONAL) Secureboot and TPM-based disk encryption
-#   Ref: https://www.talos.dev/v1.9/talos-guides/install/bare-metal-platforms/secureboot
-secureboot:
-  # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
-  enabled: false
-  # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
-  encrypt_disk: false
 
 # (OPTIONAL) Enable Dual Stack IPv4 first
 #   IMPORTANT: I am looking for people to help contribute IPv6 support since I cannot test it.
