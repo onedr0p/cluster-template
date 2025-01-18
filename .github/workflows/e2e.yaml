@@ -48,5 +48,8 @@ jobs:
       - name: Run configure task
         run: task configure --yes
 
+      - name: Run generate talconfig task
+        run: task talos:generate-config
+
       - name: Run cleanup task
         run: task template:tidy --yes
