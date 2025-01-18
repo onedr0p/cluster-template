@@ -22,7 +22,8 @@ tasks:
     cmds:
       - task: render-configs
       - task: encrypt-secrets
-      - task: kubeconform
+      - task: validate-kubernetes-config
+      - task: validate-talos-config
     preconditions:
       - msg: |
           An existing Age key interferes with age key in this repository.
@@ -64,12 +65,19 @@ tasks:
       - test -f {{.SOPS_CONFIG_FILE}}
       - which sops
 
-  kubeconform:
+  validate-kubernetes-config:
     desc: Validate Kubernetes manifests with kubeconform
     cmd: bash {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh {{.KUBERNETES_DIR}}
     preconditions:
       - test -f {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh
       - which kubeconform
+
+  validate-talos-config:
+    desc: Validate the Talhelper config
+    cmd: talhelper validate talconfig {{.TALHELPER_CONFIG_FILE}}
+    preconditions:
+      - test -f {{.TALHELPER_CONFIG_FILE}}
+      - which talhelper
 
   tidy:
     desc: Archive template related files and directories

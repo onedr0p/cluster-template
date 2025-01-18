@@ -9,10 +9,15 @@ vars:
   KUBERNETES_DIR: '{{.ROOT_DIR}}/kubernetes'
   PRIVATE_DIR: '{{.ROOT_DIR}}/.private'
   SOPS_CONFIG_FILE: '{{.ROOT_DIR}}/.sops.yaml'
+  TALHELPER_CLUSTER_DIR: '{{.KUBERNETES_DIR}}/bootstrap/talos/clusterconfig'
+  TALHELPER_CONFIG_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talconfig.yaml'
+  TALHELPER_SECRET_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talsecret.sops.yaml'
+  TALOSCONFIG: '{{.TALHELPER_CLUSTER_DIR}}/talosconfig'
 
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
   SOPS_AGE_KEY_FILE: '{{.ROOT_DIR}}/age.key'
+  TALOSCONFIG: '{{.TALOSCONFIG}}'
 
 includes:
   bootstrap: .taskfiles/bootstrap

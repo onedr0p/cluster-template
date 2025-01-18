@@ -202,7 +202,7 @@ task talos:apply-node HOSTNAME=? MODE=?
 ### ⬆️ Updating Talos and Kubernetes versions
 
 > [!IMPORTANT]
-> Ensure the `talosVersion` and `kubernetesVersion` in `talhelper.yaml` are up-to-date with the version you wish to upgrade to.
+> Ensure the `talosVersion` and `kubernetesVersion` in `talconfig.yaml` are up-to-date with the version you wish to upgrade to.
 
 ```sh
 # Upgrade node to a newer Talos version

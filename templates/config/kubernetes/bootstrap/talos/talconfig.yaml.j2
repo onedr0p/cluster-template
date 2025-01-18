@@ -77,7 +77,7 @@ nodes:
         #% endif %#
         #% endif %#
     #% if talos_patches('%s' % (item.name)) | length == 0 %#
-      #% if item.encrypt_disk %#
+    #% if item.encrypt_disk %#
     patches:
       - # Encrypt system disk with TPM
         |-
@@ -93,14 +93,13 @@ nodes:
               keys:
                 - slot: 0
                   tpm: {}
-      #% endif %#
+    #% endif %#
     #% else %#
-      #% for file in talos_patches('%s' % (item.name)) %#
-        #% if loop.index == 1 %#
+    #% for file in talos_patches('%s' % (item.name)) %#
+    #% if loop.index == 1 %#
     patches:
-          #% if item.encrypt_disk %#
-      - # Encrypt system disk with TPM
-        |-
+    #% if item.encrypt_disk %#
+      - |-
         machine:
           systemDiskEncryption:
             state:
@@ -113,18 +112,20 @@ nodes:
               keys:
                 - slot: 0
                   tpm: {}
-          #% endif %#
-        #% endif %#
+    #% endif %#
+    #% endif %#
       - "@./patches/#{ item.name }#/#{ file | basename }#"
-      #% endfor %#
+    #% endfor %#
     #% endif %#
   #% endfor %#
 
+#% for file in talos_patches('global') %#
+#% if loop.index == 1 %#
 # Global patches
 patches:
-  #% for file in talos_patches('global') %#
+#% endif %#
   - "@./patches/global/#{ file | basename }#"
-  #% endfor %#
+#% endfor %#
 
 #% for file in talos_patches('controller') %#
 #% if loop.index == 1 %#

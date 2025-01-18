@@ -7,8 +7,7 @@
 # (REQUIRED) The network (in CIDR notation) your nodes are on (e.g. 192.168.1.0/24)
 node_network: ""
 
-# (REQUIRED) Use only 1, 3 or more ODD number of controller nodes, recommended is 3
-#   Worker nodes are optional
+# (REQUIRED) Use only 1, 3 or more ODD number of controller nodes, recommended is 3. Worker nodes are optional.
 node_inventory: []
   # - name: ""            # (REQUIRED) Name of the node (must match [a-z0-9-\]+)
   #   address: ""         # (REQUIRED) IP address of the node
@@ -16,10 +15,9 @@ node_inventory: []
   #   disk: ""            # (REQUIRED) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
   #   mac_addr: ""        # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
   #   schematic_id: ""    # (REQUIRED) Schematic ID from https://factory.talos.dev/
-  #   mtu: ""             # (OPTIONAL) MTU for the NIC. DEFAULT: 1500
-  ## For secureboot/encrypt_disk, please refer to https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
-  #   secureboot: false   # (OPTIONAL) Enable secureboot on UEFI systems. Not supported on x86 platforms in BIOS mode.
-  #   encrypt_disk: false # (OPTIONAL) Enable TPM-based disk encryption. Requires TPM 2.0
+  #   mtu: 1500           # (ADVANCED/OPTIONAL) MTU for the NIC. DEFAULT: 1500
+  #   secureboot: false   # (ADVANCED/OPTIONAL) SecureBoot mode on UEFI platforms. Ref: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
+  #   encrypt_disk: false # (ADVANCED/OPTIONAL) TPM-based disk encryption. Ref: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
   # ...
 
 # (REQUIRED) The DNS servers to use for the cluster nodes. (DEFAULT: Cloudflare DNS)
