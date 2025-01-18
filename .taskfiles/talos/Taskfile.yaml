@@ -2,15 +2,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 
-vars:
-  TALHELPER_CLUSTER_DIR: '{{.KUBERNETES_DIR}}/bootstrap/talos/clusterconfig'
-  TALHELPER_CONFIG_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talconfig.yaml'
-  TALHELPER_SECRET_FILE: '{{.KUBERNETES_DIR}}/bootstrap/talos/talsecret.sops.yaml'
-  TALOSCONFIG: '{{.TALHELPER_CLUSTER_DIR}}/talosconfig'
-
-env:
-  TALOSCONFIG: '{{.TALOSCONFIG}}'
-
 tasks:
 
   generate-config:
