@@ -13,9 +13,9 @@ run = "uv pip install -r requirements.txt"
 [tools]
 # Template tools
 python = "3.13"
-uv = "0.5.18"
+uv = "0.5.20"
 # Operations tools
-"aqua:budimanjojo/talhelper" = "3.0.14"
+"aqua:budimanjojo/talhelper" = "3.0.15"
 "aqua:cloudflare/cloudflared" = "2025.1.0"
 "aqua:FiloSottile/age" = "1.2.1"
 "aqua:fluxcd/flux2" = "2.4.0"
@@ -27,5 +27,5 @@ uv = "0.5.18"
 "aqua:kubernetes-sigs/kustomize" = "5.6.0"
 "aqua:kubernetes/kubectl" = "1.32.1"
 "aqua:mikefarah/yq" = "4.45.1"
-"aqua:siderolabs/talos" = "1.9.1"
+"aqua:siderolabs/talos" = "1.9.2"
 "aqua:yannh/kubeconform" = "0.6.7"
