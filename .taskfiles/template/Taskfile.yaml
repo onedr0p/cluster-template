@@ -86,6 +86,7 @@ tasks:
       - mkdir -p {{.TIDY_FOLDER}}
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
+      - rm -rf {{.ROOT_DIR}}/.github/workflows/mise.yaml
       - |
         {{.SED}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
