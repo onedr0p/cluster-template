@@ -92,6 +92,7 @@ tasks:
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.TIDY_FOLDER}}/makejinja.toml
       - mv {{.ROOT_DIR}}/requirements.txt {{.TIDY_FOLDER}}/requirements.txt
+      - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/config.sample.yaml
       - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/config.yaml
       - |
         {{.SED}} '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
