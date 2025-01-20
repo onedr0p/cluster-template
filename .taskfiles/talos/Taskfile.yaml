@@ -14,56 +14,46 @@ tasks:
       - which talhelper
 
   apply-node:
-    desc: Apply Talos config to a node [HOSTNAME=required]
-    cmds:
-      - talosctl --nodes {{.HOSTNAME}} apply-config --mode={{.MODE}} --file {{.TALHELPER_CLUSTER_DIR}}/kubernetes-{{.HOSTNAME}}.yaml
-      - talosctl --nodes {{.HOSTNAME}} health --wait-timeout=10m --server=false
+    desc: Apply Talos config to a node [IP=required]
+    cmd: talhelper gencommand apply --node {{.IP}} --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags '--mode={{.MODE}}' | bash
     vars:
       MODE: '{{.MODE | default "auto"}}'
     requires:
-      vars: [HOSTNAME]
+      vars: [IP]
     preconditions:
-      - talosctl --nodes {{.HOSTNAME}} get machineconfig
+      - talosctl --nodes {{.IP}} get machineconfig
       - talosctl config info
-      - test -f {{.TALHELPER_CLUSTER_DIR}}/kubernetes-{{.HOSTNAME}}.yaml
       - test -f {{.TALOSCONFIG}}
-      - which talosctl yq
+      - which talhelper talosctl yq
 
   upgrade-node:
-    desc: Upgrade Talos on a single node [HOSTNAME=required]
-    cmds:
-      - talosctl --nodes {{.HOSTNAME}} upgrade --image="factory.talos.dev/installer{{if ne .TALOS_SECUREBOOT "false"}}-secureboot{{end}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" --timeout=10m
-      - talosctl --nodes {{.HOSTNAME}} health --wait-timeout=10m --server=false
+    desc: Upgrade Talos on a single node [IP=required]
+    cmd: talhelper gencommand upgrade --node {{.IP}} --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags "--image='factory.talos.dev/installer{{if eq .TALOS_SECUREBOOT "true"}}-secureboot{{end}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}' --timeout=10m" | bash
     vars:
       TALOS_SCHEMATIC_ID:
-        sh: yq '.nodes[] | select(.hostname == "{{.HOSTNAME}}") | .talosImageURL' {{.TALHELPER_CONFIG_FILE}} | awk -F/ '{print $NF}'
+        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .talosImageURL' {{.TALHELPER_CONFIG_FILE}} | awk -F/ '{print $NF}'
       TALOS_SECUREBOOT:
-        sh: yq '.nodes[] | select(.hostname == "{{.HOSTNAME}}") | .machineSpec.secureboot' {{.TALHELPER_CONFIG_FILE}}
+        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .machineSpec.secureboot' {{.TALHELPER_CONFIG_FILE}}
       TALOS_VERSION:
         sh: yq '.talosVersion' {{.TALHELPER_CONFIG_FILE}}
     requires:
-      vars: [HOSTNAME]
+      vars: [IP]
     preconditions:
-      - curl -fsSL -o /dev/null --fail https://github.com/siderolabs/talos/releases/tag/{{.TALOS_VERSION}}
-      - talosctl --nodes {{.HOSTNAME}} get machineconfig
+      - talosctl --nodes {{.IP}} get machineconfig
       - talosctl config info
       - test -f {{.TALOSCONFIG}}
-      - which kubectl talosctl yq
+      - which kubectl talhelper talosctl yq
 
   upgrade-k8s:
     desc: Upgrade Kubernetes
-    cmd: talosctl --nodes {{.KUBERNETES_CONTROLLER}} upgrade-k8s --to {{.KUBERNETES_VERSION}}
+    cmd: talhelper gencommand upgrade-k8s --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags "--to '{{.KUBERNETES_VERSION}}'" | bash
     vars:
-      KUBERNETES_CONTROLLER:
-        sh: talosctl config info --output json | jq --raw-output '.endpoints[]' | shuf -n 1
       KUBERNETES_VERSION:
         sh: yq '.kubernetesVersion' {{.TALHELPER_CONFIG_FILE}}
     preconditions:
-      - curl -fsSL -o /dev/null --fail https://github.com/siderolabs/kubelet/releases/tag/{{.KUBERNETES_VERSION}}
-      - talosctl --nodes {{.KUBERNETES_CONTROLLER}} get machineconfig
       - talosctl config info
       - test -f {{.TALOSCONFIG}}
-      - which talosctl yq
+      - which talhelper talosctl yq
 
   reset:
     desc: Resets nodes back to maintenance mode
