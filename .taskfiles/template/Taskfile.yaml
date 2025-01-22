@@ -88,13 +88,13 @@ tasks:
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
       - rm -rf {{.ROOT_DIR}}/.github/workflows/mise.yaml
       - |
-        {{.SED}} 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
+        {{.SED}} -i 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.github/renovate.json5
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.TIDY_FOLDER}}/makejinja.toml
       - mv {{.ROOT_DIR}}/requirements.txt {{.TIDY_FOLDER}}/requirements.txt
       - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/config.yaml
       - |
-        {{.SED}} '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
+        {{.SED}} -i '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/
     vars:
       TIDY_FOLDER: '{{.PRIVATE_DIR}}/{{now | unixEpoch}}'
