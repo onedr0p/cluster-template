@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: ingress-nginx-external
+  name: external-ingress-nginx
 spec:
   interval: 30m
   chart:
@@ -25,7 +25,7 @@ spec:
     - name: cloudflared
       namespace: network
   values:
-    fullnameOverride: ingress-nginx-external
+    fullnameOverride: external-ingress-nginx
     controller:
       service:
         annotations:
@@ -76,7 +76,7 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        default-ssl-certificate: "network/${SECRET_DOMAIN/./-}-#{ 'production' if cloudflare.acme.production else 'staging' }#-tls"
+        default-ssl-certificate: "cert-manager/${SECRET_DOMAIN/./-}-#{ 'production' if cloudflare.acme.production else 'staging' }#-tls"
       resources:
         requests:
           cpu: 100m

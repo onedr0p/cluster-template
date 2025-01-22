@@ -4,13 +4,13 @@ originRequest:
 
 ingress:
   - hostname: "${SECRET_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
     #% if not cloudflare.acme.production %#
     originRequest:
       noTLSVerify: true
     #% endif %#
   - hostname: "*.${SECRET_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
     #% if not cloudflare.acme.production %#
     originRequest:
       noTLSVerify: true

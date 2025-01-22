@@ -21,6 +21,9 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+  dependsOn:
+    - name: external-ingress-nginx
+      namespace: network
   values:
     controllers:
       cloudflared:
