@@ -3,37 +3,14 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app cert-manager
+  name: &app external-external-dns
   namespace: flux-system
 spec:
-  targetNamespace: cert-manager
+  targetNamespace: network
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/cert-manager/cert-manager/app
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: true
-  interval: 30m
-  timeout: 5m
-#% if cloudflare.enabled %#
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: &app cert-manager-issuers
-  namespace: flux-system
-spec:
-  targetNamespace: cert-manager
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  dependsOn:
-    - name: cert-manager
-  path: ./kubernetes/apps/cert-manager/cert-manager/issuers
+  path: ./kubernetes/apps/network/external/external-dns
   prune: true
   sourceRef:
     kind: GitRepository
@@ -46,21 +23,42 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app cert-manager-tls
+  name: &app cloudflared
   namespace: flux-system
 spec:
-  targetNamespace: cert-manager
+  targetNamespace: network
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: cert-manager-issuers
-  path: ./kubernetes/apps/cert-manager/cert-manager/tls
+    - name: external-external-dns
+  path: ./kubernetes/apps/network/external/cloudflared
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
-  wait: true
+  wait: false
   interval: 30m
   timeout: 5m
-#% endif %#
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app external-ingress-nginx
+  namespace: flux-system
+spec:
+  targetNamespace: network
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: cert-manager-tls
+  path: ./kubernetes/apps/network/external/ingress-nginx
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: false
+  interval: 30m
+  timeout: 5m

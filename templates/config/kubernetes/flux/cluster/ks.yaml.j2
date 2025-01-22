@@ -48,7 +48,8 @@ spec:
         kind: Secret
         optional: true
   patches:
-    - patch: |-
+    - # Add Sops decryption and postBuild substitutions to child Kustomizations
+      patch: |-
         apiVersion: kustomize.toolkit.fluxcd.io/v1
         kind: Kustomization
         metadata:
