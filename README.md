@@ -218,7 +218,7 @@ task talos:upgrade-k8s
 
 ## 🧹 Tidy up
 
-After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove the [templates](./templates) directory and any files related to the templating process. This will also remove most of the cruft brought in from the upstream template repo.
+After you have successfully bootstrapped Talos, Kubernetes and Flux it might be a good idea to clean up the repository and remove the [templates](./templates) directory and any files related to the templating process. This will also remove most of the cruft brought in from the upstream template repo and remove any duplicate registry renovate warnings.
 
 1. Tidy up your repository:
 
