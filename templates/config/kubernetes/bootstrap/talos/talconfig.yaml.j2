@@ -36,7 +36,7 @@ nodes:
       serial: "#{ item.disk }#"
     #% endif %#
     machineSpec:
-      secureboot: #{ true if item.secureboot else false | lower }#
+      secureboot: #{ (true if item.secureboot else false) | string | lower }#
     talosImageURL: factory.talos.dev/installer#{ "-secureboot" if item.secureboot else ""}#/#{ item.schematic_id }#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
