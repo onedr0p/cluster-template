@@ -12,7 +12,7 @@ node_inventory: []
   # - name: ""            # (REQUIRED) Name of the node (must match [a-z0-9-\]+)
   #   address: ""         # (REQUIRED) IP address of the node
   #   controller: true    # (REQUIRED) Set to true if this is a controller node
-  #   disk: ""            # (REQUIRED) Device path or serial number of the disk for this node (talosctl disks -n <ip> --insecure)
+  #   disk: ""            # (REQUIRED) Device path or serial number of the disk for this node (talosctl get disks -n <ip> --insecure)
   #   mac_addr: ""        # (REQUIRED) MAC address of the NIC for this node, must be lowercase (talosctl get links -n <ip> --insecure)
   #   schematic_id: ""    # (REQUIRED) Schematic ID from https://factory.talos.dev/
   #   mtu: 1500           # (ADVANCED/OPTIONAL) MTU for the NIC. DEFAULT: 1500
@@ -161,7 +161,7 @@ loadbalancer_mode: "dsr"
 # (OPTIONAL) Use cilium BGP control plane for L3 routing
 #   Needs a BGP capable router setup with the node IPs as peers.
 #   To keep things simple, node network will be used for BGP peering.
-#   Ref: https://docs.cilium.io/en/latest/network/bgp-control-plane/
+#   Ref: https://docs.cilium.io/en/latest/network/bgp-control-plane/bgp-control-plane/
 bgp:
   enabled: false
   # (REQUIRED) Router IP address - BGP must be configured on this router using FRR or similar
