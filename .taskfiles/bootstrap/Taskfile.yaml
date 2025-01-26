@@ -11,19 +11,19 @@ tasks:
     desc: Bootstrap the Talos cluster
     dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
     cmds:
-      - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}talhelper gensecret > {{.TALHELPER_SECRET_FILE}}{{end}}'
-      - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}sops --encrypt --in-place {{.TALHELPER_SECRET_FILE}}{{end}}'
-      - talhelper genconfig --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}}
-      - talhelper gencommand apply --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--insecure" | bash
-      - until talhelper gencommand bootstrap --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} | bash; do sleep 10; done
-      - until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
+      - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}talhelper gensecret > {{.TALHELPER_DIR}}/talsecret.sops.yaml{{end}}'
+      - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}sops --encrypt --in-place {{.TALHELPER_DIR}}/talsecret.sops.yaml{{end}}'
+      - talhelper genconfig
+      - talhelper gencommand apply --extra-flags="--insecure" | bash
+      - until talhelper gencommand bootstrap | bash; do sleep 10; done
+      - until talhelper gencommand kubeconfig --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
     vars:
       TALHELPER_SECRET_EXISTS:
-        sh: test -f {{.TALHELPER_SECRET_FILE}} && echo true || echo false
+        sh: test -f {{.TALHELPER_DIR}}/talsecret.sops.yaml && echo true || echo false
     preconditions:
       - test -f {{.SOPS_CONFIG_FILE}}
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - test -f {{.TALHELPER_CONFIG_FILE}}
+      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
       - which talhelper sops
 
   apps:

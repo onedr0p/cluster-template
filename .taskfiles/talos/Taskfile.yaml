@@ -6,16 +6,18 @@ tasks:
 
   generate-config:
     desc: Generate Talos configuration
-    cmd: talhelper genconfig --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}}
+    dir: "{{.TALHELPER_DIR}}"
+    cmd: talhelper genconfig
     preconditions:
-      - test -f {{.TALHELPER_CONFIG_FILE}}
+      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
       - test -f {{.SOPS_CONFIG_FILE}}
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - which talhelper
 
   apply-node:
     desc: Apply Talos config to a node [IP=required]
-    cmd: talhelper gencommand apply --node {{.IP}} --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags '--mode={{.MODE}}' | bash
+    dir: "{{.TALHELPER_DIR}}"
+    cmd: talhelper gencommand apply --node {{.IP}} --extra-flags '--mode={{.MODE}}' | bash
     vars:
       MODE: '{{.MODE | default "auto"}}'
     requires:
@@ -28,14 +30,15 @@ tasks:
 
   upgrade-node:
     desc: Upgrade Talos on a single node [IP=required]
-    cmd: talhelper gencommand upgrade --node {{.IP}} --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags "--image='factory.talos.dev/installer{{if eq .TALOS_SECUREBOOT "true"}}-secureboot{{end}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}' --timeout=10m" | bash
+    dir: "{{.TALHELPER_DIR}}"
+    cmd: talhelper gencommand upgrade --node {{.IP}} --extra-flags "--image='factory.talos.dev/installer{{if eq .TALOS_SECUREBOOT "true"}}-secureboot{{end}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}' --timeout=10m" | bash
     vars:
       TALOS_SCHEMATIC_ID:
-        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .talosImageURL' {{.TALHELPER_CONFIG_FILE}} | awk -F/ '{print $NF}'
+        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .talosImageURL' {{.TALHELPER_DIR}}/talconfig.yaml | awk -F/ '{print $NF}'
       TALOS_SECUREBOOT:
-        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .machineSpec.secureboot' {{.TALHELPER_CONFIG_FILE}}
+        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .machineSpec.secureboot' {{.TALHELPER_DIR}}/talconfig.yaml
       TALOS_VERSION:
-        sh: yq '.talosVersion' {{.TALHELPER_CONFIG_FILE}}
+        sh: yq '.talosVersion' {{.TALHELPER_DIR}}/talconfig.yaml
     requires:
       vars: [IP]
     preconditions:
@@ -46,10 +49,11 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade Kubernetes
-    cmd: talhelper gencommand upgrade-k8s --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags "--to '{{.KUBERNETES_VERSION}}'" | bash
+    dir: "{{.TALHELPER_DIR}}"
+    cmd: talhelper gencommand upgrade-k8s --extra-flags "--to '{{.KUBERNETES_VERSION}}'" | bash
     vars:
       KUBERNETES_VERSION:
-        sh: yq '.kubernetesVersion' {{.TALHELPER_CONFIG_FILE}}
+        sh: yq '.kubernetesVersion' {{.TALHELPER_DIR}}/talconfig.yaml
     preconditions:
       - talosctl config info
       - test -f {{.TALOSCONFIG}}
@@ -59,6 +63,6 @@ tasks:
     desc: Resets nodes back to maintenance mode
     dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
-    cmd: talhelper gencommand reset --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
+    cmd: talhelper gencommand reset --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
     preconditions:
       - which talhelper

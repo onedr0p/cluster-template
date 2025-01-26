@@ -74,9 +74,10 @@ tasks:
 
   validate-talos-config:
     desc: Validate the Talhelper config
-    cmd: talhelper validate talconfig {{.TALHELPER_CONFIG_FILE}}
+    dir: "{{.TALHELPER_DIR}}"
+    cmd: talhelper validate talconfig {{.TALHELPER_DIR}}/talconfig.yaml
     preconditions:
-      - test -f {{.TALHELPER_CONFIG_FILE}}
+      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
       - which talhelper
 
   tidy:
