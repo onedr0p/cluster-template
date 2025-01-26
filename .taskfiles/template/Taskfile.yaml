@@ -74,6 +74,7 @@ tasks:
 
   validate-talos-config:
     desc: Validate the Talhelper config
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: talhelper validate talconfig {{.TALHELPER_CONFIG_FILE}}
     preconditions:
       - test -f {{.TALHELPER_CONFIG_FILE}}
