@@ -9,7 +9,7 @@ tasks:
 
   talos:
     desc: Bootstrap the Talos cluster
-    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
+    dir: '{{.TALHELPER_DIR}}'
     cmds:
       - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}talhelper gensecret > {{.TALHELPER_DIR}}/talsecret.sops.yaml{{end}}'
       - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}sops --encrypt --in-place {{.TALHELPER_DIR}}/talsecret.sops.yaml{{end}}'
@@ -21,7 +21,7 @@ tasks:
       TALHELPER_SECRET_EXISTS:
         sh: test -f {{.TALHELPER_DIR}}/talsecret.sops.yaml && echo true || echo false
     preconditions:
-      - test -f {{.SOPS_CONFIG_FILE}}
+      - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - test -f {{.TALHELPER_DIR}}/talconfig.yaml
       - which talhelper sops
