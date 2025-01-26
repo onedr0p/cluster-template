@@ -6,6 +6,7 @@ tasks:
 
   generate-config:
     desc: Generate Talos configuration
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: talhelper genconfig --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}}
     preconditions:
       - test -f {{.TALHELPER_CONFIG_FILE}}
@@ -15,6 +16,7 @@ tasks:
 
   apply-node:
     desc: Apply Talos config to a node [IP=required]
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: talhelper gencommand apply --node {{.IP}} --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags '--mode={{.MODE}}' | bash
     vars:
       MODE: '{{.MODE | default "auto"}}'
@@ -28,6 +30,7 @@ tasks:
 
   upgrade-node:
     desc: Upgrade Talos on a single node [IP=required]
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: talhelper gencommand upgrade --node {{.IP}} --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags "--image='factory.talos.dev/installer{{if eq .TALOS_SECUREBOOT "true"}}-secureboot{{end}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}' --timeout=10m" | bash
     vars:
       TALOS_SCHEMATIC_ID:
@@ -46,6 +49,7 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade Kubernetes
+    dir: "{{.KUBERNETES_DIR}}/bootstrap/talos"
     cmd: talhelper gencommand upgrade-k8s --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags "--to '{{.KUBERNETES_VERSION}}'" | bash
     vars:
       KUBERNETES_VERSION:
