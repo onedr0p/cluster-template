@@ -62,7 +62,7 @@ tasks:
         sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*"
     preconditions:
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - test -f {{.SOPS_CONFIG_FILE}}
+      - test -f {{.ROOT_DIR}}/.sops.yaml
       - which sops
 
   validate-kubernetes-config:
