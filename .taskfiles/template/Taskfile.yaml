@@ -75,9 +75,12 @@ tasks:
   validate-talos-config:
     desc: Validate the Talhelper config
     cmd: talhelper validate talconfig {{.TALHELPER_CONFIG_FILE}}
+    dir: '{{.TALHELPER_CONFIG_DIR}}'
     preconditions:
       - test -f {{.TALHELPER_CONFIG_FILE}}
       - which talhelper
+    vars:
+      TALHELPER_CONFIG_DIR: '{{.TALHELPER_CONFIG_FILE | dir}}'
 
   tidy:
     desc: Archive template related files and directories
