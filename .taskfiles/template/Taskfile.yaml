@@ -80,6 +80,26 @@ tasks:
       - test -f {{.TALHELPER_DIR}}/talconfig.yaml
       - which talhelper
 
+  debug:
+    desc: Gather common resources in your cluster
+    cmds:
+      - for: { var: RESOURCE }
+        cmd: kubectl get {{.ITEM}} {{.CLI_ARGS | default "-A"}}
+    vars:
+      RESOURCE: >-
+        nodes
+        gitrepositories
+        kustomizations
+        helmrepositories
+        helmreleases
+        certificates
+        certificaterequests
+        ingresses
+        pods
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
   tidy:
     desc: Archive template related files and directories
     prompt: All files and directories related to the templating process will be archived... continue?

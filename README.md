@@ -226,47 +226,57 @@ The base Renovate configuration in your repository can be viewed at [.github/ren
 
 ## 🐛 Debugging
 
-Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state.
+Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state. Most of these steps do not include a way to fix the problem as the problem could be one of many different things.
 
-1. Start by checking all Flux Kustomizations & Git Repository & OCI Repository and verify they are healthy.
+1. Verify the Git Repository is up-to-date and in a ready state.
 
     ```sh
-    flux get sources oci -A
     flux get sources git -A
+    ```
+
+    Force Flux to sync your repository to your cluster:
+
+    ```sh
+    flux -n flux-system reconcile ks flux-system --with-source
+    ```
+
+2. Verify all the Flux kustomizations are up-to-date and in a ready state.
+
+    ```sh
     flux get ks -A
     ```
 
-2. Then check all the Flux Helm Releases and verify they are healthy.
+3. Verify all the Flux helm releases are up-to-date and in a ready state.
 
     ```sh
     flux get hr -A
     ```
 
-3. Then check the if the pod is present.
+4. Do you see the pod of the workload you are debugging?
 
     ```sh
     kubectl -n <namespace> get pods -o wide
     ```
 
-4. Then check the logs of the pod if its there.
+5. Check the logs of the pod if its there.
 
     ```sh
     kubectl -n <namespace> logs <pod-name> -f
     ```
 
-5. If a resource exists try to describe it to see what problems it might have.
+6. If a resource exists try to describe it to see what problems it might have.
 
     ```sh
     kubectl -n <namespace> describe <resource> <name>
     ```
 
-6. Check the namespace events
+7. Check the namespace events
 
     ```sh
     kubectl -n <namespace> get events --sort-by='.metadata.creationTimestamp'
     ```
 
-Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on NFS. If you are unable to figure out your problem see the help section below.
+Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on a NFS server. If you are unable to figure out your problem see the support sections below.
 
 ## 🧹 Tidy up
 
