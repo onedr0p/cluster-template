@@ -31,12 +31,10 @@ tasks:
   upgrade-node:
     desc: Upgrade Talos on a single node [IP=required]
     dir: '{{.TALHELPER_DIR}}'
-    cmd: talhelper gencommand upgrade --node {{.IP}} --extra-flags "--image='factory.talos.dev/installer{{if eq .TALOS_SECUREBOOT "true"}}-secureboot{{end}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}' --timeout=10m" | bash
+    cmd: talhelper gencommand upgrade --node {{.IP}} --extra-flags "--image='{{.TALOS_IMAGE}}:{{.TALOS_VERSION}}' --timeout=10m" | bash
     vars:
-      TALOS_SCHEMATIC_ID:
-        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .talosImageURL' {{.TALHELPER_DIR}}/talconfig.yaml | awk -F/ '{print $NF}'
-      TALOS_SECUREBOOT:
-        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .machineSpec.secureboot' {{.TALHELPER_DIR}}/talconfig.yaml
+      TALOS_IMAGE:
+        sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .talosImageURL' {{.TALHELPER_DIR}}/talconfig.yaml
       TALOS_VERSION:
         sh: yq '.talosVersion' {{.TALHELPER_DIR}}/talconfig.yaml
     requires:
@@ -61,7 +59,7 @@ tasks:
 
   reset:
     desc: Resets nodes back to maintenance mode
-    dir: '{{.KUBERNETES_DIR}}/bootstrap/talos'
+    dir: '{{.TALHELPER_DIR}}'
     prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
     cmd: talhelper gencommand reset --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
     preconditions:
