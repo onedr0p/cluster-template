@@ -38,7 +38,6 @@ cloudflare:
   domain: fake
   token: take
   acme:
-    email: fake@example.com
     production: false
   tunnel:
     account_id: fake
