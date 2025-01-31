@@ -106,8 +106,6 @@ cloudflare:
   token: ""
   # (REQUIRED) Optionals for Cloudflare Acme
   acme:
-    # (REQUIRED) Any email you want to be associated with the ACME account (used for TLS certs via letsencrypt.org)
-    email: ""
     # (REQUIRED) Use the ACME production server when requesting the wildcard certificate.
     #   By default the ACME staging server is used. This is to prevent being rate-limited.
     #   Update this option to `true` when you have verified the staging certificate
