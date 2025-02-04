@@ -9,6 +9,7 @@ from netaddr import IPNetwork
 
 import makejinja
 import validation
+import re
 
 
 # Return the filename of a path without the j2 extension
@@ -34,6 +35,25 @@ def nthhost(value: str, query: int) -> str:
     except ValueError:
         return False
     return value
+
+# Return the age public key
+def age_public_key() -> str:
+    with open('age.key', 'r') as file:
+        file_content = file.read()
+    key_match = re.search(r"# public key: (age1[\w]+)", file_content)
+    if not key_match:
+        raise ValueError("Could not find public key in age.key file.")
+    return key_match.group(1)
+
+
+# Return the age private key
+def age_private_key() -> str:
+    with open('age.key', 'r') as file:
+        file_content = file.read()
+    key_match = re.search(r"(AGE-SECRET-KEY-[\w]+)", file_content)
+    if not key_match:
+        raise ValueError("Could not find private key in age.key file.")
+    return key_match.group(1)
 
 
 def import_filter(file: Path) -> Callable[[dict[str, Any]], bool]:
@@ -68,7 +88,7 @@ class Plugin(makejinja.plugin.Plugin):
 
 
     def functions(self) -> makejinja.plugin.Functions:
-        return [talos_patches]
+        return [age_private_key, age_public_key, talos_patches]
 
 
     def path_filters(self):

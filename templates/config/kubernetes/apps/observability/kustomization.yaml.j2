@@ -2,15 +2,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources:
-  - ./prometheus-operator-crds/ks.yaml
+namespace: observability
 components:
   - ../../flux/components/namespace
-patches:
-  - # Add the name to the namespace
-    patch: |
-      - op: add
-        path: /metadata/name
-        value: observability
-    target:
-      kind: Namespace
+  - ../../flux/components/sops
+  - ../../flux/components/substitutions
+resources:
+  - ./kube-prometheus-stack/ks.yaml

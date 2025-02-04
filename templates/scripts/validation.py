@@ -101,15 +101,8 @@ def validate_ntp_servers(servers: list = ["162.159.200.1","162.159.200.123"], **
             raise ValueError(f"Unable to connect to NTP server {server}") from e
 
 
-@required("age_pubkey")
-def validate_age(key: str, **_) -> None:
-    if not re.match(r"^age1[a-z0-9]{0,58}$", key):
-        raise ValueError(f"Invalid age_pubkey {key}, must be not empty and match age1[a-z0-9]{0,58}")
-
-
 def validate(data: dict) -> None:
     validate_python_version()
-    validate_age(data)
 
     if not data.get('skip_tests', False):
         validate_nodes(data)

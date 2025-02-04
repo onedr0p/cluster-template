@@ -12,7 +12,9 @@ tasks:
 
   :init:
     desc: Initialize configuration files
-    cmd: mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+    cmds:
+      - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+      - task: generate-age-key
     status:
       - test -f {{.TEMPLATE_CONFIG_FILE}}
 

@@ -45,12 +45,6 @@ service_network: "10.96.0.0/16"
 #   This is announced over L2.
 controller_vip: ""
 
-# (REQUIRED) Age Public Key (e.g. age1...)
-# 1. Generate a new key with the following command:
-#    > task template:generate-age-key
-# 2. Copy the PUBLIC key and paste it below
-age_pubkey: ""
-
 # (OPTIONAL) Add additional SANs to the Kube API cert, this is useful
 #   if you want to call the Kube API by hostname rather than IP
 tls_sans: []
