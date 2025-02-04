@@ -1,5 +1,6 @@
 [env]
 _.python.venv = { path = "{{config_root}}/.venv", create = true }
+KUBERNETES_DIR = '{{config_root}}/kubernetes'
 KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/kubernetes/bootstrap/talos/clusterconfig/talosconfig"
@@ -11,7 +12,7 @@ run = "uv pip install -r requirements.txt"
 [tools]
 # Template tools
 python = "3.13"
-uv = "0.5.26"
+uv = "0.5.27"
 # Operations tools
 "aqua:budimanjojo/talhelper" = "3.0.17"
 "aqua:cloudflare/cloudflared" = "2025.1.1"
