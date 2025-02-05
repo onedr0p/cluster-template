@@ -71,7 +71,7 @@ def cloudflare_tunnel(value: str) -> str:
 # Return the age private key from age.key
 def github_private_key() -> str:
     try:
-        with open('github.key', 'r') as file:
+        with open('deploy.key', 'r') as file:
             file_content = file.read()
     except FileNotFoundError as e:
         raise FileNotFoundError(f"File not found: age.key") from e

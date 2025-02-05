@@ -51,11 +51,8 @@ tls_sans: []
 
 # (REQUIRED) GitHub details for Flux - Flux is used to manage the cluster configuration.
 github:
-  # (REQUIRED) GitHub repository URL
-  #   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
-  #   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
-  #     If using a private repo make sure to following the instructions with the 'github.private_key' option below.
-  address: ""
+  # (REQUIRED) GitHub repository (e.g. onedr0p/cluster-template)
+  repository: ""
   # (REQUIRED) GitHub repository branch
   branch: "main"
   # (REQUIRED) Token for GitHub push-based sync
@@ -64,10 +61,9 @@ github:
   # 2. Copy the token and paste it below
   webhook_token: ""
   # (OPTIONAL) Use a private GitHub repository
-  #   1. Generate a new key with the following command:
-  #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github.key -q -P ""
-  #   2. Make sure to paste public key from "github.key.pub" into the deploy keys section of your GitHub repository settings.
-  #   3. The file contents of `github-deploy.key` will be automatically used when running `task configure`
+  #   1. Set private to true if you are using a private repository.
+  #   2. Make sure to paste public key from "deploy.key.pub" into the deploy keys section of your GitHub repository settings.
+  #   3. The file contents of `deploy.key` will be automatically used when running `task configure`
   private: false
 
 #
