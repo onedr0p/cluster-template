@@ -7,9 +7,7 @@ tasks:
   generate-config:
     desc: Generate Talos configuration
     dir: '{{.TALHELPER_DIR}}'
-    cmds:
-      - '[ -f talsecret.sops.yaml ] || talhelper gensecret | sops --filename-override talos/talsecret.sops.yaml --encrypt /dev/stdin > talsecret.sops.yaml'
-      - talhelper genconfig
+    cmd: talhelper genconfig
     preconditions:
       - test -f {{.TALHELPER_DIR}}/talconfig.yaml
       - test -f {{.ROOT_DIR}}/.sops.yaml
