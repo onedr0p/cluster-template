@@ -29,7 +29,7 @@ tasks:
       - for: { var: APPLY_SECRETS }
         cmd: sops exec-file {{.ITEM}} "kubectl --namespace flux-system apply --server-side --filename {}"
       - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-settings.yaml
-      - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff
+      - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
     vars:
       APPLY_NAMESPACES:
         sh: ls -d {{.KUBERNETES_DIR}}/apps/*
@@ -37,6 +37,6 @@ tasks:
         sh: find {{.KUBERNETES_DIR}}/bootstrap/flux {{.KUBERNETES_DIR}}/flux -type f -name '*.sops.yaml'
     preconditions:
       - test -f {{.KUBECONFIG}}
-      - test -f {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml
+      - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - which helmfile kubectl sops
