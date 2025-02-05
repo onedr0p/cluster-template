@@ -42,7 +42,6 @@ service_network: "10.96.0.0/16"
 
 # (REQUIRED) The IP address of the Kube API, choose an available IP
 #   in your nodes host network that is NOT being used.
-#   This is announced over L2.
 controller_vip: ""
 
 # (OPTIONAL) Add additional SANs to the Kube API cert, this is useful
@@ -98,11 +97,11 @@ cloudflare:
     production: false
   # (REQUIRED) Provide LAN access to the cluster ingresses for internal ingress classes
   # The Load balancer IP for internal ingress, choose an available IP
-  #   in your nodes host network that is NOT being used. This is announced over L2.
+  #   in your nodes host network that is NOT being used.
   ingress_vip: ""
   # (REQUIRED) Gateway is used for providing DNS to your cluster on LAN
   # The Load balancer IP for k8s_gateway, choose an available IP
-  #   in your nodes host network that is NOT being used. This is announced over L2.
+  #   in your nodes host network that is NOT being used.
   gateway_vip: ""
   # (REQUIRED) Options for Cloudflare Tunnel
   #   1. Authenticate cloudflared to your domain with the following command:
@@ -113,7 +112,7 @@ cloudflare:
   tunnel:
     # (REQUIRED) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
-    #   in your nodes host network that is NOT being used. This is announced over L2.
+    #   in your nodes host network that is NOT being used.
     ingress_vip: ""
 
 #
