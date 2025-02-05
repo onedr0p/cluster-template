@@ -1,4 +1,4 @@
-#% if github.private %#
+#% if github.private | default(false) %#
 ---
 # yaml-language-server: $schema=https://kubernetesjsonschema.dev/v1.18.1-standalone-strict/secret-v1.json
 apiVersion: v1

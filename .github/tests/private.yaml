@@ -29,7 +29,7 @@ tls_sans: ["fake"]
 bgp:
   enabled: false
 github:
-  address: https://github.com/onedr0p/cluster-template
+  repository: onedr0p/cluster-template
   branch: main
   webhook_token: fake
   private: true

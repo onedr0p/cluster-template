@@ -9,7 +9,7 @@ instance:
     - notification-controller
   sync:
     kind: GitRepository
-    #% if github.private %#
+    #% if github.private | default(false) %#
     url: "ssh://git@github.com/#{ github.repository }#.git"
     pullSecret: github-deploy-key
     #% else %#
