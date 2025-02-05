@@ -14,10 +14,10 @@ tasks:
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
       - until talhelper gencommand kubeconfig --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
     preconditions:
-      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
       - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - which talhelper
+      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
+      - which talhelper sops
 
   apps:
     desc: Bootstrap apps into the Talos cluster
