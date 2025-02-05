@@ -68,8 +68,8 @@ def cloudflare_tunnel(value: str) -> str:
         raise FileNotFoundError(f"File not found: cloudflared.json") from e
 
 
-# Return the age private key from age.key
-def github_private_key() -> str:
+# Return the GitHub deploy key from deploy.key
+def deploy_key() -> str:
     try:
         with open('deploy.key', 'r') as file:
             file_content = file.read()
@@ -125,7 +125,7 @@ class Plugin(makejinja.plugin.Plugin):
             age_private_key,
             age_public_key,
             cloudflare_tunnel,
-            github_private_key,
+            deploy_key,
             talos_patches
         ]
 
