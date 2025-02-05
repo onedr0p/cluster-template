@@ -34,7 +34,7 @@ tasks:
       APPLY_NAMESPACES:
         sh: ls -d {{.KUBERNETES_DIR}}/apps/*
       APPLY_SECRETS:
-        sh: find {{.KUBERNETES_DIR}}/bootstrap/flux {{.KUBERNETES_DIR}}/flux -type f -name '*.sops.yaml'
+        sh: find {{.KUBERNETES_DIR}}/bootstrap/apps {{.KUBERNETES_DIR}}/flux -type f -name '*.sops.yaml'
     preconditions:
       - test -f {{.KUBECONFIG}}
       - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
