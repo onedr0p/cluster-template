@@ -27,15 +27,17 @@ tasks:
     desc: Bootstrap apps into the Talos cluster
     cmds:
       - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply --server-side --filename -
-      - '{{if eq .GITHUB_DEPLOY_KEY_EXISTS "true"}}sops exec-file {{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"{{end}}'
-      - sops exec-file {{.KUBERNETES_DIR}}/flux/components/sops/sops-age.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"
-      - sops exec-file {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-secrets.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"
+      - for: {var: APPLY_NAMESPACES}
+        cmd: kubectl create namespace {{base .ITEM}} --dry-run=client --output=yaml | kubectl apply --server-side --filename -
+      - for: { var: APPLY_SECRETS }
+        cmd: sops exec-file {{.ITEM}} "kubectl --namespace flux-system apply --server-side --filename {}"
       - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-settings.yaml
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff
     vars:
-      GITHUB_DEPLOY_KEY_EXISTS:
-        sh: test -f {{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml && echo true || echo false
+      APPLY_NAMESPACES:
+        sh: ls -d {{.KUBERNETES_DIR}}/apps/*
+      APPLY_SECRETS:
+        sh: find {{.KUBERNETES_DIR}}/flux -type f -name '*.sops.yaml'
     preconditions:
       - test -f {{.KUBECONFIG}}
       - test -f {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml
