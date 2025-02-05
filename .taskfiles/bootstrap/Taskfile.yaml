@@ -8,15 +8,12 @@ tasks:
     desc: Bootstrap the Talos cluster
     dir: '{{.TALHELPER_DIR}}'
     cmds:
-      - task: talos:generate-config
+      - task: :talos:generate-config
       - talhelper gencommand apply --extra-flags="--insecure" | bash
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
       - until talhelper gencommand kubeconfig --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
     preconditions:
-      - test -f {{.ROOT_DIR}}/.sops.yaml
-      - test -f {{.SOPS_AGE_KEY_FILE}}
-      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
-      - which talhelper sops
+      - which talhelper
 
   apps:
     desc: Bootstrap apps into the Talos cluster
