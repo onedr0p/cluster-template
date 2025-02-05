@@ -63,17 +63,12 @@ github:
   #    > openssl rand -hex 16
   # 2. Copy the token and paste it below
   webhook_token: ""
-  # (OPTIONAL) Private key for Flux to access the GitHub repository
+  # (OPTIONAL) Use a private GitHub repository
   #   1. Generate a new key with the following command:
-  #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
-  #   2. Make sure to paste public key from "github-deploy.key.pub" into
-  #      the deploy keys section of your GitHub repository settings.
-  #   3. Uncomment and paste the private key below
-  #   4. Optionally set your repository on GitHub to private
-  # private_key: |
-  #   -----BEGIN OPENSSH PRIVATE KEY-----
-  #   ...
-  #   -----END OPENSSH PRIVATE KEY-----
+  #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github.key -q -P ""
+  #   2. Make sure to paste public key from "github.key.pub" into the deploy keys section of your GitHub repository settings.
+  #   3. The file contents of `github-deploy.key` will be automatically used when running `task configure`
+  private: false
 
 #
 # (OPTIONAL) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
@@ -117,17 +112,9 @@ cloudflare:
   #   1. Authenticate cloudflared to your domain with the following command:
   #     > cloudflared tunnel login
   #   2. Create the tunnel with the following command:
-  #     > cloudflared tunnel create k8s
+  #     > cloudflared tunnel create --credentials-file cloudflared.json k8s
+  #   3. The file contents of `cloudflared.json` will be automatically used when running `task configure`
   tunnel:
-    # (REQUIRED) Get the Cloudflared Tunnel ID with the following command:
-    #   > jq -r .TunnelID ~/.cloudflared/*.json
-    id: ""
-    # (REQUIRED) Get the Cloudflare Account ID with the following command:
-    #   > jq -r .AccountTag ~/.cloudflared/*.json
-    account_id: ""
-    # (REQUIRED) Get the Cloudflared Tunnel Secret with the following command:
-    #   > jq -r .TunnelSecret ~/.cloudflared/*.json
-    secret: ""
     # (REQUIRED) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
     #   in your nodes host network that is NOT being used. This is announced over L2.

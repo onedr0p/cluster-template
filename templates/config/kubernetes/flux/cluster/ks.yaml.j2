@@ -6,8 +6,6 @@ metadata:
   name: cluster-meta
   namespace: &namespace flux-system
 spec:
-  components:
-    - ../../components/substitutions
   decryption:
     provider: sops
     secretRef:
@@ -71,3 +69,4 @@ spec:
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
+        labelSelector: substitution.flux.home.arpa/disabled notin (true)
