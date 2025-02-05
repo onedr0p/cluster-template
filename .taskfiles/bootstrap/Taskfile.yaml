@@ -8,15 +8,12 @@ tasks:
     desc: Bootstrap the Talos cluster
     dir: '{{.TALHELPER_DIR}}'
     cmds:
-      - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}talhelper gensecret > {{.TALHELPER_DIR}}/talsecret.sops.yaml{{end}}'
-      - '{{if eq .TALHELPER_SECRET_EXISTS "false"}}sops --encrypt --in-place {{.TALHELPER_DIR}}/talsecret.sops.yaml{{end}}'
+      - '[ -f {{.TALHELPER_DIR}}/talsecret.sops.yaml ] || talhelper gensecret > {{.TALHELPER_DIR}}/talsecret.sops.yaml'
+      - '[ -f {{.TALHELPER_DIR}}/talsecret.sops.yaml ] || sops --encrypt --in-place {{.TALHELPER_DIR}}/talsecret.sops.yaml'
       - talhelper genconfig
       - talhelper gencommand apply --extra-flags="--insecure" | bash
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
       - until talhelper gencommand kubeconfig --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
-    vars:
-      TALHELPER_SECRET_EXISTS:
-        sh: test -f {{.TALHELPER_DIR}}/talsecret.sops.yaml && echo true || echo false
     preconditions:
       - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
@@ -27,17 +24,19 @@ tasks:
     desc: Bootstrap apps into the Talos cluster
     cmds:
       - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply --server-side --filename -
-      - '{{if eq .GITHUB_DEPLOY_KEY_EXISTS "true"}}sops exec-file {{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"{{end}}'
-      - sops exec-file {{.KUBERNETES_DIR}}/flux/components/sops/sops-age.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"
-      - sops exec-file {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-secrets.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"
+      - for: { var: APPLY_NAMESPACES }
+        cmd: kubectl create namespace {{base .ITEM}} --dry-run=client --output=yaml | kubectl apply --server-side --filename -
+      - for: { var: APPLY_SECRETS }
+        cmd: sops exec-file {{.ITEM}} "kubectl --namespace flux-system apply --server-side --filename {}"
       - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-settings.yaml
-      - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff
+      - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
     vars:
-      GITHUB_DEPLOY_KEY_EXISTS:
-        sh: test -f {{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml && echo true || echo false
+      APPLY_NAMESPACES:
+        sh: ls -d {{.KUBERNETES_DIR}}/apps/*
+      APPLY_SECRETS:
+        sh: find {{.KUBERNETES_DIR}}/bootstrap/apps {{.KUBERNETES_DIR}}/flux -type f -name '*.sops.yaml'
     preconditions:
       - test -f {{.KUBECONFIG}}
-      - test -f {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml
+      - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - which helmfile kubectl sops
