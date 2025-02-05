@@ -13,7 +13,7 @@ node_inventory:
     secureboot: true
     encrypt_disk: true
   - name: k8s-1
-    address: 10.10.10.100
+    address: 10.10.10.101
     controller: true
     disk: fake
     mac_addr: fake
@@ -21,7 +21,7 @@ node_inventory:
     secureboot: true
     encrypt_disk: true
   - name: k8s-2
-    address: 10.10.10.101
+    address: 10.10.10.102
     controller: true
     disk: fake
     mac_addr: fake
@@ -29,7 +29,7 @@ node_inventory:
     secureboot: false
     encrypt_disk: false
   - name: k8s-3
-    address: 10.10.10.100
+    address: 10.10.10.103
     controller: false
     disk: fake
     mac_addr: fake
@@ -37,7 +37,7 @@ node_inventory:
     secureboot: true
     encrypt_disk: true
   - name: k8s-4
-    address: 10.10.10.100
+    address: 10.10.10.104
     controller: false
     disk: fake
     mac_addr: fake
@@ -45,7 +45,7 @@ node_inventory:
     secureboot: true
     encrypt_disk: true
   - name: k8s-5
-    address: 10.10.10.101
+    address: 10.10.10.105
     controller: false
     disk: fake
     mac_addr: fake
