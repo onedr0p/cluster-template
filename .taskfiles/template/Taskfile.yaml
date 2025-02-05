@@ -29,7 +29,7 @@ tasks:
       - task: validate-talos-config
     preconditions:
       - msg: |
-          An existing Age key interferes with age key in this repository.
+          An existing Age key interferes with the age key in this repository.
           Rename or delete ~/.config/sops/age/keys.txt
         sh: '! test -f ~/.config/sops/age/keys.txt'
 

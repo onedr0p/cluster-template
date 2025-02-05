@@ -61,8 +61,8 @@ github:
   # 2. Copy the token and paste it below
   webhook_token: ""
   # (OPTIONAL) Use a private GitHub repository
-  #   1. Set private to true if you are using a private repository.
-  #   2. Make sure to paste public key from "deploy.key.pub" into the deploy keys section of your GitHub repository settings.
+  #   1. After running `task init` a deploy.key and deploy.key.pub will be created.
+  #   2. Paste the public key from `deploy.key.pub` into the deploy keys section of your GitHub repository settings.
   #   3. The file contents of `deploy.key` will be automatically used when running `task configure`
   private: false
 
