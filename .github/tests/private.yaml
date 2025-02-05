@@ -4,7 +4,7 @@ skip_tests: true
 node_network: 10.10.10.0/24
 node_default_gateway: 10.10.10.1
 node_inventory:
-  - name: k8s-controller-0
+  - name: k8s-0
     address: 10.10.10.100
     controller: true
     disk: fake
@@ -12,7 +12,7 @@ node_inventory:
     schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
     secureboot: true
     encrypt_disk: true
-  - name: k8s-worker-0
+  - name: k8s-1
     address: 10.10.10.101
     controller: false
     disk: fake

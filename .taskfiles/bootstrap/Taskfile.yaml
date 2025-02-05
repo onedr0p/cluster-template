@@ -8,8 +8,7 @@ tasks:
     desc: Bootstrap the Talos cluster
     dir: '{{.TALHELPER_DIR}}'
     cmds:
-      - '[ -f {{.TALHELPER_DIR}}/talsecret.sops.yaml ] || talhelper gensecret > {{.TALHELPER_DIR}}/talsecret.sops.yaml'
-      - '[ -f {{.TALHELPER_DIR}}/talsecret.sops.yaml ] || sops --encrypt --in-place {{.TALHELPER_DIR}}/talsecret.sops.yaml'
+      - '[ -f talsecret.sops.yaml ] || talhelper gensecret | sops --filename-override talos/talsecret.sops.yaml --encrypt /dev/stdin > talsecret.sops.yaml'
       - talhelper genconfig
       - talhelper gencommand apply --extra-flags="--insecure" | bash
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
