@@ -50,7 +50,10 @@ jobs:
         run: task configure --yes
 
       - name: Run generate talconfig task
-        run: task talos:generate-config
+        run: |
+          FILENAME=kubernetes/bootstrap/talos/talsecret.sops.yaml
+          talhelper gensecret | sops --filename-override $FILENAME --encrypt /dev/stdin > $FILENAME
+          task talos:generate-config
 
       - name: Run flux-local test
         uses: docker://ghcr.io/allenporter/flux-local:v7.0.0@sha256:abf237e31d20de26f8a4b08e588cc927cb0a9f0ecf90d04bada00f393b919354
