@@ -5,7 +5,6 @@ Thumbs.db
 kubeconfig
 talosconfig
 .decrypted~*.yaml
-.config.env
 *.agekey
 *.pub
 *.key
@@ -20,7 +19,6 @@ talosconfig
 Brewfile.lock.json
 # intellij
 .idea
-# wiki
-wiki
 # Bootstrap
 /config.yaml
+cloudflared.json

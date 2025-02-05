@@ -45,23 +45,14 @@ service_network: "10.96.0.0/16"
 #   This is announced over L2.
 controller_vip: ""
 
-# (REQUIRED) Age Public Key (e.g. age1...)
-# 1. Generate a new key with the following command:
-#    > task template:generate-age-key
-# 2. Copy the PUBLIC key and paste it below
-age_pubkey: ""
-
 # (OPTIONAL) Add additional SANs to the Kube API cert, this is useful
 #   if you want to call the Kube API by hostname rather than IP
 tls_sans: []
 
 # (REQUIRED) GitHub details for Flux - Flux is used to manage the cluster configuration.
 github:
-  # (REQUIRED) GitHub repository URL
-  #   For a public repo use the 'https://' URL (e.g. "https://github.com/onedr0p/cluster-template.git")
-  #   For a private repo use the 'ssh://' URL (e.g. "ssh://git@github.com/onedr0p/cluster-template.git")
-  #     If using a private repo make sure to following the instructions with the 'github.private_key' option below.
-  address: ""
+  # (REQUIRED) GitHub repository (e.g. onedr0p/cluster-template)
+  repository: ""
   # (REQUIRED) GitHub repository branch
   branch: "main"
   # (REQUIRED) Token for GitHub push-based sync
@@ -69,17 +60,11 @@ github:
   #    > openssl rand -hex 16
   # 2. Copy the token and paste it below
   webhook_token: ""
-  # (OPTIONAL) Private key for Flux to access the GitHub repository
-  #   1. Generate a new key with the following command:
-  #      > ssh-keygen -t ecdsa -b 521 -C "github-deploy-key" -f github-deploy.key -q -P ""
-  #   2. Make sure to paste public key from "github-deploy.key.pub" into
-  #      the deploy keys section of your GitHub repository settings.
-  #   3. Uncomment and paste the private key below
-  #   4. Optionally set your repository on GitHub to private
-  # private_key: |
-  #   -----BEGIN OPENSSH PRIVATE KEY-----
-  #   ...
-  #   -----END OPENSSH PRIVATE KEY-----
+  # (OPTIONAL) Use a private GitHub repository
+  #   1. Set private to true if you are using a private repository.
+  #   2. Make sure to paste public key from "deploy.key.pub" into the deploy keys section of your GitHub repository settings.
+  #   3. The file contents of `deploy.key` will be automatically used when running `task configure`
+  private: false
 
 #
 # (OPTIONAL) Cloudflare details - Cloudflare is used for DNS, TLS certificates and tunneling.
@@ -123,17 +108,9 @@ cloudflare:
   #   1. Authenticate cloudflared to your domain with the following command:
   #     > cloudflared tunnel login
   #   2. Create the tunnel with the following command:
-  #     > cloudflared tunnel create k8s
+  #     > cloudflared tunnel create --credentials-file cloudflared.json k8s
+  #   3. The file contents of `cloudflared.json` will be automatically used when running `task configure`
   tunnel:
-    # (REQUIRED) Get the Cloudflared Tunnel ID with the following command:
-    #   > jq -r .TunnelID ~/.cloudflared/*.json
-    id: ""
-    # (REQUIRED) Get the Cloudflare Account ID with the following command:
-    #   > jq -r .AccountTag ~/.cloudflared/*.json
-    account_id: ""
-    # (REQUIRED) Get the Cloudflared Tunnel Secret with the following command:
-    #   > jq -r .TunnelSecret ~/.cloudflared/*.json
-    secret: ""
     # (REQUIRED) Provide WAN access to the cluster ingresses for external ingress classes
     # The Load balancer IP for external ingress, choose an available IP
     #   in your nodes host network that is NOT being used. This is announced over L2.

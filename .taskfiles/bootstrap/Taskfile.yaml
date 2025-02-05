@@ -2,9 +2,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 
-vars:
-  GITHUB_DEPLOY_KEY_FILE: '{{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml'
-
 tasks:
 
   talos:
@@ -31,16 +28,14 @@ tasks:
     cmds:
       - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
       - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply --server-side --filename -
-      - '{{if eq .GITHUB_DEPLOY_KEY_EXISTS "true"}}sops exec-file {{.GITHUB_DEPLOY_KEY_FILE}} "kubectl apply --server-side --filename {}"{{end}}'
-      - '{{if eq .SOPS_SECRET_EXISTS "false"}}cat {{.SOPS_AGE_KEY_FILE}} | kubectl --namespace flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin{{end}}'
-      - sops exec-file {{.KUBERNETES_DIR}}/flux/meta/settings/cluster-secrets.sops.yaml "kubectl apply --server-side --filename {}"
-      - kubectl apply --server-side --filename {{.KUBERNETES_DIR}}/flux/meta/settings/cluster-settings.yaml
+      - '{{if eq .GITHUB_DEPLOY_KEY_EXISTS "true"}}sops exec-file {{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"{{end}}'
+      - sops exec-file {{.KUBERNETES_DIR}}/flux/components/sops/sops-age.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"
+      - sops exec-file {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-secrets.sops.yaml "kubectl --namespace flux-system apply --server-side --filename {}"
+      - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-settings.yaml
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff
     vars:
       GITHUB_DEPLOY_KEY_EXISTS:
-        sh: test -f {{.GITHUB_DEPLOY_KEY_FILE}} && echo true || echo false
-      SOPS_SECRET_EXISTS:
-        sh: kubectl --namespace flux-system get secret sops-age &>/dev/null && echo true || echo false
+        sh: test -f {{.KUBERNETES_DIR}}/bootstrap/flux/github-deploy-key.sops.yaml && echo true || echo false
     preconditions:
       - test -f {{.KUBECONFIG}}
       - test -f {{.KUBERNETES_DIR}}/bootstrap/helmfile.yaml

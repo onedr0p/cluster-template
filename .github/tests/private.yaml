@@ -26,23 +26,12 @@ pod_network: 10.69.0.0/16
 service_network: 10.96.0.0/16
 controller_vip: 10.10.10.254
 tls_sans: ["fake"]
-age_pubkey: $TEMPLATE_AGE_PUBLIC_KEY
 bgp:
   enabled: false
 github:
-  address: https://github.com/onedr0p/cluster-template
+  repository: onedr0p/cluster-template
   branch: main
   webhook_token: fake
+  private: true
 cloudflare:
-  enabled: true
-  domain: fake
-  token: take
-  acme:
-    production: false
-  tunnel:
-    account_id: fake
-    id: fake
-    secret: fake
-    ingress_vip: 10.10.10.252
-  ingress_vip: 10.10.10.251
-  gateway_vip: 10.10.10.253
+  enabled: false

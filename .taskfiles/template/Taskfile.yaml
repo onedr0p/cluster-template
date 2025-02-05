@@ -12,7 +12,10 @@ tasks:
 
   :init:
     desc: Initialize configuration files
-    cmd: mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+    cmds:
+      - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+      - task: generate-age-key
+      - task: generate-deploy-key
     status:
       - test -f {{.TEMPLATE_CONFIG_FILE}}
 
@@ -37,6 +40,14 @@ tasks:
       - test -f {{.SOPS_AGE_KEY_FILE}}
     preconditions:
       - which age-keygen
+
+  generate-deploy-key:
+    desc: Create the deploy key
+    cmd: ssh-keygen -t ecdsa -b 521 -C "deploy-key" -f {{.ROOT_DIR}}/deploy.key -q -P ""
+    status:
+      - test -f {{.ROOT_DIR}}/deploy.key
+    preconditions:
+      - which ssh-keygen
 
   render-configs:
     desc: Template the configuration files

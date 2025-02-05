@@ -22,7 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         config-files:
-          - talos
+          - cloudflare
+          - flux
+          - private
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,15 +37,14 @@ jobs:
       - name: Install dependencies
         run: mise run deps
 
-      - name: Run age task
-        run: task template:generate-age-key
-
       - name: Run init task
+        run: task init
+
+      - name: Prepare files
         run: |
-          task init
-          cp ./.github/tests/config-${{ matrix.config-files }}.yaml ./config.yaml
-          export TEMPLATE_AGE_PUBLIC_KEY=$(sed -n 's/# public key: //gp' age.key)
-          envsubst < ./config.yaml > ./config.yaml.tmp && mv ./config.yaml.tmp ./config.yaml
+          cp ./.github/tests/${{ matrix.config-files }}.yaml config.yaml
+          echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflared.json
+          touch kubeconfig
 
       - name: Run configure task
         run: task configure --yes
@@ -55,6 +56,12 @@ jobs:
         uses: docker://ghcr.io/allenporter/flux-local:v7.0.0@sha256:abf237e31d20de26f8a4b08e588cc927cb0a9f0ecf90d04bada00f393b919354
         with:
           args: test --enable-helm --all-namespaces --path /github/workspace/kubernetes/flux/cluster -v
+
+      - name: Dry run bootstrap talos task
+        run: task bootstrap:talos --dry
+
+      - name: Dry run bootstrap apps task
+        run: task bootstrap:apps --dry
 
       - name: Run cleanup task
         run: task template:tidy --yes
