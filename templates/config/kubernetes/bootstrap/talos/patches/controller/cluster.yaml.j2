@@ -1,5 +1,9 @@
 cluster:
   allowSchedulingOnControlPlanes: true
+  apiServer:
+    extraArgs:
+      # https://kubernetes.io/docs/tasks/extend-kubernetes/configure-aggregation-layer/
+      enable-aggregator-routing: true
   controllerManager:
     extraArgs:
       bind-address: 0.0.0.0
