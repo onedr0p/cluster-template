@@ -104,7 +104,7 @@ def validate_ntp_servers(servers: list = ["162.159.200.1","162.159.200.123"], **
 @required("github")
 def validate_github_repository(github: dict, **_) -> None:
     if not re.match(r"[a-zA-Z0-9-]+/[a-zA-Z0-9-]+", github.get('repository')):
-        raise ValueError(f"Invalid github repository {github.get('repository')}, must match [a-zA-Z0-9-]+/[a-zA-Z0-9-]+")
+        raise ValueError(f"Invalid github repository {github.get('repository')}, must match [a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+")
 
 
 def validate(data: dict) -> None:
