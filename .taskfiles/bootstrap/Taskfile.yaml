@@ -27,14 +27,14 @@ tasks:
         cmd: kubectl create namespace {{base .ITEM}} --dry-run=client --output=yaml | kubectl apply --server-side --filename -
       - for: { var: APPLY_SECRETS }
         cmd: sops exec-file {{.ITEM}} "kubectl --namespace flux-system apply --server-side --filename {}"
-      - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/substitutions/cluster-settings.yaml
+      - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/common/cluster-settings.yaml
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml destroy --selector name=prometheus-operator-crds
     vars:
       APPLY_NAMESPACES:
         sh: ls -d {{.KUBERNETES_DIR}}/apps/*
       APPLY_SECRETS:
-        sh: find {{.KUBERNETES_DIR}}/bootstrap/apps {{.KUBERNETES_DIR}}/flux -type f -name '*.sops.yaml'
+        sh: find {{.KUBERNETES_DIR}}/{bootstrap/apps,flux/components/common} -type f -name '*.sops.yaml'
     preconditions:
       - test -f {{.KUBECONFIG}}
       - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
