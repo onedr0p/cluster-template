@@ -29,7 +29,6 @@ tasks:
         cmd: sops exec-file {{.ITEM}} "kubectl --namespace flux-system apply --server-side --filename {}"
       - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/common/cluster-settings.yaml
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
-      - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml destroy --selector name=prometheus-operator-crds
     vars:
       APPLY_NAMESPACES:
         sh: ls -d {{.KUBERNETES_DIR}}/apps/*
