@@ -7,6 +7,18 @@ function log() {
     echo -e "\033[0;32m[$(date --iso-8601=seconds)] (${FUNCNAME[1]}) $*\033[0m"
 }
 
+# Wait for all nodes to be up
+function wait_for_nodes() {
+    if kubectl wait nodes --for=condition=Ready=True --all --timeout=10s &>/dev/null; then
+        log "All nodes are ready. Skipping..."
+        return
+    fi
+    until kubectl wait nodes --for=condition=Ready=False --all --timeout=10m &>/dev/null; do
+        log "Waiting for all nodes to be up..."
+        sleep 5
+    done
+}
+
 # Apply Prometheus CRDs
 function apply_prometheus_crds() {
     # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
@@ -36,8 +48,67 @@ function apply_prometheus_crds() {
     done
 }
 
+# Apply Namespaces
+function apply_namespaces() {
+    local -r namespaces=(
+        "flux-system"
+    )
+
+    for namespace in "${namespaces[@]}"; do
+        if kubectl get namespace "${namespace}" &>/dev/null; then
+            log "Namespace '${namespace}' is up-to-date. Skipping..."
+            continue
+        fi
+        log "Applying namespace '${namespace}'..."
+        kubectl create namespace "${namespace}" --dry-run=client --output=yaml \
+            | kubectl apply --server-side --filename -
+    done
+}
+
+# Apply ConfigMaps
+function apply_configmaps() {
+    local -r configmaps=(
+        "${KUBERNETES_DIR}/flux/components/common/cluster-settings.yaml"
+    )
+
+    for configmap in "${configmaps[@]}"; do
+        if [ -f "${configmap}" ]; then
+            if kubectl --namespace flux-system diff --filename "${configmap}" &>/dev/null; then
+                log "ConfigMap file '${configmap}' is up-to-date. Skipping..."
+                continue
+            fi
+            log "Applying configMap file '${configmap}'..."
+            kubectl --namespace flux-system apply --server-side --filename "${configmap}"
+        fi
+    done
+}
+
+# Apply Secrets
+function apply_secrets() {
+    local -r secrets=(
+        "${KUBERNETES_DIR}/bootstrap/apps/resources/github-deploy-key.sops.yaml"
+        "${KUBERNETES_DIR}/flux/components/common/cluster-secrets.sops.yaml"
+        "${KUBERNETES_DIR}/flux/components/common/sops-age.sops.yaml"
+    )
+
+    for secret in "${secrets[@]}"; do
+        if [ -f "${secret}" ]; then
+            if sops exec-file "${secret}" "kubectl --namespace flux-system diff --filename {}" &>/dev/null; then
+                log "Secret file '${secret}' is up-to-date. Skipping..."
+                continue
+            fi
+            log "Applying secret file '${secret}'..."
+            sops exec-file "${secret}" "kubectl --namespace flux-system apply --server-side --filename {}"
+        fi
+    done
+}
+
 function main() {
+    wait_for_nodes
     apply_prometheus_crds
+    apply_namespaces
+    apply_configmaps
+    apply_secrets
 }
 
 main "$@"
