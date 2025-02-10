@@ -2,10 +2,9 @@
 
 set -euo pipefail
 
-# renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-PROMETHEUS_OPERATOR_VERSION="v0.80.0"
-
-function apply_crds() {
+function apply_prometheus_crds() {
+    # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
+    local -r version=v0.80.0
     local -r crds=(
         "alertmanagerconfigs"
         "alertmanagers"
@@ -27,13 +26,13 @@ function apply_crds() {
             kubectl apply \
                 --server-side \
                 --filename \
-                "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${PROMETHEUS_OPERATOR_VERSION}/example/prometheus-operator-crd/monitoring.coreos.com_${crd}.yaml"
+                "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${version}/example/prometheus-operator-crd/monitoring.coreos.com_${crd}.yaml"
         fi
     done
 }
 
 function main() {
-    apply_crds
+    apply_prometheus_crds
 }
 
 main "$@"
