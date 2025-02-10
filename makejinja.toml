@@ -6,6 +6,7 @@ data = ["./config.yaml"]
 import_paths = ["./templates/scripts"]
 loaders = ["plugin:Plugin"]
 jinja_suffix = ".j2"
+copy_metadata = true
 force = true
 undefined = "chainable"
 
