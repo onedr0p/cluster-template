@@ -28,13 +28,11 @@ function apply_prometheus_crds() {
     for crd in "${crds[@]}"; do
         if kubectl get crd "${crd}.monitoring.coreos.com" &>/dev/null; then
             log "Prometheus CRD '${crd}' is up-to-date. Skipping..."
-        else
-            log "Applying Prometheus CRD '${crd}'..."
-            kubectl apply \
-                --server-side \
-                --filename \
-                "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${version}/example/prometheus-operator-crd/monitoring.coreos.com_${crd}.yaml"
+            continue
         fi
+        log "Applying Prometheus CRD '${crd}'..."
+        kubectl apply --server-side \
+            --filename "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${version}/example/prometheus-operator-crd/monitoring.coreos.com_${crd}.yaml"
     done
 }
 
