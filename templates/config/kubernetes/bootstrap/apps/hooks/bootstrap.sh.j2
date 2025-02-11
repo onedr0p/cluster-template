@@ -72,14 +72,16 @@ function apply_configmaps() {
     )
 
     for configmap in "${configmaps[@]}"; do
-        if [ -f "${configmap}" ]; then
-            if kubectl --namespace flux-system diff --filename "${configmap}" &>/dev/null; then
-                log "ConfigMap file '${configmap}' is up-to-date. Skipping..."
-                continue
-            fi
-            log "Applying configMap file '${configmap}'..."
-            kubectl --namespace flux-system apply --server-side --filename "${configmap}"
+        if [ ! -f "${configmap}" ]; then
+            log "ConfigMap file '${configmap}' not found. Skipping..."
+            continue
         fi
+        if kubectl --namespace flux-system diff --filename "${configmap}" &>/dev/null; then
+            log "ConfigMap file '${configmap}' is up-to-date. Skipping..."
+            continue
+        fi
+        log "Applying configMap file '${configmap}'..."
+        kubectl --namespace flux-system apply --server-side --filename "${configmap}"
     done
 }
 
@@ -92,14 +94,16 @@ function apply_secrets() {
     )
 
     for secret in "${secrets[@]}"; do
-        if [ -f "${secret}" ]; then
-            if sops exec-file "${secret}" "kubectl --namespace flux-system diff --filename {}" &>/dev/null; then
-                log "Secret file '${secret}' is up-to-date. Skipping..."
-                continue
-            fi
-            log "Applying secret file '${secret}'..."
-            sops exec-file "${secret}" "kubectl --namespace flux-system apply --server-side --filename {}"
+        if [ ! -f "${secret}" ]; then
+            log "Secret file '${secret}' not found. Skipping..."
+            continue
         fi
+        if sops exec-file "${secret}" "kubectl --namespace flux-system diff --filename {}" &>/dev/null; then
+            log "Secret file '${secret}' is up-to-date. Skipping..."
+            continue
+        fi
+        log "Applying secret file '${secret}'..."
+        sops exec-file "${secret}" "kubectl --namespace flux-system apply --server-side --filename {}"
     done
 }
 
