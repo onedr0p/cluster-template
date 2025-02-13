@@ -22,20 +22,11 @@ tasks:
   apps:
     desc: Bootstrap apps into the Talos cluster
     cmds:
-      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
-      - for: { var: APPLY_NAMESPACES }
-        cmd: kubectl create namespace {{base .ITEM}} --dry-run=client --output=yaml | kubectl apply --server-side --filename -
-      - for: { var: APPLY_SECRETS }
-        cmd: sops exec-file {{.ITEM}} "kubectl --namespace flux-system apply --server-side --filename {}"
-      - kubectl --namespace flux-system apply --server-side --filename {{.KUBERNETES_DIR}}/flux/components/common/cluster-settings.yaml
+      - bash {{.KUBERNETES_DIR}}/bootstrap/apps/resources/prepare.sh
       - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
-    vars:
-      APPLY_NAMESPACES:
-        sh: ls -d {{.KUBERNETES_DIR}}/apps/*
-      APPLY_SECRETS:
-        sh: find {{.KUBERNETES_DIR}}/{bootstrap/apps,flux/components/common} -type f -name '*.sops.yaml'
     preconditions:
       - test -f {{.KUBECONFIG}}
       - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
+      - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/resources/prepare.sh
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - which helmfile kubectl sops
+      - which gum helmfile kubectl kustomize sops yq
