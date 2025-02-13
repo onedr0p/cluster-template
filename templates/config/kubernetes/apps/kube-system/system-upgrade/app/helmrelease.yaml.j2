@@ -53,8 +53,8 @@ spec:
                     operator: Exists
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
+        runAsUser: 65534
+        runAsGroup: 65534
       tolerations:
         - key: node-role.kubernetes.io/control-plane
           operator: Exists
