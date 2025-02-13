@@ -199,7 +199,16 @@ task talos:apply-node IP=? MODE=?
 # e.g. task talos:apply-node IP=10.10.10.10 MODE=auto
 ```
 
-### ⬆️ Updating Talos and Kubernetes versions
+### ⬆️ Upgrading Talos and Kubernetes versions
+
+#### Method 1: System Upgrade Controller (SUC)
+
+Talos and Kubernetes upgrades should be handled via the [rancher/system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) which is deployed in the `kube-system` namespace.
+
+#### Method 2: Taskfile
+
+> [!WARNING]
+> Upgrading via this method can interfere with the System Upgrade Controller. SUC could potentially downgrade Talos or Kubernetes versions if care is not taken.
 
 > [!IMPORTANT]
 > Ensure the `talosVersion` and `kubernetesVersion` in `talconfig.yaml` are up-to-date with the version you wish to upgrade to.
