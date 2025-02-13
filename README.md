@@ -204,7 +204,7 @@ task talos:apply-node IP=? MODE=?
 #### Method 1: System Upgrade Controller (SUC)
 
 > [!IMPORTANT]
-> In order to upgrade make sure `TALOS_VERSION` and `KUBERNETES_VERSION` in `kubernetes/apps/kube-system/system-upgrade/ks.yaml` are set to the versions you wish to upgrade to. Once your cluster receives this configuration the upgrade processes will kick off in the `kube-system` namespace.
+> In order to upgrade make sure `TALOS_VERSION` and `KUBERNETES_VERSION` in `kubernetes/apps/kube-system/system-upgrade/ks.yaml` are set to the versions you wish to upgrade to. Once your cluster receives this configuration the upgrade processes will kick off in the `kube-system` namespace. These versions are under the watch of renovate, which means once the pull requests is merged SUC will attempt to upgrade Kubernetes / Talos and reboot.
 
 Talos and Kubernetes upgrades should be handled via the [rancher/system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) which is deployed in the `kube-system` namespace.
 
