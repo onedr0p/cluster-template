@@ -5,8 +5,7 @@ name: "Mise"
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *" # once a day at midnight
-
+    - cron: "0 0 * * 0" # once a week
 jobs:
   mise:
     name: upgrade-tools
