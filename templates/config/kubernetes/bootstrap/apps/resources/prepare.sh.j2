@@ -5,6 +5,29 @@ set -euo pipefail
 # Set default values for the 'gum log' command
 readonly LOG_ARGS=("log" "--time=rfc3339" "--formatter=text" "--structured" "--level")
 
+# Verify required CLI tools are installed
+function check_dependencies() {
+    local deps=("gum" "jq" "kubectl" "kustomize" "sops" "yq")
+    local missing=()
+
+    for dep in "${deps[@]}"; do
+        if ! command -v "${dep}" &>/dev/null; then
+            missing+=("${dep}")
+        fi
+    done
+
+    if [ ${#missing[@]} -ne 0 ]; then
+        if ! command -v gum &>/dev/null; then
+            printf "%s \033[1;95m%s\033[0m Missing required dependencies \033[0;30mdependencies=\033[0m\"%s\"\n" \
+                "$(date --iso-8601=seconds)" "FATAL" "${missing[*]}"
+            exit 1
+        fi
+        gum "${LOG_ARGS[@]}" fatal "Missing required dependencies" dependencies "${missing[*]}"
+    fi
+
+    gum "${LOG_ARGS[@]}" debug "Dependencies are installed" dependencies "${deps[*]}"
+}
+
 # Talos requires the nodes to be 'Ready=False' before applying resources
 function wait_for_nodes() {
     gum "${LOG_ARGS[@]}" debug "Waiting for nodes to be available"
@@ -140,12 +163,18 @@ function apply_sops_secrets() {
     done
 }
 
+function success() {
+    gum "${LOG_ARGS[@]}" info "Cluster is ready for installing helmfile apps"
+}
+
 function main() {
+    check_dependencies
     wait_for_nodes
     apply_prometheus_crds
     apply_namespaces
     apply_configmaps
     apply_sops_secrets
+    success
 }
 
 main "$@"

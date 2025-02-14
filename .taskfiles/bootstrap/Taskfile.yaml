@@ -29,4 +29,4 @@ tasks:
       - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
       - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/resources/prepare.sh
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - which gum helmfile kubectl kustomize sops yq
+      - which helmfile
