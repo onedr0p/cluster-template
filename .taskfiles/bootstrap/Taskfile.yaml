@@ -22,11 +22,8 @@ tasks:
   apps:
     desc: Bootstrap apps into the Talos cluster
     cmds:
-      - bash {{.KUBERNETES_DIR}}/bootstrap/apps/resources/prepare.sh
-      - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
+      - bash {{.SCRIPTS_DIR}}/installation.sh
     preconditions:
       - test -f {{.KUBECONFIG}}
-      - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
-      - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/resources/prepare.sh
+      - test -f {{.SCRIPTS_DIR}}/installation.sh
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - which helmfile

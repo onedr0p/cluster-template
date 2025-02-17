@@ -8,6 +8,15 @@ area/github:
 area/kubernetes:
   - changed-files:
       - any-glob-to-any-file: kubernetes/**/*
+area/scripts:
+  - changed-files:
+      - any-glob-to-any-file: scripts/**/*
+area/bootstrap:
+  - changed-files:
+      - any-glob-to-any-file: bootstrap/**/*
+area/talos:
+  - changed-files:
+      - any-glob-to-any-file: talos/**/*
 area/taskfile:
   - changed-files:
       - any-glob-to-any-file: .taskfiles/**/*
