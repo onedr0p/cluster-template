@@ -48,9 +48,9 @@ function apply_prometheus_operator_crds() {
 
     # Apply the CRDs
     if echo "${crds}" | kubectl apply --server-side --filename - &>/dev/null; then
-        log info "Prometheus CRDs applied successfully"
+        log info "Prometheus Operator CRDs applied successfully"
     else
-        log fatal "Failed to apply Prometheus CRDs"
+        log fatal "Failed to apply Prometheus Operator CRDs"
     fi
 }
 
@@ -163,7 +163,7 @@ function apply_helm_releases() {
 
 function main() {
     # Verifications before bootstrapping the cluster
-    check_cli "helmfile" "kubectl" "kustomize""sops" "yq"
+    check_cli "helmfile" "kubectl" "kustomize" "sops" "talhelper" "yq"
 
     # Apply resources and Helm releases
     wait_for_nodes
