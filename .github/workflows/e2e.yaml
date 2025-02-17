@@ -51,7 +51,7 @@ jobs:
 
       - name: Run generate talconfig task
         run: |
-          FILENAME=kubernetes/bootstrap/talos/talsecret.sops.yaml
+          FILENAME=talos/talsecret.sops.yaml
           talhelper gensecret | sops --filename-override $FILENAME --encrypt /dev/stdin > $FILENAME
           task talos:generate-config
 
