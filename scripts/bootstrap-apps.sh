@@ -29,8 +29,11 @@ function apply_prometheus_operator_crds() {
 
     local resources crds
 
+    # renovate: datasource=docker depName=ghcr.io/prometheus-operator/prometheus-operator
+    local -r version=v0.80.0
+
     # Fetch resources using kustomize build
-    if ! resources=$(kustomize build "https://github.com/prometheus-operator/prometheus-operator/?ref=${PROMETHEUS_OPERATOR_VERSION}" 2>/dev/null) || [[ -z "${resources}" ]]; then
+    if ! resources=$(kustomize build "https://github.com/prometheus-operator/prometheus-operator/?ref=${version}" 2>/dev/null) || [[ -z "${resources}" ]]; then
         log error "Failed to fetch Prometheus Operator CRDs, check the version or the repository URL"
     fi
 
