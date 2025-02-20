@@ -70,7 +70,7 @@ tasks:
           fi
     vars:
       SECRET_FILES:
-        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*"
+        sh: find "{{.BOOTSTRAP_DIR}}" "{{.KUBERNETES_DIR}}" "{{.TALOS_DIR}}" -type f -name "*.sops.*"
     preconditions:
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - test -f {{.ROOT_DIR}}/.sops.yaml
