@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
+set -Eeuo pipefail
 
-set -euo pipefail
-
-# shellcheck disable=SC2155
-export ROOT_DIR="$(git rev-parse --show-toplevel)"
-# shellcheck disable=SC1091
 source "$(dirname "${0}")/lib/common.sh"
+
+export LOG_LEVEL="debug"
+export ROOT_DIR="$(git rev-parse --show-toplevel)"
 
 # Talos requires the nodes to be 'Ready=False' before applying resources
 function wait_for_nodes() {
@@ -32,12 +31,12 @@ function apply_prometheus_operator_crds() {
 
     # Fetch resources using kustomize build
     if ! resources=$(kustomize build "https://github.com/prometheus-operator/prometheus-operator/?ref=${PROMETHEUS_OPERATOR_VERSION}" 2>/dev/null) || [[ -z "${resources}" ]]; then
-        log fatal "Failed to fetch Prometheus Operator CRDs, check the version or the repository URL"
+        log error "Failed to fetch Prometheus Operator CRDs, check the version or the repository URL"
     fi
 
     # Extract only CustomResourceDefinitions
     if ! crds=$(echo "${resources}" | yq '. | select(.kind == "CustomResourceDefinition")' 2>/dev/null) || [[ -z "${crds}" ]]; then
-        log fatal "No CustomResourceDefinitions found in the fetched resources"
+        log error "No CustomResourceDefinitions found in the fetched resources"
     fi
 
     # Check if the CRDs are up-to-date
@@ -50,7 +49,7 @@ function apply_prometheus_operator_crds() {
     if echo "${crds}" | kubectl apply --server-side --filename - &>/dev/null; then
         log info "Prometheus Operator CRDs applied successfully"
     else
-        log fatal "Failed to apply Prometheus Operator CRDs"
+        log error "Failed to apply Prometheus Operator CRDs"
     fi
 }
 
@@ -61,7 +60,7 @@ function apply_namespaces() {
     local -r apps_dir="${ROOT_DIR}/kubernetes/apps"
 
     if [[ ! -d "${apps_dir}" ]]; then
-        log fatal "Directory does not exist" "directory=${apps_dir}"
+        log error "Directory does not exist" "directory=${apps_dir}"
     fi
 
     for app in "${apps_dir}"/*/; do
@@ -79,7 +78,7 @@ function apply_namespaces() {
         then
             log info "Namespace resource applied" "resource=${namespace}"
         else
-            log fatal "Failed to apply namespace resource" "resource=${namespace}"
+            log error "Failed to apply namespace resource" "resource=${namespace}"
         fi
     done
 }
@@ -108,7 +107,7 @@ function apply_configmaps() {
         if kubectl --namespace flux-system apply --server-side --filename "${configmap}" &>/dev/null; then
             log info "ConfigMap resource applied successfully" "resource=$(basename "${configmap}" ".yaml")"
         else
-            log fatal "Failed to apply ConfigMap resource" "resource=$(basename "${configmap}" ".yaml")"
+            log error "Failed to apply ConfigMap resource" "resource=$(basename "${configmap}" ".yaml")"
         fi
     done
 }
@@ -131,15 +130,15 @@ function apply_sops_secrets() {
 
         # Check if the secret resources are up-to-date
         if sops exec-file "${secret}" "kubectl --namespace flux-system diff --filename {}" &>/dev/null; then
-            log info "Secret resource is up-to-date" "resource=$(basename "${secret}" ".yaml")"
+            log info "Secret resource is up-to-date" "resource=$(basename "${secret}" ".sops.yaml")"
             continue
         fi
 
         # Apply secret resources
         if sops exec-file "${secret}" "kubectl --namespace flux-system apply --server-side --filename {}" &>/dev/null; then
-            log info "Secret resource applied successfully" "resource=$(basename "${secret}" ".yaml")"
+            log info "Secret resource applied successfully" "resource=$(basename "${secret}" ".sops.yaml")"
         else
-            log fatal "Failed to apply secret resource" "resource=$(basename "${secret}" ".yaml")"
+            log error "Failed to apply secret resource" "resource=$(basename "${secret}" ".sops.yaml")"
         fi
     done
 }
@@ -151,19 +150,18 @@ function apply_helm_releases() {
     local -r helmfile_file="${ROOT_DIR}/bootstrap/helmfile.yaml"
 
     if [[ ! -f "${helmfile_file}" ]]; then
-        log fatal "File does not exist" "file=${helmfile_file}"
+        log error "File does not exist" "file=${helmfile_file}"
     fi
 
     if ! helmfile --file "${helmfile_file}" apply --hide-notes --skip-diff-on-install --suppress-diff --suppress-secrets; then
-        log fatal "Failed to apply Helm releases"
+        log error "Failed to apply Helm releases"
     fi
 
     log info "Helm releases applied successfully"
 }
 
 function main() {
-    # Verifications before bootstrapping the cluster
-    check_cli "helmfile" "kubectl" "kustomize" "sops" "talhelper" "yq"
+    check_cli helmfile kubectl kustomize sops talhelper yq
 
     # Apply resources and Helm releases
     wait_for_nodes
