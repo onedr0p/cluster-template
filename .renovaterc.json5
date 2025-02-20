@@ -87,6 +87,11 @@
       "commitMessageTopic": "action {{depName}}"
     },
     {
+      "matchDatasources": ["github-releases"],
+      "semanticCommitScope": "github-release",
+      "commitMessageTopic": "release {{depName}}"
+    },
+    {
       "matchUpdateTypes": ["major"],
       "labels": ["type/major"]
     },
@@ -107,12 +112,12 @@
       "addLabels": ["renovate/helm"]
     },
     {
-      "matchDatasources": ["github-releases", "github-tags"],
-      "addLabels": ["renovate/github-release"]
-    },
-    {
       "matchManagers": ["github-actions"],
       "addLabels": ["renovate/github-action"]
+    },
+    {
+      "matchDatasources": ["github-releases"],
+      "addLabels": ["renovate/github-release"]
     }
   ],
   "customManagers": [
