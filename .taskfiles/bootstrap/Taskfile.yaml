@@ -17,16 +17,13 @@ tasks:
       - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - test -f {{.TALHELPER_DIR}}/talconfig.yaml
-      - which talhelper sops
+      - which talhelper talosctl sops
 
   apps:
     desc: Bootstrap apps into the Talos cluster
-    cmds:
-      - bash {{.KUBERNETES_DIR}}/bootstrap/apps/resources/prepare.sh
-      - helmfile --file {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml apply --skip-diff-on-install --suppress-diff
+    cmd: bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
     preconditions:
       - test -f {{.KUBECONFIG}}
-      - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/helmfile.yaml
-      - test -f {{.KUBERNETES_DIR}}/bootstrap/apps/resources/prepare.sh
+      - test -f {{.ROOT_DIR}}/.sops.yaml
+      - test -f {{.SCRIPTS_DIR}}/bootstrap-apps.sh
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - which helmfile

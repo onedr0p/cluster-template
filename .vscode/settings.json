@@ -1,15 +1,18 @@
 {
+    "editor.bracketPairColorization.enabled": true,
     "files.associations": {
-        "*.json5": "jsonc"
+        "**/*.json5": "jsonc"
     },
+    "files.trimTrailingWhitespace": true,
     "sops.defaults.ageKeyFile": "age.key",
-    "yaml.schemas": {
-        "Kubernetes": "./kubernetes/*.yaml"
-    },
     "vs-kubernetes": {
         "vs-kubernetes.kubeconfig": "./kubeconfig",
         "vs-kubernetes.knownKubeconfigs": [
           "./kubeconfig"
       ]
+    },
+    "yaml.schemaStore.enable": true,
+    "yaml.schemas": {
+        "kubernetes": "./kubernetes/**/*.yaml"
     }
 }

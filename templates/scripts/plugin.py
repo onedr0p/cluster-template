@@ -80,7 +80,7 @@ def deploy_key() -> str:
 
 # Return a list of files in the talos patches directory
 def talos_patches(value: str) -> list[str]:
-    path = Path(f'templates/config/kubernetes/bootstrap/talos/patches/{value}')
+    path = Path(f'templates/config/talos/patches/{value}')
     if not path.is_dir():
         return []
     return [str(f) for f in sorted(path.glob('*.yaml.j2')) if f.is_file()]
