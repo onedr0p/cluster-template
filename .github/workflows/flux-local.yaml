@@ -7,6 +7,7 @@ on:
     branches: ["main"]
     paths:
       - kubernetes/apps/**
+      - kubernetes/components/**
       - kubernetes/flux/**
 
 concurrency:
