@@ -19,3 +19,7 @@ cluster:
   scheduler:
     extraArgs:
       bind-address: 0.0.0.0
+  extraManifests:
+    #% for item in ["alertmanagerconfigs", "alertmanagers", "podmonitors", "probes", "prometheusagents", "prometheuses", "prometheusrules", "scrapeconfigs", "servicemonitors", "thanosrulers"] %#
+    - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/${prometheusOperatorVersion}/example/prometheus-operator-crd/monitoring.coreos.com_#{ item }#.yaml
+    #% endfor %#
