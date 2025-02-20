@@ -23,39 +23,6 @@ function wait_for_nodes() {
     done
 }
 
-# Applications in the helmfile require Prometheus custom resources (e.g. servicemonitors)
-function apply_prometheus_operator_crds() {
-    log debug "Applying Prometheus Operator CRDs"
-
-    local resources crds
-
-    # renovate: datasource=docker depName=ghcr.io/prometheus-operator/prometheus-operator
-    local -r version=v0.80.0
-
-    # Fetch resources using kustomize build
-    if ! resources=$(kustomize build "https://github.com/prometheus-operator/prometheus-operator/?ref=${version}" 2>/dev/null) || [[ -z "${resources}" ]]; then
-        log error "Failed to fetch Prometheus Operator CRDs, check the version or the repository URL"
-    fi
-
-    # Extract only CustomResourceDefinitions
-    if ! crds=$(echo "${resources}" | yq '. | select(.kind == "CustomResourceDefinition")' 2>/dev/null) || [[ -z "${crds}" ]]; then
-        log error "No CustomResourceDefinitions found in the fetched resources"
-    fi
-
-    # Check if the CRDs are up-to-date
-    if echo "${crds}" | kubectl diff --filename - &>/dev/null; then
-        log info "Prometheus Operator CRDs are up-to-date"
-        return
-    fi
-
-    # Apply the CRDs
-    if echo "${crds}" | kubectl apply --server-side --filename - &>/dev/null; then
-        log info "Prometheus Operator CRDs applied successfully"
-    else
-        log error "Failed to apply Prometheus Operator CRDs"
-    fi
-}
-
 # The application namespaces are created before applying the resources
 function apply_namespaces() {
     log debug "Applying namespaces"
@@ -168,7 +135,6 @@ function main() {
 
     # Apply resources and Helm releases
     wait_for_nodes
-    apply_prometheus_operator_crds
     apply_namespaces
     apply_configmaps
     apply_sops_secrets
