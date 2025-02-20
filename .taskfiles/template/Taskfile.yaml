@@ -70,7 +70,7 @@ tasks:
           fi
     vars:
       SECRET_FILES:
-        sh: find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*"
+        sh: find "{{.BOOTSTRAP_DIR}}" "{{.KUBERNETES_DIR}}" "{{.TALOS_DIR}}" -type f -name "*.sops.*"
     preconditions:
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - test -f {{.ROOT_DIR}}/.sops.yaml
@@ -85,10 +85,10 @@ tasks:
 
   validate-talos-config:
     desc: Validate the Talhelper config
-    dir: "{{.TALHELPER_DIR}}"
-    cmd: talhelper validate talconfig {{.TALHELPER_DIR}}/talconfig.yaml
+    dir: "{{.TALOS_DIR}}"
+    cmd: talhelper validate talconfig {{.TALOS_DIR}}/talconfig.yaml
     preconditions:
-      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
+      - test -f {{.TALOS_DIR}}/talconfig.yaml
       - which talhelper
 
   debug:

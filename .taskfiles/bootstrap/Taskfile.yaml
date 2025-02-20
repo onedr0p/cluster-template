@@ -6,7 +6,7 @@ tasks:
 
   talos:
     desc: Bootstrap the Talos cluster
-    dir: '{{.TALHELPER_DIR}}'
+    dir: '{{.TALOS_DIR}}'
     cmds:
       - '[ -f talsecret.sops.yaml ] || talhelper gensecret | sops --filename-override talos/talsecret.sops.yaml --encrypt /dev/stdin > talsecret.sops.yaml'
       - talhelper genconfig
@@ -16,7 +16,7 @@ tasks:
     preconditions:
       - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - test -f {{.TALHELPER_DIR}}/talconfig.yaml
+      - test -f {{.TALOS_DIR}}/talconfig.yaml
       - which talhelper talosctl sops
 
   apps:

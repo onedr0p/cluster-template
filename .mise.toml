@@ -4,6 +4,7 @@ ROOT_DIR = "{{config_root}}"
 KUBERNETES_DIR = '{{config_root}}/kubernetes'
 SCRIPTS_DIR = '{{config_root}}/scripts'
 BOOTSTRAP_DIR = '{{config_root}}/bootstrap'
+TALOS_DIR = '{{config_root}}/talos'
 KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
