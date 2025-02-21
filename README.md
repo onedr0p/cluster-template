@@ -46,9 +46,15 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. You can always add system extensions after Talos is installed and working.
 
-2. This will eventually lead you to download a Talos Linux ISO file (or for SBCs the RAW file). Make sure to note the **schematic ID** you will need this later on.
+2. This will eventually lead you to download a Talos Linux ISO (or for SBCs a RAW) image. Make sure to note the **schematic ID** you will need this later on.
 
-3. Flash the Talos ISO or RAW file to a USB drive and boot from it on your nodes.
+3. Flash the Talos ISO or RAW image to a USB drive and boot from it on your nodes.
+
+4. Verify with `nmap`that all your nodes are available on your network before you move on. Replace `192.168.0.0/24` with the network your nodes are on.
+
+    ```sh
+    nmap -Pn -n -p 50000 192.168.0.0/24 -vv | grep 'Discovered'
+    ```
 
 ### Stage 2: Local Workstation
 
