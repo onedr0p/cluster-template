@@ -125,8 +125,8 @@
       "customType": "regex",
       "description": ["Process annotated dependencies"],
       "fileMatch": [
-        "(^|/).+\\.env$",
-        "(^|/).+\\.sh$",
+        "(^|/).+\\.env(?:\\.j2)?$",
+        "(^|/).+\\.sh(?:\\.j2)?$",
         "(^|/).+\\.ya?ml(?:\\.j2)?$"
       ],
       "matchStrings": [
