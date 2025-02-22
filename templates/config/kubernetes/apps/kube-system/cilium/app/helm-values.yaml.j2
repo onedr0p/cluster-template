@@ -49,14 +49,15 @@ loadBalancer:
   mode: "#{ loadbalancer_mode | default('dsr', true) }#"
 localRedirectPolicy: true
 operator:
-  replicas: 1
-  rollOutPods: true
+  dashboards:
+    enabled: true
   prometheus:
     enabled: true
     serviceMonitor:
       enabled: true
-  dashboards:
-    enabled: true
+  replicas: 1
+  rollOutPods: true
+  tolerations: []
 prometheus:
   enabled: true
   serviceMonitor:
