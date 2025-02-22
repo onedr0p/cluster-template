@@ -133,6 +133,8 @@ tasks:
       SED:
         sh: which gsed || which sed
     preconditions:
+      - msg: Unsupported sed version, run `brew install gsed` to upgrade
+        sh: '{{if eq OS "darwin"}}test -f /opt/homebrew/bin/gsed{{end}}'
       - test -d {{.ROOT_DIR}}/.github/tests
       - test -d {{.ROOT_DIR}}/.taskfiles/template
       - test -d {{.TEMPLATE_DIR}}
