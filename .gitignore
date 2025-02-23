@@ -21,4 +21,5 @@ Brewfile.lock.json
 .idea
 # Bootstrap
 /config.yaml
+/nodes.yaml
 cloudflared.json

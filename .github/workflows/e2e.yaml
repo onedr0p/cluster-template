@@ -22,8 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         config-files:
-          - cloudflare
-          - flux
+          - public
           - private
     steps:
       - name: Checkout
@@ -43,6 +42,7 @@ jobs:
       - name: Prepare files
         run: |
           cp ./.github/tests/${{ matrix.config-files }}.yaml config.yaml
+          cp ./.github/tests/nodes.yaml nodes.yaml
           echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflared.json
           touch kubeconfig
 
@@ -68,3 +68,6 @@ jobs:
 
       - name: Run cleanup task
         run: task template:tidy --yes
+
+      - name: Run reset task
+        run: task template:reset --yes

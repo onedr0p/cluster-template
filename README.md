@@ -6,17 +6,10 @@ At a high level this project makes use of [makejinja](https://github.com/mirkole
 
 ## ✨ Features
 
-The features included will depend on the type of configuration you want to use. There are currently **2 different types** of **configurations** available with this template.
+A Kubernetes cluster deployed on-top of [Talos Linux](https://github.com/siderolabs/talos) with an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
 
-1. **"Flux cluster"** - a Kubernetes cluster deployed on-top of [Talos Linux](https://github.com/siderolabs/talos) with an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
-
-    - **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://yaml.org/), and [Git](https://git-scm.com/).
-    - **Components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), and [reloader](https://github.com/stakater/Reloader).
-
-2. **"Flux cluster with Cloudflare"** - An addition to "**Flux cluster**" that provides DNS and SSL with [Cloudflare](https://www.cloudflare.com/). [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/) is also included to provide external access to certain applications deployed in your cluster.
-
-    - **Required:** A Cloudflare account with a domain managed in your Cloudflare account.
-    - **Components:** [ingress-nginx](https://github.com/kubernetes/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
+- **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://yaml.org/), [Git](https://git-scm.com/), and a Cloudflare account with a domain managed in your Cloudflare account.
+- **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [ingress-nginx](https://github.com/kubernetes/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
 
 **Other features include:**
 
@@ -78,7 +71,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 > [!IMPORTANT]
 > The [config.sample.yaml](./config.sample.yaml) file contains config that are **vital** to the template process.
 
-1. Generate the `config.yaml` from the [config.sample.yaml](./config.sample.yaml) configuration file:
+1. Generate `config.yaml` and `nodes.yaml` from the sample configuration files:
 
    📍 _If the below command fails `mise` is either not install or configured incorrectly._
 
@@ -86,7 +79,7 @@ There are **4 stages** outlined below for completing this project, make sure you
     task init
     ```
 
-2. Fill out the `config.yaml` configuration file using the comments in that file as a guide.
+2. Fill out the generated `config.yaml` and `nodes.yaml` configuration files using the comments in those file as a guide.
 
 3. Template out all the configuration files:
 
@@ -136,7 +129,7 @@ There are **4 stages** outlined below for completing this project, make sure you
     watch kubectl get pods --all-namespaces
     ```
 
-## 📣 Flux w/ Cloudflare post installation
+## 📣 Post installation
 
 ### 🌐 Public DNS
 

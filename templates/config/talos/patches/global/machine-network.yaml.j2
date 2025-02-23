@@ -2,6 +2,7 @@ machine:
   network:
     disableSearchDomain: true
     nameservers:
-      #% for item in dns_servers | default(["1.1.1.1","1.0.0.1"], true) %#
+      #% set dns_servers_list = data.CLUSTER_DNS_SERVERS.split(',') if data.CLUSTER_DNS_SERVERS.strip() else ['1.1.1.1', '1.0.0.1'] %#
+      #% for item in dns_servers_list %#
       - #{ item }#
       #% endfor %#

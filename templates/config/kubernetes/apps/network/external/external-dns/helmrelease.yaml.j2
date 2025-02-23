@@ -45,7 +45,7 @@ spec:
     sources: ["crd", "ingress"]
     txtPrefix: k8s.
     txtOwnerId: default
-    domainFilters: ["${SECRET_DOMAIN}"]
+    domainFilters: ["${CLOUDFLARE_DOMAIN}"]
     serviceMonitor:
       enabled: true
     podAnnotations:

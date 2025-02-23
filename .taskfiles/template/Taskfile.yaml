@@ -6,6 +6,7 @@ vars:
   MAKEJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/makejinja.toml'
   TEMPLATE_DIR: '{{.ROOT_DIR}}/templates'
   TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/config.yaml'
+  TEMPLATE_NODE_CONFIG_FILE: '{{.ROOT_DIR}}/nodes.yaml'
   TEMPLATE_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/template/resources'
 
 tasks:
@@ -14,15 +15,18 @@ tasks:
     desc: Initialize configuration files
     cmds:
       - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+      - mv {{.TEMPLATE_NODE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_NODE_CONFIG_FILE}}
       - task: generate-age-key
       - task: generate-deploy-key
     status:
       - test -f {{.TEMPLATE_CONFIG_FILE}}
+      - test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
 
   :configure:
     desc: Render and validate configuration files
     prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
     cmds:
+      - task: copy-cluster-settings
       - task: render-configs
       - task: encrypt-secrets
       - task: validate-kubernetes-config
@@ -48,6 +52,14 @@ tasks:
       - test -f {{.ROOT_DIR}}/deploy.key
     preconditions:
       - which ssh-keygen
+
+  copy-cluster-settings:
+    desc: Copy the config file to the kubernetes directory
+    cmds:
+      - mkdir -p {{.KUBERNETES_DIR}}/components/common
+      - yq '... comments=""' {{.TEMPLATE_CONFIG_FILE}} > {{.KUBERNETES_DIR}}/components/common/cluster-secrets.sops.yaml
+    preconditions:
+      - which yq
 
   render-configs:
     desc: Template the configuration files
@@ -141,3 +153,12 @@ tasks:
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
       - test -f {{.ROOT_DIR}}/.renovaterc.json5
       - test -f {{.ROOT_DIR}}/requirements.txt
+
+  reset:
+    desc: Remove templated files and directories
+    prompt: Remove all templated files and directories... continue?
+    cmds:
+      - rm -rf {{.BOOTSTRAP_DIR}} || true
+      - rm -rf {{.KUBERNETES_DIR}} || true
+      - rm -rf {{.TALOS_DIR}} || true
+      - rm -rf {{.ROOT_DIR}}/.sops.yaml || true

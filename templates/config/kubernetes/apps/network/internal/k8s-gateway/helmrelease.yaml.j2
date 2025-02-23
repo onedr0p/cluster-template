@@ -23,12 +23,12 @@ spec:
       retries: 3
   values:
     fullnameOverride: k8s-gateway
-    domain: "${SECRET_DOMAIN}"
+    domain: "${CLOUDFLARE_DOMAIN}"
     ttl: 1
     service:
       type: LoadBalancer
       port: 53
       annotations:
-        lbipam.cilium.io/ips: "#{ cloudflare.gateway_vip }#"
+        lbipam.cilium.io/ips: "#{ data.CLOUDFLARE_DNS_GATEWAY_ADDR }#"
       externalTrafficPolicy: Cluster
     watchedResources: ["Ingress", "Service"]

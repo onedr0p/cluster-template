@@ -6,16 +6,17 @@ talosVersion: v1.9.4
 kubernetesVersion: v1.32.2
 
 clusterName: kubernetes
-endpoint: https://#{ controller_vip }#:6443
+endpoint: https://#{ data.CLUSTER_API_ADDR }#:6443
 
 clusterPodNets:
-  - "#{ pod_network.split(',')[0] }#"
+  - "#{ data.CLUSTER_POD_CIDR | default('10.42.0.0/16', true) }#"
 clusterSvcNets:
-  - "#{ service_network.split(',')[0] }#"
+  - "#{ data.CLUSTER_SVC_CIDR | default('10.43.0.0/16', true) }#"
 
 additionalApiServerCertSans: &sans
-  - "#{ controller_vip }#"
-  #% for item in tls_sans %#
+  - "#{ data.CLUSTER_API_ADDR }#"
+  #% set tls_sans_list = data.CLUSTER_API_TLS_SANS.split(',') if data.CLUSTER_API_TLS_SANS.strip() else [] %#
+  #% for item in tls_sans_list %#
   - "#{ item }#"
   #% endfor %#
   - "127.0.0.1"
@@ -26,7 +27,7 @@ cniConfig:
   name: none
 
 nodes:
-  #% for item in node_inventory %#
+  #% for item in nodes %#
   - hostname: "#{ item.name }#"
     ipAddress: "#{ item.address }#"
     #% if item.disk.startswith('/') %#
@@ -42,38 +43,38 @@ nodes:
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "#{ item.mac_addr | lower }#"
-        #% if vlan %#
+        #% if data.NODE_VLAN_TAG %#
         vlans:
-          - vlanId: #{ vlan }#
+          - vlanId: #{ data.NODE_VLAN_TAG }#
             addresses:
-              - "#{ item.address }#/#{ node_network.split('/') | last }#"
+              - "#{ item.address }#/#{ data.NODE_CIDR.split('/') | last }#"
             mtu: #{ item.mtu | default(1500, true) }#
             routes:
               - network: "0.0.0.0/0"
-                #% if node_default_gateway %#
-                gateway: "#{ node_default_gateway }#"
+                #% if data.NODE_DEFAULT_GATEWAY %#
+                gateway: "#{ data.NODE_DEFAULT_GATEWAY }#"
                 #% else %#
-                gateway: "#{ node_network | nthhost(1) }#"
+                gateway: "#{ data.NODE_CIDR | nthhost(1) }#"
                 #% endif %#
             #% if item.controller %#
             vip:
-              ip: "#{ controller_vip }#"
+              ip: "#{ data.CLUSTER_API_ADDR }#"
             #% endif %#
         #% else %#
         dhcp: false
         addresses:
-          - "#{ item.address }#/#{ node_network.split('/') | last }#"
+          - "#{ item.address }#/#{ data.NODE_CIDR.split('/') | last }#"
         routes:
           - network: "0.0.0.0/0"
-            #% if node_default_gateway %#
-            gateway: "#{ node_default_gateway }#"
+            #% if data.NODE_DEFAULT_GATEWAY %#
+            gateway: "#{ data.NODE_DEFAULT_GATEWAY }#"
             #% else %#
-            gateway: "#{ node_network | nthhost(1) }#"
+            gateway: "#{ data.NODE_CIDR | nthhost(1) }#"
             #% endif %#
         mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
-          ip: "#{ controller_vip }#"
+          ip: "#{ data.CLUSTER_API_ADDR }#"
         #% endif %#
         #% endif %#
     #% if talos_patches('%s' % (item.name)) | length == 0 %#
@@ -136,7 +137,7 @@ controlPlane:
     - "@./patches/controller/#{ file | basename }#"
 #% endfor %#
 
-#% if (node_inventory | selectattr('controller', 'equalto', False) | list | length) and (talos_patches('worker') | length) %#
+#% if (nodes | selectattr('controller', 'equalto', False) | list | length) and (talos_patches('worker') | length) %#
 #% for file in talos_patches('worker') %#
 #% if loop.index == 1 %#
 # Worker patches

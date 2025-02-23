@@ -8,7 +8,6 @@ from typing import Any
 from netaddr import IPNetwork
 
 import makejinja
-import validation
 import re
 import json
 
@@ -109,8 +108,6 @@ class Plugin(makejinja.plugin.Plugin):
                 filter_func = import_filter(filter_file)
                 if filter_func(data) is False:
                     self._excluded_dirs.add(filter_file.parent)
-
-        validation.validate(data)
 
 
     def filters(self) -> makejinja.plugin.Filters:

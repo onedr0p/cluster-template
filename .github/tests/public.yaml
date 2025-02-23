@@ -17,7 +17,7 @@ data:
   GITHUB_REPOSITORY: "onedr0p/cluster-template"
   GITHUB_BRANCH: "main"
   GITHUB_TOKEN: "fake"
-  GITHUB_PRIVATE: "true"
+  GITHUB_PRIVATE: "false"
   CLOUDFLARE_DOMAIN: "example.com"
   CLOUDFLARE_TOKEN: "fake"
   CLOUDFLARE_CLUSTER_ISSUER: "staging"
