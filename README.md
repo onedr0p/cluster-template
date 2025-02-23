@@ -35,8 +35,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 > [!IMPORTANT]
 > 1. The included behaviour of Talos is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
-> 2. Do you have 3 or more nodes? It is highly recommended to make 3 of them controller nodes for a highly available control plane.
-> 3. Running the cluster on Proxmox? My thoughts and recommendations about that are [here](https://onedr0p.github.io/home-ops/archive/proxmox-considerations.html).
+> 2. If you have 3 or more nodes it is recommended to make 3 of them controller nodes for a highly available control plane.
 
 | Role    | Cores    | Memory        | System Disk               |
 |---------|----------|---------------|---------------------------|
