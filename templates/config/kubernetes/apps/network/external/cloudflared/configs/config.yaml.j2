@@ -1,17 +1,17 @@
 ---
 originRequest:
-  originServerName: "external.${CLOUDFLARE_DOMAIN}"
+  originServerName: "external.${SECRET_DOMAIN}"
 
 ingress:
-  - hostname: "${CLOUDFLARE_DOMAIN}"
+  - hostname: "${SECRET_DOMAIN}"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
-    #% if not cloudflare.acme.production %#
+    #% if cloudflare_cluster_issuer == 'staging' %#
     originRequest:
       noTLSVerify: true
     #% endif %#
-  - hostname: "*.${CLOUDFLARE_DOMAIN}"
+  - hostname: "*.${SECRET_DOMAIN}"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
-    #% if not cloudflare.acme.production %#
+    #% if cloudflare_cluster_issuer == 'staging' %#
     originRequest:
       noTLSVerify: true
     #% endif %#

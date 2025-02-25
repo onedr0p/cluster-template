@@ -5,37 +5,28 @@ version: '3'
 vars:
   MAKEJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/makejinja.toml'
   TEMPLATE_DIR: '{{.ROOT_DIR}}/templates'
-  TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/config.yaml'
-  TEMPLATE_NODE_CONFIG_FILE: '{{.ROOT_DIR}}/nodes.yaml'
   TEMPLATE_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/template/resources'
+  TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/cluster.yaml'
+  TEMPLATE_NODE_CONFIG_FILE: '{{.ROOT_DIR}}/nodes.yaml'
 
 tasks:
 
   :init:
     desc: Initialize configuration files
     cmds:
-      - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
-      - mv {{.TEMPLATE_NODE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_NODE_CONFIG_FILE}}
+      - task: generate-template-config
       - task: generate-age-key
       - task: generate-deploy-key
+      - task: generate-push-token
+
+  generate-template-config:
+    desc: Create the config files
+    cmds:
+      - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+      - mv {{.TEMPLATE_NODE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_NODE_CONFIG_FILE}}
     status:
       - test -f {{.TEMPLATE_CONFIG_FILE}}
       - test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
-
-  :configure:
-    desc: Render and validate configuration files
-    prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
-    cmds:
-      - task: copy-cluster-settings
-      - task: render-configs
-      - task: encrypt-secrets
-      - task: validate-kubernetes-config
-      - task: validate-talos-config
-    preconditions:
-      - msg: |
-          An existing Age key interferes with the age key in this repository.
-          Rename or delete ~/.config/sops/age/keys.txt
-        sh: '! test -f ~/.config/sops/age/keys.txt'
 
   generate-age-key:
     desc: Create the Sops Age key
@@ -47,19 +38,46 @@ tasks:
 
   generate-deploy-key:
     desc: Create the deploy key
-    cmd: ssh-keygen -t ecdsa -b 521 -C "deploy-key" -f {{.ROOT_DIR}}/deploy.key -q -P ""
+    cmd: ssh-keygen -t ecdsa -b 521 -C "deploy-key" -f {{.ROOT_DIR}}/github-deploy.key -q -P ""
     status:
-      - test -f {{.ROOT_DIR}}/deploy.key
+      - test -f {{.ROOT_DIR}}/github-deploy.key
     preconditions:
       - which ssh-keygen
 
-  copy-cluster-settings:
-    desc: Copy the config file to the kubernetes directory
+  generate-push-token:
+    desc: Create the push token
+    cmd: python -c "import secrets; print(secrets.token_hex(16))" > {{.ROOT_DIR}}/github-push-token.txt
+    status:
+      - test -f {{.ROOT_DIR}}/github-push-token.txt
+
+  :configure:
+    desc: Render and validate configuration files
+    prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
     cmds:
-      - mkdir -p {{.KUBERNETES_DIR}}/components/common
-      - yq '... comments=""' {{.TEMPLATE_CONFIG_FILE}} > {{.KUBERNETES_DIR}}/components/common/cluster-secrets.sops.yaml
+      - task: validate-schemas
+      - task: render-configs
+      - task: encrypt-secrets
+      - task: validate-kubernetes-config
+      - task: validate-talos-config
     preconditions:
-      - which yq
+      - msg: |
+          An existing Age key interferes with the age key in this repository.
+          Rename or delete ~/.config/sops/age/keys.txt
+        sh: '! test -f ~/.config/sops/age/keys.txt'
+      - test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
+      - test -f {{.ROOT_DIR}}/cloudflare-token.txt
+      - test -f {{.TEMPLATE_CONFIG_FILE}}
+      - test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
+
+  validate-schemas:
+    desc: Validate the configuration files
+    cmds:
+      - cue vet {{.TEMPLATE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/cluster.schema.cue
+      - cue vet {{.TEMPLATE_NODE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/nodes.schema.cue
+    preconditions:
+      - test -f {{.TEMPLATE_RESOURCES_DIR}}/cluster.schema.cue
+      - test -f {{.TEMPLATE_RESOURCES_DIR}}/nodes.schema.cue
+      - which cue
 
   render-configs:
     desc: Template the configuration files
@@ -67,7 +85,6 @@ tasks:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     preconditions:
-      - test -f {{.TEMPLATE_CONFIG_FILE}}
       - test -f {{.TEMPLATE_DIR}}/scripts/plugin.py
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
       - which makejinja
@@ -136,7 +153,8 @@ tasks:
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.TIDY_FOLDER}}/makejinja.toml
       - mv {{.ROOT_DIR}}/requirements.txt {{.TIDY_FOLDER}}/requirements.txt
-      - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/config.yaml
+      - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/cluster.yaml
+      - mv {{.TEMPLATE_NODE_CONFIG_FILE}} {{.TIDY_FOLDER}}/nodes.yaml
       - |
         {{.SED}} -i '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/

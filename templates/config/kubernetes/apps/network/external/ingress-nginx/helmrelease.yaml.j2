@@ -29,8 +29,8 @@ spec:
     controller:
       service:
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: "external.${CLOUDFLARE_DOMAIN}"
-          lbipam.cilium.io/ips: "#{ data.CLOUDFLARE_TUNNEL_INGRESS_ADDR }#"
+          external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
+          lbipam.cilium.io/ips: "#{ cloudflare_tunnel_ingress_addr }#"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: external
@@ -77,7 +77,7 @@ spec:
             any: true
       extraArgs:
         default-ssl-certificate: |-
-          cert-manager/${CLOUDFLARE_DOMAIN/./-}-#{ data.CLOUDFLARE_CLUSTER_ISSUER | default('staging') }#-tls
+          cert-manager/${SECRET_DOMAIN/./-}-#{ cloudflare_cluster_issuer }#-tls
       resources:
         requests:
           cpu: 100m

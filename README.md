@@ -2,11 +2,11 @@
 
 Welcome to my opinionated and extensible template for deploying a single Kubernetes cluster. The goal of this project is to make it easier for people interested in using Kubernetes to deploy a cluster at home on bare-metal or VMs. This template closely mirrors my personal [home-ops](https://github.com/onedr0p/home-ops) repository.
 
-At a high level this project makes use of [makejinja](https://github.com/mirkolenz/makejinja) to read in a [configuration file](./config.sample.yaml) which renders out templates that will allow you to install and manage your Kubernetes cluster with.
+At a high level this project makes use of [makejinja](https://github.com/mirkolenz/makejinja) to read in configuration files ([cluster.yaml](./.taskfiles/template/resources/cluster.sample.yaml) & [nodes.yaml](./.taskfiles/template/resources/nodes.sample.yaml)) which renders out templates that will allow you to install and manage your Kubernetes cluster with.
 
 ## ✨ Features
 
-A Kubernetes cluster deployed on-top of [Talos Linux](https://github.com/siderolabs/talos) with an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider and [sops](https://github.com/getsops/sops) to manage secrets.
+A Kubernetes cluster deployed on-top of [Talos Linux](https://github.com/siderolabs/talos) with an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider, [sops](https://github.com/getsops/sops) to manage secrets and to access apps external [cloudflared](https://github.com/cloudflare/cloudflared).
 
 - **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://yaml.org/), [Git](https://git-scm.com/), and a Cloudflare account with a domain managed in your Cloudflare account.
 - **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [ingress-nginx](https://github.com/kubernetes/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
@@ -27,8 +27,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 **System Requirements**
 
 > [!IMPORTANT]
-> 1. The included behaviour of Talos is that all nodes are able to run workloads, **including** the controller nodes. **Worker nodes** are therefore **optional**.
-> 2. If you have 3 or more nodes it is recommended to make 3 of them controller nodes for a highly available control plane.
+> If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
 
 | Role    | Cores    | Memory        | System Disk               |
 |---------|----------|---------------|---------------------------|
@@ -63,31 +62,47 @@ There are **4 stages** outlined below for completing this project, make sure you
     ```sh
     mise trust
     mise install
-    mise run deps
     ```
 
-### Stage 3: Template Configuration
+### Stage 3: Configuration
 
 > [!IMPORTANT]
-> The [config.sample.yaml](./config.sample.yaml) file contains config that are **vital** to the template process.
+> If any of the below commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
 
-1. Generate `config.yaml` and `nodes.yaml` from the sample configuration files:
+1. Create a single Cloudflare API token for use with cloudflared and external-dns by [reviewing the documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
-   📍 _If the below command fails `mise` is either not install or configured incorrectly._
+   1. Click the blue `Use template` button for the `Edit zone DNS` template.
+   2. Name your token `kubernetes`
+   3. Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
+   4. Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
+   5. **Save this token** in a file called `cloudflare-token.txt` in the root of the repo.
+
+        ```sh
+        echo "token" > cloudflare-token.txt
+        ```
+
+2. Create the Cloudflare Tunnel:
+
+    ```sh
+    cloudflared tunnel login
+    cloudflared tunnel create --credentials-file cloudflare-tunnel.json kubernetes
+    ```
+
+3. Generate `cluster.yaml` and `nodes.yaml` from the sample configuration files:
 
     ```sh
     task init
     ```
 
-2. Fill out the generated `config.yaml` and `nodes.yaml` configuration files using the comments in those file as a guide.
+4. Fill out the `cluster.yaml` and `nodes.yaml` configuration files just created in the root of the repo using the comments in those file as a guide.
 
-3. Template out all the configuration files:
+5. Template out all the configuration files:
 
     ```sh
     task configure
     ```
 
-4. Push your changes to git:
+6. Push your changes to git:
 
    📍 _**Verify** all the `./kubernetes/**/*.sops.*` files are **encrypted** with SOPS_
 
@@ -149,7 +164,20 @@ The `external-dns` application created in the `networking` namespace will handle
 
 ### 📜 Certificates
 
-By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration). Once you are sure you will keep the cluster up for more than a few hours be sure to switch to the production servers as outlined in `config.yaml`.
+> [!NOTE]
+> By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration).
+
+Steps to update to the Let's Encrypt **production environment**:
+
+1. Update `cloudflare_cluster_issuer` to `production` in `cluster.yaml`
+2. Run `task configure`
+3. Push your changes to git
+
+    ```sh
+    git add -A
+    git commit -m "chore: switch to le-prod :scroll:"
+    git push
+    ```
 
 ### 🪝 Github Webhook
 
@@ -172,7 +200,7 @@ By default Flux will periodically check your git repository for changes. In orde
     https://flux-webhook.${cloudflare.domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your `${github.webhook_token}` secret in `config.yaml`, Content type: `application/json`, Events: Choose Just the push event, and save.
+3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your token from `push-token.key`, Content type: `application/json`, Events: Choose Just the push event, and save.
 
 ## 💥 Reset
 

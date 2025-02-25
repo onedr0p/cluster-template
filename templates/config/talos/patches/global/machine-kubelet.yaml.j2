@@ -2,4 +2,4 @@ machine:
   kubelet:
     nodeIP:
       validSubnets:
-        - #{ data.NODE_CIDR }#
+        - #{ node_cidr }#

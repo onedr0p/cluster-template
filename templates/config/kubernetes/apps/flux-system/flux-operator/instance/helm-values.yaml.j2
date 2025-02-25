@@ -12,11 +12,11 @@ instance:
     - notification-controller
   sync:
     kind: GitRepository
-    #% if data.GITHUB_PRIVATE == "true" | default("false") %#
-    url: "ssh://git@github.com/#{ data.GITHUB_REPOSITORY }#.git"
+    #% if repository_visibility == 'private' %#
+    url: "ssh://git@github.com/#{ repository_name }#.git"
     pullSecret: github-deploy-key
     #% else %#
-    url: "https://github.com/#{ data.GITHUB_REPOSITORY }#.git"
+    url: "https://github.com/#{ repository_name }#.git"
     #% endif %#
-    ref: "refs/heads/#{ data.GITHUB_BRANCH | default('main', true) }#"
+    ref: "refs/heads/#{ repository_branch }#"
     path: kubernetes/flux/cluster

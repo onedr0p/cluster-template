@@ -4,7 +4,7 @@ bpf:
   masquerade: true
   # Ref: https://github.com/siderolabs/talos/issues/10002
   hostLegacyRouting: true
-#% if data.CILIUM_BGP_ENABLED == "true" | default("false") %#
+#% if cilium_bgp_enabled %#
 bgpControlPlane:
   enabled: true
 #% endif %#
@@ -27,7 +27,7 @@ hubble:
   enabled: false
 ipam:
   mode: kubernetes
-ipv4NativeRoutingCIDR: "#{ data.CLUSTER_POD_CIDR | default('10.42.0.0/16', true) }#"
+ipv4NativeRoutingCIDR: "#{ cluster_pod_cidr }#"
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
 kubeProxyReplacement: true
@@ -36,7 +36,7 @@ l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-  mode: "#{ data.CILIUM_LOADBALANCER_MODE | default('dsr', true) }#"
+  mode: "#{ cilium_loadbalancer_mode }#"
 localRedirectPolicy: true
 operator:
   dashboards:

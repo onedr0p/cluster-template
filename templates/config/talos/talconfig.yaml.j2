@@ -6,20 +6,19 @@ talosVersion: v1.9.4
 kubernetesVersion: v1.32.2
 
 clusterName: kubernetes
-endpoint: https://#{ data.CLUSTER_API_ADDR }#:6443
+endpoint: https://#{ cluster_api_addr }#:6443
 
 clusterPodNets:
-  - "#{ data.CLUSTER_POD_CIDR | default('10.42.0.0/16', true) }#"
+  - "#{ cluster_pod_cidr }#"
 clusterSvcNets:
-  - "#{ data.CLUSTER_SVC_CIDR | default('10.43.0.0/16', true) }#"
+  - "#{ cluster_svc_cidr }#"
 
 additionalApiServerCertSans: &sans
-  - "#{ data.CLUSTER_API_ADDR }#"
-  #% set tls_sans_list = data.CLUSTER_API_TLS_SANS.split(',') if data.CLUSTER_API_TLS_SANS.strip() else [] %#
-  #% for item in tls_sans_list %#
+  - "127.0.0.1"
+  - "#{ cluster_api_addr }#"
+  #% for item in cluster_api_tls_sans %#
   - "#{ item }#"
   #% endfor %#
-  - "127.0.0.1"
 additionalMachineCertSans: *sans
 
 # Disable built-in Flannel to use Cilium
@@ -43,38 +42,30 @@ nodes:
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "#{ item.mac_addr | lower }#"
-        #% if data.NODE_VLAN_TAG %#
+        #% if node_vlan_tag %#
         vlans:
-          - vlanId: #{ data.NODE_VLAN_TAG }#
+          - vlanId: #{ node_vlan_tag }#
             addresses:
-              - "#{ item.address }#/#{ data.NODE_CIDR.split('/') | last }#"
+              - "#{ item.address }#/#{ node_cidr.split('/') | last }#"
             mtu: #{ item.mtu | default(1500, true) }#
             routes:
               - network: "0.0.0.0/0"
-                #% if data.NODE_DEFAULT_GATEWAY %#
-                gateway: "#{ data.NODE_DEFAULT_GATEWAY }#"
-                #% else %#
-                gateway: "#{ data.NODE_CIDR | nthhost(1) }#"
-                #% endif %#
+                gateway: "#{ node_default_gateway }#"
             #% if item.controller %#
             vip:
-              ip: "#{ data.CLUSTER_API_ADDR }#"
+              ip: "#{ cluster_api_addr }#"
             #% endif %#
         #% else %#
         dhcp: false
         addresses:
-          - "#{ item.address }#/#{ data.NODE_CIDR.split('/') | last }#"
+          - "#{ item.address }#/#{ node_cidr.split('/') | last }#"
         routes:
           - network: "0.0.0.0/0"
-            #% if data.NODE_DEFAULT_GATEWAY %#
-            gateway: "#{ data.NODE_DEFAULT_GATEWAY }#"
-            #% else %#
-            gateway: "#{ data.NODE_CIDR | nthhost(1) }#"
-            #% endif %#
+            gateway: "#{ node_default_gateway }#"
         mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
-          ip: "#{ data.CLUSTER_API_ADDR }#"
+          ip: "#{ cluster_api_addr }#"
         #% endif %#
         #% endif %#
     #% if talos_patches('%s' % (item.name)) | length == 0 %#

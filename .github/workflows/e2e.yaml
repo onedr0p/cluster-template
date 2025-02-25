@@ -41,9 +41,10 @@ jobs:
 
       - name: Prepare files
         run: |
-          cp ./.github/tests/${{ matrix.config-files }}.yaml config.yaml
+          cp ./.github/tests/${{ matrix.config-files }}.yaml cluster.yaml
           cp ./.github/tests/nodes.yaml nodes.yaml
-          echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflared.json
+          echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflare-tunnel.json
+          echo "fake" > cloudflare-token.txt
           touch kubeconfig
 
       - name: Run configure task
@@ -66,8 +67,8 @@ jobs:
       - name: Dry run bootstrap apps task
         run: task bootstrap:apps --dry
 
-      - name: Run cleanup task
-        run: task template:tidy --yes
-
       - name: Run reset task
         run: task template:reset --yes
+
+      - name: Run cleanup task
+        run: task template:tidy --yes

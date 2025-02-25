@@ -5,6 +5,6 @@ kind: Kustomization
 resources:
   - ./pool.yaml
   - ./l2.yaml
-  #% if bgp.enabled %#
+  #% if cilium_bgp_enabled %#
   - ./l3.yaml
   #% endif %#

@@ -1,31 +1,22 @@
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cluster-secrets
-  namespace: flux-system
-data:
-  NODE_CIDR: "10.10.10.0/24"
-  NODE_DEFAULT_GATEWAY: "10.10.10.1"
-  NODE_VLAN_TAG: ""
-  CLUSTER_POD_CIDR: "10.42.0.0/16"
-  CLUSTER_SVC_CIDR: "10.43.0.0/16"
-  CLUSTER_DNS_SERVERS: "1.1.1.1,1.0.0.1"
-  CLUSTER_NTP_SERVERS: "162.159.200.1,162.159.200.123"
-  CLUSTER_API_ADDR: "10.10.10.254"
-  CLUSTER_API_TLS_SANS: ""
-  GITHUB_REPOSITORY: "onedr0p/cluster-template"
-  GITHUB_BRANCH: "main"
-  GITHUB_TOKEN: "fake"
-  GITHUB_PRIVATE: "false"
-  CLOUDFLARE_DOMAIN: "example.com"
-  CLOUDFLARE_TOKEN: "fake"
-  CLOUDFLARE_CLUSTER_ISSUER: "staging"
-  CLOUDFLARE_INGRESS_ADDR: "10.10.10.252"
-  CLOUDFLARE_DNS_GATEWAY_ADDR: "10.10.10.253"
-  CLOUDFLARE_TUNNEL_INGRESS_ADDR: "10.10.10.251"
-  CILIUM_LOADBALANCER_MODE: "dsr"
-  CILIUM_BGP_ENABLED: "false"
-  CILIUM_BGP_ROUTER_ADDR: ""
-  CILIUM_BGP_ROUTER_ASN: "64513"
-  CILIUM_BGP_NODE_ASN: "64514"
+node_cidr: "10.10.10.0/24"
+node_default_gateway: "10.10.10.1"
+node_vlan_tag: "100"
+cluster_pod_cidr: "10.42.0.0/16"
+cluster_svc_cidr: "10.43.0.0/16"
+node_dns_servers: ["1.1.1.1"]
+node_ntp_servers: ["162.159.200.123"]
+cluster_api_addr: "10.10.10.254"
+cluster_api_tls_sans: ["example.com"]
+repository_name: "onedr0p/cluster-template"
+repository_branch: "main"
+repository_visibility: "public"
+cloudflare_domain: "example.com"
+cloudflare_cluster_issuer: "staging"
+cloudflare_ingress_addr: "10.10.10.252"
+cloudflare_dns_gateway_addr: "10.10.10.253"
+cloudflare_tunnel_ingress_addr: "10.10.10.251"
+cilium_loadbalancer_mode: "dsr"
+cilium_bgp_router_addr: "10.10.1.1"
+cilium_bgp_router_asn: "64513"
+cilium_bgp_node_asn: "64514"

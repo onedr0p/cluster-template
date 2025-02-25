@@ -3,13 +3,13 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${CLOUDFLARE_DOMAIN/./-}-staging"
+  name: "${SECRET_DOMAIN/./-}-staging"
 spec:
-  secretName: "${CLOUDFLARE_DOMAIN/./-}-staging-tls"
+  secretName: "${SECRET_DOMAIN/./-}-staging-tls"
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
-  commonName: "${CLOUDFLARE_DOMAIN}"
+  commonName: "${SECRET_DOMAIN}"
   dnsNames:
-    - "${CLOUDFLARE_DOMAIN}"
-    - "*.${CLOUDFLARE_DOMAIN}"
+    - "${SECRET_DOMAIN}"
+    - "*.${SECRET_DOMAIN}"
