@@ -60,14 +60,16 @@ tasks:
       - task: validate-kubernetes-config
       - task: validate-talos-config
     preconditions:
-      - msg: |
-          An existing Age key interferes with the age key in this repository.
-          Rename or delete ~/.config/sops/age/keys.txt
+      - msg: An existing Age key interferes with the age key in this repository, rename or delete ~/.config/sops/age/keys.txt
         sh: '! test -f ~/.config/sops/age/keys.txt'
-      - test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
-      - test -f {{.ROOT_DIR}}/cloudflare-token.txt
-      - test -f {{.TEMPLATE_CONFIG_FILE}}
-      - test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
+      - msg: No cloudflare tunnel file found, see the README for more information.
+        sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
+      - msg: No cloudflare API token file found, see the README for more information.
+        sh: test -f {{.ROOT_DIR}}/cloudflare-token.txt
+      - msg: No cluster.yaml, did you run `task init`?
+        sh: test -f {{.TEMPLATE_CONFIG_FILE}}
+      - msg: No nodes.yaml, did you run `task init`?
+        sh: test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
 
   validate-schemas:
     desc: Validate the configuration files
