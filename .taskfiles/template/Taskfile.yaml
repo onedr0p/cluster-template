@@ -62,14 +62,14 @@ tasks:
     preconditions:
       - msg: An existing Age key interferes with the age key in this repository, rename or delete ~/.config/sops/age/keys.txt
         sh: '! test -f ~/.config/sops/age/keys.txt'
-      - msg: No cloudflare tunnel file found, see the README for more information.
-        sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
-      - msg: No cloudflare API token file found, see the README for more information.
-        sh: test -f {{.ROOT_DIR}}/cloudflare-token.txt
-      - msg: No cluster.yaml, did you run `task init`?
+      - msg: File cluster.yaml not found, did you run `task init`?
         sh: test -f {{.TEMPLATE_CONFIG_FILE}}
-      - msg: No nodes.yaml, did you run `task init`?
+      - msg: File nodes.yaml not found, did you run `task init`?
         sh: test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
+      - msg: File cloudflare-tunnel.json not found, see the README for information on creating it.
+        sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
+      - msg: File cloudflare-token.txt not found, see the README for information on creating it.
+        sh: test -f {{.ROOT_DIR}}/cloudflare-token.txt
 
   validate-schemas:
     desc: Validate the configuration files
