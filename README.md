@@ -70,7 +70,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 > [!WARNING]
 > If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
 
-1. Create a Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare_com/fundamentals/api/get-started/create-token/) and following the instructions below.
+1. Create a Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
    - Click the blue `Use template` button for the `Edit zone DNS` template.
    - Name your token `kubernetes`
