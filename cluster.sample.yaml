@@ -44,7 +44,7 @@ repository_name: ""
 # repository_branch: ""
 
 # -- Repository visibility (public or private)
-#    (OPTIONAL) / (DEFAULT: "public") / (NOTE: With this set to private make sure to paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings.)
+#    (OPTIONAL) / (DEFAULT: "public") / (NOTE: See the README for information when set private)
 # repository_visibility: ""
 
 # -- Cloudflare domain you wish to use from your account

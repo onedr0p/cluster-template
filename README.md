@@ -69,7 +69,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 > [!IMPORTANT]
 > If any of the below commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
 
-1. Create a single Cloudflare API token for use with cloudflared and external-dns by [reviewing the documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) and following the instructions below.
+1. Create a single Cloudflare API token for use with cloudflared and external-dns by [reviewing the documentation](https://developers.cloudflare_com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
    1. Click the blue `Use template` button for the `Edit zone DNS` template.
    2. Name your token `kubernetes`
@@ -156,7 +156,7 @@ The `external-dns` application created in the `networking` namespace will handle
 > [!TIP]
 > Use the `internal` ingress class to make applications private to your network. If you're having trouble with internal DNS resolution check out [this](https://github.com/onedr0p/cluster-template/discussions/719) GitHub discussion.
 
-`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare.domain}` to `${cloudflare.gateway_vip}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
+`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare_domain}` to `${cloudflare_gateway_vip}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
 ... Nothing working? That is expected, this is DNS after all!
 
@@ -189,16 +189,16 @@ By default Flux will periodically check your git repository for changes. In orde
     📍 _Hook id and path should look like `/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123`_
 
     ```sh
-    kubectl -n flux-system get receiver github-receiver -o jsonpath='{.status.webhookPath}'
+    kubectl -n flux-system get receiver github-webhook --output=jsonpath='{.status.webhookPath}'
     ```
 
 2. Piece together the full URL with the webhook path appended:
 
     ```text
-    https://flux-webhook.${cloudflare.domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    https://flux-webhook.${cloudflare_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your token from `push-token.key`, Content type: `application/json`, Events: Choose Just the push event, and save.
+3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your token from `github-push-token.txt`, Content type: `application/json`, Events: Choose Just the push event, and save.
 
 ## 💥 Reset
 

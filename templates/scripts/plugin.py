@@ -72,7 +72,7 @@ def github_deploy_key() -> str:
     return file_content
 
 
-# Return the Flux / GitHub push token from push-token.key
+# Return the Flux / GitHub push token from github-push-token.txt
 def github_push_token() -> str:
     try:
         with open('github-push-token.txt', 'r') as file:
