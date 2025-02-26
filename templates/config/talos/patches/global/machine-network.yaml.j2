@@ -2,6 +2,6 @@ machine:
   network:
     disableSearchDomain: true
     nameservers:
-      #% for item in dns_servers | default(["1.1.1.1","1.0.0.1"], true) %#
+      #% for item in node_dns_servers %#
       - #{ item }#
       #% endfor %#

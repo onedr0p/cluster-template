@@ -5,7 +5,7 @@ serviceAccount:
   create: true
 service:
   name: kube-dns
-  clusterIP: "#{ service_network | nthhost(10) }#"
+  clusterIP: "#{ cluster_svc_cidr | nthhost(10) }#"
 replicaCount: 2
 servers:
   - zones:

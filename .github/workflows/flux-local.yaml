@@ -5,19 +5,32 @@ name: "Flux Local"
 on:
   pull_request:
     branches: ["main"]
-    paths:
-      - kubernetes/apps/**
-      - kubernetes/components/**
-      - kubernetes/flux/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  pre-job:
+    name: Flux Local Pre-Job
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.changed-files.outputs.any_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: kubernetes/**
+
   test:
     name: Flux Local Test
+    needs: pre-job
     runs-on: ubuntu-latest
+    if: ${{ needs.pre-job.outputs.any_changed == 'true' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,15 +42,16 @@ jobs:
 
   diff:
     name: Flux Local Diff
+    needs: pre-job
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-      contents: read
     strategy:
       matrix:
         resources: ["helmrelease", "kustomization"]
       max-parallel: 4
       fail-fast: false
+    if: ${{ needs.pre-job.outputs.any_changed == 'true' }}
     steps:
       - name: Checkout Pull Request Branch
         uses: actions/checkout@v4
@@ -80,8 +94,9 @@ jobs:
               echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - if: ${{ steps.diff.outputs.diff != '' }}
-        name: Add Comment
+      - name: Add Comment
+        if: ${{ steps.diff.outputs.diff != '' }}
+        continue-on-error: true
         uses: mshick/add-pr-comment@v2
         with:
           message-id: "${{ github.event.pull_request.number }}/kubernetes/${{ matrix.resources }}"
@@ -91,12 +106,16 @@ jobs:
             ${{ steps.diff.outputs.diff }}
             ```
 
-  flux-local-success:
+  flux-local-status:
+    name: Flux Local Success
     needs: ["test", "diff"]
-    if: ${{ always() }}
-    name: Flux Local successful
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     steps:
-      - name: Check flux-local status
-        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+      - name: Any jobs failed?
+        if: ${{ contains(needs.*.result, 'failure') }}
         run: exit 1
+
+      - name: All jobs passed or skipped?
+        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        run: echo "All jobs passed or skipped" && echo "${{ toJSON(needs.*.result) }}"

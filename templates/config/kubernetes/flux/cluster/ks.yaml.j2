@@ -40,12 +40,12 @@ spec:
   prune: true
   postBuild:
     substituteFrom:
-      - name: cluster-settings
-        kind: ConfigMap
-        optional: false
       - name: cluster-secrets
         kind: Secret
         optional: false
+      - name: cluster-settings
+        kind: ConfigMap
+        optional: true
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -64,13 +64,12 @@ spec:
               name: sops-age
           postBuild:
             substituteFrom:
-              - name: cluster-settings
-                kind: ConfigMap
-                optional: false
               - name: cluster-secrets
                 kind: Secret
                 optional: false
+              - name: cluster-settings
+                kind: ConfigMap
+                optional: true
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
-        labelSelector: substitution.flux.home.arpa/disabled notin (true)

@@ -1,27 +1,26 @@
 [env]
 _.python.venv = { path = "{{config_root}}/.venv", create = true }
-ROOT_DIR = "{{config_root}}"
-KUBERNETES_DIR = '{{config_root}}/kubernetes'
-SCRIPTS_DIR = '{{config_root}}/scripts'
-BOOTSTRAP_DIR = '{{config_root}}/bootstrap'
-TALOS_DIR = '{{config_root}}/talos'
 KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
+BOOTSTRAP_DIR = "{{config_root}}/bootstrap"
+KUBERNETES_DIR = "{{config_root}}/kubernetes"
+ROOT_DIR = "{{config_root}}"
+SCRIPTS_DIR = "{{config_root}}/scripts"
+TALOS_DIR = "{{config_root}}/talos"
 
 [tasks.deps]
-description = "Install dependencies"
+description = "Install Python dependencies"
 run = "uv pip install -r requirements.txt"
 
 [tools]
-# Template tools
 python = "3.13"
-uv = "latest"
-# Operations tools
+uv = "0.6.3"
 "aqua:budimanjojo/talhelper" = "3.0.19"
 "aqua:cloudflare/cloudflared" = "2025.2.0"
+"aqua:cue-lang/cue" = "0.12.0"
 "aqua:FiloSottile/age" = "1.2.1"
-"aqua:fluxcd/flux2" = "2.5.0"
+"aqua:fluxcd/flux2" = "2.5.1"
 "aqua:getsops/sops" = "3.9.4"
 "aqua:go-task/task" = "3.41.0"
 "aqua:helm/helm" = "3.17.1"

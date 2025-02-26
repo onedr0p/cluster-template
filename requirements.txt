@@ -1,6 +1,2 @@
-cloudflare==4.0.0
-dnspython==2.7.0
-email-validator==2.2.0
 makejinja==2.7.2
 netaddr==1.3.0
-ntplib==0.4.0

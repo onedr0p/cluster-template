@@ -39,11 +39,7 @@ spec:
               TUNNEL_ORIGIN_ENABLE_HTTP2: true
               TUNNEL_TRANSPORT_PROTOCOL: quic
               TUNNEL_POST_QUANTUM: true
-              TUNNEL_ID:
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudflared-secret
-                    key: TUNNEL_ID
+              TUNNEL_ID: "#{ cloudflare_tunnel('TunnelID') }#"
             args:
               - tunnel
               - --config

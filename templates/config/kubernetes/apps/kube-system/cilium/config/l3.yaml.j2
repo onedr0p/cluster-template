@@ -1,4 +1,4 @@
-#% if bgp.enabled %#
+#% if cilium_bgp_enabled %#
 ---
 # yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/cilium.io/ciliumbgppeeringpolicy_v2alpha1.json
 apiVersion: cilium.io/v2alpha1
@@ -10,7 +10,7 @@ spec:
     matchLabels:
       kubernetes.io/os: linux
   virtualRouters:
-    - localASN: #{ bgp.node_asn }#
+    - localASN: #{ cilium_bgp_node_asn }#
       exportPodCIDR: false
       serviceSelector:
         matchExpressions:
@@ -19,6 +19,6 @@ spec:
             values:
               - will-match-and-announce-all-services
       neighbors:
-        - peerAddress: "#{ bgp.router_address }#/32"
-          peerASN: #{ bgp.router_asn }#
+        - peerAddress: "#{ cilium_bgp_router_addr }#/32"
+          peerASN: #{ cilium_bgp_router_asn }#
 #% endif %#

@@ -2,6 +2,6 @@ machine:
   time:
     disabled: false
     servers:
-      #% for item in ntp_servers | default(["162.159.200.1","162.159.200.123"], true) %#
+      #% for item in node_ntp_servers %#
       - #{ item }#
       #% endfor %#

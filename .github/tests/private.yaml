@@ -1,37 +1,23 @@
 ---
-skip_tests: true
-
-node_network: 10.10.10.0/24
-node_default_gateway: 10.10.10.1
-node_inventory:
-  - name: k8s-0
-    address: 10.10.10.100
-    controller: true
-    disk: fake
-    mac_addr: fake
-    schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
-    secureboot: true
-    encrypt_disk: true
-  - name: k8s-1
-    address: 10.10.10.101
-    controller: false
-    disk: fake
-    mac_addr: fake
-    schematic_id: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
-    secureboot: false
-    encrypt_disk: false
-dns_servers: ["1.1.1.1", "1.0.0.1"]
-ntp_servers: ["time.cloudflare.com"]
-pod_network: 10.69.0.0/16
-service_network: 10.96.0.0/16
-controller_vip: 10.10.10.254
-tls_sans: ["fake"]
-bgp:
-  enabled: false
-github:
-  repository: onedr0p/cluster-template
-  branch: main
-  webhook_token: fake
-  private: true
-cloudflare:
-  enabled: false
+node_cidr: "10.10.10.0/24"
+# node_default_gateway: ""
+# node_vlan_tag:
+# cluster_pod_cidr: ""
+# cluster_svc_cidr: ""
+# node_dns_servers: []
+# node_ntp_servers: []
+cluster_api_addr: "10.10.10.254"
+# cluster_api_tls_sans: []
+repository_name: "onedr0p/cluster-template"
+# repository_branch: ""
+repository_visibility: "private"
+cloudflare_domain: "example.com"
+cloudflare_token: "fake"
+# cloudflare_cluster_issuer: ""
+cloudflare_ingress_addr: "10.10.10.252"
+cloudflare_dns_gateway_addr: "10.10.10.253"
+cloudflare_tunnel_ingress_addr: "10.10.10.251"
+# cilium_bgp_router_addr: ""
+# cilium_bgp_router_asn: ""
+# cilium_bgp_node_asn: ""
+# cilium_loadbalancer_mode: ""

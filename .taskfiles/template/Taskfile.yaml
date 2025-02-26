@@ -5,36 +5,31 @@ version: '3'
 vars:
   MAKEJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/makejinja.toml'
   TEMPLATE_DIR: '{{.ROOT_DIR}}/templates'
-  TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/config.yaml'
   TEMPLATE_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/template/resources'
+  TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/cluster.yaml'
+  TEMPLATE_NODE_CONFIG_FILE: '{{.ROOT_DIR}}/nodes.yaml'
 
 tasks:
 
   :init:
     desc: Initialize configuration files
     cmds:
-      - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+      - task: generate-template-config
       - task: generate-age-key
       - task: generate-deploy-key
+      - task: generate-push-token
+
+  generate-template-config:
+    internal: true
+    cmds:
+      - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
+      - mv {{.TEMPLATE_NODE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_NODE_CONFIG_FILE}}
     status:
       - test -f {{.TEMPLATE_CONFIG_FILE}}
-
-  :configure:
-    desc: Render and validate configuration files
-    prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
-    cmds:
-      - task: render-configs
-      - task: encrypt-secrets
-      - task: validate-kubernetes-config
-      - task: validate-talos-config
-    preconditions:
-      - msg: |
-          An existing Age key interferes with the age key in this repository.
-          Rename or delete ~/.config/sops/age/keys.txt
-        sh: '! test -f ~/.config/sops/age/keys.txt'
+      - test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
 
   generate-age-key:
-    desc: Create the Sops Age key
+    internal: true
     cmd: age-keygen --output {{.SOPS_AGE_KEY_FILE}}
     status:
       - test -f {{.SOPS_AGE_KEY_FILE}}
@@ -42,26 +37,60 @@ tasks:
       - which age-keygen
 
   generate-deploy-key:
-    desc: Create the deploy key
-    cmd: ssh-keygen -t ecdsa -b 521 -C "deploy-key" -f {{.ROOT_DIR}}/deploy.key -q -P ""
+    internal: true
+    cmd: ssh-keygen -t ecdsa -b 521 -C "deploy-key" -f {{.ROOT_DIR}}/github-deploy.key -q -P ""
     status:
-      - test -f {{.ROOT_DIR}}/deploy.key
+      - test -f {{.ROOT_DIR}}/github-deploy.key
     preconditions:
       - which ssh-keygen
 
+  generate-push-token:
+    internal: true
+    cmd: python -c "import secrets; print(secrets.token_hex(16))" > {{.ROOT_DIR}}/github-push-token.txt
+    status:
+      - test -f {{.ROOT_DIR}}/github-push-token.txt
+
+  :configure:
+    desc: Render and validate configuration files
+    prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
+    cmds:
+      - task: validate-schemas
+      - task: render-configs
+      - task: encrypt-secrets
+      - task: validate-kubernetes-config
+      - task: validate-talos-config
+    preconditions:
+      - msg: An existing Age key interferes with the age key in this repository, rename or delete ~/.config/sops/age/keys.txt
+        sh: '! test -f ~/.config/sops/age/keys.txt'
+      - msg: File cluster.yaml not found, did you run `task init`?
+        sh: test -f {{.TEMPLATE_CONFIG_FILE}}
+      - msg: File nodes.yaml not found, did you run `task init`?
+        sh: test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
+      - msg: File cloudflare-tunnel.json not found, see the README for information on creating it.
+        sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
+
+  validate-schemas:
+    internal: true
+    cmds:
+      - cue vet {{.TEMPLATE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/cluster.schema.cue
+      - cue vet {{.TEMPLATE_NODE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/nodes.schema.cue
+    preconditions:
+      - test -f {{.TEMPLATE_RESOURCES_DIR}}/cluster.schema.cue
+      - test -f {{.TEMPLATE_RESOURCES_DIR}}/nodes.schema.cue
+      - which cue
+
   render-configs:
-    desc: Template the configuration files
+    internal: true
     cmd: makejinja
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     preconditions:
-      - test -f {{.TEMPLATE_CONFIG_FILE}}
       - test -f {{.TEMPLATE_DIR}}/scripts/plugin.py
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
       - which makejinja
 
   encrypt-secrets:
-    desc: Encrypt secrets with Sops
+    internal: true
     cmds:
       - for: { var: SECRET_FILES }
         cmd: |
@@ -70,22 +99,22 @@ tasks:
           fi
     vars:
       SECRET_FILES:
-        sh: find "{{.BOOTSTRAP_DIR}}" "{{.KUBERNETES_DIR}}" "{{.TALOS_DIR}}" -type f -name "*.sops.*"
+        sh: find "{{.BOOTSTRAP_DIR}}" "{{.KUBERNETES_DIR}}" "{{.TALOS_DIR}}" -type f -name "*.sops.*" -print
     preconditions:
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - test -f {{.ROOT_DIR}}/.sops.yaml
-      - which sops
+      - which jq sops
 
   validate-kubernetes-config:
-    desc: Validate Kubernetes manifests with kubeconform
+    internal: true
     cmd: bash {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh {{.KUBERNETES_DIR}}
     preconditions:
       - test -f {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh
       - which kubeconform
 
   validate-talos-config:
-    desc: Validate the Talhelper config
-    dir: "{{.TALOS_DIR}}"
+    internal: true
+    dir: '{{.TALOS_DIR}}'
     cmd: talhelper validate talconfig {{.TALOS_DIR}}/talconfig.yaml
     preconditions:
       - test -f {{.TALOS_DIR}}/talconfig.yaml
@@ -94,19 +123,10 @@ tasks:
   debug:
     desc: Gather common resources in your cluster
     cmds:
-      - for: { var: RESOURCE }
-        cmd: kubectl get {{.ITEM}} {{.CLI_ARGS | default "-A"}}
-    vars:
-      RESOURCE: >-
-        nodes
-        gitrepositories
-        kustomizations
-        helmrepositories
-        helmreleases
-        certificates
-        certificaterequests
-        ingresses
-        pods
+      - for:
+          matrix:
+            RESOURCE: [certificates, certificaterequests, gitrepositories, helmrepositories, helmreleases, ingresses, kustomizations, nodes, pods]
+        cmd: kubectl get --all-namespaces {{.ITEM.RESOURCE}}
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which kubectl
@@ -124,7 +144,8 @@ tasks:
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.TIDY_FOLDER}}/makejinja.toml
       - mv {{.ROOT_DIR}}/requirements.txt {{.TIDY_FOLDER}}/requirements.txt
-      - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/config.yaml
+      - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/cluster.yaml
+      - mv {{.TEMPLATE_NODE_CONFIG_FILE}} {{.TIDY_FOLDER}}/nodes.yaml
       - |
         {{.SED}} -i '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/
@@ -135,9 +156,17 @@ tasks:
     preconditions:
       - msg: Unsupported sed version, run `brew install gsed` to upgrade
         sh: '{{if eq OS "darwin"}}test -f /opt/homebrew/bin/gsed{{end}}'
-      - test -d {{.ROOT_DIR}}/.github/tests
       - test -d {{.ROOT_DIR}}/.taskfiles/template
       - test -d {{.TEMPLATE_DIR}}
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
       - test -f {{.ROOT_DIR}}/.renovaterc.json5
       - test -f {{.ROOT_DIR}}/requirements.txt
+
+  reset:
+    desc: Remove templated files and directories
+    prompt: Remove all templated files and directories... continue?
+    cmds:
+      - rm -rf {{.BOOTSTRAP_DIR}}
+      - rm -rf {{.KUBERNETES_DIR}}
+      - rm -rf {{.TALOS_DIR}}
+      - rm -rf {{.ROOT_DIR}}/.sops.yaml

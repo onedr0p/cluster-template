@@ -5,13 +5,13 @@ originRequest:
 ingress:
   - hostname: "${SECRET_DOMAIN}"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
-    #% if not cloudflare.acme.production %#
+    #% if cloudflare_cluster_issuer == 'staging' %#
     originRequest:
       noTLSVerify: true
     #% endif %#
   - hostname: "*.${SECRET_DOMAIN}"
     service: https://external-ingress-nginx-controller.network.svc.cluster.local:443
-    #% if not cloudflare.acme.production %#
+    #% if cloudflare_cluster_issuer == 'staging' %#
     originRequest:
       noTLSVerify: true
     #% endif %#

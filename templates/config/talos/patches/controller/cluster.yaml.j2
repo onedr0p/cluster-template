@@ -13,7 +13,7 @@ cluster:
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
     advertisedSubnets:
-      - #{ node_network }#
+      - #{ node_cidr }#
   proxy:
     disabled: true
   scheduler:
