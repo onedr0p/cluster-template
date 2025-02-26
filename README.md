@@ -22,20 +22,18 @@ Does this sound cool to you? If so, continue to read on.
 
 ## 🚀 Let's Go!
 
-There are **4 stages** outlined below for completing this project, make sure you follow the stages in order.
+There are **5 stages** outlined below for completing this project, make sure you follow the stages in order.
 
 ### Stage 1: Machine Preparation
 
-**System Requirements**
-
-> [!NOTE]
+> [!IMPORTANT]
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
+
+**Minimum System Requirements**
 
 | Role    | Cores    | Memory        | System Disk               |
 |---------|----------|---------------|---------------------------|
-| Control | 4 _(6*)_ | 8GB _(24GB*)_ | 120GB _(500GB*)_ SSD/NVMe |
-| Worker  | 4 _(6*)_ | 8GB _(24GB*)_ | 120GB _(500GB*)_ SSD/NVMe |
-| _\* recommended_ |
+| Control/Worker | 4 | 16GB | 256GB SSD/NVMe |
 
 1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. You can always add system extensions after Talos is installed and working.
 
@@ -51,7 +49,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 ### Stage 2: Local Workstation
 
-> [!NOTE]
+> [!WARNING]
 > It is recommended to set the visibility of your repository to `Public` so you can easily request help if you get stuck.
 
 1. Create a new repository by clicking the green "Use this template" button at the top of this page.
@@ -68,18 +66,18 @@ There are **4 stages** outlined below for completing this project, make sure you
     mise trust && mise install && mise run deps
     ```
 
-### Stage 3: Configuration
+### Stage 3: Cloudflare configuration
 
-> [!NOTE]
-> If any of the below commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
+> [!WARNING]
+> If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
 
-1. Create a single Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare_com/fundamentals/api/get-started/create-token/) and following the instructions below.
+1. Create a Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare_com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
    - Click the blue `Use template` button for the `Edit zone DNS` template.
    - Name your token `kubernetes`
    - Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
    - Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
-   - **Save this token** you will need it later on.
+   - **Save this token somewhere safe**, you will need it later on.
 
 2. Create the Cloudflare Tunnel:
 
@@ -88,21 +86,23 @@ There are **4 stages** outlined below for completing this project, make sure you
     cloudflared tunnel create --credentials-file cloudflare-tunnel.json kubernetes
     ```
 
-3. Generate `cluster.yaml` and `nodes.yaml` from the sample configuration files:
+### Stage 4: Cluster configuration
+
+1. Generate the config files from the sample files:
 
     ```sh
     task init
     ```
 
-4. Fill out the `cluster.yaml` and `nodes.yaml` configuration files just created in the root of the repo using the comments in those file as a guide.
+2. Fill out `cluster.yaml` and `nodes.yaml` configuration files using the comments in those file as a guide.
 
-5. Template out all the configuration files:
+3. Template out the kubernetes and talos configuration files, if any issues come up be sure to read the error and adjust your config files accordingly.
 
     ```sh
     task configure
     ```
 
-6. Push your changes to git:
+4. Push your changes to git:
 
    📍 _**Verify** all the `./kubernetes/**/*.sops.*` files are **encrypted** with SOPS_
 
@@ -112,13 +112,14 @@ There are **4 stages** outlined below for completing this project, make sure you
     git push
     ```
 
-7. Using a **private repository**? Paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux can have read access to your repository.
+5. Using a **private repository**? Paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux can have read access to your repository.
 
-### Stage 4: Bootstrap Talos, Kubernetes, and Flux
+### Stage 5: Bootstrap Talos, Kubernetes, and Flux
+
+> [!WARNING]
+> It might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. 'Ready' will remain "False" as no CNI is deployed yet. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again_
 
 1. Install Talos:
-
-   📍 _It might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. 'Ready' will remain "False" as no CNI is deployed yet. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again_
 
     ```sh
     task bootstrap:talos
@@ -166,7 +167,7 @@ The `external-dns` application created in the `networking` namespace will handle
 
 ### 📜 Certificates
 
-> [!NOTE]
+> [!WARNING]
 > By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration).
 
 Steps to update to the Let's Encrypt **production environment**:
@@ -219,7 +220,7 @@ task talos:reset # --force
 
 ### ⚙️ Updating Talos node configuration
 
-> [!IMPORTANT]
+> [!TIP]
 > Ensure you have updated `talconfig.yaml` and any patches with your updated configuration. In some cases you **not only need to apply the configuration but also upgrade talos** to apply new configuration.
 
 ```sh
@@ -232,7 +233,7 @@ task talos:apply-node IP=? MODE=?
 
 ### ⬆️ Updating Talos and Kubernetes versions
 
-> [!IMPORTANT]
+> [!TIP]
 > Ensure the `talosVersion` and `kubernetesVersion` in `talconfig.yaml` are up-to-date with the version you wish to upgrade to.
 
 ```sh
