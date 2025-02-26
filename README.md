@@ -49,7 +49,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 ### Stage 2: Local Workstation
 
-> [!WARNING]
+> [!TIP]
 > It is recommended to set the visibility of your repository to `Public` so you can easily request help if you get stuck.
 
 1. Create a new repository by clicking the green "Use this template" button at the top of this page.
@@ -141,10 +141,8 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 4. Watch the rollout of your cluster happen:
 
-   📍 _Depending on the features you choose a successful rollout will include pods being deployed into the **cert-manager, flux-system, kube-system and network** namespaces_
-
     ```sh
-    watch kubectl get pods --all-namespaces
+    kubectl get pods --all-namespaces --watch
     ```
 
 ## 📣 Post installation
@@ -210,10 +208,10 @@ By default Flux will periodically check your git repository for changes. In-orde
 
 ## 💥 Reset
 
-There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode, append `--force` to completely format your the Talos installation. Either way the nodes should reboot after the command has sucessfully ran.
+There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode.
 
 ```sh
-task talos:reset # --force
+task talos:reset
 ```
 
 ## 🛠️ Talos and Kubernetes Maintenance
