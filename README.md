@@ -26,7 +26,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 **System Requirements**
 
-> [!IMPORTANT]
+> [!NOTE]
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
 
 | Role    | Cores    | Memory        | System Disk               |
@@ -41,15 +41,18 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 3. Flash the Talos ISO or RAW image to a USB drive and boot from it on your nodes.
 
-4. Verify with `nmap`that all your nodes are available on your network before you move on. Replace `192.168.0.0/24` with the network your nodes are on.
+4. Verify with `nmap` that your nodes are available on the network before you move on. (Replace `192.168.1.0/24` with the network your nodes are on.)
 
     ```sh
-    nmap -Pn -n -p 50000 192.168.0.0/24 -vv | grep 'Discovered'
+    nmap -Pn -n -p 50000 192.168.1.0/24 -vv | grep 'Discovered'
     ```
 
 ### Stage 2: Local Workstation
 
-1. Create a new repository by clicking the green "Use this template" button at the top of this page (it is recommended to set the visibility to `Public`).
+> [!NOTE]
+> It is recommended to set the visibility of your repository to `Public` so you can easily request help if you get stuck.
+
+1. Create a new repository by clicking the green "Use this template" button at the top of this page.
 
 2. Use `git clone` to download **the repo you just created** to your local workstation and `cd` into it.
 
@@ -60,13 +63,12 @@ There are **4 stages** outlined below for completing this project, make sure you
    📍 _If `mise` is having trouble compiling Python, try running `mise settings python.compile=0` and try these commands again_
 
     ```sh
-    mise trust
-    mise install
+    mise trust && mise install && mise run deps
     ```
 
 ### Stage 3: Configuration
 
-> [!IMPORTANT]
+> [!NOTE]
 > If any of the below commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
 
 1. Create a single Cloudflare API token for use with cloudflared and external-dns by [reviewing the documentation](https://developers.cloudflare_com/fundamentals/api/get-started/create-token/) and following the instructions below.
@@ -167,9 +169,9 @@ The `external-dns` application created in the `networking` namespace will handle
 
 Steps to update to the Let's Encrypt **production environment**:
 
-1. Update `cloudflare_cluster_issuer` to `production` in `cluster.yaml`
+1. In `cluster.yaml` update `cloudflare_cluster_issuer` to `production`
 2. Run `task configure`
-3. Push your changes to git
+3. Push your changes to git:
 
     ```sh
     git add -A
@@ -177,12 +179,15 @@ Steps to update to the Let's Encrypt **production environment**:
     git push
     ```
 
+4. Wait for your certificate to be created, you can check the status by running:
+
+    ```sh
+    kubectl -n cert-manager describe certificate <name>
+    ```
+
 ### 🪝 Github Webhook
 
-By default Flux will periodically check your git repository for changes. In order to have Flux reconcile on `git push` you must configure Github to send `push` events to Flux.
-
-> [!IMPORTANT]
-> This will only work after you have switched over certificates to the Let's Encrypt Production servers.
+By default Flux will periodically check your git repository for changes. In-order to have Flux reconcile on `git push` you must configure Github to send `push` events to Flux.
 
 1. Obtain the webhook path:
 

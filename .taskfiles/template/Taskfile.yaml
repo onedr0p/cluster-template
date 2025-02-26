@@ -20,7 +20,7 @@ tasks:
       - task: generate-push-token
 
   generate-template-config:
-    desc: Create the config files
+    internal: true
     cmds:
       - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
       - mv {{.TEMPLATE_NODE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_NODE_CONFIG_FILE}}
@@ -29,7 +29,7 @@ tasks:
       - test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
 
   generate-age-key:
-    desc: Create the Sops Age key
+    internal: true
     cmd: age-keygen --output {{.SOPS_AGE_KEY_FILE}}
     status:
       - test -f {{.SOPS_AGE_KEY_FILE}}
@@ -37,7 +37,7 @@ tasks:
       - which age-keygen
 
   generate-deploy-key:
-    desc: Create the deploy key
+    internal: true
     cmd: ssh-keygen -t ecdsa -b 521 -C "deploy-key" -f {{.ROOT_DIR}}/github-deploy.key -q -P ""
     status:
       - test -f {{.ROOT_DIR}}/github-deploy.key
@@ -45,7 +45,7 @@ tasks:
       - which ssh-keygen
 
   generate-push-token:
-    desc: Create the push token
+    internal: true
     cmd: python -c "import secrets; print(secrets.token_hex(16))" > {{.ROOT_DIR}}/github-push-token.txt
     status:
       - test -f {{.ROOT_DIR}}/github-push-token.txt
@@ -70,7 +70,7 @@ tasks:
         sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
 
   validate-schemas:
-    desc: Validate the configuration files
+    internal: true
     cmds:
       - cue vet {{.TEMPLATE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/cluster.schema.cue
       - cue vet {{.TEMPLATE_NODE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/nodes.schema.cue
@@ -80,7 +80,7 @@ tasks:
       - which cue
 
   render-configs:
-    desc: Template the configuration files
+    internal: true
     cmd: makejinja
     env:
       PYTHONDONTWRITEBYTECODE: '1'
@@ -90,7 +90,7 @@ tasks:
       - which makejinja
 
   encrypt-secrets:
-    desc: Encrypt secrets with Sops
+    internal: true
     cmds:
       - for: { var: SECRET_FILES }
         cmd: |
@@ -99,22 +99,22 @@ tasks:
           fi
     vars:
       SECRET_FILES:
-        sh: find "{{.BOOTSTRAP_DIR}}" "{{.KUBERNETES_DIR}}" "{{.TALOS_DIR}}" -type f -name "*.sops.*"
+        sh: find "{{.BOOTSTRAP_DIR}}" "{{.KUBERNETES_DIR}}" "{{.TALOS_DIR}}" -type f -name "*.sops.*" -print
     preconditions:
       - test -f {{.SOPS_AGE_KEY_FILE}}
       - test -f {{.ROOT_DIR}}/.sops.yaml
-      - which sops
+      - which jq sops
 
   validate-kubernetes-config:
-    desc: Validate Kubernetes manifests with kubeconform
+    internal: true
     cmd: bash {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh {{.KUBERNETES_DIR}}
     preconditions:
       - test -f {{.TEMPLATE_RESOURCES_DIR}}/kubeconform.sh
       - which kubeconform
 
   validate-talos-config:
-    desc: Validate the Talhelper config
-    dir: "{{.TALOS_DIR}}"
+    internal: true
+    dir: '{{.TALOS_DIR}}'
     cmd: talhelper validate talconfig {{.TALOS_DIR}}/talconfig.yaml
     preconditions:
       - test -f {{.TALOS_DIR}}/talconfig.yaml
@@ -156,7 +156,6 @@ tasks:
     preconditions:
       - msg: Unsupported sed version, run `brew install gsed` to upgrade
         sh: '{{if eq OS "darwin"}}test -f /opt/homebrew/bin/gsed{{end}}'
-      - test -d {{.ROOT_DIR}}/.github/tests
       - test -d {{.ROOT_DIR}}/.taskfiles/template
       - test -d {{.TEMPLATE_DIR}}
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
@@ -167,7 +166,7 @@ tasks:
     desc: Remove templated files and directories
     prompt: Remove all templated files and directories... continue?
     cmds:
-      - rm -rf {{.BOOTSTRAP_DIR}} || true
-      - rm -rf {{.KUBERNETES_DIR}} || true
-      - rm -rf {{.TALOS_DIR}} || true
-      - rm -rf {{.ROOT_DIR}}/.sops.yaml || true
+      - rm -rf {{.BOOTSTRAP_DIR}}
+      - rm -rf {{.KUBERNETES_DIR}}
+      - rm -rf {{.TALOS_DIR}}
+      - rm -rf {{.ROOT_DIR}}/.sops.yaml

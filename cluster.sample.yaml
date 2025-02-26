@@ -3,11 +3,11 @@
 # (REQUIRED) / (e.g. 192.168.1.0/24)
 node_cidr: ""
 
-# -- DNS server to use for the cluster, you can add more DNS servers after the cluster is bootstrapped.
+# -- DNS servers to use for the cluster.
 #    (OPTIONAL) / (DEFAULT: ["1.1.1.1", "1.0.0.1"]) / (Cloudflare DNS)
 # node_dns_servers: []
 
-# -- NTP server to use for the cluster, you can add more NTP servers after the cluster is bootstrapped.
+# -- NTP servers to use for the cluster.
 #    (OPTIONAL) / (DEFAULT: ["162.159.200.1", "162.159.200.123"]) / (Cloudflare NTP)
 # node_ntp_servers: []
 
@@ -23,7 +23,7 @@ node_cidr: ""
 #    (REQUIRED) / (e.g. "192.168.1.254")
 cluster_api_addr: ""
 
-# -- Additional SAN to add to the Kube API cert. This is useful if you want to call the Kube API by hostname rather than IP
+# -- Additional SANs to add to the Kube API cert. This is useful if you want to call the Kube API by hostname rather than IP
 #    (OPTIONAL) / (e.g. ["mycluster.example.com"])
 # cluster_api_tls_sans: []
 
