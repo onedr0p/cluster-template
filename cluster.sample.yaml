@@ -51,6 +51,10 @@ repository_name: ""
 #    (REQUIRED) / (e.g. "example.com")
 cloudflare_domain: ""
 
+# -- Cloudflare API token
+#    (REQUIRED) (NOTE: See the README for information on creating this)
+cloudflare_token: ""
+
 # -- Provide LAN access to the cluster ingresses for internal ingress classes
 #    (REQUIRED) / (NOTE: The Load balancer IP for internal ingress, choose an available IP in node_cidr that is NOT being used.)
 cloudflare_ingress_addr: ""

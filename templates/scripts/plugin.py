@@ -50,16 +50,6 @@ def age_private_key() -> str:
     return key_match.group(1)
 
 
-# Return the cloudflare token from cloudflare-token.txt
-def cloudflare_token() -> str:
-    try:
-        with open('cloudflare-token.txt', 'r') as file:
-            file_content = file.read().strip()
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: cloudflare-token.txt") from e
-    return file_content
-
-
 # Return cloudflare tunnel fields from cloudflare-tunnel.json
 def cloudflare_tunnel(value: str) -> str:
     try:
@@ -138,7 +128,6 @@ class Plugin(makejinja.plugin.Plugin):
         return [
             age_private_key,
             age_public_key,
-            cloudflare_token,
             cloudflare_tunnel,
             github_deploy_key,
             github_push_token,

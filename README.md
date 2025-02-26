@@ -75,11 +75,7 @@ There are **4 stages** outlined below for completing this project, make sure you
    2. Name your token `kubernetes`
    3. Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
    4. Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
-   5. **Save this token** in a file called `cloudflare-token.txt` in the root of the repo.
-
-        ```sh
-        echo "token" > cloudflare-token.txt
-        ```
+   5. **Save this token** you will need it later on.
 
 2. Create the Cloudflare Tunnel:
 
