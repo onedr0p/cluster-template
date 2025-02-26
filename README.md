@@ -40,7 +40,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 3. Flash the Talos ISO or RAW image to a USB drive and boot from it on your nodes.
 
-4. Verify with `nmap` that your nodes are available on the network before you move on. (Replace `192.168.1.0/24` with the network your nodes are on.)
+4. Verify with `nmap` that your nodes are available on the network. (Replace `192.168.1.0/24` with the network your nodes are on.)
 
     ```sh
     nmap -Pn -n -p 50000 192.168.1.0/24 -vv | grep 'Discovered'
