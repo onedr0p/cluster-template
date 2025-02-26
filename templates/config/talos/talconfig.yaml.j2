@@ -21,7 +21,7 @@ additionalApiServerCertSans: &sans
   #% endfor %#
 additionalMachineCertSans: *sans
 
-# Disable built-in Flannel to use Cilium
+# Disable built-in CNI to use Cilium
 cniConfig:
   name: none
 
