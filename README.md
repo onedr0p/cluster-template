@@ -49,7 +49,7 @@ There are **4 stages** outlined below for completing this project, make sure you
 
 ### Stage 2: Local Workstation
 
-1. Create a new **public** repository by clicking the big green "Use this template" button at the top of this page.
+1. Create a new repository by clicking the green "Use this template" button at the top of this page (it is recommended to set the visibility to `Public`).
 
 2. Use `git clone` to download **the repo you just created** to your local workstation and `cd` into it.
 
@@ -107,6 +107,8 @@ There are **4 stages** outlined below for completing this project, make sure you
     git commit -m "chore: initial commit :rocket:"
     git push
     ```
+
+7. Using a **private repository**? Paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux can have read access to your repository.
 
 ### Stage 4: Bootstrap Talos, Kubernetes, and Flux
 
