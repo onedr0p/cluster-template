@@ -111,7 +111,7 @@ There are **5 stages** outlined below for completing this project, make sure you
     git push
     ```
 
-5. Using a **private repository**? Paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux can have read access to your repository.
+5. Using a **private repository**? Paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux has read/write access to your repository.
 
 ### Stage 5: Bootstrap Talos, Kubernetes, and Flux
 
