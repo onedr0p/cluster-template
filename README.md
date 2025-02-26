@@ -73,13 +73,13 @@ There are **4 stages** outlined below for completing this project, make sure you
 > [!NOTE]
 > If any of the below commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
 
-1. Create a single Cloudflare API token for use with cloudflared and external-dns by [reviewing the documentation](https://developers.cloudflare_com/fundamentals/api/get-started/create-token/) and following the instructions below.
+1. Create a single Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare_com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
-   1. Click the blue `Use template` button for the `Edit zone DNS` template.
-   2. Name your token `kubernetes`
-   3. Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
-   4. Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
-   5. **Save this token** you will need it later on.
+   - Click the blue `Use template` button for the `Edit zone DNS` template.
+   - Name your token `kubernetes`
+   - Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
+   - Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
+   - **Save this token** you will need it later on.
 
 2. Create the Cloudflare Tunnel:
 
