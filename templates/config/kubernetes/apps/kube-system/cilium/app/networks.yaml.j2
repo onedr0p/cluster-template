@@ -1,0 +1,49 @@
+---
+# yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/cilium.io/ciliumloadbalancerippool_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: pool
+spec:
+  allowFirstLastIPs: "No"
+  blocks:
+    - cidr: "#{ node_cidr }#"
+---
+# yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/cilium.io/ciliuml2announcementpolicy_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2-policy
+spec:
+  loadBalancerIPs: true
+  # NOTE: interfaces might need to be set if you have more than one active NIC on your hosts
+  # interfaces:
+  #   - ^eno[0-9]+
+  #   - ^eth[0-9]+
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+#% if cilium_bgp_enabled %#
+---
+# yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/cilium.io/ciliumbgppeeringpolicy_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: l3-policy
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  virtualRouters:
+    - localASN: #{ cilium_bgp_node_asn }#
+      exportPodCIDR: false
+      serviceSelector:
+        matchExpressions:
+          - key: thisFakeSelector
+            operator: NotIn
+            values:
+              - will-match-and-announce-all-services
+      neighbors:
+        - peerAddress: "#{ cilium_bgp_router_addr }#/32"
+          peerASN: #{ cilium_bgp_router_asn }#
+#% endif %#
