@@ -19,19 +19,19 @@ node_cidr: ""
 #    (OPTIONAL) / (REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans)
 # node_vlan_tag: ""
 
-# -- The IP address of the Kube API. Choose an available IP in node_cidr that is NOT being used.
-#    (REQUIRED) / (e.g. "192.168.1.254")
+# -- The IP address of the Kube API.
+#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
 cluster_api_addr: ""
 
 # -- Additional SANs to add to the Kube API cert. This is useful if you want to call the Kube API by hostname rather than IP
 #    (OPTIONAL) / (e.g. ["mycluster.example.com"])
 # cluster_api_tls_sans: []
 
-# -- The pod CIDR for the cluster, this must NOT overlap with any existing networks and is usually a /16 (64K IPs).
+# -- The pod CIDR for the cluster, this must NOT overlap with any existing networks and should be a /16 (64K IPs).
 #    (OPTIONAL) / (DEFAULT: "10.42.0.0/16")
 # cluster_pod_cidr: ""
 
-# -- The service CIDR for the cluster, this must NOT overlap with any existing networks and is usually a /16 (64K IPs).
+# -- The service CIDR for the cluster, this must NOT overlap with any existing networks and should be a /16 (64K IPs).
 #    (OPTIONAL) / (DEFAULT: "10.43.0.0/16")
 # cluster_svc_cidr: ""
 
@@ -55,16 +55,16 @@ cloudflare_domain: ""
 #    (REQUIRED) (NOTE: See the README for information on creating this)
 cloudflare_token: ""
 
-# -- Provide LAN access to the cluster ingresses for internal ingress classes
-#    (REQUIRED) / (NOTE: The Load balancer IP for internal ingress, choose an available IP in node_cidr that is NOT being used.)
-cloudflare_ingress_addr: ""
-
-# -- Gateway is used for providing DNS to your cluster on LAN
-#    (REQUIRED) / (NOTE: The Load balancer IP for k8s_gateway, choose an available IP in node_cidr that is NOT being used.)
+# -- The Load balancer IP for k8s_gateway, which provides local DNS to your ingresses
+#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
 cloudflare_dns_gateway_addr: ""
 
-# -- Provide WAN access to the cluster ingresses for external ingress classes
-#    (REQUIRED) / (NOTE: The Load balancer IP for external ingress, choose an available IP in node_cidr that is NOT being used.)
+# -- The Load balancer IP for the internal ingress controller
+#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
+cloudflare_ingress_addr: ""
+
+# -- The Load balancer IP for the external ingress controller
+#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
 cloudflare_tunnel_ingress_addr: ""
 
 # -- The Let's Encrypt ACME server to use when requesting the wildcard certificate.
