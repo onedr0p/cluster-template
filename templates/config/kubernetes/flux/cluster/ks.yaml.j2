@@ -47,6 +47,7 @@ spec:
       - name: cluster-settings
         kind: ConfigMap
         optional: true
+  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
