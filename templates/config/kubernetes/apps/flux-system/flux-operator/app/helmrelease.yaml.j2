@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: flux-operator
 spec:
-  interval: 30m
+  interval: 1h
   chart:
     spec:
       chart: flux-operator
@@ -24,4 +24,4 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: flux-operator-helm-values
+      name: flux-operator-values

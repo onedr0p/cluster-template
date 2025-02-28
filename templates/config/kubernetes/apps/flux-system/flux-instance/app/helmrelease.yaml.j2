@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: flux-instance
 spec:
-  interval: 30m
+  interval: 1h
   chart:
     spec:
       chart: flux-instance
@@ -27,4 +27,4 @@ spec:
       namespace: flux-system
   valuesFrom:
     - kind: ConfigMap
-      name: flux-instance-helm-values
+      name: flux-instance-values

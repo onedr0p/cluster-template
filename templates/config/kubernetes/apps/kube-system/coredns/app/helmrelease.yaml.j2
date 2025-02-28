@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: coredns
 spec:
-  interval: 30m
+  interval: 1h
   chart:
     spec:
       chart: coredns
@@ -24,4 +24,4 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: coredns-helm-values
+      name: coredns-values

@@ -3,15 +3,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app reloader
-  namespace: &namespace kube-system
+  name: &app flux-instance
+  namespace: &namespace flux-system
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
-  path: ./kubernetes/apps/kube-system/reloader/app
-  prune: true
+  path: ./kubernetes/apps/flux-system/flux-instance/app
+  prune: false # let's not make happy accidents
   retryInterval: 2m
   sourceRef:
     kind: GitRepository

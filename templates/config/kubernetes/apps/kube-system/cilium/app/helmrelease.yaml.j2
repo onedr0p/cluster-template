@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: cilium
 spec:
-  interval: 30m
+  interval: 1h
   chart:
     spec:
       chart: cilium
@@ -23,7 +23,7 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: cilium-helm-values
+      name: cilium-values
   values:
     operator:
       tolerations: []
