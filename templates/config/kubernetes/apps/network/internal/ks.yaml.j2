@@ -12,9 +12,10 @@ spec:
   dependsOn:
     - name: cert-manager-tls
       namespace: cert-manager
-  interval: 30m
+  interval: 1h
   path: ./kubernetes/apps/network/internal/ingress-nginx
   prune: true
+  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -33,9 +34,10 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  interval: 30m
+  interval: 1h
   path: ./kubernetes/apps/network/internal/k8s-gateway
   prune: true
+  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
