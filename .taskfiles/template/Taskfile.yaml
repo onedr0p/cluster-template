@@ -140,7 +140,6 @@ tasks:
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
       - rm -rf {{.ROOT_DIR}}/.github/workflows/mise.yaml
       - rm -rf {{.ROOT_DIR}}/.github/workflows/release.yaml
-      - rm -rf {{.ROOT_DIR}}/.github/release.yaml
       - |
         {{.SED}} -i 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.renovaterc.json5
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
