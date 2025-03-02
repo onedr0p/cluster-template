@@ -26,7 +26,7 @@ spec:
     controller:
       service:
         annotations:
-          lbipam.cilium.io/ips: "#{ cloudflare_ingress_addr }#"
+          lbipam.cilium.io/ips: "#{ cluster_ingress_addr }#"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: internal

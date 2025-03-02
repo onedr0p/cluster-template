@@ -30,7 +30,7 @@ spec:
       service:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
-          lbipam.cilium.io/ips: "#{ cloudflare_tunnel_ingress_addr }#"
+          lbipam.cilium.io/ips: "#{ cloudflare_ingress_addr }#"
         externalTrafficPolicy: Cluster
       ingressClassResource:
         name: external

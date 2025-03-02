@@ -14,15 +14,15 @@ import (
 	cluster_svc_cidr: *"10.43.0.0/16" | net.IPCIDR & !=node_cidr & !=cluster_pod_cidr
 	cluster_api_addr: net.IPv4
 	cluster_api_tls_sans?: [...net.FQDN]
+	cluster_ingress_addr: net.IPv4 & !=cluster_api_addr & !=cluster_dns_gateway_addr & !=cloudflare_ingress_addr
+	cluster_dns_gateway_addr: net.IPv4 & !=cluster_api_addr & !=cluster_ingress_addr & !=cloudflare_ingress_addr
 	repository_name: string
 	repository_branch?: string & !=""
 	repository_visibility?: *"public" | "private"
 	cloudflare_domain: net.FQDN
 	cloudflare_token: string
 	cloudflare_cluster_issuer?: *"staging" | "production"
-	cloudflare_ingress_addr: net.IPv4 & !=cluster_api_addr & !=cloudflare_dns_gateway_addr & !=cloudflare_tunnel_ingress_addr
-	cloudflare_dns_gateway_addr: net.IPv4 & !=cluster_api_addr & !=cloudflare_ingress_addr & !=cloudflare_tunnel_ingress_addr
-	cloudflare_tunnel_ingress_addr: net.IPv4 & !=cluster_api_addr & !=cloudflare_ingress_addr & !=cloudflare_dns_gateway_addr
+	cloudflare_ingress_addr: net.IPv4 & !=cluster_api_addr & !=cluster_ingress_addr & !=cluster_dns_gateway_addr
 	cilium_bgp_router_addr?: net.IPv4 & !=""
 	cilium_bgp_router_asn?: string & !=""
 	cilium_bgp_node_asn?: string & !=""
