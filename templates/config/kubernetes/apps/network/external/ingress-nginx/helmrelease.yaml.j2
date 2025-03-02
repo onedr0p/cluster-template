@@ -76,8 +76,7 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        default-ssl-certificate: |-
-          cert-manager/${SECRET_DOMAIN/./-}-#{ cloudflare_cluster_issuer }#-tls
+        default-ssl-certificate: cert-manager/${SECRET_DOMAIN/./-}-#{ cloudflare_cluster_issuer }#-tls
       resources:
         requests:
           cpu: 100m
