@@ -35,6 +35,14 @@ cluster_api_addr: ""
 #    (OPTIONAL) / (DEFAULT: "10.43.0.0/16")
 # cluster_svc_cidr: ""
 
+# -- The Load balancer IP for k8s_gateway, this provides DNS to all your ingresses when split DNS is configured on your internal DNS server (Dnsmasq, Pi-hole, etc)
+#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
+cluster_dns_gateway_addr: ""
+
+# -- The Load balancer IP for the internal ingress-nginx controller
+#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
+cluster_ingress_addr: ""
+
 # -- GitHub repository
 #    (REQUIRED) / (e.g. "onedr0p/cluster-template")
 repository_name: ""
@@ -47,25 +55,17 @@ repository_name: ""
 #    (OPTIONAL) / (DEFAULT: "public") / (NOTE: See the README for information when set private)
 # repository_visibility: ""
 
-# -- Cloudflare domain you wish to use from your account
+# -- Domain you wish to use from your Cloudflare account
 #    (REQUIRED) / (e.g. "example.com")
 cloudflare_domain: ""
 
-# -- Cloudflare API token
+# -- API Token for Cloudflare with the 'Zone:DNS:Edit' and 'Account:Cloudflare Tunnel:Read' permissions
 #    (REQUIRED) (NOTE: See the README for information on creating this)
 cloudflare_token: ""
 
-# -- The Load balancer IP for k8s_gateway, which provides local DNS to your ingresses
-#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
-cloudflare_dns_gateway_addr: ""
-
-# -- The Load balancer IP for the internal ingress controller
+# -- The Load balancer IP for the external ingress-nginx controller
 #    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
 cloudflare_ingress_addr: ""
-
-# -- The Load balancer IP for the external ingress controller
-#    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
-cloudflare_tunnel_ingress_addr: ""
 
 # -- The Let's Encrypt ACME server to use when requesting the wildcard certificate.
 #    (OPTIONAL) / (DEFAULT: "staging") / (NOTE: accepted values are 'staging' or 'production')
