@@ -6,11 +6,7 @@ metadata:
   name: letsencrypt-#{ cloudflare_cluster_issuer }#
 spec:
   acme:
-    #% if cloudflare_cluster_issuer == 'staging' %#
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
-    #% else %#
-    server: https://acme-v02.api.letsencrypt.org/directory
-    #% endif %#
+    server: "https://acme#{ '-staging' if cloudflare_cluster_issuer == 'staging' }#-v02.api.letsencrypt.org/directory"
     privateKeySecretRef:
       name: letsencrypt-#{ cloudflare_cluster_issuer }#
     solvers:
