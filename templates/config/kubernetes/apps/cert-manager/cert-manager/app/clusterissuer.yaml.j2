@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/cert-manager.io/clusterissuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-#{ cloudflare_cluster_issuer }#
+spec:
+  acme:
+    #% if cloudflare_cluster_issuer == 'staging' %#
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    #% else %#
+    server: https://acme-v02.api.letsencrypt.org/directory
+    #% endif %#
+    privateKeySecretRef:
+      name: letsencrypt-#{ cloudflare_cluster_issuer }#
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cert-manager-secret
+              key: api-token
+        selector:
+          dnsZones: ["${SECRET_DOMAIN}"]

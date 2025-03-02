@@ -3,7 +3,4 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./staging.yaml
-  #% if cloudflare_cluster_issuer == 'production' %#
-  - ./production.yaml
-  #% endif %#
+  - ./certificate.yaml
