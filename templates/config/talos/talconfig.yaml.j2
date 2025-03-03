@@ -69,7 +69,7 @@ nodes:
         #% endif %#
         #% endif %#
     #% if talos_patches('%s' % (item.name)) | length == 0 %#
-    #% if item.encrypt_disk %#
+    #% if item.encrypt_disk | default(false, true) %#
     patches:
       - # Encrypt system disk with TPM
         |-
