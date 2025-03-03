@@ -37,7 +37,7 @@ nodes:
     #% endif %#
     machineSpec:
       secureboot: #{ (true if item.secureboot else false) | string | lower }#
-    talosImageURL: factory.talos.dev/installer#{ "-secureboot" if item.secureboot else ""}#/#{ item.schematic_id }#
+    talosImageURL: factory.talos.dev/installer#{ "-secureboot" if item.secureboot | default(false, true) }#/#{ item.schematic_id }#
     controlPlane: #{ (item.controller) | string | lower }#
     networkInterfaces:
       - deviceSelector:
@@ -69,7 +69,7 @@ nodes:
         #% endif %#
         #% endif %#
     #% if talos_patches('%s' % (item.name)) | length == 0 %#
-    #% if item.encrypt_disk %#
+    #% if item.encrypt_disk | default(false, true) %#
     patches:
       - # Encrypt system disk with TPM
         |-
@@ -90,7 +90,7 @@ nodes:
     #% for file in talos_patches('%s' % (item.name)) %#
     #% if loop.index == 1 %#
     patches:
-    #% if item.encrypt_disk %#
+    #% if item.encrypt_disk | default(false, true) %#
       - |-
         machine:
           systemDiskEncryption:
