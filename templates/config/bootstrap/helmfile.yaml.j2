@@ -22,6 +22,12 @@ repositories:
   - name: jetstack
     url: https://charts.jetstack.io
 
+  #% if spegel_enabled %#
+  - name: spegel
+    url: ghcr.io/spegel-org/helm-charts/spegel
+    oci: true
+  #% endif %#
+
 releases:
   - name: cilium
     namespace: kube-system
@@ -38,13 +44,27 @@ releases:
     values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/apps/kube-system/coredns/app/helm/values.yaml']
     needs: ['kube-system/cilium']
 
+  #% if spegel_enabled %#
+  - name: spegel
+    namespace: kube-system
+    atomic: true
+    chart: spegel/spegel
+    version: v0.0.30
+    values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/apps/kube-system/spegel/app/helm/values.yaml']
+    needs: ['kube-system/coredns']
+  #% endif %#
+
   - name: cert-manager
     namespace: cert-manager
     atomic: true
     chart: jetstack/cert-manager
     version: v1.17.1
     values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/apps/cert-manager/cert-manager/app/helm/values.yaml']
+    #% if spegel_enabled %#
+    needs: ['kube-system/spegel']
+    #% else %#
     needs: ['kube-system/coredns']
+    #% endif %#
 
   - name: flux-operator
     namespace: flux-system
