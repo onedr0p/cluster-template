@@ -14,8 +14,8 @@ description = "Install Python dependencies"
 run = "uv pip install -r requirements.txt"
 
 [tools]
-python = "3.13"
-uv = "0.6.3"
+"python" = "3.13"
+"uv" = "latest"
 "aqua:budimanjojo/talhelper" = "3.0.19"
 "aqua:cli/cli" = "2.67.0"
 "aqua:cloudflare/cloudflared" = "2025.2.1"
