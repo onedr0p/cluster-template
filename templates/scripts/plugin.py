@@ -114,6 +114,10 @@ class Plugin(makejinja.plugin.Plugin):
         bgp_enabled = all(data.get(key) for key in bgp_keys)
         data.setdefault('cilium_bgp_enabled', bgp_enabled)
 
+        # If there is more than one node, enable spegel
+        spegel_enabled = len(data.get('nodes')) > 1
+        data.setdefault('spegel_enabled', spegel_enabled)
+
         return data
 
 

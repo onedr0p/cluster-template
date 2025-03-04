@@ -1,3 +1,4 @@
+#% if spegel_enabled %#
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -17,14 +18,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-  values:
-    grafanaDashboard:
-      enabled: true
-    service:
-      registry:
-        hostPort: 29999
-    serviceMonitor:
-      enabled: true
-    spegel:
-      containerdSock: /run/containerd/containerd.sock
-      containerdRegistryConfigPath: /etc/cri/conf.d/hosts
+  valuesFrom:
+    - kind: ConfigMap
+      name: spegel-values
+#% endif %#

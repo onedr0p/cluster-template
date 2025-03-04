@@ -10,4 +10,6 @@ resources:
   - ./coredns/ks.yaml
   - ./metrics-server/ks.yaml
   - ./reloader/ks.yaml
+  #% if spegel_enabled %#
   - ./spegel/ks.yaml
+  #% endif %#
