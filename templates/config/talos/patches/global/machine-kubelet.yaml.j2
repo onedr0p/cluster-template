@@ -1,5 +1,7 @@
 machine:
   kubelet:
+    extraConfig:
+      serializeImagePulls: false
     nodeIP:
       validSubnets:
         - #{ node_cidr }#
