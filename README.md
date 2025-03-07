@@ -65,7 +65,9 @@ There are **5 stages** outlined below for completing this project, make sure you
    📍 _If `mise` is having trouble compiling Python, try running `mise settings python.compile=0` and try these commands again_
 
     ```sh
-    mise trust && mise install && mise run deps
+    mise trust
+    mise install
+    mise run deps
     ```
 
 ### Stage 3: Cloudflare configuration
