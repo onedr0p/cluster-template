@@ -62,15 +62,15 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 3. Use `mise` to install the **required** CLI tools:
 
-   📍 _You may run into issues if you have a `GITHUB_TOKEN` env var exported in your environment, try unsetting and then run these commands again_
-
-   📍 _If `mise` is having trouble compiling Python, run `mise settings python.compile=0` and then run these commands again_
-
     ```sh
     mise trust
     mise install
     mise run deps
     ```
+
+   📍 _Having trouble installing the tools? Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
+
+   📍 _Having trouble compiling Python? Try running `mise settings python.compile=0` and then run these commands again_
 
 ### Stage 3: Cloudflare configuration
 
