@@ -156,10 +156,10 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 Here are some steps you can run to verify the cluster has rolled out successfully...
 
-1. Check TCP connectivity to the API server, press <kbd>Ctrl</kbd> + <kbd>C</kbd> to escape:
+1. Check TCP connectivity to the API server:
 
     ```sh
-    telnet ${cluster_api_addr} 6443
+    nmap -Pn -n -p 6443 ${cluster_api_addr} -vv
     ```
 
 2. Check the status of Cilium:
@@ -174,11 +174,10 @@ Here are some steps you can run to verify the cluster has rolled out successfull
     cilium status
     ```
 
-3. Check TCP connectivity to the the ingress controllers, press <kbd>Ctrl</kbd> + <kbd>C</kbd> to escape:
+3. Check TCP connectivity to the the ingress controllers:
 
     ```sh
-    telnet ${cluster_ingress_addr} 443
-    telnet ${cloudflare_ingress_addr} 443
+    nmap -Pn -n -p 443 ${cluster_ingress_addr} ${cloudflare_ingress_addr} -vv
     ```
 
 4. Check you can resolve DNS for `echo-server`, this should resolve to `${cluster_ingress_addr}`:
