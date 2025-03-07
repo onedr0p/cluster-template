@@ -62,7 +62,9 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 3. Use `mise` to install the **required** CLI tools:
 
-   📍 _You may run into issues if you have a `GITHUB_TOKEN` env var exported in your environment. Try unsetting it if you run into issues._
+   📍 _You may run into issues if you have a `GITHUB_TOKEN` env var exported in your environment, try unsetting and then run these commands again_
+
+   📍 _If `mise` is having trouble compiling Python, run `mise settings python.compile=0` and then run these commands again_
 
     ```sh
     mise trust
@@ -174,7 +176,7 @@ Here are some steps you can run to verify the cluster has rolled out successfull
     cilium status
     ```
 
-3. Check TCP connectivity to the the ingress controllers:
+3. Check TCP connectivity to both the ingress controllers:
 
     ```sh
     nmap -Pn -n -p 443 ${cluster_ingress_addr} ${cloudflare_ingress_addr} -vv
