@@ -68,9 +68,9 @@ There are **5 stages** outlined below for completing this project, make sure you
     mise run deps
     ```
 
-   📍 _Having trouble installing the tools? Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
+   📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
 
-   📍 _Having trouble compiling Python? Try running `mise settings python.compile=0` and then run these commands again_
+   📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
 ### Stage 3: Cloudflare configuration
 
