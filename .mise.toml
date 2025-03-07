@@ -14,7 +14,7 @@ description = "Install Python dependencies"
 run = "uv pip install -r requirements.txt"
 
 [tools]
-python = "3.13"
+"python" = "3.13"
 "uv" = "latest"
 "aqua:budimanjojo/talhelper" = "3.0.20"
 "aqua:cilium/cilium-cli" = "0.18.1"
