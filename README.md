@@ -62,13 +62,15 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 3. Use `mise` to install the **required** CLI tools:
 
-   📍 _If `mise` is having trouble compiling Python, try running `mise settings python.compile=0` and try these commands again_
-
     ```sh
     mise trust
     mise install
     mise run deps
     ```
+
+   📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
+
+   📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
 ### Stage 3: Cloudflare configuration
 
@@ -151,6 +153,40 @@ There are **5 stages** outlined below for completing this project, make sure you
     ```
 
 ## 📣 Post installation
+
+### ✅ Verifications
+
+Here are some steps you can run to verify the cluster has rolled out successfully...
+
+1. Check TCP connectivity to the API server:
+
+    ```sh
+    nmap -Pn -n -p 6443 ${cluster_api_addr} -vv
+    ```
+
+2. Check the status of Cilium:
+
+    ```sh
+    kubectl -n kube-system exec ds/cilium -c cilium-agent -- cilium status
+    ```
+
+    or by using the Cilium CLI:
+
+    ```sh
+    cilium status
+    ```
+
+3. Check TCP connectivity to both the ingress controllers:
+
+    ```sh
+    nmap -Pn -n -p 443 ${cluster_ingress_addr} ${cloudflare_ingress_addr} -vv
+    ```
+
+4. Check you can resolve DNS for `echo-server`, this should resolve to `${cluster_ingress_addr}`:
+
+    ```sh
+    dig @${cluster_dns_gateway_addr} echo-server.${cloudflare_domain}
+    ```
 
 ### 🌐 Public DNS
 
