@@ -401,6 +401,13 @@ If this repo is too hot to handle or too cold to hold check out these following 
 
 </div>
 
-## 🤝 Thanks
+## 🤝 Contributors
 
-Big shout out to all the contributors, sponsors and everyone else who has helped on this project.
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
