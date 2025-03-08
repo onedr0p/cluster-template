@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: echo-server
+  name: echo
 spec:
   interval: 1h
   chartRef:
@@ -22,7 +22,7 @@ spec:
       namespace: network
   values:
     controllers:
-      echo-server:
+      echo:
         strategy: RollingUpdate
         containers:
           app:
@@ -30,7 +30,7 @@ spec:
               repository: ghcr.io/mendhak/http-https-echo
               tag: 35
             env:
-              HTTP_PORT: &port 8080
+              HTTP_PORT: &port 80
               LOG_WITHOUT_NEWLINE: true
               LOG_IGNORE_PATH: /healthz
               PROMETHEUS_ENABLED: true
@@ -64,13 +64,13 @@ spec:
         seccompProfile: { type: RuntimeDefault }
     service:
       app:
-        controller: echo-server
+        controller: echo
         ports:
           http:
             port: *port
     serviceMonitor:
       app:
-        serviceName: echo-server
+        serviceName: echo
         endpoints:
           - port: http
             scheme: http

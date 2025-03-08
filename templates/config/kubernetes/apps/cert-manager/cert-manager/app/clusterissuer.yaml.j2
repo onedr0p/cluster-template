@@ -3,12 +3,12 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: letsencrypt-#{ cloudflare_cluster_issuer }#
+  name: letsencrypt-production
 spec:
   acme:
-    server: "https://acme#{ '-staging' if cloudflare_cluster_issuer == 'staging' }#-v02.api.letsencrypt.org/directory"
+    server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      name: letsencrypt-#{ cloudflare_cluster_issuer }#
+      name: letsencrypt-production
     solvers:
       - dns01:
           cloudflare:

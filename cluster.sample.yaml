@@ -67,10 +67,6 @@ cloudflare_token: ""
 #    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
 cloudflare_ingress_addr: ""
 
-# -- The Let's Encrypt ACME server to use when requesting the wildcard certificate.
-#    (OPTIONAL) / (DEFAULT: "staging") / (NOTE: accepted values are 'staging' or 'production')
-# cloudflare_cluster_issuer: ""
-
 # -- The load balancer mode for cilium.
 #    (OPTIONAL) / (DEFAULT: "dsr") / (NOTE: accepted values are 'dsr' or 'snat') / (REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/)
 # cilium_loadbalancer_mode: ""
