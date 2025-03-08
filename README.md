@@ -208,7 +208,7 @@ The `external-dns` application created in the `networking` namespace will handle
 
 `k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare_domain}` to `${cluster_dns_gateway_addr}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
-... Nothing working? That is expected, this is DNS after all!
+_... Nothing working? That is expected, this is DNS after all!_
 
 ### 🪝 Github Webhook
 
@@ -231,6 +231,9 @@ By default Flux will periodically check your git repository for changes. In-orde
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your token from `github-push-token.txt`, Content type: `application/json`, Events: Choose Just the push event, and save.
 
 ## 💥 Reset
+
+> [!WARNING]
+> **Resetting** the cluster **multiple times in a short period of time** could lead to being **rate limited by DockerHub or Let's Encrypt**.
 
 There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode.
 
