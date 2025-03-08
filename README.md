@@ -164,28 +164,34 @@ Here are some steps you can run to verify the cluster has rolled out successfull
     nmap -Pn -n -p 6443 ${cluster_api_addr} -vv
     ```
 
-2. Check the status of Cilium:
+2. Check the status of Flux:
 
     ```sh
-    kubectl -n kube-system exec ds/cilium -c cilium-agent -- cilium status
+    flux check
     ```
 
-    or by using the Cilium CLI:
+3. Check the status of Cilium:
 
     ```sh
     cilium status
     ```
 
-3. Check TCP connectivity to both the ingress controllers:
+4. Check TCP connectivity to both the ingress controllers:
 
     ```sh
     nmap -Pn -n -p 443 ${cluster_ingress_addr} ${cloudflare_ingress_addr} -vv
     ```
 
-4. Check you can resolve DNS for `echo-server`, this should resolve to `${cluster_ingress_addr}`:
+5. Check you can resolve DNS for `echo-server`, this should resolve to `${cluster_ingress_addr}`:
 
     ```sh
     dig @${cluster_dns_gateway_addr} echo-server.${cloudflare_domain}
+    ```
+
+6. Check the status of your Certificate:
+
+    ```sh
+    kubectl -n cert-manager describe certificates
     ```
 
 ### 🌐 Public DNS
@@ -203,29 +209,6 @@ The `external-dns` application created in the `networking` namespace will handle
 `k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare_domain}` to `${cluster_dns_gateway_addr}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
 ... Nothing working? That is expected, this is DNS after all!
-
-### 📜 Certificates
-
-> [!WARNING]
-> By default this template will deploy a wildcard certificate using the Let's Encrypt **staging environment**, which prevents you from getting rate-limited by the Let's Encrypt production servers if your cluster doesn't deploy properly (for example due to a misconfiguration).
-
-Steps to update to the Let's Encrypt **production environment**:
-
-1. In `cluster.yaml` update `cloudflare_cluster_issuer` to `production`
-2. Run `task configure`
-3. Push your changes to git:
-
-    ```sh
-    git add -A
-    git commit -m "chore: switch to le-prod :scroll:"
-    git push
-    ```
-
-4. Wait for your certificate to be created, you can check the status by running:
-
-    ```sh
-    kubectl -n cert-manager describe certificate <name>
-    ```
 
 ### 🪝 Github Webhook
 

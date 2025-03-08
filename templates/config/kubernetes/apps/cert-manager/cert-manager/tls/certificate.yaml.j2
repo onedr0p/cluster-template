@@ -3,11 +3,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${SECRET_DOMAIN/./-}-#{ cloudflare_cluster_issuer }#"
+  name: "${SECRET_DOMAIN/./-}-production"
 spec:
-  secretName: "${SECRET_DOMAIN/./-}-#{ cloudflare_cluster_issuer }#-tls"
+  secretName: "${SECRET_DOMAIN/./-}-production-tls"
   issuerRef:
-    name: letsencrypt-#{ cloudflare_cluster_issuer }#
+    name: letsencrypt-production
     kind: ClusterIssuer
   commonName: "${SECRET_DOMAIN}"
   dnsNames: ["${SECRET_DOMAIN}", "*.${SECRET_DOMAIN}"]

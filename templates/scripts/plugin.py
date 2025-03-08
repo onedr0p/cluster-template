@@ -106,7 +106,6 @@ class Plugin(makejinja.plugin.Plugin):
         data.setdefault('cluster_svc_cidr', '10.43.0.0/16')
         data.setdefault('repository_branch', 'main')
         data.setdefault('repository_visibility', 'public')
-        data.setdefault('cloudflare_cluster_issuer', 'staging')
         data.setdefault('cilium_loadbalancer_mode', 'dsr')
 
         # If all BGP keys are set, enable BGP
