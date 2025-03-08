@@ -182,10 +182,10 @@ Here are some steps you can run to verify the cluster has rolled out successfull
     nmap -Pn -n -p 443 ${cluster_ingress_addr} ${cloudflare_ingress_addr} -vv
     ```
 
-5. Check you can resolve DNS for `echo-server`, this should resolve to `${cluster_ingress_addr}`:
+5. Check you can resolve DNS for `echo`, this should resolve to `${cluster_ingress_addr}`:
 
     ```sh
-    dig @${cluster_dns_gateway_addr} echo-server.${cloudflare_domain}
+    dig @${cluster_dns_gateway_addr} echo.${cloudflare_domain}
     ```
 
 6. Check the status of your Certificate:
@@ -199,7 +199,7 @@ Here are some steps you can run to verify the cluster has rolled out successfull
 > [!TIP]
 > Use the `external` ingress class to make applications public to the internet.
 
-The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo-server` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must set set the correct ingress class name and ingress annotations like in the HelmRelease for `echo-server`.
+The `external-dns` application created in the `networking` namespace will handle creating public DNS records. By default, `echo` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must **set the correct ingress class name and ingress annotations** like in the HelmRelease for `echo`.
 
 ### 🏠 Home DNS
 
