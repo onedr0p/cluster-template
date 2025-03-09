@@ -24,7 +24,7 @@ tasks:
     cmd: bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
     preconditions:
       - msg: Unsupported bash version, run `brew install bash` to upgrade
-        sh: '{{if eq OS "darwin"}}test -f /opt/homebrew/bin/bash{{end}}'
+        sh: '{{if eq OS "darwin"}}test -f /opt/homebrew/bin/bash || test -f /usr/local/bin/bash{{end}}'
       - test -f {{.KUBECONFIG}}
       - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SCRIPTS_DIR}}/bootstrap-apps.sh
