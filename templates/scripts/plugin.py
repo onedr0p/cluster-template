@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any
 from netaddr import IPNetwork
 
+import base64
 import makejinja
 import re
 import json
@@ -24,62 +25,92 @@ def nthhost(value: str, query: int) -> str:
     return value
 
 
-# Return the age public key from age.key
-def age_public_key() -> str:
+# Return the age public or private key from age.key
+def age_key(key_type: str, file_path: str = 'age.key') -> str:
     try:
-        with open('age.key', 'r') as file:
+        with open(file_path, 'r') as file:
             file_content = file.read().strip()
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: age.key") from e
-    key_match = re.search(r"# public key: (age1[\w]+)", file_content)
-    if not key_match:
-        raise ValueError("Could not find public key in age.key")
-    return key_match.group(1)
-
-
-# Return the age private key from age.key
-def age_private_key() -> str:
-    try:
-        with open('age.key', 'r') as file:
-            file_content = file.read().strip()
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: age.key") from e
-    key_match = re.search(r"(AGE-SECRET-KEY-[\w]+)", file_content)
-    if not key_match:
-        raise ValueError("Could not find private key in age.key")
-    return key_match.group(1)
+        if key_type == 'public':
+            key_match = re.search(r"# public key: (age1[\w]+)", file_content)
+            if not key_match:
+                raise ValueError("Could not find public key in the age key file.")
+            return key_match.group(1)
+        elif key_type == 'private':
+            key_match = re.search(r"(AGE-SECRET-KEY-[\w]+)", file_content)
+            if not key_match:
+                raise ValueError("Could not find private key in the age key file.")
+            return key_match.group(1)
+        else:
+            raise ValueError("Invalid key type. Use 'public' or 'private'.")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
 
 
 # Return cloudflare tunnel fields from cloudflare-tunnel.json
-def cloudflare_tunnel(value: str) -> str:
+def cloudflare_tunnel_id(file_path: str = 'cloudflare-tunnel.json') -> str:
     try:
-        with open('cloudflare-tunnel.json', 'r') as file:
-            try:
-                return json.load(file).get(value)
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Could not decode cloudflare-tunnel.json file") from e
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: cloudflare-tunnel.json") from e
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        tunnel_id = data.get("TunnelID")
+        if tunnel_id is None:
+            raise KeyError(f"Missing 'TunnelID' key in {file_path}")
+        return tunnel_id
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
+    except json.JSONDecodeError:
+        raise ValueError(f"Could not decode JSON file: {file_path}")
+    except KeyError as e:
+        raise KeyError(f"Error in JSON structure: {e}")
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
+
+
+# Return cloudflare tunnel fields from cloudflare-tunnel.json in TUNNEL_TOKEN format
+def cloudflare_tunnel_secret(file_path: str = 'cloudflare-tunnel.json') -> str:
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        transformed_data = {
+            "a": data["AccountTag"],
+            "t": data["TunnelID"],
+            "s": data["TunnelSecret"]
+        }
+        json_string = json.dumps(transformed_data, separators=(',', ':'))
+        return base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
+    except json.JSONDecodeError:
+        raise ValueError(f"Could not decode JSON file: {file_path}")
+    except KeyError as e:
+        raise KeyError(f"Missing key in JSON file {file_path}: {e}")
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
 
 
 # Return the GitHub deploy key from github-deploy.key
-def github_deploy_key() -> str:
+def github_deploy_key(file_path: str = 'github-deploy.key') -> str:
     try:
-        with open('github-deploy.key', 'r') as file:
-            file_content = file.read().strip()
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: github-deploy.key") from e
-    return file_content
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error while reading {file_path}: {e}")
 
 
 # Return the Flux / GitHub push token from github-push-token.txt
-def github_push_token() -> str:
+def github_push_token(file_path: str = 'github-push-token.txt') -> str:
     try:
-        with open('github-push-token.txt', 'r') as file:
-            file_content = file.read().strip()
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"File not found: github-push-token.txt") from e
-    return file_content
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error while reading {file_path}: {e}")
 
 
 # Return a list of files in the talos patches directory
@@ -129,9 +160,9 @@ class Plugin(makejinja.plugin.Plugin):
 
     def functions(self) -> makejinja.plugin.Functions:
         return [
-            age_private_key,
-            age_public_key,
-            cloudflare_tunnel,
+            age_key,
+            cloudflare_tunnel_id,
+            cloudflare_tunnel_secret,
             github_deploy_key,
             github_push_token,
             talos_patches
