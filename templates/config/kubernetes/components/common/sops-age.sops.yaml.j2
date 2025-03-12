@@ -4,4 +4,4 @@ kind: Secret
 metadata:
   name: sops-age
 stringData:
-  age.agekey: "#{ age_private_key() }#"
+  age.agekey: "#{ age_key('private') }#"
