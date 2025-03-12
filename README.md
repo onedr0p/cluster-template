@@ -62,6 +62,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 
     ```sh
     mise trust
+    pip install pipx
     mise install
     ```
 
