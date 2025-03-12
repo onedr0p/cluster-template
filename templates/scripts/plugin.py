@@ -16,14 +16,11 @@ def basename(value: str) -> str:
 # Return the nth host in a CIDR range
 def nthhost(value: str, query: int) -> str:
     try:
-        # Parse the CIDR range
         network = ipaddress.ip_network(value, strict=False)
-        # Ensure the query is within the valid range
         if 0 <= query < network.num_addresses:
-            # Calculate and return the nth host
             return str(network[query])
     except ValueError:
-        pass  # Invalid CIDR or query
+        pass
     return False
 
 
