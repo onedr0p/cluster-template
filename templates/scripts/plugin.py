@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any
-from netaddr import IPNetwork
 
 import base64
+import ipaddress
 import makejinja
 import re
 import json
@@ -15,14 +15,13 @@ def basename(value: str) -> str:
 
 # Return the nth host in a CIDR range
 def nthhost(value: str, query: int) -> str:
-    value = IPNetwork(value)
     try:
-        nth = int(query)
-        if value.size > nth:
-            return str(value[nth])
+        network = ipaddress.ip_network(value, strict=False)
+        if 0 <= query < network.num_addresses:
+            return str(network[query])
     except ValueError:
-        return False
-    return value
+        pass
+    return False
 
 
 # Return the age public or private key from age.key

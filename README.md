@@ -63,7 +63,6 @@ There are **5 stages** outlined below for completing this project, make sure you
     ```sh
     mise trust
     mise install
-    mise run deps
     ```
 
    📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_

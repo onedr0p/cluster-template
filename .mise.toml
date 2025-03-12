@@ -9,13 +9,9 @@ ROOT_DIR = "{{config_root}}"
 SCRIPTS_DIR = "{{config_root}}/scripts"
 TALOS_DIR = "{{config_root}}/talos"
 
-[tasks.deps]
-description = "Install Python dependencies"
-run = "uv pip install -r requirements.txt"
-
 [tools]
 "python" = "3.13"
-"uv" = "latest"
+"pipx:makejinja" = "2.7.2"
 "aqua:budimanjojo/talhelper" = "3.0.20"
 "aqua:cilium/cilium-cli" = "0.18.2"
 "aqua:cli/cli" = "2.68.1"
