@@ -1,3 +1,6 @@
+[settings]
+pipx_uvx = true
+
 [env]
 _.python.venv = { path = "{{config_root}}/.venv", create = true }
 KUBECONFIG = "{{config_root}}/kubeconfig"
