@@ -28,9 +28,6 @@
   "kustomize": {
     "fileMatch": ["(^|/)kustomization\\.ya?ml(?:\\.j2)?$"]
   },
-  "pip_requirements": {
-    "fileMatch": ["(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(?:\\.j2)?$"]
-  },
   "packageRules": [
     {
       "description": ["Auto-merge GitHub Actions for minor and patch"],
