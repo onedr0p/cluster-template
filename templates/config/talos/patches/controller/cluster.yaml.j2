@@ -19,8 +19,3 @@ cluster:
   scheduler:
     extraArgs:
       bind-address: 0.0.0.0
-  extraManifests:
-    - # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
-      https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
-    - # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-      https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.80.1/stripped-down-crds.yaml
