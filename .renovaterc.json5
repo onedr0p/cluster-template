@@ -30,14 +30,6 @@
   },
   "packageRules": [
     {
-      "description": ["Auto-merge GitHub Actions for minor and patch"],
-      "matchManagers": ["github-actions"],
-      "automerge": true,
-      "automergeType": "branch",
-      "ignoreTests": true,
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
       "description": ["CoreDNS Group"],
       "groupName": "CoreDNS",
       "matchDatasources": ["docker"],
