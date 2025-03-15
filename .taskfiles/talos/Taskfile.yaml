@@ -36,7 +36,7 @@ tasks:
       TALOS_IMAGE:
         sh: yq '.nodes[] | select(.ipAddress == "{{.IP}}") | .talosImageURL' {{.TALOS_DIR}}/talconfig.yaml
       TALOS_VERSION:
-        sh: yq '.talosVersion' {{.TALOS_DIR}}/talconfig.yaml
+        sh: yq '.talosVersion' {{.TALOS_DIR}}/talenv.yaml
     requires:
       vars: [IP]
     preconditions:
@@ -51,7 +51,7 @@ tasks:
     cmd: talhelper gencommand upgrade-k8s --extra-flags "--to '{{.KUBERNETES_VERSION}}'" | bash
     vars:
       KUBERNETES_VERSION:
-        sh: yq '.kubernetesVersion' {{.TALOS_DIR}}/talconfig.yaml
+        sh: yq '.kubernetesVersion' {{.TALOS_DIR}}/talenv.yaml
     preconditions:
       - talosctl config info
       - test -f {{.TALOSCONFIG}}
