@@ -1,7 +1,7 @@
 {
     "editor.bracketPairColorization.enabled": true,
     "files.associations": {
-        "**/*.json5": "jsonc"
+        "**/*.json5": "json5"
     },
     "files.trimTrailingWhitespace": true,
     "sops.defaults.ageKeyFile": "age.key",
