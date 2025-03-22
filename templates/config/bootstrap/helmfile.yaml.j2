@@ -49,7 +49,7 @@ releases:
     namespace: kube-system
     atomic: true
     chart: spegel/spegel
-    version: v0.0.30
+    version: 0.1.0
     values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/apps/kube-system/spegel/app/helm/values.yaml']
     needs: ['kube-system/coredns']
   #% endif %#
