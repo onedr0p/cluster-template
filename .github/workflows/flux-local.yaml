@@ -45,6 +45,7 @@ jobs:
     needs: pre-job
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     strategy:
       matrix:
