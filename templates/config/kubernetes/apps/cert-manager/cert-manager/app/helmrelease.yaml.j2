@@ -1,13 +1,17 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrepository-source-v1.json
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/ocirepository-source-v1beta2.json
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
 metadata:
-  name: jetstack
-  namespace: cert-manager # Required for Renovate lookups
+  name: cert-manager
 spec:
   interval: 1h
-  url: https://charts.jetstack.io
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: v1.17.1
+  url: oci://quay.io/jetstack/charts/cert-manager
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -16,14 +20,9 @@ metadata:
   name: cert-manager
 spec:
   interval: 1h
-  chart:
-    spec:
-      chart: cert-manager
-      version: v1.17.1
-      sourceRef:
-        kind: HelmRepository
-        name: jetstack
-        namespace: cert-manager
+  chartRef:
+    kind: OCIRepository
+    name: cert-manager
   install:
     remediation:
       retries: 3
