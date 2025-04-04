@@ -5,7 +5,7 @@ kind: OCIRepository
 metadata:
   name: cert-manager
 spec:
-  interval: 1h
+  interval: 5m
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
@@ -25,7 +25,7 @@ spec:
     name: cert-manager
   install:
     remediation:
-      retries: 3
+      retries: -1
   upgrade:
     cleanupOnFail: true
     remediation:
