@@ -65,11 +65,11 @@ spec:
     matchLabels:
       kubernetes.io/os: linux
   bgpInstances:
-    - name: instance-#{ cilium_bgp_router_asn }#
-      localASN: #{ cilium_bgp_router_asn }#
+    - name: instance-#{ cilium_bgp_node_asn }#
+      localASN: #{ cilium_bgp_node_asn }#
       peers:
-        - name: peer-#{ cilium_bgp_node_asn }#-v4
-          peerASN: #{ cilium_bgp_node_asn }#
+        - name: peer-#{ cilium_bgp_router_asn }#-v4
+          peerASN: #{ cilium_bgp_router_asn }#
           peerAddress: #{ cilium_bgp_router_addr }#
           peerConfigRef:
             name: bgp-peer-config-v4
