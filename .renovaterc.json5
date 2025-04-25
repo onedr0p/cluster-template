@@ -34,6 +34,15 @@
   },
   packageRules: [
     {
+      description: "Cert-Manager Group",
+      groupName: "Cert-Manager",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/cert-manager/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       description: "CoreDNS Group",
       groupName: "CoreDNS",
       matchDatasources: ["docker"],
