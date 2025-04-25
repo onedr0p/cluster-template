@@ -55,7 +55,7 @@ jobs:
           task talos:generate-config
 
       - name: Run flux-local test
-        uses: docker://ghcr.io/allenporter/flux-local:v7.3.0@sha256:81870d4e24a3691e0ef9a258505100b194e550e1f8ffeb5e696fdbaab1913429
+        uses: docker://ghcr.io/allenporter/flux-local:v7.4.0@sha256:b27388b65df42dd3ec4208aebd8d50ed55a2f555b6a81926849897202ffeb06c
         with:
           args: test --enable-helm --all-namespaces --path /github/workspace/kubernetes/flux/cluster -v
 
