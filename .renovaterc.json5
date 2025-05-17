@@ -11,26 +11,22 @@
   ],
   dependencyDashboard: true,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
-  suppressNotifications: [
-    "prEditedNotification",
-    "prIgnoreNotification",
-  ],
   schedule: ["every weekend"],
   ignorePaths: ["**/*.sops.*"],
   flux: {
-    fileMatch: ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"],
+    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/"],
   },
   "helm-values": {
-    fileMatch: ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"],
+    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/"],
   },
   helmfile: {
-    fileMatch: ["(^|/)helmfile\\.ya?ml(?:\\.j2)?$"],
+    managerFilePatterns: ["/(^|/)helmfile\\.ya?ml(?:\\.j2)?$/"],
   },
   kubernetes: {
-    fileMatch: ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"],
+    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/"],
   },
   kustomize: {
-    fileMatch: ["(^|/)kustomization\\.ya?ml(?:\\.j2)?$"],
+    managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
   },
   packageRules: [
     {
@@ -153,10 +149,10 @@
     {
       description: "Process annotated dependencies",
       customType: "regex",
-      fileMatch: [
-        "(^|/).+\\.env(?:\\.j2)?$",
-        "(^|/).+\\.sh(?:\\.j2)?$",
-        "(^|/).+\\.ya?ml(?:\\.j2)?$",
+      managerFilePatterns: [
+        "/(^|/).+\\.env(?:\\.j2)?$/",
+        "/(^|/).+\\.sh(?:\\.j2)?$/",
+        "/(^|/).+\\.ya?ml(?:\\.j2)?$/",
       ],
       matchStrings: [
         // # renovate: datasource=github-releases depName=k3s-io/k3s
