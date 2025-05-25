@@ -17,7 +17,7 @@ spec:
     remediation:
       retries: 3
   dependsOn:
-    - name: cloudflared
+    - name: cloudflare-tunnel
       namespace: network
   values:
     controllers:
@@ -72,19 +72,14 @@ spec:
         serviceName: echo
         endpoints:
           - port: http
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
-    ingress:
+    route:
       app:
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-        hosts:
-          - host: "{{ .Release.Name }}.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
+        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port

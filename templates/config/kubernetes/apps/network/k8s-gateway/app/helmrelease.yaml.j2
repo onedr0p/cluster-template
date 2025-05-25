@@ -40,4 +40,4 @@ spec:
       annotations:
         lbipam.cilium.io/ips: "#{ cluster_dns_gateway_addr }#"
       externalTrafficPolicy: Cluster
-    watchedResources: ["Ingress", "Service"]
+    watchedResources: ["HTTPRoute", "Service"]

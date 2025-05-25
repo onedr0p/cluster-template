@@ -3,16 +3,11 @@ _.python.venv = { path = "{{config_root}}/.venv", create = true }
 KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
-BOOTSTRAP_DIR = "{{config_root}}/bootstrap"
-KUBERNETES_DIR = "{{config_root}}/kubernetes"
-ROOT_DIR = "{{config_root}}"
-SCRIPTS_DIR = "{{config_root}}/scripts"
-TALOS_DIR = "{{config_root}}/talos"
 
 [tools]
 "python" = "3.13"
 "pipx:makejinja" = "2.7.2"
-"aqua:budimanjojo/talhelper" = "3.0.25"
+"aqua:budimanjojo/talhelper" = "3.0.26"
 "aqua:cilium/cilium-cli" = "0.18.3"
 "aqua:cli/cli" = "2.73.0"
 "aqua:cloudflare/cloudflared" = "2025.5.0"

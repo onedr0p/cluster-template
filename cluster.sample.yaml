@@ -35,13 +35,13 @@ cluster_api_addr: ""
 #    (OPTIONAL) / (DEFAULT: "10.43.0.0/16")
 # cluster_svc_cidr: ""
 
-# -- The Load balancer IP for k8s_gateway, this provides DNS to all your ingresses when split DNS is configured on your internal DNS server (Dnsmasq, Pi-hole, etc)
+# -- The Load balancer IP for k8s_gateway, this provides DNS to all your gateways when split DNS is configured on your internal DNS server (Dnsmasq, Pi-hole, etc)
 #    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
 cluster_dns_gateway_addr: ""
 
-# -- The Load balancer IP for the internal ingress-nginx controller
+# -- The Load balancer IP for the internal gateway
 #    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
-cluster_ingress_addr: ""
+cluster_gateway_addr: ""
 
 # -- GitHub repository
 #    (REQUIRED) / (e.g. "onedr0p/cluster-template")
@@ -63,9 +63,9 @@ cloudflare_domain: ""
 #    (REQUIRED) (NOTE: See the README for information on creating this)
 cloudflare_token: ""
 
-# -- The Load balancer IP for the external ingress-nginx controller
+# -- The Load balancer IP for the external gateway
 #    (REQUIRED) / (NOTE: Choose an unused IP in node_cidr)
-cloudflare_ingress_addr: ""
+cloudflare_gateway_addr: ""
 
 # -- The load balancer mode for cilium.
 #    (OPTIONAL) / (DEFAULT: "dsr") / (NOTE: accepted values are 'dsr' or 'snat') / (REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/)

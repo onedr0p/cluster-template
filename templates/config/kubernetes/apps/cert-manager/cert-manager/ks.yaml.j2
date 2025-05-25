@@ -9,6 +9,14 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: *app
+      namespace: *namespace
+    - apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      name: letsencrypt-production
   healthCheckExprs:
     - apiVersion: cert-manager.io/v1
       kind: ClusterIssuer
@@ -16,10 +24,6 @@ spec:
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   interval: 1h
   path: ./kubernetes/apps/cert-manager/cert-manager/app
-  postBuild:
-    substituteFrom:
-      - name: cluster-secrets
-        kind: Secret
   prune: true
   retryInterval: 2m
   sourceRef:
@@ -27,39 +31,4 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: *namespace
-  timeout: 15m
-  wait: true
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: &app cert-manager-tls
-  namespace: &namespace cert-manager
-spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
-  dependsOn:
-    - name: cert-manager
-      namespace: cert-manager
-  healthCheckExprs:
-    - apiVersion: cert-manager.io/v1
-      kind: Certificate
-      failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
-      current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
-  interval: 1h
-  path: ./kubernetes/apps/cert-manager/cert-manager/tls
-  postBuild:
-    substituteFrom:
-      - name: cluster-secrets
-        kind: Secret
-  prune: true
-  retryInterval: 2m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  targetNamespace: *namespace
-  timeout: 15m
-  wait: true
+  timeout: 5m
