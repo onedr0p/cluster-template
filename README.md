@@ -7,7 +7,7 @@ Welcome to my minimalist template for deploying a single Kubernetes cluster. The
 A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/talos) and an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider, [sops](https://github.com/getsops/sops) to manage secrets and [cloudflared](https://github.com/cloudflare/cloudflared) to access applications external to your local network.
 
 - **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://noyaml.com/), [Git](https://git-scm.com/), and a **Cloudflare account** with a **domain**.
-- **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [ingress-nginx](https://github.com/kubernetes/ingress-nginx/), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
+- **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
 
 **Other features include:**
 
@@ -171,13 +171,13 @@ There are **5 stages** outlined below for completing this project, make sure you
     flux get hr -A
     ```
 
-3. Check TCP connectivity to both the ingress controllers:
+3. Check TCP connectivity to both the internal and external gateways:
 
     ```sh
-    nmap -Pn -n -p 443 ${cluster_ingress_addr} ${cloudflare_ingress_addr} -vv
+    nmap -Pn -n -p 443 ${cluster_gateway_addr} ${cloudflare_gateway_addr} -vv
     ```
 
-4. Check you can resolve DNS for `echo`, this should resolve to `${cluster_ingress_addr}`:
+4. Check you can resolve DNS for `echo`, this should resolve to `${cluster_gateway_addr}`:
 
     ```sh
     dig @${cluster_dns_gateway_addr} echo.${cloudflare_domain}
@@ -192,14 +192,14 @@ There are **5 stages** outlined below for completing this project, make sure you
 ### 🌐 Public DNS
 
 > [!TIP]
-> Use the `external` ingress class to make applications public to the internet.
+> Use the `external` gateway on `HTTPRoutes` to make applications public to the internet.
 
-The `external-dns` application created in the `network` namespace will handle creating public DNS records. By default, `echo` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must **set the correct ingress class name and ingress annotations** like in the HelmRelease for `echo`.
+The `external-dns` application created in the `network` namespace will handle creating public DNS records. By default, `echo` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must **set the correct gateway** like in the HelmRelease for `echo`.
 
 ### 🏠 Home DNS
 
 > [!TIP]
-> Use the `internal` ingress class to make applications private to your network. If you're having trouble with internal DNS resolution check out [this](https://github.com/onedr0p/cluster-template/discussions/719) GitHub discussion.
+> Use the `internal` gateway on `HTTPRoutes` to make applications private to your network. If you're having trouble with internal DNS resolution check out [this](https://github.com/onedr0p/cluster-template/discussions/719) GitHub discussion.
 
 `k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare_domain}` to `${cluster_dns_gateway_addr}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 

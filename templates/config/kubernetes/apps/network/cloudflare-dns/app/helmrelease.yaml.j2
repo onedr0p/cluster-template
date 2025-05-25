@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app external-dns
+  name: &app cloudflare-dns
 spec:
   interval: 1h
   chart:
@@ -29,22 +29,21 @@ spec:
       - name: CF_API_TOKEN
         valueFrom:
           secretKeyRef:
-            name: external-dns-secret
+            name: &secret cloudflare-dns-secret
             key: api-token
     extraArgs:
       - --cloudflare-dns-records-per-page=1000
       - --cloudflare-proxied
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
-      - --events
-      - --ignore-ingress-tls-spec
-      - --ingress-class=external
+      - --gateway-name=external
+    triggerLoopOnEvent: true
     policy: sync
-    sources: ["crd", "ingress"]
+    sources: ["crd", "gateway-httproute"]
     txtPrefix: k8s.
     txtOwnerId: default
     domainFilters: ["${SECRET_DOMAIN}"]
     serviceMonitor:
       enabled: true
     podAnnotations:
-      secret.reloader.stakater.com/reload: external-dns-secret
+      secret.reloader.stakater.com/reload: *secret

@@ -125,7 +125,7 @@ tasks:
     cmds:
       - for:
           matrix:
-            RESOURCE: [certificates, certificaterequests, gitrepositories, helmrepositories, helmreleases, ingresses, kustomizations, nodes, pods]
+            RESOURCE: [certificates, certificaterequests, gitrepositories, helmrepositories, helmreleases, httproutes, kustomizations, nodes, pods]
         cmd: kubectl get --all-namespaces {{.ITEM.RESOURCE}}
     preconditions:
       - test -f {{.KUBECONFIG}}
