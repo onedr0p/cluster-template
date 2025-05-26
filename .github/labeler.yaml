@@ -1,33 +1,43 @@
 ---
 area/bootstrap:
   - changed-files:
-      - any-glob-to-any-file: bootstrap/**/*
+      - any-glob-to-any-file:
+          - bootstrap/**/*
 area/docs:
   - changed-files:
       - any-glob-to-any-file:
-          - "README.md"
+          - README.md
 area/github:
   - changed-files:
-      - any-glob-to-any-file: .github/**/*
+      - any-glob-to-any-file:
+          - .github/**/*
 area/kubernetes:
   - changed-files:
-      - any-glob-to-any-file: kubernetes/**/*
+      - any-glob-to-any-file:
+          - kubernetes/**/*
+area/mise:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .mise.toml
 area/renovate:
   - changed-files:
       - any-glob-to-any-file:
-          - ".renovate/**/*"
-          - ".renovaterc.json5"
+          - .renovate/**/*
+          - .renovaterc.json5
 area/scripts:
   - changed-files:
-      - any-glob-to-any-file: scripts/**/*
+      - any-glob-to-any-file:
+          - scripts/**/*
 area/talos:
   - changed-files:
-      - any-glob-to-any-file: talos/**/*
+      - any-glob-to-any-file:
+          - talos/**/*
 area/taskfile:
   - changed-files:
       - any-glob-to-any-file:
-          - ".taskfiles/**/*"
-          - "Taskfile.yaml"
+          - .taskfiles/**/*
+          - Taskfile.yaml
 area/templates:
   - changed-files:
-      - any-glob-to-any-file: templates/**/*
+      - any-glob-to-any-file:
+          - templates/**/*
