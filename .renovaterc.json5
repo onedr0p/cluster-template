@@ -117,6 +117,11 @@
       commitMessageTopic: "release {{depName}}",
     },
     {
+      matchManagers: ["mise"],
+      semanticCommitScope: "mise",
+      commitMessageTopic: "tool {{depName}}",
+    },
+    {
       matchUpdateTypes: ["major"],
       labels: ["type/major"],
     },
