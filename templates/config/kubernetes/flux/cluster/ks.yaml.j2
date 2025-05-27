@@ -44,8 +44,10 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
+  timeout: 5m
+  wait: false
   patches:
-    - # Add Sops decryption and postBuild substitutions to child Kustomizations
+    - # Add Sops decryption to child Kustomizations
       patch: |-
         apiVersion: kustomize.toolkit.fluxcd.io/v1
         kind: Kustomization
