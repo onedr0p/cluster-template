@@ -2,7 +2,7 @@
 
 Welcome to my template designed for deploying a single Kubernetes cluster. Whether you're setting up a cluster at home on bare-metal or virtual machines (VMs), this project aims to simplify the process and make Kubernetes more accessible. This template is inspired by my personal [home-ops](https://github.com/onedr0p/home-ops) repository, providing a practical starting point for anyone interested in managing their own Kubernetes environment.
 
-At its core, this project leverages [makejinja](https://github.com/mirkolenz/makejinja), a powerful tool for rendering templates. By reading configuration files—such as [cluster.yaml](./cluster.sample.yaml) and [nodes.yaml](./nodes.sample.yaml)—Makejinja generates the necessary configurations to deploy a Kubernetes cluster with the following features:  
+At its core, this project leverages [makejinja](https://github.com/mirkolenz/makejinja), a powerful tool for rendering templates. By reading configuration files—such as [cluster.yaml](./cluster.sample.yaml) and [nodes.yaml](./nodes.sample.yaml)—Makejinja generates the necessary configurations to deploy a Kubernetes cluster with the following features:
 
 - Easy configuration through YAML files.
 - Compatibility with home setups, whether on physical hardware or VMs.
@@ -77,6 +77,13 @@ There are **5 stages** outlined below for completing this project, make sure you
    📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
 
    📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
+
+4. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
+
+    ```sh
+    docker logout ghcr.io
+    helm registry logout ghcr.io
+    ```
 
 ### Stage 3: Cloudflare configuration
 
@@ -194,7 +201,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 5. Check the status of your wildcard `Certificate`:
 
     ```sh
-    kubectl -n cert-manager describe certificates
+    kubectl -n kube-system describe certificates
     ```
 
 ### 🌐 Public DNS
