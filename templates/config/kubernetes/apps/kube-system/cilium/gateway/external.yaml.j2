@@ -4,11 +4,16 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: external
+  annotations:
+    external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
 spec:
   gatewayClassName: cilium
   addresses:
     - type: IPAddress
       value: "#{ cloudflare_gateway_addr }#"
+  infrastructure:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: "external.${SECRET_DOMAIN}"
   listeners:
     - name: http
       protocol: HTTP

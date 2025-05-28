@@ -4,11 +4,16 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: internal
+  annotations:
+    external-dns.alpha.kubernetes.io/target: "internal.${SECRET_DOMAIN}"
 spec:
   gatewayClassName: cilium
   addresses:
     - type: IPAddress
       value: "#{ cluster_gateway_addr }#"
+  infrastructure:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: "internal.${SECRET_DOMAIN}"
   listeners:
     - name: http
       protocol: HTTP
