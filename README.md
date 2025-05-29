@@ -64,9 +64,11 @@ There are **5 stages** outlined below for completing this project, make sure you
     gh repo create $REPONAME --template onedr0p/cluster-template --disable-wiki --public --clone && cd $REPONAME
     ```
 
-2. **Install** and **activate** [mise](https://mise.jdx.dev/) following the instructions for your workstation [here](https://mise.jdx.dev/getting-started.html).
+2. **Install** the [Mise CLI](https://mise.jdx.dev/getting-started.html#installing-mise-cli) on your workstation.
 
-3. Use `mise` to install the **required** CLI tools:
+3. **Activate** Mise in your shell by following the [activation guide](https://mise.jdx.dev/getting-started.html#activate-mise).
+
+4. Use `mise` to install the **required** CLI tools:
 
     ```sh
     mise trust
@@ -78,7 +80,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 
    📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
-4. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
+5. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
 
     ```sh
     docker logout ghcr.io
