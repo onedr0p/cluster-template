@@ -64,7 +64,6 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         runAsGroup: 65534
-        seccompProfile: { type: RuntimeDefault }
     service:
       app:
         controller: cloudflare-tunnel
@@ -76,12 +75,8 @@ spec:
         serviceName: cloudflare-tunnel
         endpoints:
           - port: http
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
     persistence:
-      config:
+      config-file:
         type: configMap
         name: cloudflare-tunnel-configmap
         globalMounts:
