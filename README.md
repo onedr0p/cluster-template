@@ -355,37 +355,15 @@ Once your cluster is fully configured and you no longer need to run `task config
     git push
     ```
 
-## 👉 Community Support
-
-- Make a post in this repository's Github [Discussions](https://github.com/onedr0p/cluster-template/discussions).
-- Start a thread in the `#support` or `#cluster-template` channels in the [Home Operations](https://discord.gg/home-operations) Discord server.
-
-## 🙋 GitHub Sponsors Support
-
-If you're having difficulty with this project, can't find the answers you need through the community support options above, or simply want to show your appreciation while gaining deeper insights, I’m offering one-on-one paid support through GitHub Sponsors for a limited time. Payment and scheduling will be coordinated through [GitHub Sponsors](https://github.com/sponsors/onedr0p).
-
-<details>
-
-<summary>Click to expand the details</summary>
-
-<br>
-
-- **Rate**: $50/hour (no longer than 2 hours / day).
-- **What’s Included**: Assistance with deployment, debugging, or answering questions related to this project.
-- **What to Expect**:
-  1. Sessions will focus on specific questions or issues you are facing.
-  2. I will provide guidance, explanations, and actionable steps to help resolve your concerns.
-  3. Support is limited to this project and does not extend to unrelated tools or custom feature development.
-
-</details>
-
 ## ❔ What's next
 
-The cluster is your oyster (or something like that). Below are some optional considerations you might want to review.
+There's a lot to absorb here, especially if you're new to these tools. Take some time to familiarize yourself with the tooling and understand how all the components interconnect. Dive into the documentation of the various tools included — they are a valuable resource. This shouldn't be a production environment yet, so embrace the freedom to experiment. Move fast, break things intentionally, and challenge yourself to fix them.
+
+Below are some optional considerations you may want to explore.
 
 ### DNS
 
-If you're currently using [k8s_gateway](https://github.com/ori-edge/k8s_gateway) to provide DNS for your applications, consider exploring [external-dns](https://github.com/kubernetes-sigs/external-dns).
+The template uses [k8s_gateway](https://github.com/ori-edge/k8s_gateway) to provide DNS for your applications, consider exploring [external-dns](https://github.com/kubernetes-sigs/external-dns) as an alternative.
 
 External-DNS offers broad support for various DNS providers, including but not limited to:
 
@@ -419,6 +397,32 @@ These tools offer a variety of solutions to meet your persistent storage needs, 
 ### Community Repositories
 
 Community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) to allow searching Flux HelmReleases across Github and Gitlab repositories with the `kubesearch` topic.
+
+## 🙋 Support
+
+### Community
+
+- Make a post in this repository's Github [Discussions](https://github.com/onedr0p/cluster-template/discussions).
+- Start a thread in the `#support` or `#cluster-template` channels in the [Home Operations](https://discord.gg/home-operations) Discord server.
+
+### GitHub Sponsors
+
+If you're having difficulty with this project, can't find the answers you need through the community support options above, or simply want to show your appreciation while gaining deeper insights, I’m offering one-on-one paid support through GitHub Sponsors for a limited time. Payment and scheduling will be coordinated through [GitHub Sponsors](https://github.com/sponsors/onedr0p).
+
+<details>
+
+<summary>Click to expand the details</summary>
+
+<br>
+
+- **Rate**: $50/hour (no longer than 2 hours / day).
+- **What’s Included**: Assistance with deployment, debugging, or answering questions related to this project.
+- **What to Expect**:
+  1. Sessions will focus on specific questions or issues you are facing.
+  2. I will provide guidance, explanations, and actionable steps to help resolve your concerns.
+  3. Support is limited to this project and does not extend to unrelated tools or custom feature development.
+
+</details>
 
 ## 🙌 Related Projects
 
