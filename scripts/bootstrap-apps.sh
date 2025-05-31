@@ -128,6 +128,7 @@ function sync_helm_releases() {
 }
 
 function main() {
+    check_env KUBECONFIG TALOSCONFIG
     check_cli helmfile kubectl kustomize sops talhelper yq
 
     # Apply resources and Helm releases
