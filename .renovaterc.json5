@@ -79,7 +79,7 @@
       matchManagers: ["mise"],
       automerge: true,
       automergeType: "branch",
-      matchUpdateTypes: ["patch"],
+      matchUpdateTypes: ["minor", "patch"],
       ignoreTests: true,
     },
     {
