@@ -66,13 +66,11 @@ spec:
         runAsGroup: 65534
     service:
       app:
-        controller: cloudflare-tunnel
         ports:
           http:
             port: *port
     serviceMonitor:
       app:
-        serviceName: cloudflare-tunnel
         endpoints:
           - port: http
     persistence:
