@@ -190,15 +190,15 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 3. Check TCP connectivity to both the internal and external gateways:
 
-   📍 _`${cluster_gateway_addr}` and `${cloudflare_gateway_addr}` are only placeholders, replace them with your actual values_
+   📍 _The variables are only placeholders, replace them with your actual values_
 
     ```sh
     nmap -Pn -n -p 443 ${cluster_gateway_addr} ${cloudflare_gateway_addr} -vv
     ```
 
-4. Check you can resolve DNS for `echo`, this should resolve to `${cluster_gateway_addr}`:
+4. Check you can resolve DNS for `echo`, this should resolve to `${cloudflare_gateway_addr}`:
 
-   📍 _`${cluster_dns_gateway_addr}` and `${cloudflare_domain}` are only placeholders, replace them with your actual values_
+   📍 _The variables are only placeholders, replace them with your actual values_
 
     ```sh
     dig @${cluster_dns_gateway_addr} echo.${cloudflare_domain}
