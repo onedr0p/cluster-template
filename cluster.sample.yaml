@@ -15,7 +15,7 @@ node_cidr: ""
 #    (OPTIONAL) / (DEFAULT: the first IP in the node_cidr)
 # node_default_gateway: ""
 
-# -- Attach a vlan tag to the Talos nodes. Not needed if ports on your switch are tagged.
+# -- Attach a vlan tag to the Talos nodes. Not needed if ports on your switch are tagged or you are not using VLANs.
 #    (OPTIONAL) / (REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans)
 # node_vlan_tag: ""
 
