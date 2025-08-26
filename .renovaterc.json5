@@ -30,40 +30,20 @@
   },
   packageRules: [
     {
-      description: "Cert-Manager Group",
-      groupName: "Cert-Manager",
+      description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
-      matchPackageNames: ["/cert-manager/"],
-      group: {
-        commitMessageTopic: "{{{groupName}}} group",
-      },
-    },
-    {
-      description: "CoreDNS Group",
-      groupName: "CoreDNS",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["/coredns/"],
-      group: {
-        commitMessageTopic: "{{{groupName}}} group",
-      },
+      matchManagers: ["helmfile"],
+      overrideDepName: "{{packageName}}",
     },
     {
       description: "Flux Operator Group",
-      groupName: "Flux Operator",
+      groupName: "flux-operator",
+      matchDatasources: ["docker"],
       matchPackageNames: ["/flux-operator/", "/flux-instance/"],
-      matchDatasources: ["docker"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
-    },
-    {
-      description: "Spegel Group",
-      groupName: "Spegel",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["/spegel/"],
-      group: {
-        commitMessageTopic: "{{{groupName}}} group",
-      },
+      minimumGroupSize: 2,
     },
     {
       description: "Auto-merge GitHub Actions",
@@ -86,22 +66,22 @@
       matchUpdateTypes: ["major"],
       semanticCommitType: "feat",
       commitMessagePrefix: "{{semanticCommitType}}({{semanticCommitScope}})!:",
-      commitMessageExtra: "( {{currentVersion}} → {{newVersion}} )",
+      commitMessageExtra: "( {{currentVersion}} ➔ {{newVersion}} )",
     },
     {
       matchUpdateTypes: ["minor"],
       semanticCommitType: "feat",
-      commitMessageExtra: "( {{currentVersion}} → {{newVersion}} )",
+      commitMessageExtra: "( {{currentVersion}} ➔ {{newVersion}} )",
     },
     {
       matchUpdateTypes: ["patch"],
       semanticCommitType: "fix",
-      commitMessageExtra: "( {{currentVersion}} → {{newVersion}} )",
+      commitMessageExtra: "( {{currentVersion}} ➔ {{newVersion}} )",
     },
     {
       matchUpdateTypes: ["digest"],
       semanticCommitType: "chore",
-      commitMessageExtra: "( {{currentDigestShort}} → {{newDigestShort}} )",
+      commitMessageExtra: "( {{currentDigestShort}} ➔ {{newDigestShort}} )",
     },
     {
       matchDatasources: ["docker"],
