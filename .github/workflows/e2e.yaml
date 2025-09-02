@@ -62,7 +62,7 @@ jobs:
       - name: Test Helmfiles
         run: |
           helmfile template --file ./bootstrap/helmfile.d/00-crds.yaml --include-crds --no-hooks
-          helmfile template --file ./bootstrap/helmfile.d/01-apps.yaml --include-crds--no-hooks
+          helmfile template --file ./bootstrap/helmfile.d/01-apps.yaml --include-crds --no-hooks
 
       - name: Dry run bootstrap talos task
         run: task bootstrap:talos --dry
