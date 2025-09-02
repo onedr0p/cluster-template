@@ -48,7 +48,7 @@ jobs:
             return `${nextMajorMinor}.${nextPatch}`;
 
       - name: Create Release
-        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         with:
           generateReleaseNotes: true
           tag: "${{ steps.determine-next-tag.outputs.result }}"
