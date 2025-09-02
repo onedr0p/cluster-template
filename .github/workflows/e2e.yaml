@@ -59,6 +59,11 @@ jobs:
         with:
           args: test --enable-helm --all-namespaces --path /github/workspace/kubernetes/flux/cluster -v
 
+      - name: Test Helmfiles
+        run: |
+          helmfile template -f ./bootstrap/helmfile.d/00-crds.yaml
+          helmfile template -f ./bootstrap/helmfile.d/01-apps.yaml
+
       - name: Dry run bootstrap talos task
         run: task bootstrap:talos --dry
 
