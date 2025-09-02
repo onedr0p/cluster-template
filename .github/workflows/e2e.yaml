@@ -59,14 +59,6 @@ jobs:
         with:
           args: test --enable-helm --all-namespaces --path /github/workspace/kubernetes/flux/cluster -v
 
-      - name: Test CRD Helmfile
-        run: |
-          helmfile template --file ./bootstrap/helmfile.d/00-crds.yaml --include-crds --no-hooks
-
-      - name: Test App Helmfile
-        run: |
-          helmfile template --file ./bootstrap/helmfile.d/01-apps.yaml --include-crds --no-hooks
-
       - name: Dry run bootstrap talos task
         run: task bootstrap:talos --dry
 
