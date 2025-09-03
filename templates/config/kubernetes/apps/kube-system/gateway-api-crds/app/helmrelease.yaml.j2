@@ -3,12 +3,12 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: k8s-gateway
+  name: gateway-api-crds
 spec:
   interval: 1h
   chartRef:
     kind: OCIRepository
-    name: k8s-gateway
+    name: gateway-api-crds
   install:
     remediation:
       retries: -1
@@ -16,14 +16,3 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-  values:
-    fullnameOverride: k8s-gateway
-    domain: "${SECRET_DOMAIN}"
-    ttl: 1
-    service:
-      type: LoadBalancer
-      port: 53
-      annotations:
-        lbipam.cilium.io/ips: "#{ cluster_dns_gateway_addr }#"
-      externalTrafficPolicy: Cluster
-    watchedResources: ["HTTPRoute", "Service"]
