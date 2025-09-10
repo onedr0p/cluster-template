@@ -9,10 +9,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-age
   interval: 1h
   path: ./kubernetes/apps/kube-system/reloader/app
   postBuild:
