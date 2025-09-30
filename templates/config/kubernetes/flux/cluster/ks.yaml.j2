@@ -6,6 +6,8 @@ metadata:
   name: cluster-meta
   namespace: &namespace flux-system
 spec:
+  decryption:
+    provider: sops
   interval: 1h
   path: ./kubernetes/flux/meta
   prune: true
@@ -25,6 +27,8 @@ metadata:
   name: cluster-apps
   namespace: flux-system
 spec:
+  decryption:
+    provider: sops
   dependsOn:
     - name: cluster-meta
       namespace: flux-system
@@ -38,3 +42,16 @@ spec:
     namespace: flux-system
   timeout: 5m
   wait: false
+  patches:
+    - # Add Sops decryption to all Kustomizations
+      patch: |-
+        apiVersion: kustomize.toolkit.fluxcd.io/v1
+        kind: Kustomization
+        metadata:
+          name: not-used
+        spec:
+          decryption:
+            provider: sops
+      target:
+        group: kustomize.toolkit.fluxcd.io
+        kind: Kustomization
