@@ -38,7 +38,7 @@ tasks:
 
   generate-deploy-key:
     internal: true
-    cmd: ssh-keygen -t ecdsa -b 521 -C "deploy-key" -f {{.ROOT_DIR}}/github-deploy.key -q -P ""
+    cmd: ssh-keygen -t ed25519 -C "deploy-key" -f {{.ROOT_DIR}}/github-deploy.key -q -P ""
     status:
       - test -f {{.ROOT_DIR}}/github-deploy.key
     preconditions:
