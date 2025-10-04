@@ -16,7 +16,7 @@ releases:
   - name: coredns
     namespace: kube-system
     chart: oci://ghcr.io/coredns/charts/coredns
-    version: 1.43.3
+    version: 1.44.3
     values: ['./templates/values.yaml.gotmpl']
     needs: ['kube-system/cilium']
 
