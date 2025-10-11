@@ -5,7 +5,7 @@ SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
 
 [tools]
-"python" = "3.13"
+"python" = "3.14.0"
 "pipx:makejinja" = "2.8.1"
 "aqua:budimanjojo/talhelper" = "3.0.37"
 "aqua:cilium/cilium-cli" = "0.18.7"
