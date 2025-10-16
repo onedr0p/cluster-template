@@ -3,12 +3,12 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
-  name: gateway-api-crds
+  name: envoy-gateway
 spec:
   interval: 15m
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 1.4.0
-  url: oci://ghcr.io/wiremind/wiremind-helm-charts/gateway-api-crds
+    tag: 1.5.3
+  url: oci://mirror.gcr.io/envoyproxy/gateway-helm
