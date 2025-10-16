@@ -19,10 +19,10 @@ releases:
     chart: oci://ghcr.io/home-operations/charts-mirror/external-dns
     version: 1.19.0
 
-  - name: gateway-api-crds
-    namespace: kube-system
-    chart: oci://ghcr.io/wiremind/wiremind-helm-charts/gateway-api-crds
-    version: 1.4.0
+  - name: envoy-gateway
+    namespace: network
+    chart: oci://mirror.gcr.io/envoyproxy/gateway-helm
+    version: 1.5.3
 
   - name: kube-prometheus-stack
     namespace: observability
