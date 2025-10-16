@@ -5,14 +5,7 @@ kind: HelmRelease
 metadata:
   name: gateway-api-crds
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: gateway-api-crds
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
+  interval: 1h

@@ -3,12 +3,8 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app cilium
-  namespace: &namespace kube-system
+  name: cilium
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   interval: 1h
   path: ./kubernetes/apps/kube-system/cilium/app
   postBuild:
@@ -16,25 +12,19 @@ spec:
       - name: cluster-secrets
         kind: Secret
   prune: true
-  retryInterval: 2m
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: *namespace
-  timeout: 5m
+  targetNamespace: kube-system
   wait: false
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app cilium-gateway
-  namespace: &namespace kube-system
+  name: cilium-gateway
 spec:
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *app
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
@@ -49,6 +39,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: *namespace
+  targetNamespace: kube-system
   timeout: 15m
   wait: true

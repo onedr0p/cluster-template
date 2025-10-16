@@ -5,18 +5,10 @@ kind: HelmRelease
 metadata:
   name: &app cloudflare-dns
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: cloudflare-dns
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      strategy: rollback
-      retries: 3
+  interval: 1h
   values:
     fullnameOverride: *app
     provider: cloudflare
