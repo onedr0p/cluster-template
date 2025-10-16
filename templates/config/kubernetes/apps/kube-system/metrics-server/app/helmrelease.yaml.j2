@@ -5,17 +5,10 @@ kind: HelmRelease
 metadata:
   name: metrics-server
 spec:
-  interval: 1h
   chartRef:
     kind: OCIRepository
     name: metrics-server
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
+  interval: 1h
   values:
     args:
       - --kubelet-insecure-tls
