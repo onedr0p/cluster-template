@@ -93,7 +93,7 @@ tasks:
     cmds:
       - for: { var: SECRET_FILES }
         cmd: |
-          if sops filestatus "{{.ITEM}}" | jq --exit-status ".encrypted == false" &>/dev/null; then
+          if [ $(sops filestatus "{{.ITEM}}" | jq ".encrypted") == "false" ]; then
               sops --encrypt --in-place "{{.ITEM}}"
           fi
     vars:
