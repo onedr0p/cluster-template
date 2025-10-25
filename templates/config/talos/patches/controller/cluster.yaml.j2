@@ -1,6 +1,8 @@
 cluster:
   allowSchedulingOnControlPlanes: true
   apiServer:
+    admissionControl:
+      $$patch: delete
     extraArgs:
       # https://kubernetes.io/docs/tasks/extend-kubernetes/configure-aggregation-layer/
       enable-aggregator-routing: true
