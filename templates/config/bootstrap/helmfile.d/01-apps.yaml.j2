@@ -23,7 +23,7 @@ releases:
   - name: spegel
     namespace: kube-system
     chart: oci://ghcr.io/spegel-org/helm-charts/spegel
-    version: 0.4.0
+    version: 0.5.1
     values: ['./templates/values.yaml.gotmpl']
     needs: ['kube-system/coredns']
   #% endif %#
