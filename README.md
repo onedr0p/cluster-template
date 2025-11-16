@@ -26,7 +26,7 @@ A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/t
 
 Does this sound cool to you? If so, continue to read on! 👇
 
-## 🚀 Let's Go
+## 🚀 Let's Go!
 
 There are **5 stages** outlined below for completing this project, make sure you follow the stages in order.
 
@@ -34,7 +34,6 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 > [!IMPORTANT]
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
->
 > **Minimum system requirements**
 >
 > | Role    | Cores    | Memory        | System Disk               |
