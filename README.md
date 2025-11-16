@@ -34,8 +34,8 @@ There are **5 stages** outlined below for completing this project, make sure you
 
 > [!IMPORTANT]
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
-> **Minimum system requirements**
 >
+> **Minimum system requirements**
 > | Role    | Cores    | Memory        | System Disk               |
 > |---------|----------|---------------|---------------------------|
 > | Control/Worker | 4 | 16GB | 256GB SSD/NVMe |
