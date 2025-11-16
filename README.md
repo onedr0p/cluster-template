@@ -291,7 +291,7 @@ task talos:upgrade-k8s
 
 ### ➕ Adding a node to your cluster
 
-At some point you might want to expand your cluster to run more workloads and/or improve the reliability by adding more nodes. Keep in mind it is recommended to have an **odd number** of control plane nodes for quorum reasons.
+At some point you might want to expand your cluster to run more workloads and/or improve the reliability of your cluster. Keep in mind it is recommended to have an **odd number** of control plane nodes for quorum reasons.
 
 You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
 
