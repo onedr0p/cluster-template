@@ -26,7 +26,7 @@ A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/t
 
 Does this sound cool to you? If so, continue to read on! 👇
 
-## 🚀 Let's Go!
+## 🚀 Let's Go
 
 There are **5 stages** outlined below for completing this project, make sure you follow the stages in order.
 
@@ -36,6 +36,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
 >
 > **Minimum system requirements**
+>
 > | Role    | Cores    | Memory        | System Disk               |
 > |---------|----------|---------------|---------------------------|
 > | Control/Worker | 4 | 16GB | 256GB SSD/NVMe |
@@ -397,6 +398,40 @@ These tools offer a variety of solutions to meet your persistent storage needs, 
 ### Community Repositories
 
 Community member [@whazor](https://github.com/whazor) created [Kubesearch](https://kubesearch.dev) to allow searching Flux HelmReleases across Github and Gitlab repositories with the `kubesearch` topic.
+
+### Adding nodes to the cluster
+
+At some point you might want to expand your cluster to run more workloads and/or improve the reliability by adding more nodes. Keep in mind it is recommended to have an **odd number** of control plane nodes for quorum reasons. Before proceeding, make sure to read the [Stage 1: Machine Preparation](#stage-1-machine-preparation) section again which explains how to prepare the nodes for the cluster.
+
+You don't need to re-bootstrap the cluster to add new nodes. You can simply add new nodes to the cluster in a few steps:
+
+#### Option 1: Extend the talconfig.yaml file manually
+
+Read the documentation for [talhelper](https://budimanjojo.github.io/talhelper/latest/) and extend the `talconfig.yaml` file manually. You might need to boot your nodes to get the correct information for the `disk` and `mac_addr` fields.
+
+#### Option 2: Use the configure task
+
+First, locate your `cluster.yaml` and `nodes.yaml` files. If you ran `task template:tidy`, these files can be found in the `.private` directory. Otherwise, they should still be in the root of your repository.
+
+`cluster.yaml` probably won't need to be changed, but it's a good idea to verify that it is still up to date.
+
+Boot your new nodes in maintenance mode so you can run the required commands to update the configuration in `nodes.yaml`.
+Then run `task configure` to generate the new configuration files. This is an opportunity to update your repository to the latest version of the template, but be careful to review every change so it doesn't overwrite changes you made since bootstrapping the cluster that you want to keep. If you don't want to alter your configuration, undo all changes except those in the `talos` directory.
+
+#### Apply the new configuration to the nodes
+
+Now apply the new configuration to the nodes:
+
+```sh
+# Render your talosconfig based on the talconfig.yaml file
+task talos:generate-config
+
+# Apply the configuration to the node, do this for each node you added
+task talos:apply-node IP=?
+# e.g. task talos:apply-node IP=10.10.10.10
+```
+
+The nodes should join the cluster and get workloads scheduled to them.
 
 ## 🙋 Support
 
