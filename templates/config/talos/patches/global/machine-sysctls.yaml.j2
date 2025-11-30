@@ -7,4 +7,5 @@ machine:
     net.ipv4.neigh.default.gc_thresh1: "4096"  # Prevent ARP cache overflows
     net.ipv4.neigh.default.gc_thresh2: "8192"  # Prevent ARP cache overflows
     net.ipv4.neigh.default.gc_thresh3: "16384" # Prevent ARP cache overflows
+    net.ipv4.tcp_slow_start_after_idle: "0"    # Preserve congestion window after idle
     user.max_user_namespaces: "11255"          # User Namespaces
