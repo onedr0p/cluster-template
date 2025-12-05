@@ -218,7 +218,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 5. Check the status of your wildcard `Certificate`:
 
     ```sh
-    kubectl -n kube-system describe certificates
+    kubectl -n network describe certificates
     ```
 
 ### 🌐 Public DNS
