@@ -32,11 +32,14 @@ There are **6 stages** outlined below for completing this project, make sure you
 
 ### Stage 1: Hardware Configuration
 
-For a **stable** and **high availability** production Kubernetes cluster, hardware selection is critical, and **Bare Metal is strongly recommended** over virtualized platforms like Proxmox.
+For a **stable** and **high-availability** production Kubernetes cluster, hardware selection is critical. NVMe/SSDs are strongly preferred over HDDs, and **Bare Metal is strongly recommended** over virtualized platforms like Proxmox.
 
-Using **enterprise NVMe or SATA SSDs on Bare Metal** (even used drives) provides the most reliable performance and rock-solid stability. Consumer drives, on the other hand, carry risks such as latency spikes, corruption, and fsync delays, particularly in multi-node setups. **Proxmox with enterprise drives can work** for testing or carefully tuned production clusters, but it introduces additional layers of potential I/O contention, moreso if you use consumer drives instead. **HDDs and shared storage** (Ceph, NFS, iSCSI, SAN) are generally unsuitable for control plane workloads due to instability and quorum failures. Any **replicated storage** (e.g., Rook-Ceph, Longhorn) should always use **dedicated disks separate from control plane and etcd nodes** to ensure reliability. Worker nodes are more flexible, but risky configurations should still be avoided for stateful workloads to maintain cluster stability.
+Using **enterprise NVMe or SATA SSDs on Bare Metal** (even used drives) provides the most reliable performance and rock-solid stability. Consumer **NVMe or SATA SSDs**, on the other hand, carry risks such as latency spikes, corruption, and fsync delays, particularly in multi-node setups.
+
+**Proxmox with enterprise drives can work** for testing or carefully tuned production clusters, but it introduces additional layers of potential I/O contention — especially if consumer drives are used. Any **replicated storage** (e.g., Rook-Ceph, Longhorn) should always use **dedicated disks separate from control plane and etcd nodes** to ensure reliability. Worker nodes are more flexible, but risky configurations should still be avoided for stateful workloads to maintain cluster stability.
 
 These guidelines provide a strong baseline, but there are always exceptions and nuances. The best way to ensure your hardware configuration works is to **test it thoroughly and benchmark performance** under realistic workloads.
+
 
 ### Stage 2: Machine Preparation
 
