@@ -28,9 +28,17 @@ Does this sound cool to you? If so, continue to read on! 👇
 
 ## 🚀 Let's Go!
 
-There are **5 stages** outlined below for completing this project, make sure you follow the stages in order.
+There are **6 stages** outlined below for completing this project, make sure you follow the stages in order.
 
-### Stage 1: Machine Preparation
+### Stage 1: Hardware Configuration
+
+For a **stable** and **high availability** production Kubernetes cluster, hardware selection is critical, and **Bare Metal is strongly recommended** over virtualized platforms like Proxmox.
+
+Using **enterprise NVMe or SATA SSDs on Bare Metal** (even used drives) provides the most reliable performance and rock-solid stability. Consumer drives, on the other hand, carry risks such as latency spikes, corruption, and fsync delays, particularly in multi-node setups. **Proxmox with enterprise drives can work** for testing or carefully tuned production clusters, but it introduces additional layers of potential I/O contention, moreso if you use consumer drives instead. **HDDs and shared storage** (Ceph, NFS, iSCSI, SAN) are generally unsuitable for control plane workloads due to instability and quorum failures. Any **replicated storage** (e.g., Rook-Ceph, Longhorn) should always use **dedicated disks separate from control plane and etcd nodes** to ensure reliability. Worker nodes are more flexible, but risky configurations should still be avoided for stateful workloads to maintain cluster stability.
+
+These guidelines provide a strong baseline, but there are always exceptions and nuances. The best way to ensure your hardware configuration works is to **test it thoroughly and benchmark performance** under realistic workloads.
+
+### Stage 2: Machine Preparation
 
 > [!IMPORTANT]
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
@@ -52,7 +60,7 @@ There are **5 stages** outlined below for completing this project, make sure you
     nmap -Pn -n -p 50000 192.168.1.0/24 -vv | grep 'Discovered'
     ```
 
-### Stage 2: Local Workstation
+### Stage 3: Local Workstation
 
 > [!TIP]
 > It is recommended to set the visibility of your repository to `Public` so you can easily request help if you get stuck.
@@ -87,7 +95,7 @@ There are **5 stages** outlined below for completing this project, make sure you
     helm registry logout ghcr.io
     ```
 
-### Stage 3: Cloudflare configuration
+### Stage 4: Cloudflare configuration
 
 > [!WARNING]
 > If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
@@ -107,7 +115,7 @@ There are **5 stages** outlined below for completing this project, make sure you
     cloudflared tunnel create --credentials-file cloudflare-tunnel.json kubernetes
     ```
 
-### Stage 4: Cluster configuration
+### Stage 5: Cluster configuration
 
 1. Generate the config files from the sample files:
 
@@ -136,7 +144,7 @@ There are **5 stages** outlined below for completing this project, make sure you
 > [!TIP]
 > Using a **private repository**? Make sure to paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux has read/write access to your repository.
 
-### Stage 5: Bootstrap Talos, Kubernetes, and Flux
+### Stage 6: Bootstrap Talos, Kubernetes, and Flux
 
 > [!WARNING]
 > It might take a while for the cluster to be setup (10+ minutes is normal). During which time you will see a variety of error messages like: "couldn't get current server API group list," "error: no matching resources found", etc. 'Ready' will remain "False" as no CNI is deployed yet. **This is a normal.** If this step gets interrupted, e.g. by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>, you likely will need to [reset the cluster](#-reset) before trying again
@@ -295,7 +303,7 @@ At some point you might want to expand your cluster to run more workloads and/or
 
 You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
 
-1. **Prepare the new node**: Review the [Stage 1: Machine Preparation](#stage-1-machine-preparation) section and boot your new node into maintenance mode.
+1. **Prepare the new node**: Review the [Stage 2: Machine Preparation](#stage-2-machine-preparation) section and boot your new node into maintenance mode.
 
 2. **Get the node information**: While the node is in maintenance mode, retrieve the disk and MAC address information needed for configuration:
 
