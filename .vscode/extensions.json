@@ -3,6 +3,7 @@
     "blueglassblock.better-json5",
     "irongeek.vscode-env",
     "redhat.vscode-yaml",
-    "signageos.signageos-vscode-sops"
+    "signageos.signageos-vscode-sops",
+    "hverlin.mise-vscode"
   ]
 }
