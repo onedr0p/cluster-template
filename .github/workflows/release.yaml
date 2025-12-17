@@ -10,6 +10,8 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Get Previous Release Tag and Determine Next Tag
         id: determine-next-tag
