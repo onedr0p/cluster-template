@@ -126,7 +126,8 @@ metadata:
 spec:
   clientIPDetection:
     xForwardedFor:
-      numTrustedHops: 1
+      trustedCIDRs:
+        - "#{ cluster_pod_cidr }#"
   connection:
     bufferLimit: 4Mi
     maxAcceptPerSocketEvent: 0
