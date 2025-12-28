@@ -404,7 +404,7 @@ Below are some optional considerations you may want to explore.
 
 ### DNS
 
-The template uses [k8s_gateway](https://github.com/ori-edge/k8s_gateway) to provide DNS for your applications, consider exploring [external-dns](https://github.com/kubernetes-sigs/external-dns) as an alternative.
+The template uses [k8s_gateway](https://github.com/k8s-gateway/k8s_gateway) to provide DNS for your applications, consider exploring [external-dns](https://github.com/kubernetes-sigs/external-dns) as an alternative.
 
 External-DNS offers broad support for various DNS providers, including but not limited to:
 
