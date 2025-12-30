@@ -9,4 +9,5 @@ nodes: []
   #   mtu: 1500           # (ADVANCED/OPTIONAL) MTU for the NIC. DEFAULT: 1500
   #   secureboot: false   # (ADVANCED/OPTIONAL) SecureBoot mode on UEFI platforms. Ref: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
   #   encrypt_disk: false # (ADVANCED/OPTIONAL) TPM-based disk encryption. Ref: https://www.talos.dev/latest/talos-guides/install/bare-metal-platforms/secureboot
+  #   kernel_modules: []  # (ADVANCED/OPTIONAL) Only applicable if the `schematic_id` you've provided contains system extensions that require kernel modules to correctly load - Example: ["nvidia", "nvidia_uvm", "nvidia_drm", "nvidia_modeset", "zfs"]
   # ...

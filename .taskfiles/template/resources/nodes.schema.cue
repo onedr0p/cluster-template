@@ -21,9 +21,10 @@ import (
 	disk:          string
 	mac_addr:      =~"^([0-9a-f]{2}[:]){5}([0-9a-f]{2})$"
 	schematic_id:  =~"^[a-z0-9]{64}$"
-	mtu?:          >=1450 & <=9000
-	secureboot?:   bool
-	encrypt_disk?: bool
+	mtu?:            >=1450 & <=9000
+	secureboot?:     bool
+	encrypt_disk?:   bool
+	kernel_modules?: [...string]
 }
 
 #Config
