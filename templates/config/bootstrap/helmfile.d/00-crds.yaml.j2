@@ -7,10 +7,6 @@ helmDefaults:
   args:
     - --include-crds
     - --no-hooks
-  postRenderer: bash
-  postRendererArgs:
-    - -c
-    - yq eval-all --exit-status 'select(.kind == "CustomResourceDefinition")'
 
 releases:
   - name: cloudflare-dns
