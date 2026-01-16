@@ -27,7 +27,7 @@ spec:
     metrics:
       prometheus:
         compression:
-          type: Gzip
+          type: Zstd
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -106,11 +106,18 @@ kind: BackendTrafficPolicy
 metadata:
   name: envoy
 spec:
-  compression:
+  compressor:
+    - type: Zstd
+      zstd: {}
     - type: Brotli
+      brotli: {}
     - type: Gzip
-  connection:
-    bufferLimit: 8Mi
+      gzip: {}
+  retry:
+    numRetries: 2
+    retryOn:
+      triggers:
+        - reset
   targetSelectors:
     - group: gateway.networking.k8s.io
       kind: Gateway
@@ -128,21 +135,13 @@ spec:
     xForwardedFor:
       trustedCIDRs:
         - "#{ cluster_pod_cidr }#"
-  connection:
-    bufferLimit: 4Mi
-    maxAcceptPerSocketEvent: 0
   http2:
-    initialStreamWindowSize: 512Ki
-    initialConnectionWindowSize: 8Mi
     onInvalidMessage: TerminateStream
   http3: {}
   targetSelectors:
     - group: gateway.networking.k8s.io
       kind: Gateway
   tcpKeepalive: {}
-  timeout:
-    http:
-      requestReceivedTimeout: 0s
   tls:
     minVersion: "1.2"
     alpnProtocols:
