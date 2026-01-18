@@ -45,6 +45,7 @@ nodes:
             mtu: #{ item.mtu | default(1500, true) }#
             routes:
               - gateway: "#{ node_default_gateway }#"
+                network: 0.0.0.0/0
             #% if item.controller %#
             vip:
               ip: "#{ cluster_api_addr }#"
@@ -55,6 +56,7 @@ nodes:
           - "#{ item.address }#/#{ node_cidr.split('/') | last }#"
         routes:
           - gateway: "#{ node_default_gateway }#"
+            network: 0.0.0.0/0
         mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
