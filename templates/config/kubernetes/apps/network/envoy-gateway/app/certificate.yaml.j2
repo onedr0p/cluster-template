@@ -13,8 +13,6 @@ spec:
     kind: ClusterIssuer
   privateKey:
     algorithm: ECDSA
-    size: 256
-    rotationPolicy: Always
   secretName: "${SECRET_DOMAIN/./-}-production-tls"
   usages:
     - digital signature
