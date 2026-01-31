@@ -148,6 +148,8 @@ tasks:
       - |
         {{.SED}} -i '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/
+      - |
+        {{.SED}} -i '/required:template/d' {{.ROOT_DIR}}/.mise.toml
     vars:
       TIDY_FOLDER: '{{.PRIVATE_DIR}}/{{now | unixEpoch}}'
       SED:
