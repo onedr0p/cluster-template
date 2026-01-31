@@ -150,6 +150,7 @@ tasks:
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/
       - |
         {{.SED}} -i '/required:template/d' {{.ROOT_DIR}}/.mise.toml
+      - rm -rf {{.ROOT_DIR}}/.venv
     vars:
       TIDY_FOLDER: '{{.PRIVATE_DIR}}/{{now | unixEpoch}}'
       SED:
