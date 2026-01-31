@@ -131,8 +131,8 @@ tasks:
       - which kubectl
 
   tidy:
-    desc: Archive template related files and directories
-    prompt: All files and directories related to the templating process will be archived... continue?
+    desc: Archive or remove all template related config
+    prompt: All template related config will be archived or removed... continue?
     cmds:
       - mkdir -p {{.TIDY_FOLDER}}
       - rm -rf {{.ROOT_DIR}}/.github/tests
@@ -148,6 +148,9 @@ tasks:
       - |
         {{.SED}} -i '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/
+      - |
+        {{.SED}} -i '/required:template/d' {{.ROOT_DIR}}/.mise.toml
+      - rm -rf {{.ROOT_DIR}}/.venv
     vars:
       TIDY_FOLDER: '{{.PRIVATE_DIR}}/{{now | unixEpoch}}'
       SED:
