@@ -40,7 +40,6 @@ Using **enterprise NVMe or SATA SSDs on Bare Metal** (even used drives) provides
 
 These guidelines provide a strong baseline, but there are always exceptions and nuances. The best way to ensure your hardware configuration works is to **test it thoroughly and benchmark performance** under realistic workloads.
 
-
 ### Stage 2: Machine Preparation
 
 > [!IMPORTANT]
@@ -72,10 +71,11 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
     ```sh
     export REPONAME="home-ops"
-    gh repo create $REPONAME --template onedr0p/cluster-template --disable-wiki --public --clone && cd $REPONAME
+    gh repo create $REPONAME --template onedr0p/cluster-template --public --clone
+    cd $REPONAME
     ```
 
-2. **Install** the [Mise CLI](https://mise.jdx.dev/getting-started.html#installing-mise-cli) on your workstation.
+2. **Install** the [Mise CLI](https://mise.jdx.dev/getting-started.html#installing-mise-cli) on your local workstation.
 
 3. **Activate** Mise in your shell by following the [activation guide](https://mise.jdx.dev/getting-started.html#activate-mise).
 
@@ -91,7 +91,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
    📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
-5. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
+5. Logout of the GitHub Container Registry as this may cause authorization problems in future steps when using the public registry:
 
     ```sh
     docker logout ghcr.io
@@ -101,7 +101,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 ### Stage 4: Cloudflare configuration
 
 > [!WARNING]
-> If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
+> If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not install, activated or it could be configured incorrectly.
 
 1. Create a Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
