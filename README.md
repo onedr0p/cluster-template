@@ -101,7 +101,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 ### Stage 4: Cloudflare configuration
 
 > [!WARNING]
-> If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not install, activated or it could be configured incorrectly.
+> If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not installed, activated or it could be configured incorrectly.
 
 1. Create a Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
