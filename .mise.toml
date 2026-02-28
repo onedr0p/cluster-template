@@ -6,7 +6,7 @@ TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
 
 [tools]
 "python" = "3.14.3" # required:template
-"uv" = "0.10.4" # required:template
+"uv" = "0.10.7" # required:template
 "pipx" = "1.8.0" # required:template
 "pipx:makejinja" = "2.8.2" # required:template
 "aqua:budimanjojo/talhelper" = "3.1.5"
