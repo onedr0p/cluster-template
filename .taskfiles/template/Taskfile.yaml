@@ -59,8 +59,6 @@ tasks:
       - task: validate-kubernetes-config
       - task: validate-talos-config
     preconditions:
-      - msg: An existing Age key interferes with the age key in this repository, rename or delete ~/.config/sops/age/keys.txt
-        sh: '! test -f ~/.config/sops/age/keys.txt'
       - msg: File cluster.yaml not found, did you run `task init`?
         sh: test -f {{.TEMPLATE_CONFIG_FILE}}
       - msg: File nodes.yaml not found, did you run `task init`?
