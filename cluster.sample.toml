@@ -1,104 +1,219 @@
-# ==============================================================================
-# Network
-# ==============================================================================
+# =============================================================================
+#    Physical LAN that your Talos nodes live on. Defines the address space
+#    used for node IPs, the gateway/DNS/NTP servers nodes will use, and an
+#    optional VLAN tag for switch ports that aren't natively tagged.
+# =============================================================================
 [network]
-# (REQUIRED) The network CIDR for the nodes. e.g. "192.168.1.0/24"
+
+# The CIDR block your nodes' IPs come from. Every node's `address`, the Kube
+# API VIP, and the gateway VIPs (internal/dns/external) must all sit inside
+# this range.
+# REQUIRED. Example: "192.168.1.0/24"
 node_cidr = ""
 
-# (OPTIONAL) DNS / NTP servers (default: Cloudflare).
+# Upstream DNS servers Talos nodes use for name resolution. Defaults to
+# Cloudflare (1.1.1.1 / 1.0.0.1). Override if you run an internal resolver
+# (Pi-hole, Unbound, AdGuard) or want a different public provider.
+# OPTIONAL. Default: ["1.1.1.1", "1.0.0.1"]
+
 # dns_servers = ["1.1.1.1", "1.0.0.1"]
+
+# Upstream NTP servers. Defaults to Cloudflare's anycast NTP. Most homelabs
+# don't need to change this.
+# OPTIONAL. Default: ["162.159.200.1", "162.159.200.123"]
+
 # ntp_servers = ["162.159.200.1", "162.159.200.123"]
 
-# (OPTIONAL) Default gateway for the nodes. Defaults to the first IP in node_cidr.
+# Default gateway IP that nodes use to reach the rest of your LAN/WAN.
+# Defaults to the first usable host in node_cidr (e.g. 192.168.1.1 for
+# 192.168.1.0/24), which is correct for most home routers. Override if your
+# router lives at a non-standard address inside the subnet.
+# OPTIONAL. Default: first IP in node_cidr
+
 # default_gateway = ""
 
-# (OPTIONAL) VLAN tag. Only needed if your switch ports are not already tagged.
+# 802.1Q VLAN tag to apply to the Talos node interface. Only set this if
+# your switch ports are configured as trunks (passing tagged traffic to the
+# nodes); access ports already untag VLAN traffic.
 # REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
+# OPTIONAL.
+
 # vlan_tag = ""
 
 
-# ==============================================================================
-# Kubernetes
-# ==============================================================================
+# =============================================================================
+#    Cluster-internal control plane and overlay networks. The pod and service
+#    CIDRs are in-cluster only — they don't have to be routable on your LAN
+#    and never appear on the wire outside the nodes.
+# =============================================================================
 [kubernetes]
-# (OPTIONAL) Pod / service CIDRs. Must not overlap with each other or node_cidr.
+
+# CIDR Cilium hands out to pods. /16 gives ~64K pod IPs, which is well beyond
+# what a homelab needs but matches the upstream default. Must NOT overlap
+# with node_cidr or svc_cidr.
+# OPTIONAL. Default: "10.42.0.0/16"
+
 # pod_cidr = "10.42.0.0/16"
+
+# CIDR for ClusterIP services (the virtual IPs `kubectl get svc` shows).
+# Same /16 reasoning as pod_cidr. Must NOT overlap with node_cidr or
+# pod_cidr.
+# OPTIONAL. Default: "10.43.0.0/16"
+
 # svc_cidr = "10.43.0.0/16"
 
 [kubernetes.api]
-# (REQUIRED) Kube API IP. Choose an unused IP in network.node_cidr.
+
+# Virtual IP for the Kubernetes API server. kubectl, flux, and every other
+# client connect here on port 6443. Must be an unused IP inside
+# network.node_cidr — kube-vip floats it across controller nodes.
+# REQUIRED.
 addr = ""
-# (OPTIONAL) Additional SANs for the Kube API cert.
+
+# Additional Subject Alternative Names to put on the Kube API cert. Useful
+# if you want to call the API by hostname (e.g. via a CNAME or local
+# /etc/hosts entry) instead of the raw IP.
+# OPTIONAL. Example: ["mycluster.example.com"]
+
 # tls_sans = ["mycluster.example.com"]
 
 
-# ==============================================================================
-# Gateways (k8s LoadBalancer IPs)
-# ==============================================================================
+# =============================================================================
+#    LoadBalancer IPs that Cilium hands out to the cluster's edge gateways.
+#    Each must be an unused address inside network.node_cidr, and all four
+#    (these three plus kubernetes.api.addr) must be distinct.
+# =============================================================================
 [gateways]
-# (REQUIRED) Internal gateway load balancer IP.
+
+# IP for the `envoy-internal` gateway — used by HTTPRoutes intended for
+# private/in-network access only. Most apps use this gateway by default.
+# REQUIRED.
 internal = ""
-# (REQUIRED) k8s_gateway DNS load balancer IP.
+
+# IP for `k8s_gateway`, which serves DNS for cluster-managed hostnames.
+# Point your home DNS server's conditional forwarder for cloudflare.domain
+# at this IP to enable split-DNS resolution from your LAN.
+# REQUIRED.
 dns = ""
-# (REQUIRED) External (cloudflared) gateway load balancer IP.
+
+# IP for the `envoy-external` gateway — sits behind the cloudflared tunnel
+# and handles traffic exposed to the public internet. HTTPRoutes that
+# reference this gateway become reachable via your cloudflare domain.
+# REQUIRED.
 external = ""
 
 
-# ==============================================================================
-# GitHub repository
-# ==============================================================================
+# =============================================================================
+#    The GitHub repo Flux will sync from. This is the single source of truth
+#    for everything in your cluster — once bootstrapped, changes are made by
+#    pushing to this repo.
+# =============================================================================
 [repository]
-# (REQUIRED) e.g. "onedr0p/cluster-template"
+
+# `<owner>/<repo>` of the GitHub repository this cluster will pull from.
+# Must be the repo you cloned this template into.
+# REQUIRED. Example: "onedr0p/home-ops"
 name = ""
-# (OPTIONAL) default: "main"
+
+# Branch Flux watches. Changes pushed to this branch get reconciled into the
+# cluster.
+# OPTIONAL. Default: "main"
+
 # branch = "main"
-# (OPTIONAL) "public" or "private". See README when private.
+
+# Whether the repo is publicly readable. If `private`, the template wires up
+# a deploy key (`github-deploy.key.pub`) so Flux can clone over SSH — see
+# the README for the extra setup step.
+# OPTIONAL. Default: "public". Allowed: "public" | "private"
+
 # visibility = "public"
 
 
-# ==============================================================================
-# Cloudflare
-# ==============================================================================
+# =============================================================================
+#    DNS authority and tunnel provider for any apps you want to expose to
+#    the public internet. external-dns publishes records here automatically;
+#    cert-manager uses the same token for ACME DNS-01 challenges.
+# =============================================================================
 [cloudflare]
-# (REQUIRED) Domain you wish to use, e.g. "example.com"
+
+# The Cloudflare-managed domain hosting your cluster's public hostnames.
+# Used by external-dns, cert-manager, and the cloudflared tunnel.
+# REQUIRED. Example: "example.com"
 domain = ""
-# (REQUIRED) API token. See README.
+
+# API token (NOT the global API key) with `Zone - DNS - Edit` and
+# `Account - Cloudflare Tunnel - Read` permissions, scoped to the zone
+# above. See the README for token creation steps.
+# REQUIRED.
 token = ""
 
 
-# ==============================================================================
-# Cilium
-# ==============================================================================
+# =============================================================================
+#    CNI configuration. Defaults are sane for most homelab setups; touch
+#    this section only if you need BGP peering or a different LB mode.
+# =============================================================================
 [cilium]
-# (OPTIONAL) "dsr" or "snat".
+
+# How Cilium's load balancer handles return traffic. `dsr` (Direct Server
+# Return) preserves the client IP and is faster, but requires a switch
+# fabric that won't drop asymmetric flows. `snat` masquerades the client
+# and is the safe default for unknown topologies.
 # REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
+# OPTIONAL. Default: "dsr". Allowed: "dsr" | "snat"
+
 # loadbalancer_mode = "dsr"
 
-# Set ALL three fields below to enable BGP.
+# Cilium BGP peering — advertises Service IPs to your upstream router so
+# LoadBalancer addresses become reachable from anywhere on your LAN
+# (rather than only via L2 ARP). Set ALL THREE fields below to enable;
+# leaving any blank disables BGP entirely.
 # REF: https://docs.cilium.io/en/latest/network/bgp-control-plane/bgp-control-plane/
 [cilium.bgp]
-# router_addr = "192.168.1.1"
-# router_asn  = "64513"
-# node_asn    = "64514"
+
+# IP of your BGP-speaking router. The cluster peers with it from each node.
+# OPTIONAL. Example: "192.168.1.1"
+
+# router_addr = ""
+
+# ASN your router uses for BGP. Anything in the private range (64512-65534)
+# is fine if you're not peering with the public internet.
+# OPTIONAL. Example: "64513"
+
+# router_asn = ""
+
+# ASN the cluster's nodes use for BGP. Pick a different value than
+# router_asn so peering is eBGP rather than iBGP.
+# OPTIONAL. Example: "64514"
+
+# node_asn = ""
 
 
-# ==============================================================================
-# Nodes
-# ==============================================================================
-# Add one [[nodes]] table per machine.
-# Get disk + mac with: `talosctl get disks -n <ip> --insecure` / `talosctl get links -n <ip> --insecure`
-# Get schematic_id from https://factory.talos.dev/
+# =============================================================================
+#    One [[nodes]] table per physical machine or VM in the cluster. At least
+#    one controller (controller=true) is required; worker nodes are optional.
+#    For HA, use 3 controllers.
+#
+#    Discover hardware details from a node already booted into Talos
+#    maintenance mode:
+#      talosctl get disks -n <node-ip> --insecure
+#      talosctl get links -n <node-ip> --insecure
+#    Schematic ID is the 64-character hex string from your build at:
+#      https://factory.talos.dev/
+#
+#    The block below is a template — copy it once per node, uncomment, and
+#    fill in the values.
+# =============================================================================
 
 # [[nodes]]
-# name         = ""        # required, [a-z0-9-]+
-# address      = ""        # required, must be in network.node_cidr
-# controller   = true      # required, true for control-plane nodes
-# disk         = ""        # required, e.g. "/dev/nvme0n1"
-# mac_addr     = ""        # required, e.g. "aa:bb:cc:dd:ee:ff"
-# schematic_id = ""        # required, 64 hex chars from factory.talos.dev
-
-# Optional advanced fields:
-# mtu            = 1500
-# secureboot     = false
-# encrypt_disk   = false
-# kernel_modules = ["nvidia", "nvidia_uvm"]
+# name         = "k8s-0"        # Hostname; must match [a-z0-9-]+ (not "global"/"controller"/"worker").
+# address      = "192.168.1.10" # Static IP; must be inside network.node_cidr.
+# controller   = true           # true = control-plane (etcd + API server), false = worker.
+# disk         = "/dev/nvme0n1" # Block device or /dev/disk/by-id/... symlink to install Talos onto.
+# mac_addr     = "aa:bb:cc:dd:ee:ff"  # Primary NIC MAC.
+# schematic_id = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"  # 64-hex from factory.talos.dev.
+#
+# # Optional advanced fields (each independently uncommentable):
+# mtu            = 1500                       # Set only for jumbo frames / non-1500 MTUs (1450-9000).
+# secureboot     = false                      # UEFI SecureBoot — requires a SecureBoot-enabled schematic.
+# encrypt_disk   = false                      # TPM-bound full-disk encryption.
+# kernel_modules = ["nvidia", "nvidia_uvm"]   # Only for schematics shipping matching extensions.
