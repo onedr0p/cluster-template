@@ -7,6 +7,7 @@ import (
 
 #Config: {
 	nodes: [...#Node]
+	spegel_enabled: bool | *(len(nodes) > 1)
 	_nodes_check: {
 		name: list.UniqueItems() & [for item in nodes {item.name}]
 		address: list.UniqueItems() & [for item in nodes {item.address}]

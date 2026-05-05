@@ -3,9 +3,10 @@ from typing import Any
 
 import base64
 import ipaddress
+import json
 import makejinja
 import re
-import json
+import subprocess
 
 
 # Return the filename of a path without the j2 extension
@@ -120,32 +121,32 @@ def talos_patches(value: str) -> list[str]:
     return [str(f) for f in sorted(path.glob('*.yaml.j2')) if f.is_file()]
 
 
+SCHEMA_FILES = [
+    '.taskfiles/template/resources/cluster.schema.cue',
+    '.taskfiles/template/resources/nodes.schema.cue',
+]
+CONFIG_FILES = ['cluster.yaml', 'nodes.yaml']
+
+
+# Render the user config through CUE so schema-declared defaults are applied.
+def cue_export(config_files: list[str], schema_files: list[str]) -> dict[str, Any]:
+    result = subprocess.run(
+        ['cue', 'export', '--out', 'json', *config_files, *schema_files],
+        capture_output=True, check=True, text=True,
+    )
+    return json.loads(result.stdout)
+
+
 class Plugin(makejinja.plugin.Plugin):
     def __init__(self, data: dict[str, Any]):
         self._data = data
 
 
     def data(self) -> makejinja.plugin.Data:
-        data = self._data
+        data = cue_export(CONFIG_FILES, SCHEMA_FILES)
 
-        # Set default values for optional fields
-        data.setdefault('node_default_gateway', nthhost(data.get('node_cidr'), 1))
-        data.setdefault('node_dns_servers', ['1.1.1.1', '1.0.0.1'])
-        data.setdefault('node_ntp_servers', ['162.159.200.1', '162.159.200.123'])
-        data.setdefault('cluster_pod_cidr', '10.42.0.0/16')
-        data.setdefault('cluster_svc_cidr', '10.43.0.0/16')
-        data.setdefault('repository_branch', 'main')
-        data.setdefault('repository_visibility', 'public')
-        data.setdefault('cilium_loadbalancer_mode', 'dsr')
-
-        # If all BGP keys are set, enable BGP
-        bgp_keys = ['cilium_bgp_router_addr', 'cilium_bgp_router_asn', 'cilium_bgp_node_asn']
-        bgp_enabled = all(data.get(key) for key in bgp_keys)
-        data.setdefault('cilium_bgp_enabled', bgp_enabled)
-
-        # If there is more than one node, enable spegel
-        spegel_enabled = len(data.get('nodes')) > 1
-        data.setdefault('spegel_enabled', spegel_enabled)
+        # node_default_gateway requires CIDR arithmetic, which CUE cannot express.
+        data.setdefault('node_default_gateway', nthhost(data['node_cidr'], 1))
 
         return data
 
