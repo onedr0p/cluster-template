@@ -6,7 +6,6 @@ import ipaddress
 import json
 import makejinja
 import re
-import subprocess
 
 
 # Return the filename of a path without the j2 extension
@@ -121,34 +120,17 @@ def talos_patches(value: str) -> list[str]:
     return [str(f) for f in sorted(path.glob('*.yaml.j2')) if f.is_file()]
 
 
-SCHEMA_FILES = [
-    '.taskfiles/template/resources/cluster.schema.cue',
-    '.taskfiles/template/resources/nodes.schema.cue',
-]
-CONFIG_FILES = ['cluster.yaml', 'nodes.yaml']
-
-
-# Render the user config through CUE so schema-declared defaults are applied.
-def cue_export(config_files: list[str], schema_files: list[str]) -> dict[str, Any]:
-    result = subprocess.run(
-        ['cue', 'export', '--out', 'json', *config_files, *schema_files],
-        capture_output=True, check=True, text=True,
-    )
-    return json.loads(result.stdout)
-
-
 class Plugin(makejinja.plugin.Plugin):
     def __init__(self, data: dict[str, Any]):
         self._data = data
 
 
     def data(self) -> makejinja.plugin.Data:
-        data = cue_export(CONFIG_FILES, SCHEMA_FILES)
-
-        # node_default_gateway requires CIDR arithmetic, which CUE cannot express.
-        data.setdefault('node_default_gateway', nthhost(data['node_cidr'], 1))
-
-        return data
+        # Defaults are applied upstream by `cue export` (see template:prepare-config).
+        # network.default_gateway is the one exception: CUE cannot express CIDR arithmetic.
+        network = self._data['network']
+        network.setdefault('default_gateway', nthhost(network['node_cidr'], 1))
+        return self._data
 
 
     def filters(self) -> makejinja.plugin.Filters:

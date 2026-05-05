@@ -1,0 +1,56 @@
+[network]
+node_cidr       = "10.10.10.0/24"
+default_gateway = "10.10.10.1"
+vlan_tag        = "100"
+dns_servers     = ["1.1.1.1"]
+ntp_servers     = ["162.159.200.123"]
+
+[kubernetes]
+pod_cidr = "10.42.0.0/16"
+svc_cidr = "10.43.0.0/16"
+
+[kubernetes.api]
+addr     = "10.10.10.254"
+tls_sans = ["example.com"]
+
+[gateways]
+internal = "10.10.10.252"
+dns      = "10.10.10.253"
+external = "10.10.10.251"
+
+[repository]
+name       = "onedr0p/cluster-template"
+branch     = "main"
+visibility = "public"
+
+[cloudflare]
+domain = "example.com"
+token  = "fake"
+
+[cilium]
+loadbalancer_mode = "dsr"
+
+[cilium.bgp]
+router_addr = "10.10.1.1"
+router_asn  = "64513"
+node_asn    = "64514"
+
+[[nodes]]
+name         = "k8s-0"
+address      = "10.10.10.100"
+controller   = true
+disk         = "/dev/sdfake"
+mac_addr     = "00:00:00:00:00:00"
+schematic_id = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+
+[[nodes]]
+name           = "k8s-1"
+address        = "10.10.10.101"
+controller     = false
+disk           = "/dev/sdfake"
+mac_addr       = "00:00:00:00:00:01"
+schematic_id   = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+mtu            = 1500
+secureboot     = true
+encrypt_disk   = true
+kernel_modules = ["nvidia", "nvidia_uvm"]

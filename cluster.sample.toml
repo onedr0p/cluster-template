@@ -1,0 +1,104 @@
+# ==============================================================================
+# Network
+# ==============================================================================
+[network]
+# (REQUIRED) The network CIDR for the nodes. e.g. "192.168.1.0/24"
+node_cidr = ""
+
+# (OPTIONAL) DNS / NTP servers (default: Cloudflare).
+# dns_servers = ["1.1.1.1", "1.0.0.1"]
+# ntp_servers = ["162.159.200.1", "162.159.200.123"]
+
+# (OPTIONAL) Default gateway for the nodes. Defaults to the first IP in node_cidr.
+# default_gateway = ""
+
+# (OPTIONAL) VLAN tag. Only needed if your switch ports are not already tagged.
+# REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
+# vlan_tag = ""
+
+
+# ==============================================================================
+# Kubernetes
+# ==============================================================================
+[kubernetes]
+# (OPTIONAL) Pod / service CIDRs. Must not overlap with each other or node_cidr.
+# pod_cidr = "10.42.0.0/16"
+# svc_cidr = "10.43.0.0/16"
+
+[kubernetes.api]
+# (REQUIRED) Kube API IP. Choose an unused IP in network.node_cidr.
+addr = ""
+# (OPTIONAL) Additional SANs for the Kube API cert.
+# tls_sans = ["mycluster.example.com"]
+
+
+# ==============================================================================
+# Gateways (k8s LoadBalancer IPs)
+# ==============================================================================
+[gateways]
+# (REQUIRED) Internal gateway load balancer IP.
+internal = ""
+# (REQUIRED) k8s_gateway DNS load balancer IP.
+dns = ""
+# (REQUIRED) External (cloudflared) gateway load balancer IP.
+external = ""
+
+
+# ==============================================================================
+# GitHub repository
+# ==============================================================================
+[repository]
+# (REQUIRED) e.g. "onedr0p/cluster-template"
+name = ""
+# (OPTIONAL) default: "main"
+# branch = "main"
+# (OPTIONAL) "public" or "private". See README when private.
+# visibility = "public"
+
+
+# ==============================================================================
+# Cloudflare
+# ==============================================================================
+[cloudflare]
+# (REQUIRED) Domain you wish to use, e.g. "example.com"
+domain = ""
+# (REQUIRED) API token. See README.
+token = ""
+
+
+# ==============================================================================
+# Cilium
+# ==============================================================================
+[cilium]
+# (OPTIONAL) "dsr" or "snat".
+# REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
+# loadbalancer_mode = "dsr"
+
+# Set ALL three fields below to enable BGP.
+# REF: https://docs.cilium.io/en/latest/network/bgp-control-plane/bgp-control-plane/
+[cilium.bgp]
+# router_addr = "192.168.1.1"
+# router_asn  = "64513"
+# node_asn    = "64514"
+
+
+# ==============================================================================
+# Nodes
+# ==============================================================================
+# Add one [[nodes]] table per machine.
+# Get disk + mac with: `talosctl get disks -n <ip> --insecure` / `talosctl get links -n <ip> --insecure`
+# Get schematic_id from https://factory.talos.dev/
+
+# [[nodes]]
+# name         = ""        # required, [a-z0-9-]+
+# address      = ""        # required, must be in network.node_cidr
+# controller   = true      # required, true for control-plane nodes
+# disk         = ""        # required, e.g. "/dev/nvme0n1"
+# mac_addr     = ""        # required, e.g. "aa:bb:cc:dd:ee:ff"
+# schematic_id = ""        # required, 64 hex chars from factory.talos.dev
+
+# Optional advanced fields:
+# mtu            = 1500
+# secureboot     = false
+# encrypt_disk   = false
+# kernel_modules = ["nvidia", "nvidia_uvm"]

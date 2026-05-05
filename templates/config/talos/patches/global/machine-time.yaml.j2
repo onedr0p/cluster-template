@@ -2,6 +2,6 @@ machine:
   time:
     disabled: false
     servers:
-      #% for item in node_ntp_servers %#
+      #% for item in network.ntp_servers %#
       - #{ item }#
       #% endfor %#

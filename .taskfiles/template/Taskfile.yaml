@@ -5,8 +5,9 @@ vars:
   MAKEJINJA_CONFIG_FILE: '{{.ROOT_DIR}}/makejinja.toml'
   TEMPLATE_DIR: '{{.ROOT_DIR}}/templates'
   TEMPLATE_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/template/resources'
-  TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/cluster.yaml'
-  TEMPLATE_NODE_CONFIG_FILE: '{{.ROOT_DIR}}/nodes.yaml'
+  TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/cluster.toml'
+  TEMPLATE_SCHEMA_FILE: '{{.TEMPLATE_RESOURCES_DIR}}/config.schema.cue'
+  RENDERED_CONFIG_FILE: '{{.PRIVATE_DIR}}/config.yaml'
 
 tasks:
 
@@ -21,11 +22,9 @@ tasks:
   generate-template-config:
     internal: true
     cmds:
-      - mv {{.TEMPLATE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_CONFIG_FILE}}
-      - mv {{.TEMPLATE_NODE_CONFIG_FILE | replace ".yaml" ".sample.yaml"}} {{.TEMPLATE_NODE_CONFIG_FILE}}
+      - cp {{.TEMPLATE_CONFIG_FILE | replace ".toml" ".sample.toml"}} {{.TEMPLATE_CONFIG_FILE}}
     status:
       - test -f {{.TEMPLATE_CONFIG_FILE}}
-      - test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
 
   generate-age-key:
     internal: true
@@ -45,35 +44,34 @@ tasks:
 
   generate-push-token:
     internal: true
-    cmd: python -c "import secrets; print(secrets.token_hex(16))" > {{.ROOT_DIR}}/github-push-token.txt
+    cmd: openssl rand -hex 16 > {{.ROOT_DIR}}/github-push-token.txt
     status:
       - test -f {{.ROOT_DIR}}/github-push-token.txt
+    preconditions:
+      - which openssl
 
   :configure:
     desc: Render and validate configuration files
     prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
     cmds:
-      - task: validate-schemas
+      - task: prepare-config
       - task: render-configs
       - task: encrypt-secrets
       - task: validate-kubernetes-config
       - task: validate-talos-config
     preconditions:
-      - msg: File cluster.yaml not found, did you run `task init`?
+      - msg: File cluster.toml not found, did you run `task init`?
         sh: test -f {{.TEMPLATE_CONFIG_FILE}}
-      - msg: File nodes.yaml not found, did you run `task init`?
-        sh: test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
       - msg: File cloudflare-tunnel.json not found, see the README for information on creating it.
         sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
 
-  validate-schemas:
+  prepare-config:
     internal: true
     cmds:
-      - cue vet {{.TEMPLATE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/cluster.schema.cue
-      - cue vet {{.TEMPLATE_NODE_CONFIG_FILE}} {{.TEMPLATE_RESOURCES_DIR}}/nodes.schema.cue
+      - mkdir -p {{.PRIVATE_DIR}}
+      - cue export {{.TEMPLATE_CONFIG_FILE}} {{.TEMPLATE_SCHEMA_FILE}} --out yaml --outfile {{.RENDERED_CONFIG_FILE}} --force
     preconditions:
-      - test -f {{.TEMPLATE_RESOURCES_DIR}}/cluster.schema.cue
-      - test -f {{.TEMPLATE_RESOURCES_DIR}}/nodes.schema.cue
+      - test -f {{.TEMPLATE_SCHEMA_FILE}}
       - which cue
 
   render-configs:
@@ -141,8 +139,7 @@ tasks:
         {{.SED}} -i 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.renovaterc.json5
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.TIDY_FOLDER}}/makejinja.toml
-      - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/cluster.yaml
-      - mv {{.TEMPLATE_NODE_CONFIG_FILE}} {{.TIDY_FOLDER}}/nodes.yaml
+      - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/cluster.toml
       - |
         {{.SED}} -i '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/
@@ -168,4 +165,5 @@ tasks:
       - rm -rf {{.BOOTSTRAP_DIR}}
       - rm -rf {{.KUBERNETES_DIR}}
       - rm -rf {{.TALOS_DIR}}
+      - rm -rf {{.RENDERED_CONFIG_FILE}}
       - rm -rf {{.ROOT_DIR}}/.sops.yaml

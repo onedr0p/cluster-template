@@ -4,17 +4,17 @@ clusterName: kubernetes
 talosVersion: "${talosVersion}"
 kubernetesVersion: "${kubernetesVersion}"
 
-endpoint: https://#{ cluster_api_addr }#:6443
+endpoint: https://#{ kubernetes.api.addr }#:6443
 additionalApiServerCertSans: &sans
   - "127.0.0.1"
-  - "#{ cluster_api_addr }#"
-  #% for item in cluster_api_tls_sans %#
+  - "#{ kubernetes.api.addr }#"
+  #% for item in kubernetes.api.tls_sans %#
   - "#{ item }#"
   #% endfor %#
 additionalMachineCertSans: *sans
 
-clusterPodNets: ["#{ cluster_pod_cidr }#"]
-clusterSvcNets: ["#{ cluster_svc_cidr }#"]
+clusterPodNets: ["#{ kubernetes.pod_cidr }#"]
+clusterSvcNets: ["#{ kubernetes.svc_cidr }#"]
 
 # Disable built-in CNI to use Cilium
 cniConfig:
@@ -37,30 +37,30 @@ nodes:
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "#{ item.mac_addr | lower }#"
-        #% if node_vlan_tag %#
+        #% if network.vlan_tag %#
         vlans:
-          - vlanId: #{ node_vlan_tag }#
+          - vlanId: #{ network.vlan_tag }#
             addresses:
-              - "#{ item.address }#/#{ node_cidr.split('/') | last }#"
+              - "#{ item.address }#/#{ network.node_cidr.split('/') | last }#"
             mtu: #{ item.mtu | default(1500, true) }#
             routes:
-              - gateway: "#{ node_default_gateway }#"
+              - gateway: "#{ network.default_gateway }#"
                 network: 0.0.0.0/0
             #% if item.controller %#
             vip:
-              ip: "#{ cluster_api_addr }#"
+              ip: "#{ kubernetes.api.addr }#"
             #% endif %#
         #% else %#
         dhcp: false
         addresses:
-          - "#{ item.address }#/#{ node_cidr.split('/') | last }#"
+          - "#{ item.address }#/#{ network.node_cidr.split('/') | last }#"
         routes:
-          - gateway: "#{ node_default_gateway }#"
+          - gateway: "#{ network.default_gateway }#"
             network: 0.0.0.0/0
         mtu: #{ item.mtu | default(1500, true) }#
         #% if item.controller %#
         vip:
-          ip: "#{ cluster_api_addr }#"
+          ip: "#{ kubernetes.api.addr }#"
         #% endif %#
         #% endif %#
     #% if talos_patches('%s' % (item.name)) | length == 0 %#

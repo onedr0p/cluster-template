@@ -17,7 +17,7 @@ spec:
       create: true
     service:
       name: kube-dns
-      clusterIP: "#{ cluster_svc_cidr | nthhost(10) }#"
+      clusterIP: "#{ kubernetes.svc_cidr | nthhost(10) }#"
     replicaCount: 2
     servers:
       - zones:

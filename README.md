@@ -2,9 +2,9 @@
 
 Welcome to my template designed for deploying a single Kubernetes cluster. Whether you're setting up a cluster at home on bare-metal or virtual machines (VMs), this project aims to simplify the process and make Kubernetes more accessible. This template is inspired by my personal [home-ops](https://github.com/onedr0p/home-ops) repository, providing a practical starting point for anyone interested in managing their own Kubernetes environment.
 
-At its core, this project leverages [makejinja](https://github.com/mirkolenz/makejinja), a powerful tool for rendering templates. By reading configuration files—such as [cluster.yaml](./cluster.sample.yaml) and [nodes.yaml](./nodes.sample.yaml)—Makejinja generates the necessary configurations to deploy a Kubernetes cluster with the following features:
+At its core, this project leverages [makejinja](https://github.com/mirkolenz/makejinja), a powerful tool for rendering templates. By reading the [cluster.toml](./cluster.sample.toml) configuration file—validated and defaulted by [CUE](https://cuelang.org/)—Makejinja generates the necessary configurations to deploy a Kubernetes cluster with the following features:
 
-- Easy configuration through YAML files.
+- Easy configuration through a single TOML file.
 - Compatibility with home setups, whether on physical hardware or VMs.
 - A modular and extensible approach to cluster deployment and management.
 
@@ -126,7 +126,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     task init
     ```
 
-2. Fill out `cluster.yaml` and `nodes.yaml` configuration files using the comments in those file as a guide.
+2. Fill out the `cluster.toml` configuration file using the comments in it as a guide.
 
 3. Template out the kubernetes and talos configuration files, if any issues come up be sure to read the error and adjust your config files accordingly.
 
@@ -204,15 +204,15 @@ These guidelines provide a strong baseline, but there are always exceptions and 
    📍 _The variables are only placeholders, replace them with your actual values_
 
     ```sh
-    nmap -Pn -n -p 443 ${cluster_gateway_addr} ${cloudflare_gateway_addr} -vv
+    nmap -Pn -n -p 443 ${gateways_internal} ${gateways_external} -vv
     ```
 
-4. Check you can resolve DNS for `echo`, this should resolve to `${cloudflare_gateway_addr}`:
+4. Check you can resolve DNS for `echo`, this should resolve to `${gateways_external}`:
 
    📍 _The variables are only placeholders, replace them with your actual values_
 
     ```sh
-    dig @${cluster_dns_gateway_addr} echo.${cloudflare_domain}
+    dig @${gateways_dns} echo.${cloudflare_domain}
     ```
 
 5. Check the status of your wildcard `Certificate`:
@@ -233,7 +233,7 @@ The `external-dns` application created in the `network` namespace will handle cr
 > [!TIP]
 > Use the `envoy-internal` gateway on `HTTPRoutes` to make applications private to your network. If you're having trouble with internal DNS resolution check out [this](https://github.com/onedr0p/cluster-template/discussions/719) GitHub discussion.
 
-`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare_domain}` to `${cluster_dns_gateway_addr}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
+`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare_domain}` to `${gateways_dns}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
 _... Nothing working? That is expected, this is DNS after all!_
 
@@ -461,7 +461,6 @@ Check out these videos below. If you find them helpful, a like and subscribe goe
 If this repo is too hot to handle or too cold to hold check out these following projects.
 
 - [ajaykumar4/cluster-template](https://github.com/ajaykumar4/cluster-template) - _A template for deploying a Talos Kubernetes cluster including Argo for GitOps_
-- [khuedoan/homelab](https://github.com/khuedoan/homelab) - _Fully automated homelab from empty disk to running services with a single command._
 - [mitchross/k3s-argocd-starter](https://github.com/mitchross/k3s-argocd-starter) - starter kit for k3s, argocd
 - [ricsanfre/pi-cluster](https://github.com/ricsanfre/pi-cluster) - _Pi Kubernetes Cluster. Homelab kubernetes cluster automated with Ansible and FluxCD_
 - [techno-tim/k3s-ansible](https://github.com/techno-tim/k3s-ansible) - _The easiest way to bootstrap a self-hosted High Availability Kubernetes cluster. A fully automated HA k3s etcd install with kube-vip, MetalLB, and more. Build. Destroy. Repeat._

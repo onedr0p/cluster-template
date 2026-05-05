@@ -6,7 +6,7 @@ metadata:
 spec:
   allowFirstLastIPs: "No"
   blocks:
-    - cidr: "#{ node_cidr }#"
+    - cidr: "#{ network.node_cidr }#"
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy
@@ -60,12 +60,12 @@ spec:
     matchLabels:
       kubernetes.io/os: linux
   bgpInstances:
-    - name: instance-#{ cilium_bgp_node_asn }#
-      localASN: #{ cilium_bgp_node_asn }#
+    - name: instance-#{ cilium.bgp.node_asn }#
+      localASN: #{ cilium.bgp.node_asn }#
       peers:
-        - name: peer-#{ cilium_bgp_router_asn }#-v4
-          peerASN: #{ cilium_bgp_router_asn }#
-          peerAddress: #{ cilium_bgp_router_addr }#
+        - name: peer-#{ cilium.bgp.router_asn }#-v4
+          peerASN: #{ cilium.bgp.router_asn }#
+          peerAddress: #{ cilium.bgp.router_addr }#
           peerConfigRef:
             name: bgp-peer-config-v4
 #% endif %#
