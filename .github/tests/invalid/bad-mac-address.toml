@@ -1,0 +1,27 @@
+# Negative fixture: malformed MAC address (uppercase + missing colons).
+# Expected to be rejected by the #Node.mac_addr regex constraint.
+[network]
+node_cidr = "10.10.10.0/24"
+
+[kubernetes.api]
+addr = "10.10.10.254"
+
+[gateways]
+internal = "10.10.10.252"
+dns      = "10.10.10.253"
+external = "10.10.10.251"
+
+[repository]
+name = "onedr0p/cluster-template"
+
+[cloudflare]
+domain = "example.com"
+token  = "fake"
+
+[[nodes]]
+name         = "k8s-0"
+address      = "10.10.10.100"
+controller   = true
+disk         = "/dev/sdfake"
+mac_addr     = "AABBCCDDEEFF"
+schematic_id = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"

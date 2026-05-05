@@ -13,14 +13,50 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  configure:
+  validate-invalid:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
-    name: configure
+    name: reject-invalid (${{ matrix.fixture }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        config-files:
+        fixture:
+          - overlapping-cidrs
+          - duplicate-gateway-addrs
+          - duplicate-node-names
+          - reserved-node-name
+          - bad-mac-address
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup mise
+        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          cache: false
+
+      - name: Assert schema rejects ${{ matrix.fixture }}.toml
+        run: |
+          fixture=./.github/tests/invalid/${{ matrix.fixture }}.toml
+          schema=./.taskfiles/template/resources/config.schema.cue
+          if cue export "$fixture" "$schema" --out yaml >/dev/null 2>&1; then
+            echo "::error::schema accepted invalid fixture ${{ matrix.fixture }} (expected rejection)"
+            exit 1
+          fi
+          echo "schema correctly rejected ${{ matrix.fixture }}"
+          # Also surface the actual error message in the log for debuggability.
+          cue export "$fixture" "$schema" --out yaml || true
+
+  validate-valid:
+    if: ${{ github.repository == 'onedr0p/cluster-template' }}
+    name: accept-valid (${{ matrix.fixture }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        fixture:
           - public
           - private
     steps:
@@ -39,7 +75,7 @@ jobs:
 
       - name: Prepare files
         run: |
-          cp ./.github/tests/${{ matrix.config-files }}.toml cluster.toml
+          cp ./.github/tests/valid/${{ matrix.fixture }}.toml cluster.toml
           echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflare-tunnel.json
           touch kubeconfig
 

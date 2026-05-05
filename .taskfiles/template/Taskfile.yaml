@@ -7,7 +7,6 @@ vars:
   TEMPLATE_RESOURCES_DIR: '{{.ROOT_DIR}}/.taskfiles/template/resources'
   TEMPLATE_CONFIG_FILE: '{{.ROOT_DIR}}/cluster.toml'
   TEMPLATE_SCHEMA_FILE: '{{.TEMPLATE_RESOURCES_DIR}}/config.schema.cue'
-  RENDERED_CONFIG_FILE: '{{.PRIVATE_DIR}}/config.yaml'
 
 tasks:
 
@@ -54,7 +53,6 @@ tasks:
     desc: Render and validate configuration files
     prompt: Any conflicting files in the kubernetes directory will be overwritten... continue?
     cmds:
-      - task: prepare-config
       - task: render-configs
       - task: encrypt-secrets
       - task: validate-kubernetes-config
@@ -65,24 +63,16 @@ tasks:
       - msg: File cloudflare-tunnel.json not found, see the README for information on creating it.
         sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
 
-  prepare-config:
-    internal: true
-    cmds:
-      - mkdir -p {{.PRIVATE_DIR}}
-      - cue export {{.TEMPLATE_CONFIG_FILE}} {{.TEMPLATE_SCHEMA_FILE}} --out yaml --outfile {{.RENDERED_CONFIG_FILE}} --force
-    preconditions:
-      - test -f {{.TEMPLATE_SCHEMA_FILE}}
-      - which cue
-
   render-configs:
     internal: true
     cmd: makejinja
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     preconditions:
+      - test -f {{.TEMPLATE_SCHEMA_FILE}}
       - test -f {{.TEMPLATE_DIR}}/scripts/plugin.py
       - test -f {{.MAKEJINJA_CONFIG_FILE}}
-      - which makejinja
+      - which cue makejinja
 
   encrypt-secrets:
     internal: true
@@ -133,13 +123,13 @@ tasks:
       - mkdir -p {{.TIDY_FOLDER}}
       - rm -rf {{.ROOT_DIR}}/.github/tests
       - rm -rf {{.ROOT_DIR}}/.github/workflows/e2e.yaml
-      - rm -rf {{.ROOT_DIR}}/.github/workflows/mise.yaml
       - rm -rf {{.ROOT_DIR}}/.github/workflows/release.yaml
       - |
         {{.SED}} -i 's/(..\.j2)\?//g' {{.ROOT_DIR}}/.renovaterc.json5
       - mv {{.TEMPLATE_DIR}} {{.TIDY_FOLDER}}/templates
       - mv {{.MAKEJINJA_CONFIG_FILE}} {{.TIDY_FOLDER}}/makejinja.toml
       - mv {{.TEMPLATE_CONFIG_FILE}} {{.TIDY_FOLDER}}/cluster.toml
+      - mv {{.TEMPLATE_CONFIG_FILE | replace ".toml" ".sample.toml"}} {{.TIDY_FOLDER}}/cluster.sample.toml
       - |
         {{.SED}} -i '/template:/d' {{.ROOT_DIR}}/Taskfile.yaml
       - mv {{.ROOT_DIR}}/.taskfiles/template {{.TIDY_FOLDER}}/.taskfiles/
@@ -165,5 +155,4 @@ tasks:
       - rm -rf {{.BOOTSTRAP_DIR}}
       - rm -rf {{.KUBERNETES_DIR}}
       - rm -rf {{.TALOS_DIR}}
-      - rm -rf {{.RENDERED_CONFIG_FILE}}
       - rm -rf {{.ROOT_DIR}}/.sops.yaml

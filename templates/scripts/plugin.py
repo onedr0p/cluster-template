@@ -6,6 +6,7 @@ import ipaddress
 import json
 import makejinja
 import re
+import subprocess
 
 
 # Return the filename of a path without the j2 extension
@@ -120,17 +121,34 @@ def talos_patches(value: str) -> list[str]:
     return [str(f) for f in sorted(path.glob('*.yaml.j2')) if f.is_file()]
 
 
+CONFIG_FILE = 'cluster.toml'
+SCHEMA_FILE = '.taskfiles/template/resources/config.schema.cue'
+
+
+# Run `cue export` to validate and apply schema defaults to the user's config.
+def cue_export() -> dict[str, Any]:
+    try:
+        result = subprocess.run(
+            ['cue', 'export', CONFIG_FILE, SCHEMA_FILE, '--out', 'json'],
+            capture_output=True, check=True, text=True,
+        )
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"cue export failed:\n{e.stderr}") from None
+    return json.loads(result.stdout)
+
+
 class Plugin(makejinja.plugin.Plugin):
     def __init__(self, data: dict[str, Any]):
         self._data = data
 
 
     def data(self) -> makejinja.plugin.Data:
-        # Defaults are applied upstream by `cue export` (see template:prepare-config).
-        # network.default_gateway is the one exception: CUE cannot express CIDR arithmetic.
-        network = self._data['network']
+        data = cue_export()
+        # network.default_gateway is the one default CUE cannot express
+        # (no CIDR arithmetic in CUE's stdlib).
+        network = data['network']
         network.setdefault('default_gateway', nthhost(network['node_cidr'], 1))
-        return self._data
+        return data
 
 
     def filters(self) -> makejinja.plugin.Filters:

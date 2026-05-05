@@ -14,30 +14,37 @@ import (
 	cilium:     #Cilium
 	nodes: [...#Node]
 
-	// ---- Derived (computed; not user-settable) ----
 	spegel_enabled:     bool | *(len(nodes) > 1)
 	cilium_bgp_enabled: cilium.bgp.router_addr != "" && cilium.bgp.router_asn != "" && cilium.bgp.node_asn != ""
 
-	// ---- Cross-cutting uniqueness ----
-	_cidrs_check: list.UniqueItems() & [
-		network.node_cidr, kubernetes.pod_cidr, kubernetes.svc_cidr,
-	]
+	// Pairwise CIDR uniqueness. We can't use list.UniqueItems on these because
+	// kubernetes.pod_cidr/svc_cidr are defaulted disjunctions (`*"…" | net.IPCIDR`),
+	// and CUE evaluates the list constraint against the unresolved disjunction —
+	// so the defaulted values silently slip through. Pairwise `!=` works.
+	network: node_cidr: !=kubernetes.pod_cidr & !=kubernetes.svc_cidr
+	kubernetes: pod_cidr: !=network.node_cidr & !=kubernetes.svc_cidr
+	kubernetes: svc_cidr: !=network.node_cidr & !=kubernetes.pod_cidr
+
 	_addrs_check: list.UniqueItems() & [
 		kubernetes.api.addr, gateways.internal, gateways.dns, gateways.external,
 	]
+
 	_node_name_check: list.UniqueItems() & [for n in nodes {n.name}]
 	_node_addr_check: list.UniqueItems() & [for n in nodes {n.address}]
 	_node_mac_check:  list.UniqueItems() & [for n in nodes {n.mac_addr}]
+
+	network: dns_servers: *["1.1.1.1", "1.0.0.1"] | _
+	network: ntp_servers: *["162.159.200.1", "162.159.200.123"] | _
 }
 
 #Network: {
 	// The network CIDR for the nodes.
 	// e.g. "192.168.1.0/24"
 	node_cidr: net.IPCIDR
-	// DNS servers to use for the cluster.
-	dns_servers: *["1.1.1.1", "1.0.0.1"] | [...net.IPv4]
-	// NTP servers to use for the cluster.
-	ntp_servers: *["162.159.200.1", "162.159.200.123"] | [...net.IPv4]
+	// DNS servers to use for the cluster (default: ["1.1.1.1", "1.0.0.1"]).
+	dns_servers: [...net.IPv4]
+	// NTP servers to use for the cluster (default: ["162.159.200.1", "162.159.200.123"]).
+	ntp_servers: [...net.IPv4]
 	// The default gateway for the nodes (defaults to the first IP in node_cidr).
 	default_gateway?: net.IPv4 & !=""
 	// VLAN tag for the Talos nodes (rare).
