@@ -40,7 +40,7 @@ jobs:
       - name: Assert schema rejects ${{ matrix.fixture }}.toml
         run: |
           fixture=./.github/tests/invalid/${{ matrix.fixture }}.toml
-          schema=./.taskfiles/template/resources/config.schema.cue
+          schema=./template/resources/config.schema.cue
           if cue export "$fixture" "$schema" --out yaml >/dev/null 2>&1; then
             echo "::error::schema accepted invalid fixture ${{ matrix.fixture }} (expected rejection)"
             exit 1
@@ -70,8 +70,8 @@ jobs:
         with:
           cache: false
 
-      - name: Run init task
-        run: task init
+      - name: Run init recipe
+        run: just init
 
       - name: Prepare files
         run: |
@@ -79,28 +79,28 @@ jobs:
           echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflare-tunnel.json
           touch kubeconfig
 
-      - name: Run configure task
-        run: task configure --yes
+      - name: Run configure recipe
+        run: just configure
 
-      - name: Run generate talconfig task
+      - name: Run generate talconfig recipe
         run: |
           FILENAME=talos/talsecret.sops.yaml
           talhelper gensecret | sops --filename-override $FILENAME --encrypt /dev/stdin > $FILENAME
-          task talos:generate-config
+          just talos generate-config
 
       - name: Run flux-local test
         uses: docker://ghcr.io/allenporter/flux-local:v8.2.0@sha256:9c77739d8d7c71b808311693ea52d603d1ddb5190d3d4f23e47f6f33d5254602
         with:
           args: test --enable-helm --all-namespaces --path /github/workspace/kubernetes/flux/cluster -v
 
-      - name: Dry run bootstrap talos task
-        run: task bootstrap:talos --dry
+      - name: Dry run bootstrap talos recipe
+        run: just --dry-run bootstrap talos
 
-      - name: Dry run bootstrap apps task
-        run: task bootstrap:apps --dry
+      - name: Dry run bootstrap apps recipe
+        run: just --dry-run bootstrap apps
 
-      - name: Run reset task
-        run: task template:reset --yes
+      - name: Run reset recipe
+        run: yes | just template reset
 
-      - name: Run cleanup task
-        run: task template:tidy --yes
+      - name: Run tidy recipe
+        run: yes | just template tidy
