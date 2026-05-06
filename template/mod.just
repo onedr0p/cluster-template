@@ -29,10 +29,11 @@ configure: configure-preconditions render encrypt-secrets validate-kubernetes va
 
 [doc('Gather common resources in your cluster')]
 [group('ops')]
+[script]
 debug:
     test -f "$KUBECONFIG" || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
-    for r in certificates certificaterequests gitrepositories helmrepositories helmreleases httproutes kustomizations nodes pods; do \
-        kubectl get --all-namespaces "$r"; \
+    for r in certificates certificaterequests gitrepositories helmrepositories helmreleases httproutes kustomizations nodes pods; do
+        kubectl get --all-namespaces "$r"
     done
 
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
@@ -75,7 +76,7 @@ reset:
 [doc('Archive all template tooling under .private/<ts>/ (one-way, run after configure works)')]
 [group('ops')]
 [confirm("All template related config will be archived — continue? [y/N]")]
-tidy: tidy-preconditions tidy-strip-justfile tidy-strip-mise tidy-cleanup tidy-archive
+tidy: tidy-preconditions tidy-strip tidy-cleanup tidy-archive
 
 [private]
 configure-preconditions:
@@ -144,26 +145,23 @@ tidy-cleanup:
     rm -rf "{{ justfile_dir() }}/.venv"
 
 [private]
+[script]
 tidy-preconditions:
     test -d "{{ template_dir }}"
     test -f "{{ makejinja_config }}"
     test -f "{{ justfile_dir() }}/.renovaterc.json5"
-    if [ "$(uname)" = "Darwin" ] && ! command -v gsed >/dev/null; then \
-        just log error "Unsupported sed on macOS — run 'brew install gsed'"; exit 1; \
+    if [ "$(uname)" = "Darwin" ] && ! command -v gsed >/dev/null; then
+        just log error "Unsupported sed on macOS — run 'brew install gsed'"
+        exit 1
     fi
 
 [private]
 [script]
-tidy-strip-justfile:
+tidy-strip:
     SED="$(command -v gsed || command -v sed)"
-    "$SED" -i 's/(\..\.j2)\?//g' "{{ justfile_dir() }}/.renovaterc.json5"
+    "$SED" -i 's/(\..\.j2)\?//g'         "{{ justfile_dir() }}/.renovaterc.json5"
     "$SED" -i '/^# === template ===$/,$d' "{{ justfile_dir() }}/justfile"
-
-[private]
-[script]
-tidy-strip-mise:
-    SED="$(command -v gsed || command -v sed)"
-    "$SED" -i '/required:template/d' "{{ justfile_dir() }}/.mise.toml"
+    "$SED" -i '/required:template/d'      "{{ justfile_dir() }}/.mise.toml"
 
 [private]
 validate-kubernetes:
