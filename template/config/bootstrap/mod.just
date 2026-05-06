@@ -1,5 +1,6 @@
 set quiet
 set shell := ['bash', '-euo', 'pipefail', '-c']
+set unstable
 set script-interpreter := ['bash', '-euo', 'pipefail']
 
 bootstrap_dir  := justfile_dir() + '/bootstrap'
