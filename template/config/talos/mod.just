@@ -1,7 +1,6 @@
 set positional-arguments
 set quiet
 set shell := ['bash', '-euo', 'pipefail', '-c']
-set unstable
 set script-interpreter := ['bash', '-euo', 'pipefail']
 
 [private]

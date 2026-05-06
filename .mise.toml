@@ -4,6 +4,7 @@ KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_CONFIG = "{{config_root}}/.sops.yaml"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
+JUST_UNSTABLE = "1"
 
 [tools]
 "python" = "3.14.4" # required:template
@@ -11,7 +12,7 @@ TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
 "pipx" = "1.11.1" # required:template
 "pipx:makejinja" = "2.8.2" # required:template
 "aqua:budimanjojo/talhelper" = "3.1.9"
-"aqua:casey/just" = "1.43.0"
+"aqua:casey/just" = "1.50.0"
 "aqua:charmbracelet/gum" = "0.17.0"
 "aqua:cilium/cilium-cli" = "0.19.2"
 "aqua:cli/cli" = "2.92.0"
