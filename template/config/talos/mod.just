@@ -9,9 +9,6 @@ default:
 [doc('Apply Talos config to a node')]
 [group('talos')]
 apply-node ip mode='auto':
-    talosctl --nodes "{{ ip }}" get machineconfig
-    talosctl config info
-    test -f "$TALOSCONFIG"
     talhelper gencommand apply --node "{{ ip }}" --extra-flags "--mode={{ mode }}" | bash
 
 [doc('Generate Talos configuration')]
@@ -19,28 +16,26 @@ apply-node ip mode='auto':
 generate-config:
     talhelper genconfig
 
-[doc('Reset nodes back to maintenance mode (DESTRUCTIVE)')]
+[doc('Reset all nodes back to maintenance mode (DESTRUCTIVE)')]
 [group('talos')]
-[confirm("This will destroy your cluster and reset nodes to maintenance mode — continue? [y/N]")]
+[confirm("This will destroy your cluster and reset all nodes to maintenance mode — continue? [y/N]")]
 reset:
     talhelper gencommand reset \
+        --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+
+[doc('Reset a single node back to maintenance mode (DESTRUCTIVE)')]
+[group('talos')]
+[confirm("This will reset the specified node to maintenance mode — continue? [y/N]")]
+reset-node ip:
+    talhelper gencommand reset --node "{{ ip }}" \
         --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
 [doc('Upgrade Kubernetes')]
 [group('talos')]
 upgrade-k8s:
-    talosctl config info
-    test -f "$TALOSCONFIG"
     talhelper gencommand upgrade-k8s --extra-flags "--to '$(yq '.kubernetesVersion' talenv.yaml)'" | bash
 
 [doc('Upgrade Talos on a single node')]
 [group('talos')]
-[script]
 upgrade-node ip:
-    talosctl --nodes "{{ ip }}" get machineconfig
-    talosctl config info
-    test -f "$TALOSCONFIG"
-    image="$(yq ".nodes[] | select(.ipAddress == \"{{ ip }}\") | .talosImageURL" talconfig.yaml)"
-    version="$(yq '.talosVersion' talenv.yaml)"
-    talhelper gencommand upgrade --node "{{ ip }}" \
-        --extra-flags "--image='${image}:${version}' --timeout=10m" | bash
+    talhelper gencommand upgrade --node "{{ ip }}" --extra-flags "--timeout=10m" | bash

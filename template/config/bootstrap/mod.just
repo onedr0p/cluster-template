@@ -12,7 +12,7 @@ default:
 
 [doc('Bootstrap apps into the Talos cluster (waits, namespaces, secrets, CRDs, helm sync)')]
 [group('bootstrap')]
-apps: apps-preconditions apps-wait-nodes apps-namespaces apps-secrets apps-crds apps-helm
+apps: apps-wait-nodes apps-namespaces apps-secrets apps-crds apps-helm
     just log info "Cluster is bootstrapped — Flux will start syncing the Git repository"
 
 [doc('Bootstrap the Talos cluster (gensecret, genconfig, apply, bootstrap, kubeconfig)')]
@@ -72,10 +72,6 @@ apps-namespaces:
             exit 1
         fi
     done
-
-[private]
-apps-preconditions:
-    test -f "$KUBECONFIG" || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
 
 [private]
 [script]

@@ -6,7 +6,7 @@ set script-interpreter := ['bash', '-euo', 'pipefail']
 mod? bootstrap 'bootstrap'
 
 [group('kubernetes')]
-mod? kubernetes 'kubernetes'
+mod? kube 'kubernetes'
 
 [group('talos')]
 mod? talos 'talos'

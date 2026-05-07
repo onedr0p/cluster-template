@@ -190,7 +190,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
 2. Check the status of Flux and if the Flux resources are up-to-date and in a ready state:
 
-   📍 _Run `just kubernetes reconcile` to force Flux to sync your Git repository state_
+   📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
 
     ```sh
     flux check
@@ -279,8 +279,8 @@ just talos reset
 # (Re)generate the Talos config
 just talos generate-config
 # Apply the config to the node
-just talos apply-node <ip> [mode]
-# e.g. just talos apply-node 10.10.10.10 auto
+just talos apply-node <ip>
+# e.g. just talos apply-node 10.10.10.10
 ```
 
 ### ⬆️ Updating Talos and Kubernetes versions
@@ -289,7 +289,11 @@ just talos apply-node <ip> [mode]
 > Ensure the `talosVersion` and `kubernetesVersion` in `talenv.yaml` are up-to-date with the version you wish to upgrade to.
 
 ```sh
-# Upgrade node to a newer Talos version
+# (Re)generate the Talos config
+just talos generate-config
+# Apply the config to the node
+just talos apply-node <ip>
+# e.g. just talos apply-node 10.10.10.10
 just talos upgrade-node <ip>
 # e.g. just talos upgrade-node 10.10.10.10
 ```
@@ -343,7 +347,7 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
 1. Check if the Flux resources are up-to-date and in a ready state:
 
-   📍 _Run `just kubernetes reconcile` to force Flux to sync your Git repository state_
+   📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
 
     ```sh
     flux get sources git -A
