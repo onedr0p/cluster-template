@@ -20,9 +20,7 @@ apps: apps-preconditions apps-wait-nodes apps-namespaces apps-secrets apps-crds 
 [script]
 [working-directory('../talos')]
 talos:
-    test -f "{{ justfile_dir() }}/.sops.yaml"
     test -f "$SOPS_AGE_KEY_FILE"
-    test -f talconfig.yaml
     if [ ! -f talsecret.sops.yaml ]; then
         just log info "Generating talsecret"
         talhelper gensecret \
@@ -42,11 +40,9 @@ talos:
 [script]
 apps-crds:
     helmfile_file="{{ bootstrap_dir }}/helmfile.d/00-crds.yaml"
-    test -f "$helmfile_file" || { just log error "Helmfile missing" file "$helmfile_file"; exit 1; }
     crds="$(helmfile --file "$helmfile_file" template --quiet \
         | yq eval-all --exit-status 'select(.kind == "CustomResourceDefinition")')" \
         || { just log error "Failed to render CRDs" file "$helmfile_file"; exit 1; }
-    [ -z "$crds" ] && { just log error "No CRDs rendered" file "$helmfile_file"; exit 1; }
     if echo "$crds" | kubectl diff --filename - &>/dev/null; then
         just log info "CRDs already up-to-date"
         exit 0
@@ -59,21 +55,12 @@ apps-crds:
     fi
 
 [private]
-[script]
 apps-helm:
-    helmfile_file="{{ bootstrap_dir }}/helmfile.d/01-apps.yaml"
-    test -f "$helmfile_file" || { just log error "Helmfile missing" file "$helmfile_file"; exit 1; }
-    if helmfile --file "$helmfile_file" sync --hide-notes; then
-        just log info "Helm releases synced"
-    else
-        just log error "Failed to sync Helm releases"
-        exit 1
-    fi
+    helmfile --file "{{ bootstrap_dir }}/helmfile.d/01-apps.yaml" sync --hide-notes
 
 [private]
 [script]
 apps-namespaces:
-    test -d "{{ kubernetes_dir }}/apps" || { just log error "kubernetes/apps directory missing"; exit 1; }
     for app in "{{ kubernetes_dir }}/apps"/*/; do
         ns="$(basename "$app")"
         if kubectl get namespace "$ns" &>/dev/null; then
@@ -89,9 +76,8 @@ apps-namespaces:
 
 [private]
 apps-preconditions:
-    test -f "$KUBECONFIG"      || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
+    test -f "$KUBECONFIG"   || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
     test -f "$SOPS_AGE_KEY_FILE"
-    test -f "{{ justfile_dir() }}/.sops.yaml"
 
 [private]
 [script]
@@ -102,10 +88,6 @@ apps-secrets:
         "{{ kubernetes_dir }}/components/sops/cluster-secrets.sops.yaml"
     do
         name="$(basename "$secret" .sops.yaml)"
-        if [ ! -f "$secret" ]; then
-            just log warn "Secret file missing, skipping" resource "$name"
-            continue
-        fi
         if sops exec-file "$secret" \
                 "kubectl --namespace flux-system diff --filename {}" &>/dev/null; then
             just log info "Secret already up-to-date" resource "$name"

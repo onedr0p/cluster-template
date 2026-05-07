@@ -17,8 +17,6 @@ apply-node ip mode='auto':
 [doc('Generate Talos configuration')]
 [group('talos')]
 generate-config:
-    test -f talconfig.yaml
-    test -f "{{ justfile_dir() }}/.sops.yaml"
     test -f "$SOPS_AGE_KEY_FILE"
     talhelper genconfig
 

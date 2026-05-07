@@ -4,7 +4,7 @@ set script-interpreter := ['bash', '-euo', 'pipefail']
 
 [private]
 default:
-    just kubernetes -l
+    just kube -l
 
 [doc('Force Flux to pull in changes from your Git repository')]
 [group('kubernetes')]
