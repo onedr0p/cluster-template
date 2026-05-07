@@ -80,7 +80,7 @@ reset:
 [doc('Archive all template tooling under .private/<ts>/ (one-way, run after configure works)')]
 [group('template')]
 [confirm("All template related config will be archived — continue? [y/N]")]
-tidy: tidy-preconditions tidy-strip tidy-cleanup tidy-archive
+tidy: tidy-preconditions tidy-strip tidy-archive
 
 [private]
 configure-preconditions:
@@ -120,33 +120,23 @@ tidy-archive:
     TIDY_FOLDER="{{ private_dir }}/$(date +%s)"
     mkdir -p "$TIDY_FOLDER"
     rm -rf "{{ justfile_dir() }}/.github/tests" "{{ justfile_dir() }}/.github/workflows/e2e.yaml" "{{ justfile_dir() }}/.github/workflows/release.yaml"
-    mv "{{ template_dir }}"        "$TIDY_FOLDER/template"
-    mv "{{ makejinja_config }}"    "$TIDY_FOLDER/makejinja.toml"
-    mv "{{ config_file }}"         "$TIDY_FOLDER/cluster.toml"
-    mv "{{ sample_config_file }}"  "$TIDY_FOLDER/cluster.sample.toml"
+    mv "{{ template_dir }}"         "$TIDY_FOLDER/template"
+    mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
+    mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
+    mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
+    mv "{{ justfile_dir() }}/.venv" "$TIDY_FOLDER/venv"
 
 [private]
-tidy-cleanup:
-    rm -rf "{{ justfile_dir() }}/.venv"
-
-[private]
-[script]
 tidy-preconditions:
     test -d "{{ template_dir }}"
     test -f "{{ makejinja_config }}"
     test -f "{{ justfile_dir() }}/.renovaterc.json5"
-    if [ "$(uname)" = "Darwin" ] && ! command -v gsed >/dev/null; then
-        just log error "Unsupported sed on macOS — run 'brew install gsed'"
-        exit 1
-    fi
 
 [private]
-[script]
 tidy-strip:
-    SED="$(command -v gsed || command -v sed)"
-    "$SED" -i 's/(\..\.j2)\?//g'         "{{ justfile_dir() }}/.renovaterc.json5"
-    "$SED" -i '/^# === template ===$/,$d' "{{ justfile_dir() }}/justfile"
-    "$SED" -i '/required:template/d'      "{{ justfile_dir() }}/.mise.toml"
+    sd '\..\.j2'                       '' "{{ justfile_dir() }}/.renovaterc.json5"
+    sd '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
+    sd '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise.toml"
 
 [private]
 validate-kubernetes:
