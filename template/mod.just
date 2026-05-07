@@ -27,15 +27,6 @@ default:
 [group('template')]
 configure: configure-preconditions render encrypt-secrets validate-kubernetes validate-talos
 
-[doc('Gather common resources in your cluster')]
-[group('template')]
-[script]
-debug:
-    test -f "$KUBECONFIG" || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
-    for r in certificates certificaterequests gitrepositories helmrepositories helmreleases httproutes kustomizations nodes pods; do
-        kubectl get --all-namespaces "$r"
-    done
-
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
 [group('template')]
 [no-exit-message]
@@ -124,7 +115,7 @@ tidy-archive:
     mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
     mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
     mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
-    mv "{{ justfile_dir() }}/.venv" "$TIDY_FOLDER/venv"
+    mv "{{ justfile_dir() }}/.venv" "$TIDY_FOLDER/.venv"
 
 [private]
 tidy-preconditions:
