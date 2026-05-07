@@ -24,11 +24,11 @@ default:
     just template -l
 
 [doc('Render and validate configuration files')]
-[group('configure')]
+[group('template')]
 configure: configure-preconditions render encrypt-secrets validate-kubernetes validate-talos
 
 [doc('Gather common resources in your cluster')]
-[group('ops')]
+[group('template')]
 [script]
 debug:
     test -f "$KUBECONFIG" || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
@@ -37,7 +37,7 @@ debug:
     done
 
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
-[group('setup')]
+[group('template')]
 [no-exit-message]
 [script]
 doctor:
@@ -64,17 +64,21 @@ doctor:
     exit "$rc"
 
 [doc('Initialize configuration files (cluster.toml, age key, deploy key, push token)')]
-[group('setup')]
-init: init-config init-age-key init-deploy-key init-push-token
+[group('template')]
+init:
+    [ -f "{{ config_file }}" ]     || cp "{{ sample_config_file }}" "{{ config_file }}"
+    [ -f "$SOPS_AGE_KEY_FILE" ]    || age-keygen --output "$SOPS_AGE_KEY_FILE"
+    [ -f "{{ deploy_key }}" ]      || ssh-keygen -t ed25519 -C "deploy-key" -f "{{ deploy_key }}" -q -P ""
+    [ -f "{{ push_token_file }}" ] || openssl rand -hex 16 > "{{ push_token_file }}"
 
 [doc('Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yaml)')]
-[group('ops')]
+[group('template')]
 [confirm("Remove all templated files and directories — continue? [y/N]")]
 reset:
     rm -rf "{{ bootstrap_dir }}" "{{ kubernetes_dir }}" "{{ talos_dir }}" "{{ justfile_dir() }}/.sops.yaml"
 
 [doc('Archive all template tooling under .private/<ts>/ (one-way, run after configure works)')]
-[group('ops')]
+[group('template')]
 [confirm("All template related config will be archived — continue? [y/N]")]
 tidy: tidy-preconditions tidy-strip tidy-cleanup tidy-archive
 
@@ -105,22 +109,6 @@ encrypt-secrets:
                 sops --encrypt --in-place "$f"
             fi
         done
-
-[private]
-init-age-key:
-    [ -f "$SOPS_AGE_KEY_FILE" ] || age-keygen --output "$SOPS_AGE_KEY_FILE"
-
-[private]
-init-config:
-    [ -f "{{ config_file }}" ] || cp "{{ sample_config_file }}" "{{ config_file }}"
-
-[private]
-init-deploy-key:
-    [ -f "{{ deploy_key }}" ] || ssh-keygen -t ed25519 -C "deploy-key" -f "{{ deploy_key }}" -q -P ""
-
-[private]
-init-push-token:
-    [ -f "{{ push_token_file }}" ] || openssl rand -hex 16 > "{{ push_token_file }}"
 
 [private]
 render:
