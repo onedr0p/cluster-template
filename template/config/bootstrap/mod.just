@@ -20,7 +20,6 @@ apps: apps-preconditions apps-wait-nodes apps-namespaces apps-secrets apps-crds 
 [script]
 [working-directory('../talos')]
 talos:
-    test -f "$SOPS_AGE_KEY_FILE"
     if [ ! -f talsecret.sops.yaml ]; then
         just log info "Generating talsecret"
         talhelper gensecret \
@@ -76,8 +75,7 @@ apps-namespaces:
 
 [private]
 apps-preconditions:
-    test -f "$KUBECONFIG"   || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
-    test -f "$SOPS_AGE_KEY_FILE"
+    test -f "$KUBECONFIG" || { just log error "kubeconfig not found at $KUBECONFIG"; exit 1; }
 
 [private]
 [script]

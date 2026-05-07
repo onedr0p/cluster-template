@@ -17,7 +17,6 @@ apply-node ip mode='auto':
 [doc('Generate Talos configuration')]
 [group('talos')]
 generate-config:
-    test -f "$SOPS_AGE_KEY_FILE"
     talhelper genconfig
 
 [doc('Reset nodes back to maintenance mode (DESTRUCTIVE)')]

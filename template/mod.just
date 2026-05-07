@@ -84,7 +84,6 @@ tidy: tidy-preconditions tidy-strip tidy-cleanup tidy-archive
 
 [private]
 configure-preconditions:
-    test -f "{{ config_file }}"       || { just log error "cluster.toml not found, did you run 'just init'?"; exit 1; }
     test -f "{{ cloudflare_tunnel }}" || { just log error "cloudflare-tunnel.json not found — see README"; exit 1; }
 
 [private]
@@ -101,8 +100,6 @@ doctor-check label path:
 [private]
 [script]
 encrypt-secrets:
-    test -f "$SOPS_AGE_KEY_FILE"
-    test -f "$SOPS_CONFIG"
     find "{{ bootstrap_dir }}" "{{ kubernetes_dir }}" "{{ talos_dir }}" -type f -name '*.sops.*' -print0 \
         | while IFS= read -r -d '' f; do
             if [ "$(sops filestatus "$f" | jq '.encrypted')" = "false" ]; then
