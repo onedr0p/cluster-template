@@ -3,10 +3,10 @@ name: "e2e"
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["main"]
   pull_request:
     branches: ["main"]
-    paths-ignore:
-      - kubernetes/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -34,8 +34,6 @@ jobs:
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        with:
-          cache: false
 
       - name: Assert schema rejects ${{ matrix.fixture }}.toml
         run: |
@@ -67,8 +65,6 @@ jobs:
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        with:
-          cache: false
 
       - name: Run init recipe
         run: just init
