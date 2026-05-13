@@ -82,10 +82,6 @@ apps-secrets:
         "{{ kubernetes_dir }}/components/sops/cluster-secrets.sops.yaml"
     do
         name="$(basename "$secret" .sops.yaml)"
-        if [ ! -f "$secret" ]; then
-            just log info "Secret not applicable, skipping" resource "$name"
-            continue
-        fi
         if sops exec-file "$secret" \
                 "kubectl --namespace flux-system diff --filename {}" &>/dev/null; then
             just log info "Secret already up-to-date" resource "$name"
