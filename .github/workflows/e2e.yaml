@@ -78,12 +78,6 @@ jobs:
       - name: Run configure recipe
         run: just configure
 
-      - name: Run generate talconfig recipe
-        run: |
-          FILENAME=talos/talsecret.sops.yaml
-          talhelper gensecret | sops --filename-override $FILENAME --encrypt /dev/stdin > $FILENAME
-          just talos generate-config
-
       - name: Run flux-local test
         uses: docker://ghcr.io/allenporter/flux-local:v8.2.0@sha256:9c77739d8d7c71b808311693ea52d603d1ddb5190d3d4f23e47f6f33d5254602
         with:
@@ -91,6 +85,12 @@ jobs:
 
       - name: Dry run bootstrap talos recipe
         run: just --dry-run bootstrap talos
+
+      - name: Create talos secret
+        run: just bootstrap talos-secret
+
+      - name: Create talos config
+        run: just bootstrap talos-config
 
       - name: Dry run bootstrap apps recipe
         run: just --dry-run bootstrap apps
