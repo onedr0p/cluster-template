@@ -16,16 +16,16 @@ apply-node ip mode='auto':
 generate-config:
     talhelper genconfig
 
+[confirm("This will destroy your cluster and reset all nodes to maintenance mode — continue? [y/N]")]
 [doc('Reset all nodes back to maintenance mode (DESTRUCTIVE)')]
 [group('talos')]
-[confirm("This will destroy your cluster and reset all nodes to maintenance mode — continue? [y/N]")]
 reset:
     talhelper gencommand reset \
         --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
+[confirm("This will reset the specified node to maintenance mode — continue? [y/N]")]
 [doc('Reset a single node back to maintenance mode (DESTRUCTIVE)')]
 [group('talos')]
-[confirm("This will reset the specified node to maintenance mode — continue? [y/N]")]
 reset-node ip:
     talhelper gencommand reset --node "{{ ip }}" \
         --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
