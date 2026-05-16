@@ -60,6 +60,7 @@ apps-crds:
     fi
 
 [private]
+[script]
 apps-helm:
     just log info "Syncing helmfile"
     if ! helmfile --file "{{ source_directory() }}/helmfile.d/01-apps.yaml" sync --hide-notes; then
