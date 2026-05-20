@@ -453,6 +453,10 @@ url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/
 checksum = "sha256:4704f8b47582c1c52bf76a50b37178f7f7de17f892713794a8bf44b01b50e0ce"
 url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.7.1/kustomize_v5.7.1_windows_amd64.zip"
 
+[[tools.lefthook]]
+version = "2.1.8"
+backend = "aqua:evilmartians/lefthook"
+
 [[tools.pipx]]
 version = "1.12.0"
 backend = "aqua:pypa/pipx"
