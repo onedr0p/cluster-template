@@ -1,0 +1,17 @@
+[pre-commit]
+parallel = true
+
+[pre-commit.commands.format-just]
+run = "for f in {staged_files}; do just --justfile $f --fmt; done"
+glob = ["*.just", ".justfile"]
+stage_fixed = true
+
+[pre-commit.commands.format-mise]
+glob = [".mise.toml"]
+run = "mise fmt"
+stage_fixed = true
+
+[pre-commit.commands.format-yaml]
+run = "yamlfmt {staged_files}"
+glob = ["*.yml", "*.yaml"]
+stage_fixed = true

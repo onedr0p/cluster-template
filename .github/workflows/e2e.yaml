@@ -4,9 +4,11 @@ name: "e2e"
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches:
+      - "main"
   pull_request:
-    branches: ["main"]
+    branches:
+      - "main"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -63,8 +65,9 @@ jobs:
 
       - name: Setup mise
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          experimental: true
+          install_args: --locked
 
       - name: Run init recipe
         run: just init
