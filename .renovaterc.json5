@@ -35,6 +35,14 @@
       ignoreTests: true,
     },
     {
+      description: "Auto-merge Renovate Presents",
+      matchManagers: ["renovate-config"],
+      matchUpdateTypes: ["minor", "patch"],
+      automerge: true,
+      automergeType: "branch",
+      ignoreTests: true,
+    },
+    {
       matchUpdateTypes: ["major"],
       addLabels: ["type/major"],
     },
