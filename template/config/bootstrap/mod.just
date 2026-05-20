@@ -55,7 +55,7 @@ talos-kubeconfig:
 [script]
 apps-crds:
     just log info "Applying CRDs"
-    if ! helmfile --file "{{ source_directory() }}/helmfile.d/00-crds.yaml" template --quiet | yq eval-all --exit-status 'select(.kind == "CustomResourceDefinition")' | kubectl apply --server-side --force-conflicts --filename -; then
+    if ! helmfile --file "{{ source_directory() }}/helmfile/crds.yaml" template --quiet | yq eval-all --exit-status 'select(.kind == "CustomResourceDefinition")' | kubectl apply --server-side --force-conflicts --filename -; then
         just log fatal "Failed to apply crds"
     fi
 
@@ -63,7 +63,7 @@ apps-crds:
 [script]
 apps-helm:
     just log info "Syncing helmfile"
-    if ! helmfile --file "{{ source_directory() }}/helmfile.d/01-apps.yaml" sync --hide-notes; then
+    if ! helmfile --file "{{ source_directory() }}/helmfile/apps.yaml" sync --hide-notes; then
         just log fatal "Failed to sync helmfile"
     fi
 
