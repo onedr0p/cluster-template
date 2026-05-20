@@ -29,6 +29,7 @@ sops = "3.13.1"
 talhelper = "3.1.10"
 talosctl = "1.13.2"
 yq = "4.53.2"
+zizmor = "1.25.2"
 
 [hooks]
 postinstall = "lefthook install"

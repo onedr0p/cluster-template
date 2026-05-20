@@ -15,3 +15,7 @@ stage_fixed = true
 run = "yamlfmt {staged_files}"
 glob = ["*.yml", "*.yaml"]
 stage_fixed = true
+
+[pre-commit.commands.zizmor]
+glob = [".github/workflows/*.yaml", ".github/actions/**/action.yaml"]
+run = "zizmor --offline {staged_files}"
