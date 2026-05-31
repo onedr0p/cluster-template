@@ -8,14 +8,14 @@
 # After this bootstrap phase, Flux is ready to take over management of the
 # application stack and continue reconciling downstream state.
 
-bases:
-  - defaults.yaml
-
 helmDefaults:
   cleanupOnFail: true
   forceConflicts: true
   wait: true
   waitForJobs: true
+
+bases:
+  - default.yaml
 
 releases:
   - name: cilium

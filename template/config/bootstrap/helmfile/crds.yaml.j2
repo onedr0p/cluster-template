@@ -10,13 +10,13 @@
 # workloads that reference them, avoiding the need for dependsOn chains on nearly
 # every Kustomization that consumes a CRD-backed resource.
 
-bases:
-  - defaults.yaml
-
 helmDefaults:
   args:
     - --include-crds
     - --no-hooks
+
+bases:
+  - default.yaml
 
 releases:
   - name: cloudflare-dns
@@ -29,7 +29,7 @@ releases:
     inherit:
       - template: default
 
-  - name: kube-prometheus-stack
+  - name: prometheus-operator-crds
     namespace: observability
-    inherit:
-      - template: default
+    chart: oci://ghcr.io/prometheus-community/charts/prometheus-operator-crds
+    version: 29.0.0
