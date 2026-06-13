@@ -7,7 +7,7 @@ TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
 JUST_UNSTABLE = "1"
 
 [tools]
-python = "3.14.5"          # required:template
+python = "3.14.6"          # required:template
 uv = "0.11.19"             # required:template
 pipx = "1.14.0"            # required:template
 "pipx:makejinja" = "2.8.2" # required:template
