@@ -454,42 +454,42 @@ checksum = "sha256:8ec7f5e815e526d4622c06df0a7793d8cfb6eb1c74f816b46166097fef8b2
 url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1/kustomize_v5.8.1_windows_amd64.zip"
 
 [[tools.lefthook]]
-version = "2.1.8"
+version = "2.1.9"
 backend = "aqua:evilmartians/lefthook"
 
 [tools.lefthook."platforms.linux-arm64"]
-checksum = "sha256:2c0af40eb3209917733f72329abc2e91e51aa5fab85475ec515978c852c4d470"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.8/lefthook_2.1.8_Linux_aarch64.gz"
+checksum = "sha256:d1bae1c9c26b35270dd675c93c33cecead885368ed078b3976ec23cdcedd28e8"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_Linux_aarch64.gz"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.linux-arm64-musl"]
-checksum = "sha256:2c0af40eb3209917733f72329abc2e91e51aa5fab85475ec515978c852c4d470"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.8/lefthook_2.1.8_Linux_aarch64.gz"
+checksum = "sha256:d1bae1c9c26b35270dd675c93c33cecead885368ed078b3976ec23cdcedd28e8"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_Linux_aarch64.gz"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.linux-x64"]
-checksum = "sha256:15420bb2ce30ba5b71e242542b28f06447630011af924a3324ff63a0fee32f8c"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.8/lefthook_2.1.8_Linux_x86_64.gz"
+checksum = "sha256:e938f34bd05bafe1155888879a045ef4ee8cf5b4a56c9e5e9b0c2649f295636e"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_Linux_x86_64.gz"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.linux-x64-musl"]
-checksum = "sha256:15420bb2ce30ba5b71e242542b28f06447630011af924a3324ff63a0fee32f8c"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.8/lefthook_2.1.8_Linux_x86_64.gz"
+checksum = "sha256:e938f34bd05bafe1155888879a045ef4ee8cf5b4a56c9e5e9b0c2649f295636e"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_Linux_x86_64.gz"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.macos-arm64"]
-checksum = "sha256:911d530d68ba1495beb32009bf895e296208a556a030d254e8d5641823ba7a25"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.8/lefthook_2.1.8_MacOS_arm64.gz"
+checksum = "sha256:808f8ef81a61e01eb41c1a2951e5639804f2372dc6a484bbeff726406745c77f"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_MacOS_arm64.gz"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.macos-x64"]
-checksum = "sha256:5d95768cf7383e21e5320dc1b351671fca009bc44800ec2366f824f5540d354f"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.8/lefthook_2.1.8_MacOS_x86_64.gz"
+checksum = "sha256:371c3c75cb07a8cdf41295596d3981adc1f92dee7795001f7d471e1f36fe2a0e"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_MacOS_x86_64.gz"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.windows-x64"]
-checksum = "sha256:13cab0ebb26b89c66bbf53a658c4126bf34202a857412690bb61c14c530b1ecf"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.8/lefthook_2.1.8_Windows_x86_64.gz"
+checksum = "sha256:1f29681dfbc36b9bdde52139cca6c4668ea4d51fd81e9127a3b78f49369db67e"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_Windows_x86_64.gz"
 provenance = "github-attestations"
 
 [[tools.pipx]]
