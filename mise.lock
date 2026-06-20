@@ -35,36 +35,36 @@ url = "https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-wi
 provenance = "github-attestations"
 
 [[tools.cloudflared]]
-version = "2026.5.0"
+version = "2026.6.1"
 backend = "aqua:cloudflare/cloudflared"
 
 [tools.cloudflared."platforms.linux-arm64"]
-checksum = "sha256:2dc0945345677d27de3ae390a31c3b168866b48766da5f4cfd3fc473ce572303"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.5.0/cloudflared-linux-arm64"
+checksum = "sha256:59816ce9b16db71f5bc2a86d59b3632a96c8c3ee934bde2bc8641ee83a6070eb"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-linux-arm64"
 
 [tools.cloudflared."platforms.linux-arm64-musl"]
-checksum = "sha256:2dc0945345677d27de3ae390a31c3b168866b48766da5f4cfd3fc473ce572303"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.5.0/cloudflared-linux-arm64"
+checksum = "sha256:59816ce9b16db71f5bc2a86d59b3632a96c8c3ee934bde2bc8641ee83a6070eb"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-linux-arm64"
 
 [tools.cloudflared."platforms.linux-x64"]
-checksum = "sha256:0095e46fdc88855d801c4d304cb1f5dd4bd656116c47ab94c2ad0ae7cda1c7ec"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.5.0/cloudflared-linux-amd64"
+checksum = "sha256:5861a10a438fe8ddcfebb3b830f83966cbf193edafce0fe2eeb198fbae1f7a22"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-linux-amd64"
 
 [tools.cloudflared."platforms.linux-x64-musl"]
-checksum = "sha256:0095e46fdc88855d801c4d304cb1f5dd4bd656116c47ab94c2ad0ae7cda1c7ec"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.5.0/cloudflared-linux-amd64"
+checksum = "sha256:5861a10a438fe8ddcfebb3b830f83966cbf193edafce0fe2eeb198fbae1f7a22"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-linux-amd64"
 
 [tools.cloudflared."platforms.macos-arm64"]
-checksum = "sha256:116ef11a59fc4f31e7f1bcc4378070cd7ca053fa37b4484b1432bb150b358219"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.5.0/cloudflared-darwin-arm64.tgz"
+checksum = "sha256:f6d4c439c6c782b83264951d327989ce5e23373acc5942b872411601fedb020d"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-darwin-arm64.tgz"
 
 [tools.cloudflared."platforms.macos-x64"]
-checksum = "sha256:7f2c4c8c86e787226804694112682aefacd4cfb98f54508f1a5a841a78bbbef9"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.5.0/cloudflared-darwin-amd64.tgz"
+checksum = "sha256:d7a66b525fe76820da6e5406611b61e48b40de682368ac00454d9158f085be4b"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-darwin-amd64.tgz"
 
 [tools.cloudflared."platforms.windows-x64"]
-checksum = "sha256:f141cded099c239171ad2cea6fb5da0fdaa2bd36104c3074d883f9546519eba7"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.5.0/cloudflared-windows-amd64.exe"
+checksum = "sha256:5253e66f1f493c4e13539749f1aa86fd0c61e3072900fec29a44ba046a6d97e2"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.6.1/cloudflared-windows-amd64.exe"
 
 [[tools.cue]]
 version = "0.16.1"
