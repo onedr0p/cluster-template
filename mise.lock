@@ -326,36 +326,36 @@ url = "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-windows-amd64.
 provenance = "github-attestations"
 
 [[tools.just]]
-version = "1.51.0"
+version = "1.53.0"
 backend = "aqua:casey/just"
 
 [tools.just."platforms.linux-arm64"]
-checksum = "sha256:ed7ec466b77709198fd4afed253dba0270203ba5eb1c006bee2b0139090284f5"
-url = "https://github.com/casey/just/releases/download/1.51.0/just-1.51.0-aarch64-unknown-linux-musl.tar.gz"
+checksum = "sha256:f29d8e72380bc144465f632c7d59da311205eef2923d57511708b05b82f2e64f"
+url = "https://github.com/casey/just/releases/download/1.53.0/just-1.53.0-aarch64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.linux-arm64-musl"]
-checksum = "sha256:ed7ec466b77709198fd4afed253dba0270203ba5eb1c006bee2b0139090284f5"
-url = "https://github.com/casey/just/releases/download/1.51.0/just-1.51.0-aarch64-unknown-linux-musl.tar.gz"
+checksum = "sha256:f29d8e72380bc144465f632c7d59da311205eef2923d57511708b05b82f2e64f"
+url = "https://github.com/casey/just/releases/download/1.53.0/just-1.53.0-aarch64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.linux-x64"]
-checksum = "sha256:c8f085ca3e885723c341d06243fc291b5abfdc8bbe3b2c076b117de490387b59"
-url = "https://github.com/casey/just/releases/download/1.51.0/just-1.51.0-x86_64-unknown-linux-musl.tar.gz"
+checksum = "sha256:7fedeb22c7e14d9ef1551e8b793700866d80f409f9884b0e80ebb65c11d4874d"
+url = "https://github.com/casey/just/releases/download/1.53.0/just-1.53.0-x86_64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.linux-x64-musl"]
-checksum = "sha256:c8f085ca3e885723c341d06243fc291b5abfdc8bbe3b2c076b117de490387b59"
-url = "https://github.com/casey/just/releases/download/1.51.0/just-1.51.0-x86_64-unknown-linux-musl.tar.gz"
+checksum = "sha256:7fedeb22c7e14d9ef1551e8b793700866d80f409f9884b0e80ebb65c11d4874d"
+url = "https://github.com/casey/just/releases/download/1.53.0/just-1.53.0-x86_64-unknown-linux-musl.tar.gz"
 
 [tools.just."platforms.macos-arm64"]
-checksum = "sha256:61e3f1b8a545ff064b091eab4b6e14f8cc743ff15549be293b1e92f5b1467002"
-url = "https://github.com/casey/just/releases/download/1.51.0/just-1.51.0-aarch64-apple-darwin.tar.gz"
+checksum = "sha256:27f1361f2e4fb5d733837f1a9f80f85c237e5a36c75ee14961e59141713aa4ed"
+url = "https://github.com/casey/just/releases/download/1.53.0/just-1.53.0-aarch64-apple-darwin.tar.gz"
 
 [tools.just."platforms.macos-x64"]
-checksum = "sha256:d583e45f1f9fcdd26069ad2fe3bb9dea414756d8d0752eb9093974cb5c0246f0"
-url = "https://github.com/casey/just/releases/download/1.51.0/just-1.51.0-x86_64-apple-darwin.tar.gz"
+checksum = "sha256:bc345a26d40ae4697cb6b2f2ca04cdf1fbdc8c50eba1b40684c8bf3f98555d72"
+url = "https://github.com/casey/just/releases/download/1.53.0/just-1.53.0-x86_64-apple-darwin.tar.gz"
 
 [tools.just."platforms.windows-x64"]
-checksum = "sha256:09d1138b6845e73f04bff5e26be3f57663bddca25e36fe6241d28a5aa310b64e"
-url = "https://github.com/casey/just/releases/download/1.51.0/just-1.51.0-x86_64-pc-windows-msvc.zip"
+checksum = "sha256:02308af0c174d3e0286f6bfc2b020258a3e12cd0c52c1d16fac8ef2c12dea0af"
+url = "https://github.com/casey/just/releases/download/1.53.0/just-1.53.0-x86_64-pc-windows-msvc.zip"
 
 [[tools.kubeconform]]
 version = "0.7.0"
