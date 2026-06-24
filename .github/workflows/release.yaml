@@ -1,10 +1,11 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: "Release"
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 1 * *" # 1st of every month at midnight
+    - cron: 0 0 1 * * # 1st of every month at midnight
 
 permissions: {}
 
@@ -19,7 +20,7 @@ jobs:
         id: determine-next-tag
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           result-encoding: string
           script: |
             const { data: releases } = await github.rest.repos.listReleases({
@@ -52,6 +53,6 @@ jobs:
 
       - name: Create Release
         env:
-          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          TAG: "${{ steps.determine-next-tag.outputs.result }}"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.determine-next-tag.outputs.result }}
         run: gh release create "$TAG" --generate-notes

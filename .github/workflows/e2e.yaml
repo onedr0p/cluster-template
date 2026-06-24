@@ -1,14 +1,15 @@
 ---
-name: "e2e"
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: "E2E"
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - "main"
+      - main
   pull_request:
     branches:
-      - "main"
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
