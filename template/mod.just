@@ -3,21 +3,21 @@ set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
 set working-directory := '..'
 
-bootstrap_dir      := justfile_dir() + '/bootstrap'
-kubernetes_dir     := justfile_dir() + '/kubernetes'
-talos_dir          := justfile_dir() + '/talos'
-private_dir        := justfile_dir() + '/.private'
+bootstrap_dir := justfile_dir() + '/bootstrap'
+kubernetes_dir := justfile_dir() + '/kubernetes'
+talos_dir := justfile_dir() + '/talos'
+private_dir := justfile_dir() + '/.private'
 
-template_dir       := justfile_dir() + '/template'
+template_dir := justfile_dir() + '/template'
 template_resources := template_dir + '/resources'
-makejinja_config   := justfile_dir() + '/makejinja.toml'
+makejinja_config := justfile_dir() + '/makejinja.toml'
 
-config_file        := justfile_dir() + '/cluster.toml'
+config_file := justfile_dir() + '/cluster.toml'
 sample_config_file := justfile_dir() + '/cluster.sample.toml'
-schema_file        := template_resources + '/config.schema.cue'
-deploy_key         := justfile_dir() + '/github-deploy.key'
-push_token_file    := justfile_dir() + '/github-push-token.txt'
-cloudflare_tunnel  := justfile_dir() + '/cloudflare-tunnel.json'
+schema_file := template_resources + '/config.schema.cue'
+deploy_key := justfile_dir() + '/github-deploy.key'
+push_token_file := justfile_dir() + '/github-push-token.txt'
+cloudflare_tunnel := justfile_dir() + '/cloudflare-tunnel.json'
 
 [private]
 default:
@@ -62,23 +62,23 @@ init:
     [ -f "{{ deploy_key }}" ]      || ssh-keygen -t ed25519 -C "deploy-key" -f "{{ deploy_key }}" -q -P ""
     [ -f "{{ push_token_file }}" ] || openssl rand -hex 16 > "{{ push_token_file }}"
 
+[confirm("Remove all templated files and directories — continue? [y/N]")]
 [doc('Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yaml)')]
 [group('template')]
-[confirm("Remove all templated files and directories — continue? [y/N]")]
 reset:
     rm -rf "{{ bootstrap_dir }}" "{{ kubernetes_dir }}" "{{ talos_dir }}" "{{ justfile_dir() }}/.sops.yaml"
 
+[confirm("All template related config will be archived — continue? [y/N]")]
 [doc('Archive all template tooling under .private/<ts>/ (one-way, run after configure works)')]
 [group('template')]
-[confirm("All template related config will be archived — continue? [y/N]")]
 tidy: tidy-preconditions tidy-strip tidy-archive
 
 [private]
 configure-preconditions:
     test -f "{{ cloudflare_tunnel }}" || { just log error "cloudflare-tunnel.json not found — see README"; exit 1; }
 
-[private]
 [no-exit-message]
+[private]
 [script]
 doctor-check label path:
     if [ -e "{{ path }}" ]; then
@@ -127,7 +127,7 @@ tidy-preconditions:
 tidy-strip:
     sd '\..\.j2'                       '' "{{ justfile_dir() }}/.renovaterc.json5"
     sd '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
-    sd '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise.toml"
+    sd '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise/config.toml"
 
 [private]
 validate-kubernetes:
