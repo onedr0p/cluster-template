@@ -9,63 +9,23 @@ spec:
     name: echo
   interval: 1h
   values:
-    controllers:
-      echo:
-        strategy: RollingUpdate
-        containers:
-          app:
-            image:
-              repository: ghcr.io/mendhak/http-https-echo
-              tag: 40
-            env:
-              HTTP_PORT: &port 80
-              LOG_WITHOUT_NEWLINE: true
-              LOG_IGNORE_PATH: /healthz
-              PROMETHEUS_ENABLED: true
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /healthz
-                    port: *port
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-            resources:
-              requests:
-                cpu: 10m
-              limits:
-                memory: 64Mi
-    defaultPodOptions:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
-        runAsGroup: 65534
-    service:
-      app:
-        ports:
-          http:
-            port: *port
-    serviceMonitor:
-      app:
-        endpoints:
-          - port: http
-    route:
-      app:
-        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
-        parentRefs:
-          - name: envoy-external
-            namespace: network
-            sectionName: https
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
+    replicaCount: 2
+    config:
+      kubernetes: true
+      trustedProxies:
+        - "#{ kubernetes.pod_cidr }#"
+    httpRoute:
+      enabled: true
+      hostnames:
+        - "{{ .Release.Name }}.${SECRET_DOMAIN}"
+      parentRefs:
+        - name: envoy-external
+          namespace: network
+    monitoring:
+      serviceMonitor:
+        enabled: true
+    resources:
+      requests:
+        cpu: 10m
+      limits:
+        memory: 64Mi
