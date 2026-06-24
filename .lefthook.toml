@@ -1,20 +1,39 @@
 [pre-commit]
 parallel = true
+skip = ["merge", "rebase"]
 
 [pre-commit.commands.format-just]
-run = "for f in {staged_files}; do just --justfile $f --fmt; done"
 glob = ["*.just", ".justfile"]
+run = 'for f in {staged_files}; do just --justfile "$f" --fmt; done'
 stage_fixed = true
 
 [pre-commit.commands.format-mise]
-glob = [".mise.toml"]
+glob = [".mise.toml", ".mise/config.toml"]
 run = "mise fmt"
 stage_fixed = true
 
-[pre-commit.commands.format-yaml]
-run = "yamlfmt {staged_files}"
-glob = ["*.yml", "*.yaml"]
+[pre-commit.commands.format-json]
+glob = ["*.json", "*.json5", "*.jsonc"]
+run = "oxfmt {staged_files}"
 stage_fixed = true
+
+[pre-commit.commands.format-markdown]
+glob = ["*.md", "*.markdown", "*.mdx"]
+run = "oxfmt {staged_files}"
+stage_fixed = true
+
+[pre-commit.commands.format-yaml]
+glob = ["*.yaml", "*.yml"]
+run = "oxfmt {staged_files}"
+stage_fixed = true
+
+[pre-commit.commands.mise-lock]
+glob = [".mise.toml", ".mise/config.toml"]
+run = 'mise lock && { for f in {staged_files}; do l="$(dirname "$f")/mise.lock"; [ -f "$l" ] && git add "$l"; done; true; }'
+
+[pre-commit.commands.shellcheck]
+glob = ["*.sh"]
+run = "shellcheck {staged_files}"
 
 [pre-commit.commands.zizmor]
 glob = [".github/workflows/*.yaml", ".github/actions/**/action.yaml"]
