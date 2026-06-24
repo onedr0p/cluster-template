@@ -46,7 +46,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
 >
 > **Minimum system requirements**
-> | Role    | Cores    | Memory        | System Disk               |
+> | Role | Cores | Memory | System Disk |
 > |---------|----------|---------------|---------------------------|
 > | Control/Worker | 4 | 16GB | 256GB SSD/NVMe |
 
@@ -87,9 +87,9 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     mise install
     ```
 
-   📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
+    📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
 
-   📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
+    📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
 5. Logout of the GitHub Container Registry as this may cause authorization problems in future steps when using the public registry:
 
@@ -105,11 +105,11 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
 1. Create a Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) and following the instructions below.
 
-   - Click the blue `Use template` button for the `Edit zone DNS` template.
-   - Name your token `kubernetes`
-   - Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
-   - Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
-   - **Save this token somewhere safe**, you will need it later on.
+    - Click the blue `Use template` button for the `Edit zone DNS` template.
+    - Name your token `kubernetes`
+    - Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
+    - Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
+    - **Save this token somewhere safe**, you will need it later on.
 
 2. Create the Cloudflare Tunnel:
 
@@ -136,7 +136,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
 4. Push your changes to git:
 
-   📍 _**Verify** all the `./kubernetes/**/*.sops.*` files are **encrypted** with SOPS_
+    📍 _**Verify** all the `./kubernetes/**/*.sops.*` files are **encrypted** with SOPS_
 
     ```sh
     git add -A
@@ -190,7 +190,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
 2. Check the status of Flux and if the Flux resources are up-to-date and in a ready state:
 
-   📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
+    📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
 
     ```sh
     flux check
@@ -201,7 +201,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
 3. Check TCP connectivity to both the internal and external gateways:
 
-   📍 _The variables are only placeholders, replace them with your actual values_
+    📍 _The variables are only placeholders, replace them with your actual values_
 
     ```sh
     nmap -Pn -n -p 443 ${gateways_internal} ${gateways_external} -vv
@@ -209,7 +209,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
 4. Check you can resolve DNS for `echo`, this should resolve to `${gateways_external}`:
 
-   📍 _The variables are only placeholders, replace them with your actual values_
+    📍 _The variables are only placeholders, replace them with your actual values_
 
     ```sh
     dig @${gateways_dns} echo.${cloudflare_domain}
@@ -243,7 +243,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 
 1. Obtain the webhook path:
 
-   📍 _Hook id and path should look like `/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123`_
+    📍 _Hook id and path should look like `/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123`_
 
     ```sh
     kubectl -n flux-system get receiver github-webhook --output=jsonpath='{.status.webhookPath}'
@@ -313,23 +313,23 @@ You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
 
 2. **Get the node information**: While the node is in maintenance mode, retrieve the disk and MAC address information needed for configuration:
 
-   ```sh
-   talosctl get disks -n <ip> --insecure
-   talosctl get links -n <ip> --insecure
-   ```
+    ```sh
+    talosctl get disks -n <ip> --insecure
+    talosctl get links -n <ip> --insecure
+    ```
 
 3. **Update the configuration**: Read the documentation for [talhelper](https://budimanjojo.github.io/talhelper/latest/) and extend the `talconfig.yaml` file manually with the new node information (including the disk and MAC address from step 2).
 
 4. **Generate and apply the configuration**:
 
-   ```sh
-   # Render your talosconfig based on the talconfig.yaml file
-   just talos generate-config
+    ```sh
+    # Render your talosconfig based on the talconfig.yaml file
+    just talos generate-config
 
-   # Apply the configuration to the node
-   just talos apply-node <ip>
-   # e.g. just talos apply-node 10.10.10.10
-   ```
+    # Apply the configuration to the node
+    just talos apply-node <ip>
+    # e.g. just talos apply-node 10.10.10.10
+    ```
 
 The node should join the cluster automatically and workloads will be scheduled once they report as ready.
 
@@ -347,7 +347,7 @@ Below is a general guide on trying to debug an issue with an resource or applica
 
 1. Check if the Flux resources are up-to-date and in a ready state:
 
-   📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
+    📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
 
     ```sh
     flux get sources git -A
