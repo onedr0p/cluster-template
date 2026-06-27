@@ -502,32 +502,32 @@ version = "0.56.0"
 backend = "npm:oxfmt"
 
 [[tools.pipx]]
-version = "1.14.1"
+version = "1.15.0"
 backend = "aqua:pypa/pipx"
 
 [tools.pipx."platforms.linux-arm64"]
-checksum = "sha256:4ca0f4ea421bac9cf47f0479d37c373048257eb00ab95551c8b9aa4a837c467d"
-url = "https://github.com/pypa/pipx/releases/download/1.14.1/pipx.pyz"
+checksum = "sha256:6b6e1b016bf7df9debee590ca32204a85ff18a87514e6a3b4413d8ad7ff73ed3"
+url = "https://github.com/pypa/pipx/releases/download/1.15.0/pipx.pyz"
 
 [tools.pipx."platforms.linux-arm64-musl"]
-checksum = "sha256:4ca0f4ea421bac9cf47f0479d37c373048257eb00ab95551c8b9aa4a837c467d"
-url = "https://github.com/pypa/pipx/releases/download/1.14.1/pipx.pyz"
+checksum = "sha256:6b6e1b016bf7df9debee590ca32204a85ff18a87514e6a3b4413d8ad7ff73ed3"
+url = "https://github.com/pypa/pipx/releases/download/1.15.0/pipx.pyz"
 
 [tools.pipx."platforms.linux-x64"]
-checksum = "sha256:4ca0f4ea421bac9cf47f0479d37c373048257eb00ab95551c8b9aa4a837c467d"
-url = "https://github.com/pypa/pipx/releases/download/1.14.1/pipx.pyz"
+checksum = "sha256:6b6e1b016bf7df9debee590ca32204a85ff18a87514e6a3b4413d8ad7ff73ed3"
+url = "https://github.com/pypa/pipx/releases/download/1.15.0/pipx.pyz"
 
 [tools.pipx."platforms.linux-x64-musl"]
-checksum = "sha256:4ca0f4ea421bac9cf47f0479d37c373048257eb00ab95551c8b9aa4a837c467d"
-url = "https://github.com/pypa/pipx/releases/download/1.14.1/pipx.pyz"
+checksum = "sha256:6b6e1b016bf7df9debee590ca32204a85ff18a87514e6a3b4413d8ad7ff73ed3"
+url = "https://github.com/pypa/pipx/releases/download/1.15.0/pipx.pyz"
 
 [tools.pipx."platforms.macos-arm64"]
-checksum = "sha256:4ca0f4ea421bac9cf47f0479d37c373048257eb00ab95551c8b9aa4a837c467d"
-url = "https://github.com/pypa/pipx/releases/download/1.14.1/pipx.pyz"
+checksum = "sha256:6b6e1b016bf7df9debee590ca32204a85ff18a87514e6a3b4413d8ad7ff73ed3"
+url = "https://github.com/pypa/pipx/releases/download/1.15.0/pipx.pyz"
 
 [tools.pipx."platforms.macos-x64"]
-checksum = "sha256:4ca0f4ea421bac9cf47f0479d37c373048257eb00ab95551c8b9aa4a837c467d"
-url = "https://github.com/pypa/pipx/releases/download/1.14.1/pipx.pyz"
+checksum = "sha256:6b6e1b016bf7df9debee590ca32204a85ff18a87514e6a3b4413d8ad7ff73ed3"
+url = "https://github.com/pypa/pipx/releases/download/1.15.0/pipx.pyz"
 
 [[tools."pipx:makejinja"]]
 version = "2.8.2"
