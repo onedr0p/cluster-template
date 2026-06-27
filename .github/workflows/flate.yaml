@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Flate
-        uses: home-operations/flate/action@54bf38b3e9f0ffa27838559f05254c593af228a3 # v0.4.9
+        uses: home-operations/flate/action@a13598d5cb2faa79c2638e7bfe61711b1a1c1a5f # v0.4.9
 
       - name: Run Flate
         id: flate
