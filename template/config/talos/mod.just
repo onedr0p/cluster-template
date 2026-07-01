@@ -1,10 +1,7 @@
 set quiet
 set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
-
-[private]
-default:
-    just talos -l
+set default-list
 
 [doc('Apply Talos config to a node')]
 [group('talos')]
@@ -23,7 +20,7 @@ reset:
     talhelper gencommand reset \
         --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
-[confirm("This will reset the specified node to maintenance mode — continue? [y/N]")]
+[confirm("This will reset node " + ip + " to maintenance mode and wipe STATE + EPHEMERAL — continue? [y/N]")]
 [doc('Reset a single node back to maintenance mode (DESTRUCTIVE)')]
 [group('talos')]
 reset-node ip:
