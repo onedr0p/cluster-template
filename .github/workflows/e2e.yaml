@@ -93,7 +93,7 @@ jobs:
         run: just configure
 
       - name: Run flux-local test
-        uses: docker://ghcr.io/allenporter/flux-local:v8.2.0@sha256:9c77739d8d7c71b808311693ea52d603d1ddb5190d3d4f23e47f6f33d5254602
+        uses: docker://ghcr.io/allenporter/flux-local:v8.3.0@sha256:dca65e5bcd71cb904216774ebfbc5d1f30a36d0b304293b851dfed2385c01b0c
         with:
           args: test --enable-helm --all-namespaces --path /github/workspace/kubernetes/flux/cluster -v
 
