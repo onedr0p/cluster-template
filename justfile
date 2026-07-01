@@ -1,4 +1,6 @@
 set quiet
+set minimum-version := '1.55.1'
+set default-list
 set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
 
@@ -10,10 +12,6 @@ mod? kube 'kubernetes'
 
 [group: 'talos']
 mod? talos 'talos'
-
-[private]
-default:
-    just -l
 
 [private]
 log lvl msg *args:

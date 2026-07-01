@@ -2,12 +2,9 @@ set no-exit-message
 set quiet
 set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
+set default-list
 
 kubernetes_dir := justfile_dir() + '/kubernetes'
-
-[private]
-default:
-    just bootstrap -l
 
 [doc('Bootstrap the Talos cluster')]
 [group('bootstrap')]
