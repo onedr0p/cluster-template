@@ -31,12 +31,14 @@ def age_key(key_type: str, file_path: str = 'age.key') -> str:
         with open(file_path, 'r') as file:
             file_content = file.read().strip()
         if key_type == 'public':
+            # Matches both classic (age1...) and post-quantum (age1pq1...) recipients
             key_match = re.search(r"# public key: (age1[\w]+)", file_content)
             if not key_match:
                 raise ValueError("Could not find public key in the age key file.")
             return key_match.group(1)
         elif key_type == 'private':
-            key_match = re.search(r"(AGE-SECRET-KEY-[\w]+)", file_content)
+            # (?:PQ-)? matches post-quantum identities (AGE-SECRET-KEY-PQ-1...) as well as classic ones
+            key_match = re.search(r"(AGE-SECRET-KEY-(?:PQ-)?1[\w]+)", file_content)
             if not key_match:
                 raise ValueError("Could not find private key in the age key file.")
             return key_match.group(1)
