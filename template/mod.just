@@ -58,7 +58,7 @@ doctor:
 [group('template')]
 init:
     [ -f "{{ config_file }}" ]     || cp "{{ sample_config_file }}" "{{ config_file }}"
-    [ -f "$SOPS_AGE_KEY_FILE" ]    || age-keygen --output "$SOPS_AGE_KEY_FILE"
+    [ -f "$SOPS_AGE_KEY_FILE" ]    || age-keygen -pq --output "$SOPS_AGE_KEY_FILE"
     [ -f "{{ deploy_key }}" ]      || ssh-keygen -t ed25519 -C "deploy-key" -f "{{ deploy_key }}" -q -P ""
     [ -f "{{ push_token_file }}" ] || openssl rand -hex 16 > "{{ push_token_file }}"
 
