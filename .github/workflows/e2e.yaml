@@ -94,6 +94,8 @@ jobs:
 
       - name: Install flate
         uses: home-operations/flate/action@0fc37fae10cf3c265294f6adebc6d6c100c74ea5 # v0.4.10
+        with:
+          base: "" # e2e renders a fresh, untracked tree — full-tree test, not changed-only (no resolvable base)
 
       - name: Run flate test
         run: flate test all -p ./kubernetes/flux/cluster
