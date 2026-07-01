@@ -22,7 +22,7 @@ A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/t
 - Dev env managed w/ [mise](https://mise.jdx.dev/)
 - Workflow automation w/ [GitHub Actions](https://github.com/features/actions)
 - Dependency automation w/ [Renovate](https://www.mend.io/renovate)
-- Flux `HelmRelease` and `Kustomization` diffs w/ [flux-local](https://github.com/allenporter/flux-local)
+- Flux `HelmRelease` and `Kustomization` diffs w/ [flate](https://github.com/home-operations/flate)
 
 Does this sound cool to you? If so, continue to read on! 👇
 
