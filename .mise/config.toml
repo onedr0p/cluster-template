@@ -8,7 +8,7 @@ JUST_UNSTABLE = "1"
 
 [tools]
 python = "3.14.6"          # required:template
-uv = "0.11.28"             # required:template
+uv = "0.11.29"             # required:template
 pipx = "1.15.0"            # required:template
 "pipx:makejinja" = "2.8.2" # required:template
 age = "1.3.1"
