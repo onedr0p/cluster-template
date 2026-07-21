@@ -164,3 +164,6 @@ validate-kubernetes:
 [working-directory('talos')]
 validate-talos:
     topf render --confirm=false --output "$(mktemp -d)" >/dev/null
+    if ! sops filestatus secrets.sops.yaml | jq --exit-status '.encrypted == true' >/dev/null; then
+        just log fatal "Talos secrets bundle is not encrypted"
+    fi
