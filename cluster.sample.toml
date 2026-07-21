@@ -191,13 +191,17 @@ token = ""
 #    How the public internet reaches the cluster's external gateway. With
 #    "cloudflare-tunnel", cloudflared connects outbound so no ports are
 #    forwarded (requires dns.provider = "cloudflare" and
-#    cloudflare-tunnel.json). With "none", nothing is exposed and apps are
-#    only reachable on your LAN via the internal gateway.
+#    cloudflare-tunnel.json). With "direct", you forward TCP 443 (and
+#    optionally 80) on your router to gateways.external and point an
+#    `external.<domain>` DNS record at your WAN address (A record or DDNS
+#    CNAME) yourself; per-app records are still published automatically.
+#    With "none", nothing is exposed and apps are only reachable on your
+#    LAN via the internal gateway.
 # =============================================================================
 [ingress]
 
 # OPTIONAL. Default: "cloudflare-tunnel" when dns.provider is "cloudflare",
-# otherwise "none". Allowed: "cloudflare-tunnel" | "none"
+# otherwise "none". Allowed: "cloudflare-tunnel" | "direct" | "none"
 
 # mode = "cloudflare-tunnel"
 

@@ -161,7 +161,7 @@ class Dns(Model):
 
 
 class Ingress(Model):
-    mode: Literal["cloudflare-tunnel", "none"] = "cloudflare-tunnel"
+    mode: Literal["cloudflare-tunnel", "direct", "none"] = "cloudflare-tunnel"
 
 
 class Bgp(Model):
@@ -228,9 +228,9 @@ class Config(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
-        if self.ingress.mode == "cloudflare-tunnel" and self.dns.provider != "cloudflare":
+        if self.ingress.mode != "none" and self.dns.provider != "cloudflare":
             raise ValueError(
-                "ingress.mode 'cloudflare-tunnel' requires dns.provider 'cloudflare'"
+                f"ingress.mode {self.ingress.mode!r} requires dns.provider 'cloudflare'"
             )
         if self.ingress.mode != "none" and self.gateways.external is None:
             raise ValueError(

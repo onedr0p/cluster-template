@@ -121,6 +121,8 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     cloudflared tunnel create --credentials-file cloudflare-tunnel.json kubernetes
     ```
 
+    📍 _**Prefer port-forwarding over a tunnel?** Set `mode = "direct"` under `[ingress]` in `cluster.toml` and skip this step: no `cloudflare-tunnel.json` is needed. Instead, forward TCP 443 (and optionally 80) on your router to the `gateways.external` IP, and create an `external.<domain>` DNS record yourself pointing at your WAN address (an A record, or a CNAME to a DDNS hostname). Per-app records are still published automatically._
+
 ### Stage 5: Cluster configuration
 
 1. Generate the config files from the sample files:
