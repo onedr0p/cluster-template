@@ -3,6 +3,7 @@ package config
 import (
 	"net"
 	"list"
+	"strings"
 )
 
 #Config: {
@@ -73,13 +74,33 @@ import (
 	external: net.IPv4
 }
 
+// Git hosts whose SSH host keys are bundled with the template; ssh:// URLs
+// pointing anywhere else must provide repository.known_hosts.
+_known_ssh_hosts: ["github.com", "gitlab.com", "codeberg.org"]
+
 #Repository: {
-	// GitHub repository, e.g. "onedr0p/cluster-template".
-	name: string
-	// GitHub repository branch.
+	// Full clone URL Flux will sync from. Use https:// for a publicly
+	// readable repository, or ssh://git@… for one that needs the deploy key.
+	// e.g. "https://github.com/onedr0p/home-ops.git"
+	//      "ssh://git@gitlab.com/owner/home-ops.git"
+	//      "ssh://git@git.example.com/owner/home-ops.git"
+	url: =~"^(https://|ssh://git@)[^/]+/.+$"
+	// Repository branch Flux watches.
 	branch: *"main" | string & !=""
-	// Repository visibility.
-	visibility: *"public" | "private"
+	// Webhook payload format the Flux Receiver verifies. Gitea and Forgejo
+	// emulate GitHub webhooks, so "github" also covers them. Set to "none"
+	// to skip the webhook entirely; Flux then only polls on an interval.
+	webhook_provider: *"github" | "gitlab" | "generic-hmac" | "none"
+	// SSH host keys for the git host (ssh-keyscan output). Bundled for
+	// github.com, gitlab.com and codeberg.org; required for ssh:// URLs to
+	// any other host.
+	known_hosts: *"" | string
+
+	_ssh:  strings.HasPrefix(url, "ssh://")
+	_host: strings.Split(strings.Split(strings.TrimPrefix(url, "ssh://git@"), "/")[0], ":")[0]
+	if _ssh && !list.Contains(_known_ssh_hosts, _host) {
+		known_hosts: string & !=""
+	}
 }
 
 #Cloudflare: {

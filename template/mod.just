@@ -16,8 +16,8 @@ makejinja_config := justfile_dir() + '/makejinja.toml'
 config_file := justfile_dir() + '/cluster.toml'
 sample_config_file := justfile_dir() + '/cluster.sample.toml'
 schema_file := template_resources + '/config.schema.cue'
-deploy_key := justfile_dir() + '/github-deploy.key'
-push_token_file := justfile_dir() + '/github-push-token.txt'
+deploy_key := justfile_dir() + '/deploy.key'
+webhook_token_file := justfile_dir() + '/flux-webhook-token.txt'
 cloudflare_tunnel := justfile_dir() + '/cloudflare-tunnel.json'
 
 [doc('Render and validate configuration files')]
@@ -35,8 +35,8 @@ doctor:
     just template doctor-check "cluster.sample.toml"    "{{ sample_config_file }}"    || rc=1
     just template doctor-check "cloudflare-tunnel.json" "{{ cloudflare_tunnel }}"     || rc=1
     just template doctor-check "age.key"                "$SOPS_AGE_KEY_FILE"          || rc=1
-    just template doctor-check "github-deploy.key"      "{{ deploy_key }}"            || rc=1
-    just template doctor-check "github-push-token.txt"  "{{ push_token_file }}"       || rc=1
+    just template doctor-check "deploy.key"             "{{ deploy_key }}"            || rc=1
+    just template doctor-check "flux-webhook-token.txt" "{{ webhook_token_file }}"    || rc=1
     just template doctor-check "template/"              "{{ template_dir }}"          || rc=1
     just template doctor-check "makejinja.toml"         "{{ makejinja_config }}"      || rc=1
     just template doctor-check "config.schema.cue"      "{{ schema_file }}"           || rc=1
@@ -52,13 +52,13 @@ doctor:
     [ "$rc" = 0 ] && just log info "all good"
     exit "$rc"
 
-[doc('Initialize configuration files (cluster.toml, age key, deploy key, push token)')]
+[doc('Initialize configuration files (cluster.toml, age key, deploy key, webhook token)')]
 [group('template')]
 init:
-    [ -f "{{ config_file }}" ]     || cp "{{ sample_config_file }}" "{{ config_file }}"
-    [ -f "$SOPS_AGE_KEY_FILE" ]    || age-keygen -pq --output "$SOPS_AGE_KEY_FILE"
-    [ -f "{{ deploy_key }}" ]      || ssh-keygen -t ed25519 -C "deploy-key" -f "{{ deploy_key }}" -q -P ""
-    [ -f "{{ push_token_file }}" ] || openssl rand -hex 16 > "{{ push_token_file }}"
+    [ -f "{{ config_file }}" ]        || cp "{{ sample_config_file }}" "{{ config_file }}"
+    [ -f "$SOPS_AGE_KEY_FILE" ]       || age-keygen -pq --output "$SOPS_AGE_KEY_FILE"
+    [ -f "{{ deploy_key }}" ]         || ssh-keygen -t ed25519 -C "deploy-key" -f "{{ deploy_key }}" -q -P ""
+    [ -f "{{ webhook_token_file }}" ] || openssl rand -hex 16 > "{{ webhook_token_file }}"
 
 [confirm("Remove all templated files and directories — continue? [y/N]")]
 [doc('Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yaml)')]

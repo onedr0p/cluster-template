@@ -10,8 +10,7 @@ dns      = "10.10.10.253"
 external = "10.10.10.251"
 
 [repository]
-name       = "onedr0p/cluster-template"
-visibility = "private"
+url = "ssh://git@github.com/onedr0p/cluster-template.git"
 
 [cloudflare]
 domain = "example.com"

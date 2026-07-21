@@ -27,7 +27,7 @@ mod template 'template'
 configure:
     just template configure
 
-[doc('Initialize configuration files (cluster.toml, age key, deploy key, push token)')]
+[doc('Initialize configuration files (cluster.toml, age key, deploy key, webhook token)')]
 [group('template')]
 init:
     just template init

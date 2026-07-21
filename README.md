@@ -12,7 +12,7 @@ With this approach, you'll gain a solid foundation to build and manage your Kube
 
 ## ✨ Features
 
-A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/talos) and an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider, [sops](https://github.com/getsops/sops) to manage secrets and [cloudflared](https://github.com/cloudflare/cloudflared) to access applications external to your local network.
+A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/talos) and an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) syncing from the Git provider of your choice (GitHub, GitLab, Gitea, Forgejo, Codeberg or self-hosted), [sops](https://github.com/getsops/sops) to manage secrets and [cloudflared](https://github.com/cloudflare/cloudflared) to access applications external to your local network.
 
 - **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://noyaml.com/), [Git](https://git-scm.com/), and a **Cloudflare account** with a **domain**.
 - **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [envoy-gateway](https://github.com/envoyproxy/gateway), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
@@ -46,9 +46,10 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 > If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
 >
 > **Minimum system requirements**
-> | Role | Cores | Memory | System Disk |
-> |---------|----------|---------------|---------------------------|
-> | Control/Worker | 4 | 16GB | 256GB SSD/NVMe |
+>
+> | Role           | Cores | Memory | System Disk    |
+> | -------------- | ----- | ------ | -------------- |
+> | Control/Worker | 4     | 16GB   | 256GB SSD/NVMe |
 
 1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. Depending on your CPU start with the Intel/AMD system extensions (`i915`, `intel-ucode` & `mei` **or** `amdgpu` & `amd-ucode`), you can always add system extensions after Talos is installed and working.
 
@@ -74,6 +75,8 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     gh repo create $REPONAME --template onedr0p/cluster-template --public --clone
     cd $REPONAME
     ```
+
+    📍 _**Not using GitHub?** Any Git provider works (GitLab, Gitea, Forgejo, Codeberg or self-hosted). Create an empty repository on your provider, download this template with `git clone --depth 1 https://github.com/onedr0p/cluster-template`, re-initialize it with `git init` and push it to your repository._
 
 2. **Install** the [Mise CLI](https://mise.jdx.dev/getting-started.html#installing-mise-cli) on your local workstation.
 
@@ -145,7 +148,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     ```
 
 > [!TIP]
-> Using a **private repository**? Make sure to paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux has read/write access to your repository.
+> Using a **private repository** (an `ssh://` URL in `cluster.toml`)? Make sure to paste the public key from `deploy.key.pub` into the deploy keys section of your repository settings (GitHub: `Settings/Deploy keys`, GitLab: `Settings/Repository/Deploy keys`, Gitea/Forgejo: `Settings/Deploy keys`). This will make sure Flux has read/write access to your repository.
 
 ### Stage 6: Bootstrap Talos, Kubernetes, and Flux
 
@@ -237,16 +240,18 @@ The `external-dns` application created in the `network` namespace will handle cr
 
 _... Nothing working? That is expected, this is DNS after all!_
 
-### 🪝 GitHub Webhook
+### 🪝 Git Webhook
 
-By default Flux will periodically check your git repository for changes. In-order to have Flux reconcile on `git push` you must configure GitHub to send `push` events to Flux.
+By default Flux will periodically check your git repository for changes. In-order to have Flux reconcile on `git push` you must configure your Git provider to send `push` events to Flux.
+
+📍 _Don't want a webhook, or your Git provider can't reach the cluster? Set `webhook_provider = "none"` in `cluster.toml` and skip this section; Flux will keep polling on an interval._
 
 1. Obtain the webhook path:
 
     📍 _Hook id and path should look like `/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123`_
 
     ```sh
-    kubectl -n flux-system get receiver github-webhook --output=jsonpath='{.status.webhookPath}'
+    kubectl -n flux-system get receiver flux-webhook --output=jsonpath='{.status.webhookPath}'
     ```
 
 2. Piece together the full URL with the webhook path appended:
@@ -255,7 +260,11 @@ By default Flux will periodically check your git repository for changes. In-orde
     https://flux-webhook.${cloudflare_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
-3. Navigate to the settings of your repository on GitHub, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your token from `github-push-token.txt`, Content type: `application/json`, Events: Choose Just the push event, and save.
+3. Navigate to your repository settings and add a webhook with that URL and the secret token from `flux-webhook-token.txt`:
+
+    - **GitHub**: under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL, paste the token as the secret, Content type: `application/json`, Events: Choose Just the push event, and save.
+    - **GitLab**: under "Settings/Webhooks" fill in the webhook URL, paste the token as the secret token, check the push events trigger, and save. Also set `webhook_provider = "gitlab"` in `cluster.toml`.
+    - **Gitea/Forgejo**: under "Settings/Webhooks" add a **Gitea/Forgejo** webhook with the webhook URL, method `POST`, content type `application/json`, paste the token as the secret, trigger on push events, and save. Keep the default `webhook_provider = "github"` since these providers emulate GitHub webhooks.
 
 ## 💥 Reset
 
@@ -337,7 +346,7 @@ The node should join the cluster automatically and workloads will be scheduled o
 
 [Renovate](https://www.mend.io/renovate) is a tool that automates dependency management. It is designed to scan your repository around the clock and open PRs for out-of-date dependencies it finds. Common dependencies it can discover are Helm charts, container images, GitHub Actions and more! In most cases merging a PR will cause Flux to apply the update to your cluster.
 
-To enable Renovate, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and select your repository. Renovate creates a "Dependency Dashboard" as an issue in your repository, giving an overview of the status of all updates. The dashboard has interactive checkboxes that let you do things like advance scheduling or reattempt update PRs you closed without merging.
+To enable Renovate on GitHub, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and select your repository. On other Git providers you can [self-host Renovate](https://docs.renovatebot.com/getting-started/running/#self-hosting-renovate); note that fetching the shared preset in `.renovaterc.json5` requires a `GITHUB_COM_TOKEN`. Renovate creates a "Dependency Dashboard" as an issue in your repository, giving an overview of the status of all updates. The dashboard has interactive checkboxes that let you do things like advance scheduling or reattempt update PRs you closed without merging.
 
 The base Renovate configuration in your repository can be viewed at [.renovaterc.json5](.renovaterc.json5). By default it is scheduled to be active with PRs every weekend, but you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule), or remove it if you want Renovate to open PRs immediately.
 
