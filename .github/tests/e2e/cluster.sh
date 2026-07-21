@@ -162,6 +162,7 @@ for ns in kube-system cert-manager flux-system; do
 done
 
 echo "==> asserting flux reconciliation"
+kubectl wait fluxinstance/flux --namespace flux-system --for=condition=Ready --timeout=10m
 kubectl wait gitrepositories --all --all-namespaces --for=condition=Ready --timeout=5m
 kubectl wait kustomizations --all --all-namespaces --for=condition=Ready --timeout=10m
 kubectl wait helmreleases --all --all-namespaces --for=condition=Ready --timeout=10m
