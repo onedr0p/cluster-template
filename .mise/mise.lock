@@ -191,6 +191,40 @@ url = "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_windows_am
 url_api = "https://api.github.com/repos/cli/cli/releases/assets/464728577"
 provenance = "github-attestations"
 
+[[tools."github:postfinance/topf"]]
+version = "0.4.2"
+backend = "github:postfinance/topf"
+
+[tools."github:postfinance/topf"."platforms.linux-arm64"]
+checksum = "sha256:d366d232d9f5f2d244945972f6c769c3b1e5e95120407459fedb9248fcbf2cb1"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354097"
+
+[tools."github:postfinance/topf"."platforms.linux-arm64-musl"]
+checksum = "sha256:d366d232d9f5f2d244945972f6c769c3b1e5e95120407459fedb9248fcbf2cb1"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354097"
+
+[tools."github:postfinance/topf"."platforms.linux-x64"]
+checksum = "sha256:2cc3b63210fe2a9165f5d47a5e07a84e446307243b54c352aaf0c5d937ea20b9"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354094"
+
+[tools."github:postfinance/topf"."platforms.linux-x64-musl"]
+checksum = "sha256:2cc3b63210fe2a9165f5d47a5e07a84e446307243b54c352aaf0c5d937ea20b9"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354094"
+
+[tools."github:postfinance/topf"."platforms.macos-arm64"]
+checksum = "sha256:8781cb1dc847156a80486b6fc324b10039d664e98d40440cc7fc29fead7637da"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354092"
+
+[tools."github:postfinance/topf"."platforms.macos-x64"]
+checksum = "sha256:800bca769be4f786abd5785a159bd1cc6b7d17a5a16bfafe5e434b8e0a64e2b2"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354095"
+
 [[tools.gum]]
 version = "0.17.0"
 backend = "aqua:charmbracelet/gum"
@@ -697,13 +731,6 @@ checksum = "sha256:87289b89abc444e9428d067f4e4097757148f4c3283491444ef4cceb9cd58
 url = "https://github.com/siderolabs/talos/releases/download/v1.13.6/talosctl-windows-amd64.exe"
 url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/471115018"
 provenance = "cosign"
-
-[[tools."ubi:postfinance/topf"]]
-version = "0.4.2"
-backend = "ubi:postfinance/topf"
-
-[tools."ubi:postfinance/topf"."platforms.linux-x64-topf"]
-checksum = "blake3:656e596890f68f7c6b9b26b144f8d5e5a26317c1583b045fecaa67e48c5ec451"
 
 [[tools.uv]]
 version = "0.11.30"

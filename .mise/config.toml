@@ -25,7 +25,7 @@ oxfmt = "0.59.0"
 sd = "1.1.0"                                                                   # required:template
 sops = "3.13.2"
 talosctl = "1.13.6"
-"ubi:postfinance/topf" = "0.4.2"
+"github:postfinance/topf" = "0.4.2"
 yq = "4.53.3"
 zizmor = "1.27.0"
 
