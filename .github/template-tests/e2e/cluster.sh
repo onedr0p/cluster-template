@@ -9,13 +9,15 @@
 #     passes E2E_CONTROLPLANE_IPS / E2E_WORKER_IPS / E2E_CIDR; the action's
 #     post step destroys them.
 #   - Local: run with no env set; the script boots and destroys the cluster
-#     itself. Requires /dev/kvm, passwordless sudo, qemu-system-x86, and the
-#     repo's mise toolchain on PATH.
+#     itself. Requires Docker, /dev/kvm, passwordless sudo, qemu-system-x86,
+#     and the repo's mise toolchain on PATH.
 #
 # Renders into the working tree like any configure run.
 set -euo pipefail
 
 NAME="${E2E_NAME:-template-e2e}"
+MODE="${1:-all}"
+E2E_DIR=".github/template-tests/e2e"
 CIDR="${E2E_CIDR:-10.9.0.0/24}"
 PREFIX="${CIDR%/*}"
 PREFIX="${PREFIX%.*}"
@@ -37,12 +39,20 @@ NODES=("${CONTROLPLANES[@]}" "${WORKERS[@]}")
 # served from there over git smart HTTP so Flux can sync it.
 GIT_HOST="${E2E_GATEWAY:-$PREFIX.1}"
 GIT_PORT=8418
-GIT_SERVER_PID=""
+GIT_SERVER_CONTAINER=""
 
 # The provisioner runs under sudo and writes state relative to its cwd and
 # TALOSCONFIG, so both are pointed at a scratch dir to keep root-owned files
 # out of the repo.
-STATE="$(mktemp -d)"
+if [ -n "${E2E_STATE:-}" ]; then
+    STATE="$E2E_STATE"
+    STATE_OWNED=false
+else
+    STATE="$(mktemp -d)"
+    STATE_OWNED=true
+fi
+mkdir -p "$STATE"
+GIT_PUSH_URL="http://127.0.0.1:$GIT_PORT/repo.git"
 
 cleanup() {
     rc=$?
@@ -51,21 +61,47 @@ cleanup() {
         kubectl get pods --all-namespaces 2>/dev/null || true
         kubectl get gitrepositories,kustomizations,helmreleases --all-namespaces 2>/dev/null || true
         kubectl get events --all-namespaces --sort-by=.lastTimestamp 2>/dev/null | tail -30 || true
-        tail -5 "$STATE/git-server.log" 2>/dev/null || true
+        [ -n "$GIT_SERVER_CONTAINER" ] && docker logs --tail 5 "$GIT_SERVER_CONTAINER" 2>/dev/null || true
         for ip in "${NODES[@]}"; do
             talosctl -n "$ip" dmesg 2>/dev/null | tail -20 || true
         done
     fi
-    [ -n "$GIT_SERVER_PID" ] && kill "$GIT_SERVER_PID" 2>/dev/null || true
-    if [ "$PROVISIONED" = false ]; then
+    if [ "$MODE" = all ]; then
+        [ -n "$GIT_SERVER_CONTAINER" ] && docker stop "$GIT_SERVER_CONTAINER" >/dev/null 2>&1 || true
+    fi
+    if [ "$MODE" = all ] && [ "$PROVISIONED" = false ]; then
         (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
             "$TALOSCTL" cluster destroy --name "$NAME" --provisioner qemu >/dev/null 2>&1) || true
     fi
-    sudo rm -rf "$STATE" || true
+    if [ "$MODE" = all ] && [ "$STATE_OWNED" = true ]; then
+        sudo rm -rf "$STATE" || true
+    fi
     exit "$rc"
 }
 trap cleanup EXIT
 
+start_local_git_server() {
+    GIT_SERVER_CONTAINER="$NAME-git"
+    docker run --detach --rm --name "$GIT_SERVER_CONTAINER" \
+        --publish "$GIT_PORT:23232" \
+        --env SOFT_SERVE_GIT_ENABLED=false \
+        --env SOFT_SERVE_LFS_ENABLED=false \
+        --env SOFT_SERVE_SSH_LISTEN_ADDR=127.0.0.1:23231 \
+        --env SOFT_SERVE_STATS_ENABLED=false \
+        --entrypoint /bin/sh \
+        ghcr.io/charmbracelet/soft-serve:v0.11.6 \
+        -c 'set -eu; ssh-keygen -q -t ed25519 -N "" -f /tmp/admin; export SOFT_SERVE_INITIAL_ADMIN_KEYS="$(cat /tmp/admin.pub)"; /usr/local/bin/soft serve & pid=$!; until ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost settings anon-access read-write; do sleep 1; done; ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost repo create repo; wait "$pid"' \
+        >/dev/null
+    deadline=$((SECONDS + 60))
+    until git ls-remote "$GIT_PUSH_URL" >/dev/null 2>&1; do
+        if (( SECONDS >= deadline )); then
+            just log fatal "Soft Serve is not reachable"
+        fi
+        sleep 1
+    done
+}
+
+prepare() {
 if [ "$PROVISIONED" = false ]; then
     echo "==> booting maintenance-mode nodes"
     (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
@@ -90,43 +126,25 @@ for ip in "${NODES[@]}"; do
 done
 
 echo "==> generating cluster.toml"
-cat > cluster.toml <<EOF
-[network]
-node_cidr       = "$CIDR"
-default_gateway = "${E2E_GATEWAY:-$PREFIX.1}"
-
-[kubernetes.api]
-addr = "$PREFIX.100"
-
-[gateways]
-internal = "$PREFIX.101"
-dns      = "$PREFIX.102"
-
-[domain]
-name = "e2e.example.com"
-
-[dns]
-provider = "none"
-
-[repository]
-url = "http://$GIT_HOST:$GIT_PORT/repo.git"
-
-[talos]
-schematic_id = "$SCHEMATIC"
-EOF
+export E2E_CIDR="$CIDR"
+export E2E_GATEWAY="${E2E_GATEWAY:-$PREFIX.1}"
+export E2E_GIT_HOST="$GIT_HOST"
+export E2E_GIT_PORT="$GIT_PORT"
+export E2E_PREFIX="$PREFIX"
+export E2E_SCHEMATIC="$SCHEMATIC"
+envsubst '${E2E_CIDR} ${E2E_GATEWAY} ${E2E_GIT_HOST} ${E2E_GIT_PORT} ${E2E_PREFIX} ${E2E_SCHEMATIC}' \
+    < "$E2E_DIR/cluster.toml.tmpl" > cluster.toml
 index=0
 for ip in "${NODES[@]}"; do
     controller=false
     for cp in "${CONTROLPLANES[@]}"; do [ "$ip" = "$cp" ] && controller=true; done
-    cat >> cluster.toml <<EOF
-
-[[nodes]]
-name       = "e2e-$index"
-address    = "$ip"
-controller = $controller
-disk       = "${DISKS[$ip]}"
-mac_addr   = "${MACS[$ip]}"
-EOF
+    export E2E_NODE_NAME="e2e-$index"
+    export E2E_NODE_ADDRESS="$ip"
+    export E2E_NODE_CONTROLLER="$controller"
+    export E2E_NODE_DISK="${DISKS[$ip]}"
+    export E2E_NODE_MAC="${MACS[$ip]}"
+    envsubst '${E2E_NODE_ADDRESS} ${E2E_NODE_CONTROLLER} ${E2E_NODE_DISK} ${E2E_NODE_MAC} ${E2E_NODE_NAME}' \
+        < "$E2E_DIR/node.toml.tmpl" >> cluster.toml
     index=$((index + 1))
 done
 
@@ -144,17 +162,10 @@ git -C "$STATE/gitwork" init --quiet --initial-branch main
 git -C "$STATE/gitwork" add --all
 git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
     commit --quiet --message "rendered workspace"
-git clone --quiet --bare "$STATE/gitwork" "$STATE/repo.git"
-python3 .github/template-tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT" \
-    >"$STATE/git-server.log" 2>&1 &
-GIT_SERVER_PID=$!
+git -C "$STATE/gitwork" push --quiet "$GIT_PUSH_URL" main
+}
 
-echo "==> bootstrap talos"
-just bootstrap talos
-
-echo "==> bootstrap apps"
-just bootstrap apps
-
+assert_cluster_health() {
 echo "==> asserting cluster health"
 kubectl wait nodes --all --for=condition=Ready --timeout=10m
 for ns in kube-system cert-manager flux-system; do
@@ -166,6 +177,112 @@ kubectl wait fluxinstance/flux --namespace flux-system --for=condition=Ready --t
 kubectl wait gitrepositories --all --all-namespaces --for=condition=Ready --timeout=5m
 kubectl wait kustomizations --all --all-namespaces --for=condition=Ready --timeout=10m
 kubectl wait helmreleases --all --all-namespaces --for=condition=Ready --timeout=10m
+}
+
+foundation() {
+deadline=$((SECONDS + 60))
+until git ls-remote "http://$GIT_HOST:$GIT_PORT/repo.git" >/dev/null 2>&1; do
+    if (( SECONDS >= deadline )); then
+        just log fatal "Rendered repository server is not reachable"
+    fi
+    sleep 1
+done
+echo "==> bootstrap talos"
+just bootstrap talos
+
+echo "==> bootstrap apps"
+just bootstrap apps
+assert_cluster_health
+
+echo "==> asserting bootstrap idempotency"
+just configure
+just bootstrap talos
+just bootstrap apps
+assert_cluster_health
+}
+
+flux_sops() {
+echo "==> asserting Flux SOPS decryption"
+SOPS_SECRET="$STATE/gitwork/kubernetes/apps/default/e2e-sops.sops.yaml"
+export E2E_SOPS_VALUE=flux-decrypted
+envsubst '${E2E_SOPS_VALUE}' < "$E2E_DIR/sops-secret.yaml.tmpl" > "$SOPS_SECRET"
+sops encrypt --filename-override kubernetes/apps/default/e2e-sops.sops.yaml \
+    --in-place "$SOPS_SECRET"
+yq --inplace '.resources += ["./e2e-sops.sops.yaml"]' \
+    "$STATE/gitwork/kubernetes/apps/default/kustomization.yaml"
+git -C "$STATE/gitwork" add --all
+git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
+    commit --quiet --message "test Flux SOPS decryption"
+git -C "$STATE/gitwork" push --quiet "$GIT_PUSH_URL" main
+flux reconcile kustomization cluster-apps --with-source --timeout=10m
+test "$(kubectl get secret e2e-sops --namespace default \
+    --output jsonpath='{.data.value}' | base64 --decode)" = "flux-decrypted"
+}
+
+networking() {
+echo "==> asserting pod networking and DNS"
+export E2E_CONTROLPLANE_NODE="$(kubectl get nodes \
+    --selector=node-role.kubernetes.io/control-plane \
+    --output jsonpath='{.items[0].metadata.name}')"
+export E2E_WORKER_NODE="$(kubectl get nodes \
+    --selector='!node-role.kubernetes.io/control-plane' \
+    --output jsonpath='{.items[0].metadata.name}')"
+NETWORK_CONFIG="$STATE/network.yaml"
+envsubst '${E2E_CONTROLPLANE_NODE} ${E2E_WORKER_NODE}' \
+    < "$E2E_DIR/network.yaml.tmpl" > "$NETWORK_CONFIG"
+kubectl apply --filename "$NETWORK_CONFIG"
+kubectl wait pods/e2e-network-server pods/e2e-network-client \
+    --namespace default --for=condition=Ready --timeout=5m
+SERVER_IP="$(kubectl get pod e2e-network-server --namespace default \
+    --output jsonpath='{.status.podIP}')"
+kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=10s "$SERVER_IP:8080"
+kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=10s e2e-network-server.default.svc.cluster.local:8080
+kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=10s github.com:443
+kubectl apply --filename "$E2E_DIR/cilium-network-policy.yaml"
+deadline=$((SECONDS + 60))
+while kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=2s "$SERVER_IP:8080" &>/dev/null; do
+    if (( SECONDS >= deadline )); then
+        just log fatal "CiliumNetworkPolicy did not block pod traffic"
+    fi
+    sleep 2
+done
+kubectl delete ciliumnetworkpolicy e2e-deny-server --namespace default
+deadline=$((SECONDS + 60))
+until kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=2s "$SERVER_IP:8080" &>/dev/null; do
+    if (( SECONDS >= deadline )); then
+        just log fatal "Pod traffic did not recover after removing CiliumNetworkPolicy"
+    fi
+    sleep 2
+done
+}
+
+summary() {
 kubectl get nodes --output wide
 kubectl get kustomizations,helmreleases --all-namespaces
 echo "==> e2e bootstrap succeeded"
+}
+
+case "$MODE" in
+    prepare)    prepare ;;
+    foundation) foundation ;;
+    flux-sops)  flux_sops ;;
+    networking) networking ;;
+    summary)    summary ;;
+    all)
+        start_local_git_server
+        prepare
+        foundation
+        flux_sops
+        networking
+        summary
+        ;;
+    *)
+        echo "usage: $0 {prepare|foundation|flux-sops|networking|summary|all}" >&2
+        exit 2
+        ;;
+esac

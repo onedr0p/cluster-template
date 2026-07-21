@@ -1,0 +1,22 @@
+[network]
+node_cidr       = "${E2E_CIDR}"
+default_gateway = "${E2E_GATEWAY}"
+
+[kubernetes.api]
+addr = "${E2E_PREFIX}.100"
+
+[gateways]
+internal = "${E2E_PREFIX}.101"
+dns      = "${E2E_PREFIX}.102"
+
+[domain]
+name = "e2e.example.com"
+
+[dns]
+provider = "none"
+
+[repository]
+url = "http://${E2E_GIT_HOST}:${E2E_GIT_PORT}/repo.git"
+
+[talos]
+schematic_id = "${E2E_SCHEMATIC}"

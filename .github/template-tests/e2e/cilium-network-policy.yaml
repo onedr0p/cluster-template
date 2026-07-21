@@ -1,0 +1,12 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: e2e-deny-server
+  namespace: default
+spec:
+  endpointSelector:
+    matchLabels:
+      app: e2e-network-server
+  ingress:
+    - {}

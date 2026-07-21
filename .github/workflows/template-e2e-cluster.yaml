@@ -22,6 +22,29 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    services:
+      git:
+        image: ghcr.io/charmbracelet/soft-serve:v0.11.6
+        env:
+          SOFT_SERVE_GIT_ENABLED: "false"
+          SOFT_SERVE_LFS_ENABLED: "false"
+          SOFT_SERVE_SSH_LISTEN_ADDR: "127.0.0.1:23231"
+          SOFT_SERVE_STATS_ENABLED: "false"
+        ports:
+          - 8418:23232
+        entrypoint: /bin/sh
+        command: >-
+          -c "set -eu; ssh-keygen -q -t ed25519 -N '' -f /tmp/admin;
+          export SOFT_SERVE_INITIAL_ADMIN_KEYS=$(cat /tmp/admin.pub);
+          /usr/local/bin/soft serve & pid=$!;
+          until ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost settings anon-access read-write; do sleep 1; done;
+          ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost repo create repo;
+          wait $pid"
+        options: >-
+          --health-cmd "git ls-remote http://localhost:23232/repo.git"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 30
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,7 +54,7 @@ jobs:
       - name: Install QEMU
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends qemu-system-x86 qemu-utils ovmf
+          sudo apt-get install --yes --no-install-recommends gettext-base qemu-system-x86 qemu-utils ovmf
 
       - name: Setup mise
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
@@ -44,10 +67,36 @@ jobs:
         with:
           config: ./.github/template-tests/e2e/talos-cluster.yaml
 
-      - name: Run bootstrap e2e
-        run: bash ./.github/template-tests/e2e/cluster.sh
+      - name: Export cluster environment
         env:
-          E2E_CONTROLPLANE_IPS: "${{ steps.cluster.outputs.controlplane-ips }}"
-          E2E_WORKER_IPS: "${{ steps.cluster.outputs.worker-ips }}"
-          E2E_GATEWAY: "${{ steps.cluster.outputs.gateway }}"
-          E2E_CIDR: "10.9.0.0/24"
+          CONTROLPLANE_IPS: "${{ steps.cluster.outputs.controlplane-ips }}"
+          GATEWAY: "${{ steps.cluster.outputs.gateway }}"
+          WORKER_IPS: "${{ steps.cluster.outputs.worker-ips }}"
+        run: |
+          echo "E2E_CONTROLPLANE_IPS=$CONTROLPLANE_IPS" >> "$GITHUB_ENV"
+          echo "E2E_WORKER_IPS=$WORKER_IPS" >> "$GITHUB_ENV"
+          echo "E2E_GATEWAY=$GATEWAY" >> "$GITHUB_ENV"
+          echo "E2E_CIDR=10.9.0.0/24" >> "$GITHUB_ENV"
+          echo "E2E_STATE=$RUNNER_TEMP/template-e2e" >> "$GITHUB_ENV"
+
+      - name: Prepare cluster
+        run: bash ./.github/template-tests/e2e/cluster.sh prepare
+
+      - name: Build healthy cluster foundation
+        run: bash ./.github/template-tests/e2e/cluster.sh foundation
+
+      - name: Test Flux SOPS
+        id: flux-sops
+        run: bash ./.github/template-tests/e2e/cluster.sh flux-sops
+        background: true
+
+      - name: Test networking
+        id: networking
+        run: bash ./.github/template-tests/e2e/cluster.sh networking
+        background: true
+
+      - name: Wait for E2E tests
+        wait: [flux-sops, networking]
+
+      - name: Summarize cluster
+        run: bash ./.github/template-tests/e2e/cluster.sh summary
