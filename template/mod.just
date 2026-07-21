@@ -1,5 +1,6 @@
 set quiet
 set default-list
+set default-script
 set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
 set working-directory := '..'
@@ -27,7 +28,6 @@ configure: configure-preconditions render encrypt-secrets validate-kubernetes va
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
 [group('template')]
 [no-exit-message]
-[script]
 doctor:
     rc=0
     just log info "just version" version "{{ just_version() }}"
@@ -77,7 +77,6 @@ tidy: tidy-preconditions tidy-strip tidy-archive
 # cloudflare-tunnel.json is only needed when the config uses the tunnel; an
 # unparseable config falls through so render can surface validation errors.
 [private]
-[script]
 configure-preconditions:
     mode="$(uv run --quiet "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
     if [ "$mode" = "cloudflare-tunnel" ] && [ ! -f "{{ cloudflare_tunnel }}" ]; then
@@ -87,7 +86,6 @@ configure-preconditions:
 
 [no-exit-message]
 [private]
-[script]
 doctor-check label path:
     if [ -e "{{ path }}" ]; then
         just log info "ok" file "{{ label }}"
@@ -97,7 +95,6 @@ doctor-check label path:
     fi
 
 [private]
-[script]
 encrypt-secrets:
     find "{{ bootstrap_dir }}" "{{ kubernetes_dir }}" "{{ talos_dir }}" -type f -name '*.sops.*' -print0 \
         | while IFS= read -r -d '' f; do
@@ -119,7 +116,6 @@ render:
     PYTHONDONTWRITEBYTECODE=1 makejinja
 
 [private]
-[script]
 tidy-archive:
     TIDY_FOLDER="{{ private_dir }}/$(date +%s)"
     mkdir -p "$TIDY_FOLDER"

@@ -2,6 +2,7 @@ set quiet
 set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
 set default-list
+set default-script
 
 # Day-2 apply/upgrade recipes rely on topf's built-in diff-and-confirm
 # prompt; only the destructive reset recipes disable it in favour of just's
@@ -12,6 +13,7 @@ set default-list
 apply:
     topf apply
 
+[arg('mode', pattern='auto|reboot|no-reboot|staged|try')]
 [doc('Apply Talos config to a node (shows a diff and asks first)')]
 [group('talos')]
 apply-node node mode='auto':

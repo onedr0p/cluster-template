@@ -1,6 +1,7 @@
 set quiet
 set minimum-version := '1.55.1'
 set default-list
+set default-script
 set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
 
