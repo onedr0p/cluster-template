@@ -165,6 +165,21 @@ class Bgp(Model):
     router_asn: Asn = ""
     node_asn: Asn = ""
 
+    @model_validator(mode="after")
+    def check(self) -> Self:
+        unset = [name for name in ("router_addr", "router_asn", "node_asn") if getattr(self, name) == ""]
+        if unset and len(unset) < 3:
+            raise ValueError(
+                "bgp is partially configured: set router_addr, router_asn and "
+                f"node_asn together (missing: {', '.join(unset)})"
+            )
+        return self
+
+
+class Talos(Model):
+    # Default Image Factory schematic for nodes that don't set their own.
+    schematic_id: str | None = Field(default=None, pattern=r"^[a-z0-9]{64}$")
+
 
 class Spegel(Model):
     # True when the cluster has more than one node, unless set explicitly.
@@ -182,11 +197,12 @@ class Node(Model):
     controller: bool
     disk: str
     mac_addr: str = Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
-    schematic_id: str = Field(pattern=r"^[a-z0-9]{64}$")
-    mtu: int | None = Field(default=None, ge=1450, le=9000)
-    secureboot: bool | None = None
-    encrypt_disk: bool | None = None
-    kernel_modules: list[str] | None = None
+    # Falls back to talos.schematic_id when unset.
+    schematic_id: str | None = Field(default=None, pattern=r"^[a-z0-9]{64}$")
+    mtu: int = Field(default=1500, ge=1450, le=9000)
+    secureboot: bool = False
+    encrypt_disk: bool = False
+    kernel_modules: list[str] = []
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -210,6 +226,7 @@ class Config(Model):
         )
     )
     cilium: Cilium = Cilium()
+    talos: Talos = Talos()
     spegel: Spegel = Spegel()
     nodes: list[Node]
 
@@ -237,6 +254,14 @@ class Config(Model):
     def check(self) -> Self:
         if self.spegel.enabled is None:
             self.spegel.enabled = len(self.nodes) > 1
+        for i, node in enumerate(self.nodes):
+            if node.schematic_id is None:
+                node.schematic_id = self.talos.schematic_id
+            if node.schematic_id is None:
+                raise ValueError(
+                    f"nodes[{i}].schematic_id is required: set it on the node "
+                    "or set a cluster-wide default in [talos]"
+                )
         if self.ingress.mode != "none" and self.dns.provider != "cloudflare":
             raise ValueError(
                 f"ingress.mode {self.ingress.mode!r} requires dns.provider 'cloudflare'"

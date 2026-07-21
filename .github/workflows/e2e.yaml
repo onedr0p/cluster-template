@@ -46,6 +46,8 @@ jobs:
           - missing-dns-token
           - tunnel-without-dns
           - missing-external-gateway
+          - missing-schematic
+          - partial-bgp
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
