@@ -128,20 +128,30 @@ render:
 tidy-archive:
     TIDY_FOLDER="{{ private_dir }}/$(date +%s)"
     mkdir -p "$TIDY_FOLDER"
-    rm -rf "{{ justfile_dir() }}/.github/tests" "{{ justfile_dir() }}/.github/workflows"/template-*.yaml
-    mv "{{ template_dir }}"         "$TIDY_FOLDER/template"
-    mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
-    mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
-    mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
-    mv "{{ justfile_dir() }}/pyproject.toml" "$TIDY_FOLDER/pyproject.toml"
-    mv "{{ justfile_dir() }}/uv.lock"        "$TIDY_FOLDER/uv.lock"
+    rm -rf "{{ justfile_dir() }}/.github/template-tests" "{{ justfile_dir() }}/.github/workflows"/template-*.yaml
+    mv \
+        "{{ template_dir }}" \
+        "{{ makejinja_config }}" \
+        "{{ config_file }}" \
+        "{{ sample_config_file }}" \
+        "{{ justfile_dir() }}/pyproject.toml" \
+        "{{ justfile_dir() }}/uv.lock" \
+        "$TIDY_FOLDER/"
     rm -rf "{{ justfile_dir() }}/.venv"
 
 [private]
 tidy-preconditions:
     test -d "{{ template_dir }}"
+    test -d "{{ justfile_dir() }}/.github/template-tests"
     test -f "{{ makejinja_config }}"
+    test -f "{{ config_file }}"
+    test -f "{{ sample_config_file }}"
+    test -f "{{ justfile_dir() }}/pyproject.toml"
+    test -f "{{ justfile_dir() }}/uv.lock"
+    test -f "{{ justfile_dir() }}/justfile"
+    test -f "{{ justfile_dir() }}/.mise/config.toml"
     test -f "{{ justfile_dir() }}/.renovaterc.json5"
+    compgen -G "{{ justfile_dir() }}/.github/workflows/template-*.yaml" > /dev/null
 
 [private]
 tidy-strip:

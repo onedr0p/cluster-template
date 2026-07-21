@@ -61,7 +61,7 @@ jobs:
 
       - name: Assert schema rejects ${{ matrix.fixture }}.toml
         run: |
-          fixture=./.github/tests/invalid/${{ matrix.fixture }}.toml
+          fixture=./.github/template-tests/invalid/${{ matrix.fixture }}.toml
           if uv run --quiet --locked ./template/scripts/validate.py "$fixture" >/dev/null 2>&1; then
             echo "::error::schema accepted invalid fixture ${{ matrix.fixture }} (expected rejection)"
             exit 1
@@ -123,7 +123,7 @@ jobs:
 
       - name: Prepare files
         run: |
-          cp ./.github/tests/valid/${{ matrix.fixture }}.toml cluster.toml
+          cp ./.github/template-tests/valid/${{ matrix.fixture }}.toml cluster.toml
           echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflare-tunnel.json
           touch kubeconfig
 

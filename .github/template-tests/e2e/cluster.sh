@@ -145,7 +145,7 @@ git -C "$STATE/gitwork" add --all
 git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
     commit --quiet --message "rendered workspace"
 git clone --quiet --bare "$STATE/gitwork" "$STATE/repo.git"
-python3 .github/tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT" \
+python3 .github/template-tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT" \
     >"$STATE/git-server.log" 2>&1 &
 GIT_SERVER_PID=$!
 
