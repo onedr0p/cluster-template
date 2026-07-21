@@ -33,12 +33,12 @@ jobs:
           - 8418:23232
         entrypoint: /bin/sh
         command: >-
-          -c 'set -eu; ssh-keygen -q -t ed25519 -N "" -f /tmp/admin;
-          export SOFT_SERVE_INITIAL_ADMIN_KEYS="$(cat /tmp/admin.pub)";
+          -c "set -eu; ssh-keygen -q -t ed25519 -N '' -f /tmp/admin;
+          export SOFT_SERVE_INITIAL_ADMIN_KEYS=$(cat /tmp/admin.pub);
           /usr/local/bin/soft serve & pid=$!;
           until ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost settings anon-access read-write; do sleep 1; done;
           ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost repo create repo;
-          wait "$pid"'
+          wait $pid"
         options: >-
           --health-cmd "git ls-remote http://localhost:23232/repo.git"
           --health-interval 2s
