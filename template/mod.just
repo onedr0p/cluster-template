@@ -128,7 +128,7 @@ render:
 tidy-archive:
     TIDY_FOLDER="{{ private_dir }}/$(date +%s)"
     mkdir -p "$TIDY_FOLDER"
-    rm -rf "{{ justfile_dir() }}/.github/tests" "{{ justfile_dir() }}/.github/workflows/e2e.yaml" "{{ justfile_dir() }}/.github/workflows/e2e-cluster.yaml" "{{ justfile_dir() }}/.github/workflows/release.yaml"
+    rm -rf "{{ justfile_dir() }}/.github/tests" "{{ justfile_dir() }}/.github/workflows"/template-*.yaml
     mv "{{ template_dir }}"         "$TIDY_FOLDER/template"
     mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
     mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
