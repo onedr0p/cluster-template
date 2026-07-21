@@ -132,7 +132,10 @@ url = ""
 # reconciled instantly. Gitea and Forgejo emulate GitHub webhooks, so keep
 # "github" for them. Use "generic-hmac" for anything else that signs with
 # HMAC; see https://fluxcd.io/flux/components/notification/receivers/
-# OPTIONAL. Default: "github". Allowed: "github" | "gitlab" | "generic-hmac"
+# Use "none" to skip the webhook entirely (e.g. your Git host cannot reach
+# the cluster); Flux then only polls on an interval.
+# OPTIONAL. Default: "github".
+# Allowed: "github" | "gitlab" | "generic-hmac" | "none"
 
 # webhook_provider = "github"
 

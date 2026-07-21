@@ -88,8 +88,9 @@ _known_ssh_hosts: ["github.com", "gitlab.com", "codeberg.org"]
 	// Repository branch Flux watches.
 	branch: *"main" | string & !=""
 	// Webhook payload format the Flux Receiver verifies. Gitea and Forgejo
-	// emulate GitHub webhooks, so "github" also covers them.
-	webhook_provider: *"github" | "gitlab" | "generic-hmac"
+	// emulate GitHub webhooks, so "github" also covers them. Set to "none"
+	// to skip the webhook entirely; Flux then only polls on an interval.
+	webhook_provider: *"github" | "gitlab" | "generic-hmac" | "none"
 	// SSH host keys for the git host (ssh-keyscan output). Bundled for
 	// github.com, gitlab.com and codeberg.org; required for ssh:// URLs to
 	// any other host.
