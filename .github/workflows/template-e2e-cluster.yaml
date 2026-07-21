@@ -22,6 +22,28 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    services:
+      git:
+        image: ghcr.io/charmbracelet/soft-serve:v0.11.6
+        env:
+          SOFT_SERVE_GIT_ENABLED: "false"
+          SOFT_SERVE_LFS_ENABLED: "false"
+          SOFT_SERVE_STATS_ENABLED: "false"
+        ports:
+          - 8418:23232
+        entrypoint: /bin/sh
+        command: >-
+          -c 'set -eu; ssh-keygen -q -t ed25519 -N "" -f /tmp/admin;
+          export SOFT_SERVE_INITIAL_ADMIN_KEYS="$(cat /tmp/admin.pub)";
+          /usr/local/bin/soft serve & pid=$!;
+          until ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost settings anon-access read-write; do sleep 1; done;
+          ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost repo create repo;
+          wait "$pid"'
+        options: >-
+          --health-cmd "git ls-remote http://localhost:23232/repo.git"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 30
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -59,11 +81,6 @@ jobs:
       - name: Prepare cluster
         run: bash ./.github/template-tests/e2e/cluster.sh prepare
 
-      - name: Serve rendered repository
-        id: git-server
-        run: bash ./.github/template-tests/e2e/cluster.sh serve-git
-        background: true
-
       - name: Build healthy cluster foundation
         run: bash ./.github/template-tests/e2e/cluster.sh foundation
 
@@ -82,6 +99,3 @@ jobs:
 
       - name: Summarize cluster
         run: bash ./.github/template-tests/e2e/cluster.sh summary
-
-      - name: Stop rendered repository server
-        cancel: git-server

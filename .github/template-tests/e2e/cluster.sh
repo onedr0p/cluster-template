@@ -9,8 +9,8 @@
 #     passes E2E_CONTROLPLANE_IPS / E2E_WORKER_IPS / E2E_CIDR; the action's
 #     post step destroys them.
 #   - Local: run with no env set; the script boots and destroys the cluster
-#     itself. Requires /dev/kvm, passwordless sudo, qemu-system-x86, and the
-#     repo's mise toolchain on PATH.
+#     itself. Requires Docker, /dev/kvm, passwordless sudo, qemu-system-x86,
+#     and the repo's mise toolchain on PATH.
 #
 # Renders into the working tree like any configure run.
 set -euo pipefail
@@ -38,7 +38,7 @@ NODES=("${CONTROLPLANES[@]}" "${WORKERS[@]}")
 # served from there over git smart HTTP so Flux can sync it.
 GIT_HOST="${E2E_GATEWAY:-$PREFIX.1}"
 GIT_PORT=8418
-GIT_SERVER_PID=""
+GIT_SERVER_CONTAINER=""
 
 # The provisioner runs under sudo and writes state relative to its cwd and
 # TALOSCONFIG, so both are pointed at a scratch dir to keep root-owned files
@@ -51,21 +51,22 @@ else
     STATE_OWNED=true
 fi
 mkdir -p "$STATE"
+GIT_PUSH_URL="http://127.0.0.1:$GIT_PORT/repo.git"
 
 cleanup() {
     rc=$?
-    if [ "$rc" -ne 0 ] && [ "$MODE" != serve-git ]; then
+    if [ "$rc" -ne 0 ]; then
         echo "==> e2e failed (rc=$rc), collecting diagnostics"
         kubectl get pods --all-namespaces 2>/dev/null || true
         kubectl get gitrepositories,kustomizations,helmreleases --all-namespaces 2>/dev/null || true
         kubectl get events --all-namespaces --sort-by=.lastTimestamp 2>/dev/null | tail -30 || true
-        tail -5 "$STATE/git-server.log" 2>/dev/null || true
+        [ -n "$GIT_SERVER_CONTAINER" ] && docker logs --tail 5 "$GIT_SERVER_CONTAINER" 2>/dev/null || true
         for ip in "${NODES[@]}"; do
             talosctl -n "$ip" dmesg 2>/dev/null | tail -20 || true
         done
     fi
     if [ "$MODE" = all ]; then
-        [ -n "$GIT_SERVER_PID" ] && kill "$GIT_SERVER_PID" 2>/dev/null || true
+        [ -n "$GIT_SERVER_CONTAINER" ] && docker stop "$GIT_SERVER_CONTAINER" >/dev/null 2>&1 || true
     fi
     if [ "$MODE" = all ] && [ "$PROVISIONED" = false ]; then
         (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
@@ -77,6 +78,26 @@ cleanup() {
     exit "$rc"
 }
 trap cleanup EXIT
+
+start_local_git_server() {
+    GIT_SERVER_CONTAINER="$NAME-git"
+    docker run --detach --rm --name "$GIT_SERVER_CONTAINER" \
+        --publish "$GIT_PORT:23232" \
+        --env SOFT_SERVE_GIT_ENABLED=false \
+        --env SOFT_SERVE_LFS_ENABLED=false \
+        --env SOFT_SERVE_STATS_ENABLED=false \
+        --entrypoint /bin/sh \
+        ghcr.io/charmbracelet/soft-serve:v0.11.6 \
+        -c 'set -eu; ssh-keygen -q -t ed25519 -N "" -f /tmp/admin; export SOFT_SERVE_INITIAL_ADMIN_KEYS="$(cat /tmp/admin.pub)"; /usr/local/bin/soft serve & pid=$!; until ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost settings anon-access read-write; do sleep 1; done; ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost repo create repo; wait "$pid"' \
+        >/dev/null
+    deadline=$((SECONDS + 60))
+    until git ls-remote "$GIT_PUSH_URL" >/dev/null 2>&1; do
+        if (( SECONDS >= deadline )); then
+            just log fatal "Soft Serve is not reachable"
+        fi
+        sleep 1
+    done
+}
 
 prepare() {
 if [ "$PROVISIONED" = false ]; then
@@ -157,11 +178,7 @@ git -C "$STATE/gitwork" init --quiet --initial-branch main
 git -C "$STATE/gitwork" add --all
 git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
     commit --quiet --message "rendered workspace"
-git clone --quiet --bare "$STATE/gitwork" "$STATE/repo.git"
-}
-
-serve_git() {
-    exec python3 .github/template-tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT"
+git -C "$STATE/gitwork" push --quiet "$GIT_PUSH_URL" main
 }
 
 foundation() {
@@ -216,7 +233,7 @@ yq --inplace '.resources += ["./e2e-sops.sops.yaml"]' \
 git -C "$STATE/gitwork" add --all
 git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
     commit --quiet --message "test Flux SOPS decryption"
-git -C "$STATE/gitwork" push --quiet "$STATE/repo.git" main
+git -C "$STATE/gitwork" push --quiet "$GIT_PUSH_URL" main
 flux reconcile kustomization cluster-apps --with-source --timeout=10m
 test "$(kubectl get secret e2e-sops --namespace default \
     --output jsonpath='{.data.value}' | base64 --decode)" = "flux-decrypted"
@@ -323,23 +340,20 @@ echo "==> e2e bootstrap succeeded"
 
 case "$MODE" in
     prepare)    prepare ;;
-    serve-git)  serve_git ;;
     foundation) foundation ;;
     flux-sops)  flux_sops ;;
     networking) networking ;;
     summary)    summary ;;
     all)
+        start_local_git_server
         prepare
-        python3 .github/template-tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT" \
-            >"$STATE/git-server.log" 2>&1 &
-        GIT_SERVER_PID=$!
         foundation
         flux_sops
         networking
         summary
         ;;
     *)
-        echo "usage: $0 {prepare|serve-git|foundation|flux-sops|networking|summary|all}" >&2
+        echo "usage: $0 {prepare|foundation|flux-sops|networking|summary|all}" >&2
         exit 2
         ;;
 esac
