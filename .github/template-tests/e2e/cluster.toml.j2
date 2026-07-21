@@ -1,0 +1,31 @@
+[network]
+node_cidr       = "{{ ENV.E2E_CIDR }}"
+default_gateway = "{{ ENV.E2E_GATEWAY }}"
+
+[kubernetes.api]
+addr = "{{ ENV.E2E_PREFIX }}.100"
+
+[gateways]
+internal = "{{ ENV.E2E_PREFIX }}.101"
+dns      = "{{ ENV.E2E_PREFIX }}.102"
+
+[domain]
+name = "e2e.example.com"
+
+[dns]
+provider = "none"
+
+[repository]
+url = "http://{{ ENV.E2E_GIT_HOST }}:{{ ENV.E2E_GIT_PORT }}/repo.git"
+
+[talos]
+schematic_id = "{{ ENV.E2E_SCHEMATIC }}"
+{% for index in range(ENV.E2E_NODE_COUNT | int) %}
+
+[[nodes]]
+name       = "{{ ENV['E2E_NODE_' ~ index ~ '_NAME'] }}"
+address    = "{{ ENV['E2E_NODE_' ~ index ~ '_ADDRESS'] }}"
+controller = {{ ENV['E2E_NODE_' ~ index ~ '_CONTROLLER'] }}
+disk       = "{{ ENV['E2E_NODE_' ~ index ~ '_DISK'] }}"
+mac_addr   = "{{ ENV['E2E_NODE_' ~ index ~ '_MAC'] }}"
+{% endfor %}

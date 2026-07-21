@@ -17,6 +17,7 @@ set -euo pipefail
 
 NAME="${E2E_NAME:-template-e2e}"
 MODE="${1:-all}"
+E2E_DIR=".github/template-tests/e2e"
 CIDR="${E2E_CIDR:-10.9.0.0/24}"
 PREFIX="${CIDR%/*}"
 PREFIX="${PREFIX%.*}"
@@ -125,45 +126,27 @@ for ip in "${NODES[@]}"; do
 done
 
 echo "==> generating cluster.toml"
-cat > cluster.toml <<EOF
-[network]
-node_cidr       = "$CIDR"
-default_gateway = "${E2E_GATEWAY:-$PREFIX.1}"
-
-[kubernetes.api]
-addr = "$PREFIX.100"
-
-[gateways]
-internal = "$PREFIX.101"
-dns      = "$PREFIX.102"
-
-[domain]
-name = "e2e.example.com"
-
-[dns]
-provider = "none"
-
-[repository]
-url = "http://$GIT_HOST:$GIT_PORT/repo.git"
-
-[talos]
-schematic_id = "$SCHEMATIC"
-EOF
+export E2E_CIDR="$CIDR"
+export E2E_GATEWAY="${E2E_GATEWAY:-$PREFIX.1}"
+export E2E_GIT_HOST="$GIT_HOST"
+export E2E_GIT_PORT="$GIT_PORT"
+export E2E_NODE_COUNT="${#NODES[@]}"
+export E2E_PREFIX="$PREFIX"
+export E2E_SCHEMATIC="$SCHEMATIC"
 index=0
 for ip in "${NODES[@]}"; do
     controller=false
     for cp in "${CONTROLPLANES[@]}"; do [ "$ip" = "$cp" ] && controller=true; done
-    cat >> cluster.toml <<EOF
-
-[[nodes]]
-name       = "e2e-$index"
-address    = "$ip"
-controller = $controller
-disk       = "${DISKS[$ip]}"
-mac_addr   = "${MACS[$ip]}"
-EOF
+    printf -v "E2E_NODE_${index}_NAME" '%s' "e2e-$index"
+    printf -v "E2E_NODE_${index}_ADDRESS" '%s' "$ip"
+    printf -v "E2E_NODE_${index}_CONTROLLER" '%s' "$controller"
+    printf -v "E2E_NODE_${index}_DISK" '%s' "${DISKS[$ip]}"
+    printf -v "E2E_NODE_${index}_MAC" '%s' "${MACS[$ip]}"
+    export "E2E_NODE_${index}_NAME" "E2E_NODE_${index}_ADDRESS" \
+        "E2E_NODE_${index}_CONTROLLER" "E2E_NODE_${index}_DISK" "E2E_NODE_${index}_MAC"
     index=$((index + 1))
 done
+minijinja-cli --autoescape none --env --strict "$E2E_DIR/cluster.toml.j2" --output cluster.toml
 
 echo "==> configure"
 just init
@@ -221,16 +204,8 @@ assert_cluster_health
 flux_sops() {
 echo "==> asserting Flux SOPS decryption"
 SOPS_SECRET="$STATE/gitwork/kubernetes/apps/default/e2e-sops.sops.yaml"
-cat > "$SOPS_SECRET" <<EOF
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: e2e-sops
-  namespace: default
-stringData:
-  value: flux-decrypted
-EOF
+export E2E_SOPS_VALUE=flux-decrypted
+minijinja-cli --autoescape none --env --strict "$E2E_DIR/sops-secret.yaml.j2" --output "$SOPS_SECRET"
 sops encrypt --filename-override kubernetes/apps/default/e2e-sops.sops.yaml \
     --in-place "$SOPS_SECRET"
 yq --inplace '.resources += ["./e2e-sops.sops.yaml"]' \
@@ -246,56 +221,15 @@ test "$(kubectl get secret e2e-sops --namespace default \
 
 networking() {
 echo "==> asserting pod networking and DNS"
-CONTROLPLANE_NODE="$(kubectl get nodes \
+export E2E_CONTROLPLANE_NODE="$(kubectl get nodes \
     --selector=node-role.kubernetes.io/control-plane \
     --output jsonpath='{.items[0].metadata.name}')"
-WORKER_NODE="$(kubectl get nodes \
+export E2E_WORKER_NODE="$(kubectl get nodes \
     --selector='!node-role.kubernetes.io/control-plane' \
     --output jsonpath='{.items[0].metadata.name}')"
-kubectl apply --filename - <<EOF
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: e2e-network-server
-  namespace: default
-  labels:
-    app: e2e-network-server
-spec:
-  nodeName: $WORKER_NODE
-  containers:
-    - name: server
-      image: registry.k8s.io/e2e-test-images/agnhost:2.66.0
-      args: ["netexec", "--http-port=8080"]
-      ports:
-        - name: http
-          containerPort: 8080
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: e2e-network-server
-  namespace: default
-spec:
-  selector:
-    app: e2e-network-server
-  ports:
-    - name: http
-      port: 8080
-      targetPort: http
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: e2e-network-client
-  namespace: default
-spec:
-  nodeName: $CONTROLPLANE_NODE
-  containers:
-    - name: client
-      image: registry.k8s.io/e2e-test-images/agnhost:2.66.0
-      args: ["pause"]
-EOF
+NETWORK_CONFIG="$STATE/network.yaml"
+minijinja-cli --autoescape none --env --strict "$E2E_DIR/network.yaml.j2" --output "$NETWORK_CONFIG"
+kubectl apply --filename "$NETWORK_CONFIG"
 kubectl wait pods/e2e-network-server pods/e2e-network-client \
     --namespace default --for=condition=Ready --timeout=5m
 SERVER_IP="$(kubectl get pod e2e-network-server --namespace default \
@@ -306,20 +240,7 @@ kubectl exec --namespace default e2e-network-client -- \
     /agnhost connect --timeout=10s e2e-network-server.default.svc.cluster.local:8080
 kubectl exec --namespace default e2e-network-client -- \
     /agnhost connect --timeout=10s github.com:443
-kubectl apply --filename - <<EOF
----
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-metadata:
-  name: e2e-deny-server
-  namespace: default
-spec:
-  endpointSelector:
-    matchLabels:
-      app: e2e-network-server
-  ingress:
-    - {}
-EOF
+kubectl apply --filename "$E2E_DIR/cilium-network-policy.yaml"
 deadline=$((SECONDS + 60))
 while kubectl exec --namespace default e2e-network-client -- \
     /agnhost connect --timeout=2s "$SERVER_IP:8080" &>/dev/null; do

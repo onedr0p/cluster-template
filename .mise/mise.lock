@@ -46,6 +46,45 @@ url = "https://github.com/FiloSottile/age/releases/download/v1.3.1/age-v1.3.1-wi
 url_api = "https://api.github.com/repos/FiloSottile/age/releases/assets/333752673"
 provenance = "github-attestations"
 
+[[tools."aqua:mitsuhiko/minijinja"]]
+version = "2.21.0"
+backend = "aqua:mitsuhiko/minijinja"
+
+[tools."aqua:mitsuhiko/minijinja"."platforms.linux-arm64"]
+checksum = "sha256:2fb95a98cee9650dd8e2124a28303c432e4a08ac7636336faa3d20e7a3f5ffee"
+url = "https://github.com/mitsuhiko/minijinja/releases/download/2.21.0/minijinja-cli-aarch64-unknown-linux-musl.tar.xz"
+url_api = "https://api.github.com/repos/mitsuhiko/minijinja/releases/assets/450244906"
+
+[tools."aqua:mitsuhiko/minijinja"."platforms.linux-arm64-musl"]
+checksum = "sha256:2fb95a98cee9650dd8e2124a28303c432e4a08ac7636336faa3d20e7a3f5ffee"
+url = "https://github.com/mitsuhiko/minijinja/releases/download/2.21.0/minijinja-cli-aarch64-unknown-linux-musl.tar.xz"
+url_api = "https://api.github.com/repos/mitsuhiko/minijinja/releases/assets/450244906"
+
+[tools."aqua:mitsuhiko/minijinja"."platforms.linux-x64"]
+checksum = "sha256:d2c91c46739f7e41b8666d877a65881c180f81011890da9229d2a4b1e1991b2f"
+url = "https://github.com/mitsuhiko/minijinja/releases/download/2.21.0/minijinja-cli-x86_64-unknown-linux-musl.tar.xz"
+url_api = "https://api.github.com/repos/mitsuhiko/minijinja/releases/assets/450244948"
+
+[tools."aqua:mitsuhiko/minijinja"."platforms.linux-x64-musl"]
+checksum = "sha256:d2c91c46739f7e41b8666d877a65881c180f81011890da9229d2a4b1e1991b2f"
+url = "https://github.com/mitsuhiko/minijinja/releases/download/2.21.0/minijinja-cli-x86_64-unknown-linux-musl.tar.xz"
+url_api = "https://api.github.com/repos/mitsuhiko/minijinja/releases/assets/450244948"
+
+[tools."aqua:mitsuhiko/minijinja"."platforms.macos-arm64"]
+checksum = "sha256:894dd61341cb9e6e2ca305c9d4d9191aed011d58b7bcb189fe881acb10c282a2"
+url = "https://github.com/mitsuhiko/minijinja/releases/download/2.21.0/minijinja-cli-aarch64-apple-darwin.tar.xz"
+url_api = "https://api.github.com/repos/mitsuhiko/minijinja/releases/assets/450244892"
+
+[tools."aqua:mitsuhiko/minijinja"."platforms.macos-x64"]
+checksum = "sha256:059372d00d5cc02f21a6088ed71b63dac89e433a560e6ccce2f5ad2ad9937233"
+url = "https://github.com/mitsuhiko/minijinja/releases/download/2.21.0/minijinja-cli-x86_64-apple-darwin.tar.xz"
+url_api = "https://api.github.com/repos/mitsuhiko/minijinja/releases/assets/450244932"
+
+[tools."aqua:mitsuhiko/minijinja"."platforms.windows-x64"]
+checksum = "sha256:ce86a18d883e82b8b46d2480db6a80233e50d1452fab3a513d8e0d396f34014e"
+url = "https://github.com/mitsuhiko/minijinja/releases/download/2.21.0/minijinja-cli-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/mitsuhiko/minijinja/releases/assets/450244937"
+
 [[tools.cloudflared]]
 version = "2026.7.2"
 backend = "aqua:cloudflare/cloudflared"
