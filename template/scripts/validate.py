@@ -31,7 +31,7 @@ from pydantic import (
 # pointing anywhere else must provide repository.known_hosts.
 KNOWN_SSH_HOSTS = ["github.com", "gitlab.com", "codeberg.org"]
 
-REPO_URL_PATTERN = r"^(https://|ssh://git@)[^/]+/.+$"
+REPO_URL_PATTERN = r"^(https?://|ssh://git@)[^/]+/.+$"
 FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
 
 

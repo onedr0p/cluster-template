@@ -138,6 +138,9 @@ jobs:
       - name: Run flate test
         run: flate test all -p ./kubernetes/flux/cluster
 
+      - name: Render bootstrap helmfile charts
+        run: just template test-helmfile
+
       - name: Dry run bootstrap talos recipe
         run: just --dry-run bootstrap talos
 
