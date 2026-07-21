@@ -1,6 +1,6 @@
 # /// script
-# requires-python = ">=3.11"
-# dependencies = ["pydantic>=2.7"]
+# requires-python = ">=3.14"
+# dependencies = ["pydantic>=2.12"]
 # ///
 """Validate cluster.toml, apply defaults, and emit the config as JSON.
 
@@ -12,7 +12,8 @@ config is invalid.
 """
 
 from ipaddress import IPv4Address, IPv4Network
-from typing import Annotated, Any, Literal
+from pathlib import Path
+from typing import Annotated, Any, Literal, Self
 
 import json
 import re
@@ -64,8 +65,9 @@ def _asn(value: str) -> str:
     return value
 
 
-Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
-Asn = Annotated[str, AfterValidator(_asn)]
+type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
+type Asn = Annotated[str, AfterValidator(_asn)]
+type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN)]
 
 
 class Model(BaseModel):
@@ -76,14 +78,14 @@ class Network(Model):
     node_cidr: Cidr
     dns_servers: list[IPv4Address] = [IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")]
     ntp_servers: list[IPv4Address] = [IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")]
-    # Defaults to the first IP in node_cidr.
-    default_gateway: IPv4Address = None  # type: ignore[assignment]
+    # The first IP in node_cidr unless set explicitly.
+    default_gateway: IPv4Address = Field(
+        default_factory=lambda data: data["node_cidr"].network_address + 1
+    )
     vlan_tag: str | None = Field(default=None, pattern=r"^[0-9]+$")
 
     @model_validator(mode="after")
-    def check(self) -> "Network":
-        if self.default_gateway is None:
-            self.default_gateway = self.node_cidr.network_address + 1
+    def check(self) -> Self:
         if self.default_gateway not in self.node_cidr:
             raise ValueError(
                 f"default_gateway {self.default_gateway} is not inside node_cidr {self.node_cidr}"
@@ -95,20 +97,20 @@ class Network(Model):
 
 class Api(Model):
     addr: IPv4Address
-    tls_sans: list[Annotated[str, Field(pattern=FQDN_PATTERN)]] | None = None
+    tls_sans: list[Fqdn] | None = None
 
 
 class Kubernetes(Model):
     pod_cidr: Cidr = IPv4Network("10.42.0.0/16")
     svc_cidr: Cidr = IPv4Network("10.43.0.0/16")
-    # Defaults to the 10th IP in svc_cidr.
-    coredns_addr: IPv4Address = None  # type: ignore[assignment]
+    # The 10th IP in svc_cidr unless set explicitly.
+    coredns_addr: IPv4Address = Field(
+        default_factory=lambda data: data["svc_cidr"].network_address + 10
+    )
     api: Api
 
     @model_validator(mode="after")
-    def check(self) -> "Kubernetes":
-        if self.coredns_addr is None:
-            self.coredns_addr = self.svc_cidr.network_address + 10
+    def check(self) -> Self:
         if self.coredns_addr not in self.svc_cidr:
             raise ValueError(
                 f"coredns_addr {self.coredns_addr} is not inside svc_cidr {self.svc_cidr}"
@@ -129,7 +131,7 @@ class Repository(Model):
     known_hosts: str = ""
 
     @model_validator(mode="after")
-    def check(self) -> "Repository":
+    def check(self) -> Self:
         if self.url.startswith("ssh://"):
             host = self.url.removeprefix("ssh://git@").split("/", 1)[0].split(":", 1)[0]
             if host not in KNOWN_SSH_HOSTS and not self.known_hosts:
@@ -141,7 +143,7 @@ class Repository(Model):
 
 
 class Cloudflare(Model):
-    domain: str = Field(pattern=FQDN_PATTERN)
+    domain: Fqdn
     token: str
 
 
@@ -169,7 +171,7 @@ class Node(Model):
     kernel_modules: list[str] | None = None
 
     @model_validator(mode="after")
-    def check(self) -> "Node":
+    def check(self) -> Self:
         if self.name in ("global", "controller", "worker"):
             raise ValueError(f"node name {self.name!r} is reserved")
         return self
@@ -183,20 +185,17 @@ class Config(Model):
     cloudflare: Cloudflare
     cilium: Cilium = Cilium()
     nodes: list[Node]
-    # Defaults to true when there is more than one node.
-    spegel_enabled: bool = None  # type: ignore[assignment]
+    # True when there is more than one node, unless set explicitly.
+    spegel_enabled: bool = Field(default_factory=lambda data: len(data["nodes"]) > 1)
 
-    @computed_field  # type: ignore[prop-decorator]
+    @computed_field
     @property
     def cilium_bgp_enabled(self) -> bool:
         bgp = self.cilium.bgp
         return bgp.router_addr != "" and bgp.router_asn != "" and bgp.node_asn != ""
 
     @model_validator(mode="after")
-    def check(self) -> "Config":
-        if self.spegel_enabled is None:
-            self.spegel_enabled = len(self.nodes) > 1
-
+    def check(self) -> Self:
         cidrs = {
             "network.node_cidr": self.network.node_cidr,
             "kubernetes.pod_cidr": self.kubernetes.pod_cidr,
@@ -270,13 +269,13 @@ class ConfigError(Exception):
 # Validate config_file and return the defaulted config as a plain dict.
 # Raises ConfigError with a human-readable message.
 def load(config_file: str = "cluster.toml") -> dict[str, Any]:
+    path = Path(config_file)
     try:
-        with open(config_file, "rb") as file:
-            raw = tomllib.load(file)
+        raw = tomllib.loads(path.read_text())
     except FileNotFoundError:
-        raise ConfigError(f"{config_file}: file not found") from None
+        raise ConfigError(f"{path}: file not found") from None
     except tomllib.TOMLDecodeError as e:
-        raise ConfigError(f"{config_file}: invalid TOML: {e}") from None
+        raise ConfigError(f"{path}: invalid TOML: {e}") from None
 
     try:
         config = Config.model_validate(raw)

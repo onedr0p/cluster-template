@@ -13,7 +13,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from validate import Config, ConfigError, load  # noqa: E402
+from pydantic import ValidationError  # noqa: E402
+from validate import Config, ConfigError, format_errors, load  # noqa: E402
 
 REPO_ROOT = Path(__file__).parents[2]
 VALID = sorted((REPO_ROOT / ".github/tests/valid").glob("*.toml"))
@@ -46,10 +47,6 @@ def test_invalid_fixture_rejected(fixture: Path):
 
 
 def _load_raw(raw: dict) -> Config:
-    from pydantic import ValidationError
-
-    from validate import format_errors
-
     try:
         return Config.model_validate(raw)
     except ValidationError as e:
