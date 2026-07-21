@@ -19,9 +19,8 @@ dns      = "10.10.10.253"
 external = "10.10.10.251"
 
 [repository]
-name       = "onedr0p/cluster-template"
-branch     = "main"
-visibility = "public"
+url    = "https://github.com/onedr0p/cluster-template.git"
+branch = "main"
 
 [cloudflare]
 domain = "example.com"

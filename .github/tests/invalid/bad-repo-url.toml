@@ -1,5 +1,6 @@
-# Negative fixture: two nodes with the same name.
-# Expected to be rejected by `_node_name_check` (list.UniqueItems).
+# Negative fixture: scp-style git URL ("git@host:owner/repo.git") instead of
+# the canonical https:// or ssh://git@ form.
+# Expected to be rejected by the repository.url pattern.
 [network]
 node_cidr = "10.10.10.0/24"
 
@@ -12,7 +13,7 @@ dns      = "10.10.10.253"
 external = "10.10.10.251"
 
 [repository]
-url = "https://github.com/onedr0p/cluster-template.git"
+url = "git@github.com:onedr0p/cluster-template.git"
 
 [cloudflare]
 domain = "example.com"
@@ -24,12 +25,4 @@ address      = "10.10.10.100"
 controller   = true
 disk         = "/dev/sdfake"
 mac_addr     = "00:00:00:00:00:00"
-schematic_id = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
-
-[[nodes]]
-name         = "k8s-0"
-address      = "10.10.10.101"
-controller   = false
-disk         = "/dev/sdfake"
-mac_addr     = "00:00:00:00:00:01"
 schematic_id = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"

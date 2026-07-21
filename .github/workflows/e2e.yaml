@@ -33,6 +33,8 @@ jobs:
           - duplicate-node-names
           - reserved-node-name
           - bad-mac-address
+          - bad-repo-url
+          - missing-known-hosts
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -68,6 +70,7 @@ jobs:
         fixture:
           - public
           - private
+          - selfhosted
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

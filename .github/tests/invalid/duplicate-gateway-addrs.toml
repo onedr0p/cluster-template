@@ -12,7 +12,7 @@ dns      = "10.10.10.252"
 external = "10.10.10.251"
 
 [repository]
-name = "onedr0p/cluster-template"
+url = "https://github.com/onedr0p/cluster-template.git"
 
 [cloudflare]
 domain = "example.com"

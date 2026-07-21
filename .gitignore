@@ -4,9 +4,9 @@
 *.decrypted~*.yaml
 /age.key
 /cloudflare-tunnel.json
-/github-deploy.key
-/github-deploy.key.pub
-/github-push-token.txt
+/deploy.key
+/deploy.key.pub
+/flux-webhook-token.txt
 # Template config files
 /cluster.toml
 # Kubernetes

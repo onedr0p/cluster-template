@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: deploy-key
+  namespace: flux-system
+stringData:
+  identity: |
+    #% filter indent(width=4, first=False) %#
+    #{ deploy_key() }#
+    #% endfilter %#
+  known_hosts: |
+    #% filter indent(width=4, first=False) %#
+    #{ repository.known_hosts }#
+    #% endfilter %#

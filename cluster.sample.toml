@@ -104,16 +104,23 @@ external = ""
 
 
 # =============================================================================
-#    The GitHub repo Flux will sync from. This is the single source of truth
+#    The Git repo Flux will sync from. This is the single source of truth
 #    for everything in your cluster — once bootstrapped, changes are made by
-#    pushing to this repo.
+#    pushing to this repo. Any Git host works: GitHub, GitLab, Gitea,
+#    Forgejo, Codeberg or self-hosted.
 # =============================================================================
 [repository]
 
-# `<owner>/<repo>` of the GitHub repository this cluster will pull from.
+# Full clone URL of the repository this cluster will pull from.
 # Must be the repo you cloned this template into.
-# REQUIRED. Example: "onedr0p/home-ops"
-name = ""
+# Use `https://` if the repo is publicly readable. Use `ssh://git@` if it is
+# private: the template then wires up a deploy key (`deploy.key.pub`) so
+# Flux can clone over SSH; see the README for the extra setup step.
+# REQUIRED. Examples:
+#   "https://github.com/onedr0p/home-ops.git"
+#   "ssh://git@gitlab.com/onedr0p/home-ops.git"
+#   "ssh://git@git.example.com/k8s/home-ops.git"
+url = ""
 
 # Branch Flux watches. Changes pushed to this branch get reconciled into the
 # cluster.
@@ -121,12 +128,23 @@ name = ""
 
 # branch = "main"
 
-# Whether the repo is publicly readable. If `private`, the template wires up
-# a deploy key (`github-deploy.key.pub`) so Flux can clone over SSH — see
-# the README for the extra setup step.
-# OPTIONAL. Default: "public". Allowed: "public" | "private"
+# Webhook payload format the Flux webhook Receiver verifies, so pushes are
+# reconciled instantly. Gitea and Forgejo emulate GitHub webhooks, so keep
+# "github" for them. Use "generic-hmac" for anything else that signs with
+# HMAC; see https://fluxcd.io/flux/components/notification/receivers/
+# OPTIONAL. Default: "github". Allowed: "github" | "gitlab" | "generic-hmac"
 
-# visibility = "public"
+# webhook_provider = "github"
+
+# SSH host keys for your Git host (`ssh-keyscan -t ed25519,ecdsa,rsa <host>`
+# output). Only used with `ssh://` URLs. Keys for github.com, gitlab.com and
+# codeberg.org are bundled; REQUIRED for any other host.
+# OPTIONAL. Example:
+#   known_hosts = """
+#   git.example.com ssh-ed25519 AAAA...
+#   """
+
+# known_hosts = ""
 
 
 # =============================================================================

@@ -21,11 +21,9 @@ spec:
         - notification-controller
       sync:
         kind: GitRepository
-        #% if repository.visibility == 'private' %#
-        url: "ssh://git@github.com/#{ repository.name }#.git"
-        pullSecret: github-deploy-key
-        #% else %#
-        url: "https://github.com/#{ repository.name }#.git"
+        url: "#{ repository.url }#"
+        #% if repository.url.startswith('ssh://') %#
+        pullSecret: deploy-key
         #% endif %#
         ref: "refs/heads/#{ repository.branch }#"
         path: kubernetes/flux/cluster
