@@ -57,14 +57,13 @@ jobs:
       - name: Assert schema rejects ${{ matrix.fixture }}.toml
         run: |
           fixture=./.github/tests/invalid/${{ matrix.fixture }}.toml
-          schema=./template/resources/config.schema.cue
-          if cue export "$fixture" "$schema" --out yaml >/dev/null 2>&1; then
+          if uv run --quiet ./template/scripts/validate.py "$fixture" >/dev/null 2>&1; then
             echo "::error::schema accepted invalid fixture ${{ matrix.fixture }} (expected rejection)"
             exit 1
           fi
           echo "schema correctly rejected ${{ matrix.fixture }}"
           # Also surface the actual error message in the log for debuggability.
-          cue export "$fixture" "$schema" --out yaml || true
+          uv run --quiet ./template/scripts/validate.py "$fixture" || true
 
   validate-valid:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}

@@ -15,7 +15,7 @@ makejinja_config := justfile_dir() + '/makejinja.toml'
 
 config_file := justfile_dir() + '/cluster.toml'
 sample_config_file := justfile_dir() + '/cluster.sample.toml'
-schema_file := template_resources + '/config.schema.cue'
+validate_script := template_dir + '/scripts/validate.py'
 deploy_key := justfile_dir() + '/deploy.key'
 webhook_token_file := justfile_dir() + '/flux-webhook-token.txt'
 cloudflare_tunnel := justfile_dir() + '/cloudflare-tunnel.json'
@@ -39,13 +39,13 @@ doctor:
     just template doctor-check "flux-webhook-token.txt" "{{ webhook_token_file }}"    || rc=1
     just template doctor-check "template/"              "{{ template_dir }}"          || rc=1
     just template doctor-check "makejinja.toml"         "{{ makejinja_config }}"      || rc=1
-    just template doctor-check "config.schema.cue"      "{{ schema_file }}"           || rc=1
-    if [ -f "{{ config_file }}" ] && [ -f "{{ schema_file }}" ]; then
-        if cue export "{{ config_file }}" "{{ schema_file }}" --out yaml >/dev/null 2>&1; then
+    just template doctor-check "validate.py"            "{{ validate_script }}"       || rc=1
+    if [ -f "{{ config_file }}" ] && [ -f "{{ validate_script }}" ]; then
+        if uv run --quiet "{{ validate_script }}" "{{ config_file }}" >/dev/null 2>&1; then
             just log info "ok" check schema
         else
             just log error "fail" check schema
-            just log info "diagnose with: cue export {{ config_file }} {{ schema_file }}"
+            just log info "diagnose with: uv run {{ validate_script }} {{ config_file }}"
             rc=1
         fi
     fi
@@ -103,7 +103,7 @@ encrypt-secrets:
 
 [private]
 render:
-    test -f "{{ schema_file }}"
+    test -f "{{ validate_script }}"
     test -f "{{ template_dir }}/scripts/plugin.py"
     test -f "{{ makejinja_config }}"
     PYTHONDONTWRITEBYTECODE=1 makejinja

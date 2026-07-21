@@ -5,7 +5,7 @@ import base64
 import json
 import makejinja
 import re
-import subprocess
+import validate
 
 
 # Return the filename of a path without the j2 extension
@@ -112,7 +112,6 @@ def talos_patches(value: str) -> list[str]:
 
 
 CONFIG_FILE = 'cluster.toml'
-SCHEMA_FILE = 'template/resources/config.schema.cue'
 
 # SSH host keys as published by each provider. Must cover every host in
 # _known_ssh_hosts in the CUE schema; any other host requires the user to set
@@ -136,16 +135,14 @@ KNOWN_HOSTS = {
 }
 
 
-# Run `cue export` to validate and apply schema defaults to the user's config.
-def cue_export() -> dict[str, Any]:
+# makejinja adds import_paths (this directory) to sys.path, and pydantic is
+# installed into makejinja's venv via uvx_args in .mise/config.toml, so the
+# validator runs in-process.
+def validate_config() -> dict[str, Any]:
     try:
-        result = subprocess.run(
-            ['cue', 'export', CONFIG_FILE, SCHEMA_FILE, '--out', 'json'],
-            capture_output=True, check=True, text=True,
-        )
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"cue export failed:\n{e.stderr}") from None
-    return json.loads(result.stdout)
+        return validate.load(CONFIG_FILE)
+    except validate.ConfigError as e:
+        raise RuntimeError(f"config validation failed:\n{e}") from None
 
 
 class Plugin(makejinja.plugin.Plugin):
@@ -154,7 +151,7 @@ class Plugin(makejinja.plugin.Plugin):
 
 
     def data(self) -> makejinja.plugin.Data:
-        data = cue_export()
+        data = validate_config()
         # The deploy key secret always pins every bundled provider host key
         # (entries are matched per-hostname, so unused ones are inert);
         # user-supplied entries for self-hosted git servers are appended.

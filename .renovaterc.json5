@@ -75,4 +75,14 @@
       addLabels: ["renovate/github-release"],
     },
   ],
+  customManagers: [
+    {
+      description: "Pydantic pinned in the validator script and makejinja venv",
+      customType: "regex",
+      managerFilePatterns: ["/^\\.mise/config\\.toml$/", "/^template/scripts/.*\\.py$/"],
+      matchStrings: ["pydantic==(?<currentValue>[0-9.]+)"],
+      depNameTemplate: "pydantic",
+      datasourceTemplate: "pypi",
+    },
+  ],
 }

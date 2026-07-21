@@ -6,11 +6,10 @@ TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
 JUST_UNSTABLE = "1"
 
 [tools]
-uv = "0.11.30"             # required:template
-"pipx:makejinja" = "2.8.2" # required:template
+uv = "0.11.30"                                                                 # required:template
+"pipx:makejinja" = { version = "2.8.2", uvx_args = "--with pydantic==2.13.4" } # required:template
 age = "1.3.1"
 cloudflared = "2026.7.2"
-cue = "0.17.1"             # required:template
 flux2 = "2.9.2"
 gh = "2.96.0"
 gum = "0.17.0"
@@ -23,7 +22,7 @@ kubectl = "1.36.2"
 kustomize = "5.8.1"
 lefthook = "2.1.10"
 oxfmt = "0.59.0"
-sd = "1.1.0"               # required:template
+sd = "1.1.0"                                                                   # required:template
 sops = "3.13.2"
 talhelper = "3.1.13"
 talosctl = "1.13.6"
