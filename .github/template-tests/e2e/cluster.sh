@@ -16,6 +16,7 @@
 set -euo pipefail
 
 NAME="${E2E_NAME:-template-e2e}"
+MODE="${1:-all}"
 CIDR="${E2E_CIDR:-10.9.0.0/24}"
 PREFIX="${CIDR%/*}"
 PREFIX="${PREFIX%.*}"
@@ -42,11 +43,18 @@ GIT_SERVER_PID=""
 # The provisioner runs under sudo and writes state relative to its cwd and
 # TALOSCONFIG, so both are pointed at a scratch dir to keep root-owned files
 # out of the repo.
-STATE="$(mktemp -d)"
+if [ -n "${E2E_STATE:-}" ]; then
+    STATE="$E2E_STATE"
+    STATE_OWNED=false
+else
+    STATE="$(mktemp -d)"
+    STATE_OWNED=true
+fi
+mkdir -p "$STATE"
 
 cleanup() {
     rc=$?
-    if [ "$rc" -ne 0 ]; then
+    if [ "$rc" -ne 0 ] && [ "$MODE" != serve-git ]; then
         echo "==> e2e failed (rc=$rc), collecting diagnostics"
         kubectl get pods --all-namespaces 2>/dev/null || true
         kubectl get gitrepositories,kustomizations,helmreleases --all-namespaces 2>/dev/null || true
@@ -56,16 +64,21 @@ cleanup() {
             talosctl -n "$ip" dmesg 2>/dev/null | tail -20 || true
         done
     fi
-    [ -n "$GIT_SERVER_PID" ] && kill "$GIT_SERVER_PID" 2>/dev/null || true
-    if [ "$PROVISIONED" = false ]; then
+    if [ "$MODE" = all ]; then
+        [ -n "$GIT_SERVER_PID" ] && kill "$GIT_SERVER_PID" 2>/dev/null || true
+    fi
+    if [ "$MODE" = all ] && [ "$PROVISIONED" = false ]; then
         (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
             "$TALOSCTL" cluster destroy --name "$NAME" --provisioner qemu >/dev/null 2>&1) || true
     fi
-    sudo rm -rf "$STATE" || true
+    if [ "$MODE" = all ] && [ "$STATE_OWNED" = true ]; then
+        sudo rm -rf "$STATE" || true
+    fi
     exit "$rc"
 }
 trap cleanup EXIT
 
+prepare() {
 if [ "$PROVISIONED" = false ]; then
     echo "==> booting maintenance-mode nodes"
     (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
@@ -145,10 +158,20 @@ git -C "$STATE/gitwork" add --all
 git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
     commit --quiet --message "rendered workspace"
 git clone --quiet --bare "$STATE/gitwork" "$STATE/repo.git"
-python3 .github/template-tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT" \
-    >"$STATE/git-server.log" 2>&1 &
-GIT_SERVER_PID=$!
+}
 
+serve_git() {
+    exec python3 .github/template-tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT"
+}
+
+foundation() {
+deadline=$((SECONDS + 60))
+until git ls-remote "http://$GIT_HOST:$GIT_PORT/repo.git" >/dev/null 2>&1; do
+    if (( SECONDS >= deadline )); then
+        just log fatal "Rendered repository server is not reachable"
+    fi
+    sleep 1
+done
 echo "==> bootstrap talos"
 just bootstrap talos
 
@@ -171,7 +194,9 @@ kubectl wait fluxinstance/flux --namespace flux-system --for=condition=Ready --t
 kubectl wait gitrepositories --all --all-namespaces --for=condition=Ready --timeout=5m
 kubectl wait kustomizations --all --all-namespaces --for=condition=Ready --timeout=10m
 kubectl wait helmreleases --all --all-namespaces --for=condition=Ready --timeout=10m
+}
 
+flux_sops() {
 echo "==> asserting Flux SOPS decryption"
 SOPS_SECRET="$STATE/gitwork/kubernetes/apps/default/e2e-sops.sops.yaml"
 cat > "$SOPS_SECRET" <<EOF
@@ -195,7 +220,9 @@ git -C "$STATE/gitwork" push --quiet "$STATE/repo.git" main
 flux reconcile kustomization cluster-apps --with-source --timeout=10m
 test "$(kubectl get secret e2e-sops --namespace default \
     --output jsonpath='{.data.value}' | base64 --decode)" = "flux-decrypted"
+}
 
+networking() {
 echo "==> asserting pod networking and DNS"
 CONTROLPLANE_NODE="$(kubectl get nodes --output json | jq -r \
     '.items[] | select(.metadata.labels["node-role.kubernetes.io/control-plane"] != null) | .metadata.name' | head -1)"
@@ -214,7 +241,7 @@ spec:
   nodeName: $WORKER_NODE
   containers:
     - name: server
-      image: registry.k8s.io/e2e-test-images/agnhost:2.63.0
+      image: registry.k8s.io/e2e-test-images/agnhost:2.66.0
       args: ["netexec", "--http-port=8080"]
       ports:
         - name: http
@@ -242,7 +269,7 @@ spec:
   nodeName: $CONTROLPLANE_NODE
   containers:
     - name: client
-      image: registry.k8s.io/e2e-test-images/agnhost:2.63.0
+      image: registry.k8s.io/e2e-test-images/agnhost:2.66.0
       args: ["pause"]
 EOF
 kubectl wait pods/e2e-network-server pods/e2e-network-client \
@@ -286,7 +313,33 @@ until kubectl exec --namespace default e2e-network-client -- \
     fi
     sleep 2
 done
+}
 
+summary() {
 kubectl get nodes --output wide
 kubectl get kustomizations,helmreleases --all-namespaces
 echo "==> e2e bootstrap succeeded"
+}
+
+case "$MODE" in
+    prepare)    prepare ;;
+    serve-git)  serve_git ;;
+    foundation) foundation ;;
+    flux-sops)  flux_sops ;;
+    networking) networking ;;
+    summary)    summary ;;
+    all)
+        prepare
+        python3 .github/template-tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT" \
+            >"$STATE/git-server.log" 2>&1 &
+        GIT_SERVER_PID=$!
+        foundation
+        flux_sops
+        networking
+        summary
+        ;;
+    *)
+        echo "usage: $0 {prepare|serve-git|foundation|flux-sops|networking|summary|all}" >&2
+        exit 2
+        ;;
+esac

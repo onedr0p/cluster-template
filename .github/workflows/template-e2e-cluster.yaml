@@ -44,10 +44,44 @@ jobs:
         with:
           config: ./.github/template-tests/e2e/talos-cluster.yaml
 
-      - name: Run bootstrap e2e
-        run: bash ./.github/template-tests/e2e/cluster.sh
+      - name: Export cluster environment
         env:
-          E2E_CONTROLPLANE_IPS: "${{ steps.cluster.outputs.controlplane-ips }}"
-          E2E_WORKER_IPS: "${{ steps.cluster.outputs.worker-ips }}"
-          E2E_GATEWAY: "${{ steps.cluster.outputs.gateway }}"
-          E2E_CIDR: "10.9.0.0/24"
+          CONTROLPLANE_IPS: "${{ steps.cluster.outputs.controlplane-ips }}"
+          GATEWAY: "${{ steps.cluster.outputs.gateway }}"
+          WORKER_IPS: "${{ steps.cluster.outputs.worker-ips }}"
+        run: |
+          echo "E2E_CONTROLPLANE_IPS=$CONTROLPLANE_IPS" >> "$GITHUB_ENV"
+          echo "E2E_WORKER_IPS=$WORKER_IPS" >> "$GITHUB_ENV"
+          echo "E2E_GATEWAY=$GATEWAY" >> "$GITHUB_ENV"
+          echo "E2E_CIDR=10.9.0.0/24" >> "$GITHUB_ENV"
+          echo "E2E_STATE=$RUNNER_TEMP/template-e2e" >> "$GITHUB_ENV"
+
+      - name: Prepare cluster
+        run: bash ./.github/template-tests/e2e/cluster.sh prepare
+
+      - name: Serve rendered repository
+        id: git-server
+        run: bash ./.github/template-tests/e2e/cluster.sh serve-git
+        background: true
+
+      - name: Build healthy cluster foundation
+        run: bash ./.github/template-tests/e2e/cluster.sh foundation
+
+      - name: Test Flux SOPS
+        id: flux-sops
+        run: bash ./.github/template-tests/e2e/cluster.sh flux-sops
+        background: true
+
+      - name: Test networking
+        id: networking
+        run: bash ./.github/template-tests/e2e/cluster.sh networking
+        background: true
+
+      - name: Wait for E2E tests
+        wait: [flux-sops, networking]
+
+      - name: Summarize cluster
+        run: bash ./.github/template-tests/e2e/cluster.sh summary
+
+      - name: Stop rendered repository server
+        cancel: git-server
