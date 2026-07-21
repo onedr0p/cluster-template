@@ -81,8 +81,8 @@ apps-secrets:
         "{{ kubernetes_dir }}/components/sops/cluster-secrets.sops.yaml"
     do
         name="$(basename "$secret" .sops.yaml)"
-        if sops exec-file "$secret" \
-                "kubectl --namespace flux-system apply --server-side --filename {}" &>/dev/null; then
+        if sops decrypt "$secret" \
+                | kubectl --namespace flux-system apply --server-side --filename - &>/dev/null; then
             just log info "Secret applied" resource "$name"
         else
             just log fatal "Failed to apply secret" resource "$name"

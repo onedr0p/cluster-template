@@ -101,7 +101,7 @@ encrypt-secrets:
                 just log fatal "could not read encryption status" file "$f"
             fi
             case "$status" in
-                false) sops --encrypt --in-place "$f" ;;
+                false) sops encrypt --in-place "$f" ;;
                 true)  : ;;
                 *)     just log fatal "could not determine encryption status" file "$f" ;;
             esac
@@ -164,3 +164,6 @@ validate-kubernetes:
 [working-directory('talos')]
 validate-talos:
     topf render --confirm=false --output "$(mktemp -d)" >/dev/null
+    if ! sops filestatus secrets.sops.yaml | jq --exit-status '.encrypted == true' >/dev/null; then
+        just log fatal "Talos secrets bundle is not encrypted"
+    fi
