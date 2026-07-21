@@ -130,23 +130,20 @@ export E2E_CIDR="$CIDR"
 export E2E_GATEWAY="${E2E_GATEWAY:-$PREFIX.1}"
 export E2E_GIT_HOST="$GIT_HOST"
 export E2E_GIT_PORT="$GIT_PORT"
-export E2E_NODE_COUNT="${#NODES[@]}"
 export E2E_PREFIX="$PREFIX"
 export E2E_SCHEMATIC="$SCHEMATIC"
+E2E_NODES=""
 index=0
 for ip in "${NODES[@]}"; do
     controller=false
     for cp in "${CONTROLPLANES[@]}"; do [ "$ip" = "$cp" ] && controller=true; done
-    printf -v "E2E_NODE_${index}_NAME" '%s' "e2e-$index"
-    printf -v "E2E_NODE_${index}_ADDRESS" '%s' "$ip"
-    printf -v "E2E_NODE_${index}_CONTROLLER" '%s' "$controller"
-    printf -v "E2E_NODE_${index}_DISK" '%s' "${DISKS[$ip]}"
-    printf -v "E2E_NODE_${index}_MAC" '%s' "${MACS[$ip]}"
-    export "E2E_NODE_${index}_NAME" "E2E_NODE_${index}_ADDRESS" \
-        "E2E_NODE_${index}_CONTROLLER" "E2E_NODE_${index}_DISK" "E2E_NODE_${index}_MAC"
+    printf -v E2E_NODES '%s\n[[nodes]]\nname       = "%s"\naddress    = "%s"\ncontroller = %s\ndisk       = "%s"\nmac_addr   = "%s"\n' \
+        "$E2E_NODES" "e2e-$index" "$ip" "$controller" "${DISKS[$ip]}" "${MACS[$ip]}"
     index=$((index + 1))
 done
-minijinja-cli --autoescape none --env --strict "$E2E_DIR/cluster.toml.j2" --output cluster.toml
+export E2E_NODES
+envsubst '${E2E_CIDR} ${E2E_GATEWAY} ${E2E_GIT_HOST} ${E2E_GIT_PORT} ${E2E_NODES} ${E2E_PREFIX} ${E2E_SCHEMATIC}' \
+    < "$E2E_DIR/cluster.toml.tmpl" > cluster.toml
 
 echo "==> configure"
 just init
@@ -205,7 +202,7 @@ flux_sops() {
 echo "==> asserting Flux SOPS decryption"
 SOPS_SECRET="$STATE/gitwork/kubernetes/apps/default/e2e-sops.sops.yaml"
 export E2E_SOPS_VALUE=flux-decrypted
-minijinja-cli --autoescape none --env --strict "$E2E_DIR/sops-secret.yaml.j2" --output "$SOPS_SECRET"
+envsubst '${E2E_SOPS_VALUE}' < "$E2E_DIR/sops-secret.yaml.tmpl" > "$SOPS_SECRET"
 sops encrypt --filename-override kubernetes/apps/default/e2e-sops.sops.yaml \
     --in-place "$SOPS_SECRET"
 yq --inplace '.resources += ["./e2e-sops.sops.yaml"]' \
@@ -228,7 +225,8 @@ export E2E_WORKER_NODE="$(kubectl get nodes \
     --selector='!node-role.kubernetes.io/control-plane' \
     --output jsonpath='{.items[0].metadata.name}')"
 NETWORK_CONFIG="$STATE/network.yaml"
-minijinja-cli --autoescape none --env --strict "$E2E_DIR/network.yaml.j2" --output "$NETWORK_CONFIG"
+envsubst '${E2E_CONTROLPLANE_NODE} ${E2E_WORKER_NODE}' \
+    < "$E2E_DIR/network.yaml.tmpl" > "$NETWORK_CONFIG"
 kubectl apply --filename "$NETWORK_CONFIG"
 kubectl wait pods/e2e-network-server pods/e2e-network-client \
     --namespace default --for=condition=Ready --timeout=5m

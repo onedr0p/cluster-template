@@ -7,7 +7,7 @@ metadata:
   labels:
     app: e2e-network-server
 spec:
-  nodeName: "{{ ENV.E2E_WORKER_NODE }}"
+  nodeName: "${E2E_WORKER_NODE}"
   containers:
     - name: server
       image: registry.k8s.io/e2e-test-images/agnhost:2.66.0
@@ -35,7 +35,7 @@ metadata:
   name: e2e-network-client
   namespace: default
 spec:
-  nodeName: "{{ ENV.E2E_CONTROLPLANE_NODE }}"
+  nodeName: "${E2E_CONTROLPLANE_NODE}"
   containers:
     - name: client
       image: registry.k8s.io/e2e-test-images/agnhost:2.66.0

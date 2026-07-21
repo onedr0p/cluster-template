@@ -54,7 +54,7 @@ jobs:
       - name: Install QEMU
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends qemu-system-x86 qemu-utils ovmf
+          sudo apt-get install --yes --no-install-recommends gettext-base qemu-system-x86 qemu-utils ovmf
 
       - name: Setup mise
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
