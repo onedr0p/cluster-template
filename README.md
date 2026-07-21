@@ -86,13 +86,10 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
     ```sh
     mise trust
-    pip install pipx
     mise install
     ```
 
     📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
-
-    📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
 5. Logout of the GitHub Container Registry as this may cause authorization problems in future steps when using the public registry:
 

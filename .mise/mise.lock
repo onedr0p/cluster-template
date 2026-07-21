@@ -585,82 +585,9 @@ provenance = "github-attestations"
 version = "0.59.0"
 backend = "npm:oxfmt"
 
-[[tools.pipx]]
-version = "1.16.0"
-backend = "aqua:pypa/pipx"
-
-[tools.pipx."platforms.linux-arm64"]
-checksum = "sha256:2b4931409f31d679ecd7cd03c92d7df58f14d32f37145cd109054830d31b0f6f"
-url = "https://github.com/pypa/pipx/releases/download/1.16.0/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/478552145"
-
-[tools.pipx."platforms.linux-arm64-musl"]
-checksum = "sha256:2b4931409f31d679ecd7cd03c92d7df58f14d32f37145cd109054830d31b0f6f"
-url = "https://github.com/pypa/pipx/releases/download/1.16.0/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/478552145"
-
-[tools.pipx."platforms.linux-x64"]
-checksum = "sha256:2b4931409f31d679ecd7cd03c92d7df58f14d32f37145cd109054830d31b0f6f"
-url = "https://github.com/pypa/pipx/releases/download/1.16.0/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/478552145"
-
-[tools.pipx."platforms.linux-x64-musl"]
-checksum = "sha256:2b4931409f31d679ecd7cd03c92d7df58f14d32f37145cd109054830d31b0f6f"
-url = "https://github.com/pypa/pipx/releases/download/1.16.0/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/478552145"
-
-[tools.pipx."platforms.macos-arm64"]
-checksum = "sha256:2b4931409f31d679ecd7cd03c92d7df58f14d32f37145cd109054830d31b0f6f"
-url = "https://github.com/pypa/pipx/releases/download/1.16.0/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/478552145"
-
-[tools.pipx."platforms.macos-x64"]
-checksum = "sha256:2b4931409f31d679ecd7cd03c92d7df58f14d32f37145cd109054830d31b0f6f"
-url = "https://github.com/pypa/pipx/releases/download/1.16.0/pipx.pyz"
-url_api = "https://api.github.com/repos/pypa/pipx/releases/assets/478552145"
-
 [[tools."pipx:makejinja"]]
 version = "2.8.2"
 backend = "pipx:makejinja"
-
-[[tools.python]]
-version = "3.14.6"
-backend = "core:python"
-
-[tools.python."platforms.linux-arm64"]
-checksum = "sha256:c2a2caa03aa9beb77a5bbb5a009c8fe77b96a56925da2dba18095237e30faf04"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-aarch64-unknown-linux-gnu-install_only_stripped.tar.gz"
-provenance = "github-attestations"
-
-[tools.python."platforms.linux-arm64-musl"]
-checksum = "sha256:ff7da86be2a3d7fdf0124da7b408ad2de3c7ca8d6c19e6c449ec2cddedd01a8b"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-aarch64-unknown-linux-musl-install_only_stripped.tar.gz"
-provenance = "github-attestations"
-
-[tools.python."platforms.linux-x64"]
-checksum = "sha256:86bf107f65fc30b56f2b263b26797fcbb1661f5315910cdbf27f733eb8738b74"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
-provenance = "github-attestations"
-
-[tools.python."platforms.linux-x64-musl"]
-checksum = "sha256:2c27fc15bde497fbd78a8d5d38559ee1a8c93110952d5c2b390bc6481e2be415"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-x86_64-unknown-linux-musl-install_only_stripped.tar.gz"
-provenance = "github-attestations"
-
-[tools.python."platforms.macos-arm64"]
-checksum = "sha256:5e8e0746cb0108d138f510cfbb28c4b031b9ed63bbbe3e43a34c77d4663c4fa1"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-aarch64-apple-darwin-install_only_stripped.tar.gz"
-provenance = "github-attestations"
-
-[tools.python."platforms.macos-x64"]
-checksum = "sha256:2d03154bc83c6d2d048bba23bb808b020e352028f5bd541a740e54467fc9cc75"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-x86_64-apple-darwin-install_only_stripped.tar.gz"
-provenance = "github-attestations"
-
-[tools.python."platforms.windows-x64"]
-checksum = "sha256:0c5c9f231704fb49149bc8f2b9d9dbe43eeaf6c54f362ef0fc2066ce64b4d10f"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-x86_64-pc-windows-msvc-install_only_stripped.tar.gz"
-provenance = "github-attestations"
 
 [[tools.sd]]
 version = "1.1.0"

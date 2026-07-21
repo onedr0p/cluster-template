@@ -118,7 +118,6 @@ tidy-archive:
     mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
     mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
     mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
-    mv "{{ justfile_dir() }}/.venv" "$TIDY_FOLDER/.venv"
 
 [private]
 tidy-preconditions:
