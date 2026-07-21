@@ -146,14 +146,10 @@ validate-kubernetes:
     test -f "{{ template_resources }}/kubeconform.sh"
     bash "{{ template_resources }}/kubeconform.sh" "{{ kubernetes_dir }}"
 
-# Rendering needs the secrets bundle, so one is generated (and immediately
-# sops-encrypted) on first run.
+# Rendering needs the secrets bundle; topf generates and sops-encrypts one
+# on first run (--confirm=false so it never prompts mid-pipeline).
 [private]
-[script]
 [working-directory('talos')]
 validate-talos:
     test -f topf.yaml
-    if [ ! -f secrets.sops.yaml ]; then
-        topf secrets --confirm=false | sops --filename-override secrets.sops.yaml --encrypt /dev/stdin > secrets.sops.yaml
-    fi
-    topf render --output "$(mktemp -d)" >/dev/null
+    topf render --confirm=false --output "$(mktemp -d)" >/dev/null

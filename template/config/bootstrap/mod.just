@@ -15,14 +15,13 @@ talos: talos-secret talos-apply talos-talosconfig talos-kubeconfig
 apps: apps-ready apps-namespaces apps-secrets apps-crds apps-helm
     just log info "Cluster is bootstrapped — Flux will start syncing the Git repository"
 
+# topf generates the bundle on first use and stores it sops-encrypted with
+# the repo's age recipient; existing bundles are left untouched.
 [private]
-[script]
 [working-directory('../talos')]
 talos-secret:
     just log info "Generating secrets"
-    if [ ! -f secrets.sops.yaml ]; then
-        topf secrets --confirm=false | sops --filename-override secrets.sops.yaml --encrypt /dev/stdin > secrets.sops.yaml
-    fi
+    topf secrets --confirm=false > /dev/null
 
 [private]
 [working-directory('../talos')]

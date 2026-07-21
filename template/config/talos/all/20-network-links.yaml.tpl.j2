@@ -1,0 +1,46 @@
+#| Node networking as Talos 1.13+ typed network documents: a MAC-matched
+   link alias, static addressing on the link (or a VLAN on top of it), and
+   the API VIP on control-plane nodes. #|
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: ethSel0
+selector:
+  match: glob("{{ .Node.Data.macAddr }}", mac(link.hardware_addr))
+#% if network.vlan_tag %#
+---
+apiVersion: v1alpha1
+kind: VLANConfig
+name: ethSel0.#{ network.vlan_tag }#
+parent: ethSel0
+vlanID: #{ network.vlan_tag }#
+mtu: {{ .Node.Data.mtu }}
+addresses:
+  - address: "{{ .Node.IP }}/#{ network.node_cidr.split('/') | last }#"
+routes:
+  - gateway: "#{ network.default_gateway }#"
+{{- if eq .Node.Role "control-plane" }}
+---
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+link: ethSel0.#{ network.vlan_tag }#
+name: "#{ kubernetes.api.addr }#"
+{{- end }}
+#% else %#
+---
+apiVersion: v1alpha1
+kind: LinkConfig
+name: ethSel0
+mtu: {{ .Node.Data.mtu }}
+addresses:
+  - address: "{{ .Node.IP }}/#{ network.node_cidr.split('/') | last }#"
+routes:
+  - gateway: "#{ network.default_gateway }#"
+{{- if eq .Node.Role "control-plane" }}
+---
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+link: ethSel0
+name: "#{ kubernetes.api.addr }#"
+{{- end }}
+#% endif %#
