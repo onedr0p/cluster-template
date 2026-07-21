@@ -2,6 +2,8 @@ machine:
   kubelet:
     extraConfig:
       serializeImagePulls: false
+      shutdownGracePeriod: 90s
+      shutdownGracePeriodCriticalPods: 60s
     nodeIP:
       validSubnets:
         - #{ network.node_cidr }#
