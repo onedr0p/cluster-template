@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/home-operations/talosctl-cluster-action/main/schema/talos-cluster.json
+# Maintenance-mode nodes for the bootstrap e2e: the action boots and destroys
+# them, and cluster.sh exercises the template's real bootstrap flow against
+# the unconfigured nodes.
+apiVersion: v1alpha1
+kind: TalosCluster
+metadata:
+  name: template-e2e
+spec:
+  controlplanes:
+    count: 1
+    memory: 4GiB
+  workers:
+    count: 1
+    memory: 3GiB
+  network:
+    cidr: 10.9.0.0/24
+  qemu:
+    presets: [iso, maintenance]

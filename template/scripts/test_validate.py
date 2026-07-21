@@ -17,12 +17,12 @@ from pydantic import ValidationError  # noqa: E402
 from validate import Config, ConfigError, format_errors, load  # noqa: E402
 
 REPO_ROOT = Path(__file__).parents[2]
-VALID = sorted((REPO_ROOT / ".github/tests/valid").glob("*.toml"))
-INVALID = sorted((REPO_ROOT / ".github/tests/invalid").glob("*.toml"))
+VALID = sorted((REPO_ROOT / ".github/template-tests/valid").glob("*.toml"))
+INVALID = sorted((REPO_ROOT / ".github/template-tests/invalid").glob("*.toml"))
 
 
 def config_from(fixture: str, **overrides) -> dict:
-    raw = tomllib.loads((REPO_ROOT / ".github/tests/valid" / fixture).read_text())
+    raw = tomllib.loads((REPO_ROOT / ".github/template-tests/valid" / fixture).read_text())
     for dotted, value in overrides.items():
         target = raw
         *parents, leaf = dotted.split(".")
@@ -112,7 +112,7 @@ def test_ingress_mode_follows_dns_provider():
     cloudflare = config_from("public.toml", ingress=None)
     assert _load_raw(cloudflare).ingress.mode == "cloudflare-tunnel"
     internal = config_from("internal.toml")
-    assert (REPO_ROOT / ".github/tests/valid/internal.toml").exists()
+    assert (REPO_ROOT / ".github/template-tests/valid/internal.toml").exists()
     assert "ingress" not in internal
     assert _load_raw(internal).ingress.mode == "none"
 

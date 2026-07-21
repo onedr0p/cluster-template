@@ -119,7 +119,8 @@ external = ""
 
 # Full clone URL of the repository this cluster will pull from.
 # Must be the repo you cloned this template into.
-# Use `https://` if the repo is publicly readable. Use `ssh://git@` if it is
+# Use `https://` if the repo is publicly readable (or `http://` for a
+# LAN-local git server). Use `ssh://git@` if it is
 # private: the template then wires up a deploy key (`deploy.key.pub`) so
 # Flux can clone over SSH; see the README for the extra setup step.
 # REQUIRED. Examples:

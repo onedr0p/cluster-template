@@ -23,7 +23,7 @@ cloudflare_tunnel := justfile_dir() + '/cloudflare-tunnel.json'
 
 [doc('Render and validate configuration files')]
 [group('template')]
-configure: configure-preconditions render encrypt-secrets validate-kubernetes validate-talos
+configure: render encrypt-secrets validate-kubernetes validate-talos
 
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
 [group('template')]
@@ -77,16 +77,6 @@ reset:
 [group('template')]
 tidy: tidy-preconditions tidy-strip && tidy-archive
 
-# cloudflare-tunnel.json is only needed when the config uses the tunnel; an
-# unparseable config falls through so render can surface validation errors.
-[private]
-configure-preconditions:
-    mode="$(just template config-json 2>/dev/null | jq -r '.ingress.mode' || true)"
-    if [ "$mode" = "cloudflare-tunnel" ] && [ ! -f "{{ cloudflare_tunnel }}" ]; then
-        just log error "cloudflare-tunnel.json not found — see README"
-        exit 1
-    fi
-
 # Validated, defaulted cluster config as JSON on stdout; fails when the
 # config is invalid.
 [private]
@@ -119,29 +109,36 @@ encrypt-secrets:
 
 [private]
 render:
-    test -f "{{ validate_script }}"
-    test -f "{{ template_dir }}/scripts/plugin.py"
-    test -f "{{ makejinja_config }}"
     PYTHONDONTWRITEBYTECODE=1 uv run --locked makejinja
 
 [private]
 tidy-archive:
     TIDY_FOLDER="{{ private_dir }}/$(date +%s)"
     mkdir -p "$TIDY_FOLDER"
-    rm -rf "{{ justfile_dir() }}/.github/tests" "{{ justfile_dir() }}/.github/workflows/e2e.yaml" "{{ justfile_dir() }}/.github/workflows/release.yaml"
-    mv "{{ template_dir }}"         "$TIDY_FOLDER/template"
-    mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
-    mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
-    mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
-    mv "{{ justfile_dir() }}/pyproject.toml" "$TIDY_FOLDER/pyproject.toml"
-    mv "{{ justfile_dir() }}/uv.lock"        "$TIDY_FOLDER/uv.lock"
+    rm -rf "{{ justfile_dir() }}/.github/template-tests" "{{ justfile_dir() }}/.github/workflows"/template-*.yaml
+    mv \
+        "{{ template_dir }}" \
+        "{{ makejinja_config }}" \
+        "{{ config_file }}" \
+        "{{ sample_config_file }}" \
+        "{{ justfile_dir() }}/pyproject.toml" \
+        "{{ justfile_dir() }}/uv.lock" \
+        "$TIDY_FOLDER/"
     rm -rf "{{ justfile_dir() }}/.venv"
 
 [private]
 tidy-preconditions:
     test -d "{{ template_dir }}"
+    test -d "{{ justfile_dir() }}/.github/template-tests"
     test -f "{{ makejinja_config }}"
+    test -f "{{ config_file }}"
+    test -f "{{ sample_config_file }}"
+    test -f "{{ justfile_dir() }}/pyproject.toml"
+    test -f "{{ justfile_dir() }}/uv.lock"
+    test -f "{{ justfile_dir() }}/justfile"
+    test -f "{{ justfile_dir() }}/.mise/config.toml"
     test -f "{{ justfile_dir() }}/.renovaterc.json5"
+    compgen -G "{{ justfile_dir() }}/.github/workflows/template-*.yaml" > /dev/null
 
 [private]
 tidy-strip:
@@ -149,9 +146,16 @@ tidy-strip:
     sd -A '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
     sd -A '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise/config.toml"
 
+# Renders every bootstrap chart with the rendered values, catching chart or
+# values drift that dry runs cannot; needs network access to pull charts.
+[doc('Render the bootstrap helmfile charts against the rendered values')]
+[group('template')]
+test-helmfile:
+    helmfile --file "{{ bootstrap_dir }}/helmfile/apps.yaml" template --quiet > /dev/null
+    just log info "bootstrap charts rendered cleanly"
+
 [private]
 validate-kubernetes:
-    test -f "{{ template_resources }}/kubeconform.sh"
     bash "{{ template_resources }}/kubeconform.sh" "{{ kubernetes_dir }}"
 
 # Rendering needs the secrets bundle; topf generates and sops-encrypts one
@@ -159,5 +163,4 @@ validate-kubernetes:
 [private]
 [working-directory('talos')]
 validate-talos:
-    test -f topf.yaml
     topf render --confirm=false --output "$(mktemp -d)" >/dev/null

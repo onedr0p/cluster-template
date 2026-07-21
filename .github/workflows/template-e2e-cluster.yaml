@@ -1,0 +1,56 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: "E2E Cluster"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/template-tests/e2e/**"
+      - ".github/workflows/template-e2e-cluster.yaml"
+  schedule:
+    - cron: "30 5 * * *"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  bootstrap:
+    if: ${{ github.repository == 'onedr0p/cluster-template' }}
+    name: bootstrap (qemu)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends qemu-system-x86 qemu-utils ovmf
+
+      - name: Setup mise
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Boot maintenance-mode nodes
+        id: cluster
+        uses: home-operations/talosctl-cluster-action@97d173e2efba3ec61abbfdf0fbd78ed848608190 # v0.1.4
+        with:
+          config: ./.github/template-tests/e2e/talos-cluster.yaml
+
+      - name: Run bootstrap e2e
+        run: bash ./.github/template-tests/e2e/cluster.sh
+        env:
+          E2E_CONTROLPLANE_IPS: "${{ steps.cluster.outputs.controlplane-ips }}"
+          E2E_WORKER_IPS: "${{ steps.cluster.outputs.worker-ips }}"
+          E2E_GATEWAY: "${{ steps.cluster.outputs.gateway }}"
+          E2E_CIDR: "10.9.0.0/24"
