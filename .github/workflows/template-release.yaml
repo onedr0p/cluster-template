@@ -55,4 +55,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.determine-next-tag.outputs.result }}
-        run: gh release create "$TAG" --generate-notes
+        run: gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --generate-notes
