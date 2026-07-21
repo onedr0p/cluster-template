@@ -101,7 +101,7 @@ encrypt-secrets:
                 just log fatal "could not read encryption status" file "$f"
             fi
             case "$status" in
-                false) sops --encrypt --in-place "$f" ;;
+                false) sops encrypt --in-place "$f" ;;
                 true)  : ;;
                 *)     just log fatal "could not determine encryption status" file "$f" ;;
             esac
