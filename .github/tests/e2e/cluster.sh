@@ -10,7 +10,7 @@
 #     post step destroys them.
 #   - Local: run with no env set; the script boots and destroys the cluster
 #     itself. Requires /dev/kvm, passwordless sudo, qemu-system-x86, and the
-#     repo's mise toolchain on PATH.
+#     repo's mise toolchain and Docker on PATH.
 #
 # Renders into the working tree like any configure run.
 set -euo pipefail
@@ -37,7 +37,9 @@ NODES=("${CONTROLPLANES[@]}" "${WORKERS[@]}")
 # served from there over git smart HTTP so Flux can sync it.
 GIT_HOST="${E2E_GATEWAY:-$PREFIX.1}"
 GIT_PORT=8418
-GIT_SERVER_PID=""
+GIT_SSH_PORT=8419
+GIT_SERVER_NAME="$NAME-soft-serve"
+GIT_SERVER_MANAGED=false
 
 # The provisioner runs under sudo and writes state relative to its cwd and
 # TALOSCONFIG, so both are pointed at a scratch dir to keep root-owned files
@@ -51,12 +53,14 @@ cleanup() {
         kubectl get pods --all-namespaces 2>/dev/null || true
         kubectl get gitrepositories,kustomizations,helmreleases --all-namespaces 2>/dev/null || true
         kubectl get events --all-namespaces --sort-by=.lastTimestamp 2>/dev/null | tail -30 || true
-        tail -5 "$STATE/git-server.log" 2>/dev/null || true
+        docker logs "$GIT_SERVER_NAME" 2>/dev/null | tail -20 || true
         for ip in "${NODES[@]}"; do
             talosctl -n "$ip" dmesg 2>/dev/null | tail -20 || true
         done
     fi
-    [ -n "$GIT_SERVER_PID" ] && kill "$GIT_SERVER_PID" 2>/dev/null || true
+    if [ "$GIT_SERVER_MANAGED" = true ]; then
+        docker rm --force "$GIT_SERVER_NAME" >/dev/null 2>&1 || true
+    fi
     if [ "$PROVISIONED" = false ]; then
         (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
             "$TALOSCTL" cluster destroy --name "$NAME" --provisioner qemu >/dev/null 2>&1) || true
@@ -144,10 +148,26 @@ git -C "$STATE/gitwork" init --quiet --initial-branch main
 git -C "$STATE/gitwork" add --all
 git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
     commit --quiet --message "rendered workspace"
-git clone --quiet --bare "$STATE/gitwork" "$STATE/repo.git"
-python3 .github/tests/e2e/git-server.py "$STATE/repo.git" "$GIT_PORT" \
-    >"$STATE/git-server.log" 2>&1 &
-GIT_SERVER_PID=$!
+
+if [ -n "${E2E_SOFT_SERVE_PRIVATE_KEY:-}" ]; then
+    cp "$E2E_SOFT_SERVE_PRIVATE_KEY" "$STATE/soft-serve-key"
+else
+    ssh-keygen -q -t ed25519 -N "" -f "$STATE/soft-serve-key"
+    docker run --detach --name "$GIT_SERVER_NAME" \
+        --volume "$STATE/soft-serve:/soft-serve" \
+        --publish "$GIT_PORT:23232" \
+        --publish "$GIT_SSH_PORT:23231" \
+        --env "SOFT_SERVE_INITIAL_ADMIN_KEYS=$(cat "$STATE/soft-serve-key.pub")" \
+        ghcr.io/charmbracelet/soft-serve:v0.11.6 >/dev/null
+    GIT_SERVER_MANAGED=true
+fi
+chmod 600 "$STATE/soft-serve-key"
+
+SSH_COMMAND="ssh -i $STATE/soft-serve-key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+until $SSH_COMMAND -p "$GIT_SSH_PORT" localhost info >/dev/null 2>&1; do sleep 1; done
+GIT_SSH_COMMAND="$SSH_COMMAND" git -C "$STATE/gitwork" push --quiet \
+    "ssh://localhost:$GIT_SSH_PORT/repo.git" main
+until git ls-remote "http://$GIT_HOST:$GIT_PORT/repo.git" >/dev/null 2>&1; do sleep 1; done
 
 echo "==> bootstrap talos"
 just bootstrap talos
