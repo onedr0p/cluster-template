@@ -246,10 +246,12 @@ test "$(kubectl get secret e2e-sops --namespace default \
 
 networking() {
 echo "==> asserting pod networking and DNS"
-CONTROLPLANE_NODE="$(kubectl get nodes --output json | jq -r \
-    '.items[] | select(.metadata.labels["node-role.kubernetes.io/control-plane"] != null) | .metadata.name' | head -1)"
-WORKER_NODE="$(kubectl get nodes --output json | jq -r \
-    '.items[] | select(.metadata.labels["node-role.kubernetes.io/control-plane"] == null) | .metadata.name' | head -1)"
+CONTROLPLANE_NODE="$(kubectl get nodes \
+    --selector=node-role.kubernetes.io/control-plane \
+    --output jsonpath='{.items[0].metadata.name}')"
+WORKER_NODE="$(kubectl get nodes \
+    --selector='!node-role.kubernetes.io/control-plane' \
+    --output jsonpath='{.items[0].metadata.name}')"
 kubectl apply --filename - <<EOF
 ---
 apiVersion: v1
