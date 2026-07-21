@@ -132,18 +132,21 @@ export E2E_GIT_HOST="$GIT_HOST"
 export E2E_GIT_PORT="$GIT_PORT"
 export E2E_PREFIX="$PREFIX"
 export E2E_SCHEMATIC="$SCHEMATIC"
-E2E_NODES=""
+envsubst '${E2E_CIDR} ${E2E_GATEWAY} ${E2E_GIT_HOST} ${E2E_GIT_PORT} ${E2E_PREFIX} ${E2E_SCHEMATIC}' \
+    < "$E2E_DIR/cluster.toml.tmpl" > cluster.toml
 index=0
 for ip in "${NODES[@]}"; do
     controller=false
     for cp in "${CONTROLPLANES[@]}"; do [ "$ip" = "$cp" ] && controller=true; done
-    printf -v E2E_NODES '%s\n[[nodes]]\nname       = "%s"\naddress    = "%s"\ncontroller = %s\ndisk       = "%s"\nmac_addr   = "%s"\n' \
-        "$E2E_NODES" "e2e-$index" "$ip" "$controller" "${DISKS[$ip]}" "${MACS[$ip]}"
+    export E2E_NODE_NAME="e2e-$index"
+    export E2E_NODE_ADDRESS="$ip"
+    export E2E_NODE_CONTROLLER="$controller"
+    export E2E_NODE_DISK="${DISKS[$ip]}"
+    export E2E_NODE_MAC="${MACS[$ip]}"
+    envsubst '${E2E_NODE_ADDRESS} ${E2E_NODE_CONTROLLER} ${E2E_NODE_DISK} ${E2E_NODE_MAC} ${E2E_NODE_NAME}' \
+        < "$E2E_DIR/node.toml.tmpl" >> cluster.toml
     index=$((index + 1))
 done
-export E2E_NODES
-envsubst '${E2E_CIDR} ${E2E_GATEWAY} ${E2E_GIT_HOST} ${E2E_GIT_PORT} ${E2E_NODES} ${E2E_PREFIX} ${E2E_SCHEMATIC}' \
-    < "$E2E_DIR/cluster.toml.tmpl" > cluster.toml
 
 echo "==> configure"
 just init
