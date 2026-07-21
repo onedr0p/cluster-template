@@ -1,0 +1,300 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pydantic>=2.7"]
+# ///
+"""Validate cluster.toml, apply defaults, and emit the config as JSON.
+
+Standalone usage (doctor, CI): uv run template/scripts/validate.py [cluster.toml]
+In-process usage (makejinja plugin): from validate import load
+
+Exits non-zero with one human-readable error per line on stderr when the
+config is invalid.
+"""
+
+from ipaddress import IPv4Address, IPv4Network
+from typing import Annotated, Any, Literal
+
+import json
+import re
+import sys
+import tomllib
+
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    ValidationError,
+    computed_field,
+    model_validator,
+)
+
+# Git hosts whose SSH host keys are bundled with the template; ssh:// URLs
+# pointing anywhere else must provide repository.known_hosts.
+KNOWN_SSH_HOSTS = ["github.com", "gitlab.com", "codeberg.org"]
+
+REPO_URL_PATTERN = r"^(https://|ssh://git@)[^/]+/.+$"
+FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
+
+
+def _network(value: Any) -> Any:
+    """Parse a CIDR, requiring network-address form (no host bits set)."""
+    if not isinstance(value, str):
+        return value
+    try:
+        return IPv4Network(value)
+    except ValueError:
+        try:
+            fixed = IPv4Network(value, strict=False)
+        except ValueError:
+            raise ValueError(f"{value!r} is not a valid IPv4 CIDR") from None
+        raise ValueError(
+            f"{value!r} has host bits set; did you mean {fixed}?"
+        ) from None
+
+
+def _asn(value: str) -> str:
+    if value == "":
+        return value
+    if not re.fullmatch(r"[0-9]+", value):
+        raise ValueError(f"{value!r} must be a decimal ASN")
+    if not 1 <= int(value) <= 4294967295:
+        raise ValueError(f"{value!r} must be in the range 1-4294967295")
+    return value
+
+
+Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
+Asn = Annotated[str, AfterValidator(_asn)]
+
+
+class Model(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class Network(Model):
+    node_cidr: Cidr
+    dns_servers: list[IPv4Address] = [IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")]
+    ntp_servers: list[IPv4Address] = [IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")]
+    # Defaults to the first IP in node_cidr.
+    default_gateway: IPv4Address = None  # type: ignore[assignment]
+    vlan_tag: str | None = Field(default=None, pattern=r"^[0-9]+$")
+
+    @model_validator(mode="after")
+    def check(self) -> "Network":
+        if self.default_gateway is None:
+            self.default_gateway = self.node_cidr.network_address + 1
+        if self.default_gateway not in self.node_cidr:
+            raise ValueError(
+                f"default_gateway {self.default_gateway} is not inside node_cidr {self.node_cidr}"
+            )
+        if self.vlan_tag is not None and not 1 <= int(self.vlan_tag) <= 4094:
+            raise ValueError(f"vlan_tag {self.vlan_tag} must be in the range 1-4094")
+        return self
+
+
+class Api(Model):
+    addr: IPv4Address
+    tls_sans: list[Annotated[str, Field(pattern=FQDN_PATTERN)]] | None = None
+
+
+class Kubernetes(Model):
+    pod_cidr: Cidr = IPv4Network("10.42.0.0/16")
+    svc_cidr: Cidr = IPv4Network("10.43.0.0/16")
+    # Defaults to the 10th IP in svc_cidr.
+    coredns_addr: IPv4Address = None  # type: ignore[assignment]
+    api: Api
+
+    @model_validator(mode="after")
+    def check(self) -> "Kubernetes":
+        if self.coredns_addr is None:
+            self.coredns_addr = self.svc_cidr.network_address + 10
+        if self.coredns_addr not in self.svc_cidr:
+            raise ValueError(
+                f"coredns_addr {self.coredns_addr} is not inside svc_cidr {self.svc_cidr}"
+            )
+        return self
+
+
+class Gateways(Model):
+    internal: IPv4Address
+    dns: IPv4Address
+    external: IPv4Address
+
+
+class Repository(Model):
+    url: str = Field(pattern=REPO_URL_PATTERN)
+    branch: str = Field(default="main", min_length=1)
+    webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] = "github"
+    known_hosts: str = ""
+
+    @model_validator(mode="after")
+    def check(self) -> "Repository":
+        if self.url.startswith("ssh://"):
+            host = self.url.removeprefix("ssh://git@").split("/", 1)[0].split(":", 1)[0]
+            if host not in KNOWN_SSH_HOSTS and not self.known_hosts:
+                raise ValueError(
+                    f"known_hosts is required for ssh:// URLs to {host!r} "
+                    f"(host keys are only bundled for {', '.join(KNOWN_SSH_HOSTS)})"
+                )
+        return self
+
+
+class Cloudflare(Model):
+    domain: str = Field(pattern=FQDN_PATTERN)
+    token: str
+
+
+class Bgp(Model):
+    router_addr: IPv4Address | Literal[""] = ""
+    router_asn: Asn = ""
+    node_asn: Asn = ""
+
+
+class Cilium(Model):
+    loadbalancer_mode: Literal["dsr", "snat"] = "dsr"
+    bgp: Bgp = Bgp()
+
+
+class Node(Model):
+    name: str = Field(pattern=r"^[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]$|^[a-z0-9]$")
+    address: IPv4Address
+    controller: bool
+    disk: str
+    mac_addr: str = Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
+    schematic_id: str = Field(pattern=r"^[a-z0-9]{64}$")
+    mtu: int | None = Field(default=None, ge=1450, le=9000)
+    secureboot: bool | None = None
+    encrypt_disk: bool | None = None
+    kernel_modules: list[str] | None = None
+
+    @model_validator(mode="after")
+    def check(self) -> "Node":
+        if self.name in ("global", "controller", "worker"):
+            raise ValueError(f"node name {self.name!r} is reserved")
+        return self
+
+
+class Config(Model):
+    network: Network
+    kubernetes: Kubernetes
+    gateways: Gateways
+    repository: Repository
+    cloudflare: Cloudflare
+    cilium: Cilium = Cilium()
+    nodes: list[Node]
+    # Defaults to true when there is more than one node.
+    spegel_enabled: bool = None  # type: ignore[assignment]
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def cilium_bgp_enabled(self) -> bool:
+        bgp = self.cilium.bgp
+        return bgp.router_addr != "" and bgp.router_asn != "" and bgp.node_asn != ""
+
+    @model_validator(mode="after")
+    def check(self) -> "Config":
+        if self.spegel_enabled is None:
+            self.spegel_enabled = len(self.nodes) > 1
+
+        cidrs = {
+            "network.node_cidr": self.network.node_cidr,
+            "kubernetes.pod_cidr": self.kubernetes.pod_cidr,
+            "kubernetes.svc_cidr": self.kubernetes.svc_cidr,
+        }
+        names = list(cidrs)
+        for i, a in enumerate(names):
+            for b in names[i + 1:]:
+                if cidrs[a].overlaps(cidrs[b]):
+                    raise ValueError(f"{a} {cidrs[a]} overlaps {b} {cidrs[b]}")
+
+        addresses = {
+            "kubernetes.api.addr": self.kubernetes.api.addr,
+            "gateways.internal": self.gateways.internal,
+            "gateways.dns": self.gateways.dns,
+            "gateways.external": self.gateways.external,
+            "network.default_gateway": self.network.default_gateway,
+        } | {f"nodes[{i}].address": n.address for i, n in enumerate(self.nodes)}
+        seen: dict[IPv4Address, str] = {}
+        for owner, addr in addresses.items():
+            if addr in seen:
+                raise ValueError(f"address {addr} is used by both {seen[addr]} and {owner}")
+            seen[addr] = owner
+
+        node_cidr = self.network.node_cidr
+        for i, node in enumerate(self.nodes):
+            if node.address not in node_cidr:
+                raise ValueError(
+                    f"nodes[{i}].address {node.address} is not inside node_cidr {node_cidr}"
+                )
+        if self.kubernetes.api.addr not in node_cidr:
+            raise ValueError(
+                f"kubernetes.api.addr {self.kubernetes.api.addr} is not inside node_cidr {node_cidr}"
+            )
+        # Without BGP the gateway VIPs are announced over L2 and must live in
+        # the node network.
+        if not self.cilium_bgp_enabled:
+            for name in ("internal", "dns", "external"):
+                addr = getattr(self.gateways, name)
+                if addr not in node_cidr:
+                    raise ValueError(
+                        f"gateways.{name} {addr} is not inside node_cidr {node_cidr} "
+                        "(required unless BGP is enabled)"
+                    )
+
+        for field, label in (("name", "name"), ("mac_addr", "MAC address")):
+            values: dict[str, int] = {}
+            for i, node in enumerate(self.nodes):
+                value = getattr(node, field)
+                if value in values:
+                    raise ValueError(
+                        f"duplicate node {label} {value!r} on nodes[{values[value]}] and nodes[{i}]"
+                    )
+                values[value] = i
+        return self
+
+
+def format_errors(error: ValidationError) -> str:
+    lines = []
+    for err in error.errors():
+        loc = ".".join(str(part) for part in err["loc"])
+        msg = err["msg"].removeprefix("Value error, ")
+        lines.append(f"{loc}: {msg}" if loc else msg)
+    return "\n".join(lines)
+
+
+class ConfigError(Exception):
+    pass
+
+
+# Validate config_file and return the defaulted config as a plain dict.
+# Raises ConfigError with a human-readable message.
+def load(config_file: str = "cluster.toml") -> dict[str, Any]:
+    try:
+        with open(config_file, "rb") as file:
+            raw = tomllib.load(file)
+    except FileNotFoundError:
+        raise ConfigError(f"{config_file}: file not found") from None
+    except tomllib.TOMLDecodeError as e:
+        raise ConfigError(f"{config_file}: invalid TOML: {e}") from None
+
+    try:
+        config = Config.model_validate(raw)
+    except ValidationError as e:
+        raise ConfigError(format_errors(e)) from None
+
+    return config.model_dump(mode="json", exclude_none=True)
+
+
+def main() -> int:
+    try:
+        data = load(sys.argv[1] if len(sys.argv) > 1 else "cluster.toml")
+    except ConfigError as e:
+        print(e, file=sys.stderr)
+        return 1
+    json.dump(data, sys.stdout, indent=2)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
