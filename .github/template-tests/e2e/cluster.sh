@@ -257,31 +257,32 @@ kubectl exec --namespace default e2e-network-client -- \
     /agnhost connect --timeout=10s github.com:443
 kubectl apply --filename - <<EOF
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
 metadata:
   name: e2e-deny-server
   namespace: default
 spec:
-  podSelector:
+  endpointSelector:
     matchLabels:
       app: e2e-network-server
-  policyTypes: ["Ingress"]
+  ingress:
+    - {}
 EOF
 deadline=$((SECONDS + 60))
 while kubectl exec --namespace default e2e-network-client -- \
     /agnhost connect --timeout=2s "$SERVER_IP:8080" &>/dev/null; do
     if (( SECONDS >= deadline )); then
-        just log fatal "NetworkPolicy did not block pod traffic"
+        just log fatal "CiliumNetworkPolicy did not block pod traffic"
     fi
     sleep 2
 done
-kubectl delete networkpolicy e2e-deny-server --namespace default
+kubectl delete ciliumnetworkpolicy e2e-deny-server --namespace default
 deadline=$((SECONDS + 60))
 until kubectl exec --namespace default e2e-network-client -- \
     /agnhost connect --timeout=2s "$SERVER_IP:8080" &>/dev/null; do
     if (( SECONDS >= deadline )); then
-        just log fatal "Pod traffic did not recover after removing NetworkPolicy"
+        just log fatal "Pod traffic did not recover after removing CiliumNetworkPolicy"
     fi
     sleep 2
 done
