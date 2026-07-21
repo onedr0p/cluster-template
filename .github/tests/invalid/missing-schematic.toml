@@ -1,0 +1,28 @@
+# Negative fixture: a node without schematic_id and no [talos] default.
+# Expected to be rejected by the schematic resolution in Config.
+[network]
+node_cidr = "10.10.10.0/24"
+
+[kubernetes.api]
+addr = "10.10.10.254"
+
+[gateways]
+internal = "10.10.10.252"
+dns      = "10.10.10.253"
+external = "10.10.10.251"
+
+[domain]
+name = "example.com"
+
+[dns]
+token = "fake"
+
+[repository]
+url = "https://github.com/onedr0p/cluster-template.git"
+
+[[nodes]]
+name       = "k8s-0"
+address    = "10.10.10.100"
+controller = true
+disk       = "/dev/sdfake"
+mac_addr   = "00:00:00:00:00:00"

@@ -15,7 +15,7 @@ nodes:
     ip: "#{ item.address }#"
     role: #{ 'control-plane' if item.controller else 'worker' }#
     schematicId: "#{ item.schematic_id }#"
-    #% if item.secureboot | default(false, true) %#
+    #% if item.secureboot %#
     secureboot: true
     #% endif %#
     data:
@@ -27,7 +27,7 @@ nodes:
       installDiskSerial: "#{ item.disk }#"
       #% endif %#
       macAddr: "#{ item.mac_addr | lower }#"
-      mtu: #{ item.mtu | default(1500, true) }#
-      encryptDisk: #{ (item.encrypt_disk | default(false, true)) | string | lower }#
-      kernelModules: [#{ item.kernel_modules | default([], true) | join(', ') }#]
+      mtu: #{ item.mtu }#
+      encryptDisk: #{ item.encrypt_disk | string | lower }#
+      kernelModules: [#{ item.kernel_modules | join(', ') }#]
   #% endfor %#

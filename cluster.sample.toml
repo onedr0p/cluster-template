@@ -247,6 +247,17 @@ token = ""
 
 
 # =============================================================================
+#    Talos Image Factory settings shared by all nodes.
+# =============================================================================
+[talos]
+
+# Default schematic for every node that doesn't set its own schematic_id.
+# The 64-character hex string from your build at https://factory.talos.dev/
+# OPTIONAL if every node sets schematic_id itself.
+schematic_id = ""
+
+
+# =============================================================================
 #    One [[nodes]] table per physical machine or VM in the cluster. At least
 #    one controller (controller=true) is required; worker nodes are optional.
 #    For HA, use 3 controllers.
@@ -268,6 +279,8 @@ token = ""
 # controller   = true           # true = control-plane (etcd + API server), false = worker.
 # disk         = "/dev/nvme0n1" # Block device or /dev/disk/by-id/... symlink to install Talos onto.
 # mac_addr     = "aa:bb:cc:dd:ee:ff"  # Primary NIC MAC.
+#
+# # Optional when [talos] sets a cluster-wide default:
 # schematic_id = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"  # 64-hex from factory.talos.dev.
 #
 # # Optional advanced fields (each independently uncommentable):

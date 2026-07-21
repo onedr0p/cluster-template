@@ -123,6 +123,27 @@ def test_direct_mode_requires_cloudflare_dns():
         _load_raw(raw)
 
 
+def test_schematic_id_inherits_from_talos_section():
+    raw = config_from("public.toml")
+    cfg = _load_raw(raw)
+    assert cfg.nodes[0].schematic_id == cfg.talos.schematic_id
+    assert cfg.nodes[1].schematic_id is not None
+
+
+def test_partial_bgp_rejected():
+    raw = config_from("private.toml", **{"cilium.bgp.router_addr": "10.10.1.1", "cilium.bgp.router_asn": "64513"})
+    with pytest.raises(ConfigError, match="partially configured"):
+        _load_raw(raw)
+
+
+def test_node_defaults_exported():
+    data = _load_raw(config_from("private.toml")).model_dump(mode="json")
+    node = data["nodes"][0]
+    assert node["mtu"] == 1500
+    assert node["secureboot"] is False
+    assert node["kernel_modules"] == []
+
+
 def test_gateways_may_leave_node_cidr_only_with_bgp():
     with_bgp = config_from("public.toml", **{"gateways.external": "192.168.50.1"})
     _load_raw(with_bgp)  # public.toml enables BGP
