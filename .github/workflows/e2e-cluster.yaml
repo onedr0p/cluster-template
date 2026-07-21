@@ -5,7 +5,7 @@ name: "E2E Cluster"
 on:
   workflow_dispatch:
   pull_request:
-    branches: ["main"]
+    branches: ["main", "feat/e2e-cluster"]
     paths:
       - ".github/tests/e2e/**"
       - ".github/workflows/e2e-cluster.yaml"
