@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any
 
 import base64
@@ -6,11 +5,6 @@ import json
 import makejinja
 import re
 import validate
-
-
-# Return the filename of a path without the j2 extension
-def basename(value: str) -> str:
-    return Path(value).stem
 
 
 # Return the age public or private key from age.key
@@ -103,18 +97,10 @@ def webhook_token(file_path: str = 'flux-webhook-token.txt') -> str:
         raise RuntimeError(f"Unexpected error while reading {file_path}: {e}")
 
 
-# Return a list of files in the talos patches directory
-def talos_patches(value: str) -> list[str]:
-    path = Path(f'template/config/talos/patches/{value}')
-    if not path.is_dir():
-        return []
-    return [str(f) for f in sorted(path.glob('*.yaml.j2')) if f.is_file()]
-
-
 CONFIG_FILE = 'cluster.toml'
 
 # SSH host keys as published by each provider. Must cover every host in
-# _known_ssh_hosts in the CUE schema; any other host requires the user to set
+# KNOWN_SSH_HOSTS in validate.py; any other host requires the user to set
 # repository.known_hosts in cluster.toml.
 KNOWN_HOSTS = {
     'github.com': (
@@ -162,18 +148,11 @@ class Plugin(makejinja.plugin.Plugin):
         return data
 
 
-    def filters(self) -> makejinja.plugin.Filters:
-        return [
-            basename
-        ]
-
-
     def functions(self) -> makejinja.plugin.Functions:
         return [
             age_key,
             cloudflare_tunnel_id,
             cloudflare_tunnel_secret,
             deploy_key,
-            webhook_token,
-            talos_patches
+            webhook_token
         ]

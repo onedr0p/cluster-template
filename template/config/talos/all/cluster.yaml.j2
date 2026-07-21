@@ -1,0 +1,14 @@
+# Disable built-in CNI to use Cilium
+cluster:
+  network:
+    cni:
+      name: none
+    podSubnets: ["#{ kubernetes.pod_cidr }#"]
+    serviceSubnets: ["#{ kubernetes.svc_cidr }#"]
+machine:
+  certSANs:
+    - "127.0.0.1"
+    - "#{ kubernetes.api.addr }#"
+    #% for item in kubernetes.api.tls_sans %#
+    - "#{ item }#"
+    #% endfor %#

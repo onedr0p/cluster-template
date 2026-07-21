@@ -2,7 +2,7 @@
 KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_CONFIG = "{{config_root}}/.sops.yaml"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
-TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
+TALOSCONFIG = "{{config_root}}/talos/talosconfig"
 JUST_UNSTABLE = "1"
 
 [tools]
@@ -24,8 +24,8 @@ lefthook = "2.1.10"
 oxfmt = "0.59.0"
 sd = "1.1.0"                                                                   # required:template
 sops = "3.13.2"
-talhelper = "3.1.13"
 talosctl = "1.13.6"
+"ubi:postfinance/topf" = "0.4.2"
 yq = "4.53.3"
 zizmor = "1.27.0"
 

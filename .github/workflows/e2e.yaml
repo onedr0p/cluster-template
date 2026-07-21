@@ -122,8 +122,8 @@ jobs:
       - name: Create talos secret
         run: just bootstrap talos-secret
 
-      - name: Create talos config
-        run: just bootstrap talos-config
+      - name: Render talos configs
+        run: just talos render
 
       - name: Dry run bootstrap apps recipe
         run: just --dry-run bootstrap apps

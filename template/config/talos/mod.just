@@ -5,34 +5,34 @@ set default-list
 
 [doc('Apply Talos config to a node')]
 [group('talos')]
-apply-node ip mode='auto':
-    talhelper gencommand apply --node "{{ ip }}" --extra-flags "--mode={{ mode }}" | bash
+apply-node node mode='auto':
+    topf apply --nodes-filter "^{{ node }}$" --mode "{{ mode }}" --confirm=false
 
-[doc('Generate Talos configuration')]
+[doc('Render Talos machine configs to ./rendered')]
 [group('talos')]
-generate-config:
-    talhelper genconfig
+render:
+    topf render --output ./rendered
 
 [confirm("This will destroy your cluster and reset all nodes to maintenance mode — continue? [y/N]")]
 [doc('Reset all nodes back to maintenance mode (DESTRUCTIVE)')]
 [group('talos')]
 reset:
-    talhelper gencommand reset \
-        --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+    topf reset --confirm=false
 
-[confirm("This will reset node " + ip + " to maintenance mode and wipe STATE + EPHEMERAL — continue? [y/N]")]
+[confirm("This will reset node " + node + " to maintenance mode — continue? [y/N]")]
 [doc('Reset a single node back to maintenance mode (DESTRUCTIVE)')]
 [group('talos')]
-reset-node ip:
-    talhelper gencommand reset --node "{{ ip }}" \
-        --extra-flags="--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+reset-node node:
+    topf reset --nodes-filter "^{{ node }}$" --confirm=false
 
+# topf intentionally does not manage Kubernetes upgrades
 [doc('Upgrade Kubernetes')]
 [group('talos')]
 upgrade-k8s:
-    talhelper gencommand upgrade-k8s --extra-flags "--to '$(yq '.kubernetesVersion' talenv.yaml)'" | bash
+    talosctl --nodes "$(yq '[.nodes[] | select(.role == "control-plane")][0].ip' topf.yaml)" \
+        upgrade-k8s --to "$(yq '.kubernetesVersion' topf.yaml)"
 
 [doc('Upgrade Talos on a single node')]
 [group('talos')]
-upgrade-node ip:
-    talhelper gencommand upgrade --node "{{ ip }}" --extra-flags "--timeout=10m" | bash
+upgrade-node node:
+    topf upgrade --nodes-filter "^{{ node }}$" --confirm=false

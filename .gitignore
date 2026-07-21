@@ -21,3 +21,4 @@ __pycache__/
 .venv/
 .DS_Store
 Thumbs.db
+/talos/rendered/
