@@ -3,6 +3,7 @@ package config
 import (
 	"net"
 	"list"
+	"strconv"
 	"strings"
 )
 
@@ -18,20 +19,35 @@ import (
 	spegel_enabled:     bool | *(len(nodes) > 1)
 	cilium_bgp_enabled: cilium.bgp.router_addr != "" && cilium.bgp.router_asn != "" && cilium.bgp.node_asn != ""
 
-	// Pairwise CIDR uniqueness. We can't use list.UniqueItems on these because
-	// kubernetes.pod_cidr/svc_cidr are defaulted disjunctions (`*"…" | net.IPCIDR`),
-	// and CUE evaluates the list constraint against the unresolved disjunction —
-	// so the defaulted values silently slip through. Pairwise `!=` works.
-	network: node_cidr: !=kubernetes.pod_cidr & !=kubernetes.svc_cidr
-	kubernetes: pod_cidr: !=network.node_cidr & !=kubernetes.svc_cidr
-	kubernetes: svc_cidr: !=network.node_cidr & !=kubernetes.pod_cidr
+	// The node, pod and service CIDRs must not overlap. Checking containment
+	// of each network address catches nested ranges, not just equal strings.
+	_cidr_overlap_check: {
+		node_cidr_overlaps_pod_cidr: false
+		node_cidr_overlaps_pod_cidr: net.InCIDR(strings.Split(network.node_cidr, "/")[0], kubernetes.pod_cidr) || net.InCIDR(strings.Split(kubernetes.pod_cidr, "/")[0], network.node_cidr)
+		node_cidr_overlaps_svc_cidr: false
+		node_cidr_overlaps_svc_cidr: net.InCIDR(strings.Split(network.node_cidr, "/")[0], kubernetes.svc_cidr) || net.InCIDR(strings.Split(kubernetes.svc_cidr, "/")[0], network.node_cidr)
+		pod_cidr_overlaps_svc_cidr:  false
+		pod_cidr_overlaps_svc_cidr:  net.InCIDR(strings.Split(kubernetes.pod_cidr, "/")[0], kubernetes.svc_cidr) || net.InCIDR(strings.Split(kubernetes.svc_cidr, "/")[0], kubernetes.pod_cidr)
+	}
 
-	_addrs_check: list.UniqueItems() & [
-		kubernetes.api.addr, gateways.internal, gateways.dns, gateways.external,
-	]
+	// The API VIP, gateway VIPs and node addresses must all be distinct.
+	_addr_uniqueness_check: list.UniqueItems() & list.Concat([
+		[kubernetes.api.addr, gateways.internal, gateways.dns, gateways.external],
+		[for n in nodes {n.address}],
+	])
+
+	// Node addresses, the API VIP and the default gateway live in the node network.
+	_node_addrs_in_node_cidr: [for n in nodes {true & net.InCIDR(n.address, network.node_cidr)}]
+	_api_addr_in_node_cidr:        true & net.InCIDR(kubernetes.api.addr, network.node_cidr)
+	_default_gateway_in_node_cidr: true & net.InCIDR(network.default_gateway, network.node_cidr)
+
+	// Without BGP the gateway VIPs are announced over L2 and must also live
+	// in the node network.
+	if !cilium_bgp_enabled {
+		_gateways_in_node_cidr: [for g in [gateways.internal, gateways.dns, gateways.external] {true & net.InCIDR(g, network.node_cidr)}]
+	}
 
 	_node_name_check: list.UniqueItems() & [for n in nodes {n.name}]
-	_node_addr_check: list.UniqueItems() & [for n in nodes {n.address}]
 	_node_mac_check:  list.UniqueItems() & [for n in nodes {n.mac_addr}]
 
 	network: dns_servers: *["1.1.1.1", "1.0.0.1"] | _
@@ -47,9 +63,13 @@ import (
 	// NTP servers to use for the cluster (default: ["162.159.200.1", "162.159.200.123"]).
 	ntp_servers: [...net.IPv4]
 	// The default gateway for the nodes (defaults to the first IP in node_cidr).
-	default_gateway?: net.IPv4 & !=""
-	// VLAN tag for the Talos nodes (rare).
-	vlan_tag?: string & !=""
+	default_gateway: net.IPv4 & !="" | *net.AddIP(strings.Split(node_cidr, "/")[0], 1)
+	// VLAN tag for the Talos nodes (rare). Must be 1-4094.
+	vlan_tag?: =~"^[0-9]+$"
+	if vlan_tag != _|_ {
+		_vlan_tag_in_range: >=1 & <=4094
+		_vlan_tag_in_range: strconv.Atoi(vlan_tag)
+	}
 }
 
 #Kubernetes: {
@@ -57,6 +77,8 @@ import (
 	pod_cidr: *"10.42.0.0/16" | net.IPCIDR
 	// The service CIDR for the cluster, /16 recommended.
 	svc_cidr: *"10.43.0.0/16" | net.IPCIDR
+	// CoreDNS service address, the 10th IP in svc_cidr.
+	coredns_addr: net.AddIP(strings.Split(svc_cidr, "/")[0], 10)
 	api: {
 		// The IP address of the Kube API.
 		addr: net.IPv4
@@ -116,10 +138,18 @@ _known_ssh_hosts: ["github.com", "gitlab.com", "codeberg.org"]
 	bgp: {
 		// The IP address of the BGP router.
 		router_addr: *"" | net.IPv4 & !=""
-		// The BGP router ASN.
-		router_asn: *"" | string & !=""
-		// The BGP node ASN.
-		node_asn: *"" | string & !=""
+		// The BGP router ASN (1-4294967295).
+		router_asn: *"" | =~"^[0-9]+$"
+		if router_asn != "" {
+			_router_asn_in_range: >=1 & <=4294967295
+			_router_asn_in_range: strconv.Atoi(router_asn)
+		}
+		// The BGP node ASN (1-4294967295).
+		node_asn: *"" | =~"^[0-9]+$"
+		if node_asn != "" {
+			_node_asn_in_range: >=1 & <=4294967295
+			_node_asn_in_range: strconv.Atoi(node_asn)
+		}
 	}
 }
 

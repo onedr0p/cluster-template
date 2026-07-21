@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Any
 
 import base64
-import ipaddress
 import json
 import makejinja
 import re
@@ -12,17 +11,6 @@ import subprocess
 # Return the filename of a path without the j2 extension
 def basename(value: str) -> str:
     return Path(value).stem
-
-
-# Return the nth host in a CIDR range
-def nthhost(value: str, query: int) -> str:
-    try:
-        network = ipaddress.ip_network(value, strict=False)
-        if 0 <= query < network.num_addresses:
-            return str(network[query])
-    except ValueError:
-        pass
-    return False
 
 
 # Return the age public or private key from age.key
@@ -167,10 +155,6 @@ class Plugin(makejinja.plugin.Plugin):
 
     def data(self) -> makejinja.plugin.Data:
         data = cue_export()
-        # network.default_gateway is the one default CUE cannot express
-        # (no CIDR arithmetic in CUE's stdlib).
-        network = data['network']
-        network.setdefault('default_gateway', nthhost(network['node_cidr'], 1))
         # The deploy key secret always pins every bundled provider host key
         # (entries are matched per-hostname, so unused ones are inert);
         # user-supplied entries for self-hosted git servers are appended.
@@ -183,8 +167,7 @@ class Plugin(makejinja.plugin.Plugin):
 
     def filters(self) -> makejinja.plugin.Filters:
         return [
-            basename,
-            nthhost
+            basename
         ]
 
 
