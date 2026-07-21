@@ -171,12 +171,13 @@ class Plugin(makejinja.plugin.Plugin):
         # (no CIDR arithmetic in CUE's stdlib).
         network = data['network']
         network.setdefault('default_gateway', nthhost(network['node_cidr'], 1))
-        # Fill in bundled SSH host keys; the schema guarantees known_hosts is
-        # set by the user for any host not in KNOWN_HOSTS.
+        # The deploy key secret always pins every bundled provider host key
+        # (entries are matched per-hostname, so unused ones are inert);
+        # user-supplied entries for self-hosted git servers are appended.
         repository = data['repository']
-        if repository['url'].startswith('ssh://') and not repository['known_hosts']:
-            host = repository['url'].removeprefix('ssh://git@').split('/', 1)[0].split(':', 1)[0]
-            repository['known_hosts'] = KNOWN_HOSTS[host]
+        repository['known_hosts'] = '\n'.join(
+            [*KNOWN_HOSTS.values(), repository['known_hosts']]
+        ).strip()
         return data
 
 
