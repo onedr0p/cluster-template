@@ -29,7 +29,7 @@ releases:
       - template: default
     needs: ['kube-system/cilium']
 
-  #% if spegel_enabled %#
+  #% if spegel.enabled %#
   - name: spegel
     namespace: kube-system
     inherit:
@@ -41,7 +41,7 @@ releases:
     namespace: cert-manager
     inherit:
       - template: default
-    #% if spegel_enabled %#
+    #% if spegel.enabled %#
     needs: ['kube-system/spegel']
     #% else %#
     needs: ['kube-system/coredns']
