@@ -5,4 +5,6 @@ resources:
   - ./clusterissuer.yaml
   - ./helmrelease.yaml
   - ./ocirepository.yaml
+  #% if dns.provider == 'cloudflare' %#
   - ./secret.sops.yaml
+  #% endif %#

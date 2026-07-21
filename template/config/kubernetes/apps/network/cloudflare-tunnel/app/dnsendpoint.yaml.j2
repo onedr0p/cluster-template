@@ -1,3 +1,4 @@
+#% if ingress.mode == 'cloudflare-tunnel' %#
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
@@ -8,3 +9,4 @@ spec:
     - dnsName: "external.${SECRET_DOMAIN}"
       recordType: CNAME
       targets: ["#{ cloudflare_tunnel_id() }#.cfargotunnel.com"]
+#% endif %#

@@ -1,3 +1,4 @@
+#% if ingress.mode == 'cloudflare-tunnel' %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
@@ -11,3 +12,4 @@ spec:
   ref:
     tag: 5.0.1
   url: oci://ghcr.io/bjw-s-labs/helm/app-template
+#% endif %#

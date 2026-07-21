@@ -121,7 +121,8 @@ class Kubernetes(Model):
 class Gateways(Model):
     internal: IPv4Address
     dns: IPv4Address
-    external: IPv4Address
+    # Required when ingress.mode is not "none".
+    external: IPv4Address | None = None
 
 
 class Repository(Model):
@@ -142,9 +143,25 @@ class Repository(Model):
         return self
 
 
-class Cloudflare(Model):
-    domain: Fqdn
-    token: str
+class Domain(Model):
+    name: Fqdn
+
+
+class Dns(Model):
+    provider: Literal["cloudflare", "none"] = "cloudflare"
+    token: str = ""
+
+    @model_validator(mode="after")
+    def check(self) -> Self:
+        if self.provider == "cloudflare" and not self.token:
+            raise ValueError("token is required when dns.provider is 'cloudflare'")
+        if self.provider == "none" and self.token:
+            raise ValueError("token must be empty when dns.provider is 'none'")
+        return self
+
+
+class Ingress(Model):
+    mode: Literal["cloudflare-tunnel", "direct", "none"] = "cloudflare-tunnel"
 
 
 class Bgp(Model):
@@ -182,7 +199,15 @@ class Config(Model):
     kubernetes: Kubernetes
     gateways: Gateways
     repository: Repository
-    cloudflare: Cloudflare
+    domain: Domain
+    dns: Dns
+    # Defaults to "cloudflare-tunnel" when dns.provider is "cloudflare",
+    # otherwise "none".
+    ingress: Ingress = Field(
+        default_factory=lambda data: Ingress(
+            mode="cloudflare-tunnel" if data["dns"].provider == "cloudflare" else "none"
+        )
+    )
     cilium: Cilium = Cilium()
     nodes: list[Node]
     # True when there is more than one node, unless set explicitly.
@@ -194,8 +219,24 @@ class Config(Model):
         bgp = self.cilium.bgp
         return bgp.router_addr != "" and bgp.router_asn != "" and bgp.node_asn != ""
 
+    @computed_field
+    @property
+    def cluster_issuer(self) -> str:
+        if self.dns.provider == "cloudflare":
+            return "letsencrypt-production"
+        return "internal-ca"
+
     @model_validator(mode="after")
     def check(self) -> Self:
+        if self.ingress.mode != "none" and self.dns.provider != "cloudflare":
+            raise ValueError(
+                f"ingress.mode {self.ingress.mode!r} requires dns.provider 'cloudflare'"
+            )
+        if self.ingress.mode != "none" and self.gateways.external is None:
+            raise ValueError(
+                f"gateways.external is required when ingress.mode is {self.ingress.mode!r}"
+            )
+
         cidrs = {
             "network.node_cidr": self.network.node_cidr,
             "kubernetes.pod_cidr": self.kubernetes.pod_cidr,
@@ -211,9 +252,10 @@ class Config(Model):
             "kubernetes.api.addr": self.kubernetes.api.addr,
             "gateways.internal": self.gateways.internal,
             "gateways.dns": self.gateways.dns,
-            "gateways.external": self.gateways.external,
             "network.default_gateway": self.network.default_gateway,
         } | {f"nodes[{i}].address": n.address for i, n in enumerate(self.nodes)}
+        if self.gateways.external is not None:
+            addresses["gateways.external"] = self.gateways.external
         seen: dict[IPv4Address, str] = {}
         for owner, addr in addresses.items():
             if addr in seen:
@@ -235,7 +277,7 @@ class Config(Model):
         if not self.cilium_bgp_enabled:
             for name in ("internal", "dns", "external"):
                 addr = getattr(self.gateways, name)
-                if addr not in node_cidr:
+                if addr is not None and addr not in node_cidr:
                     raise ValueError(
                         f"gateways.{name} {addr} is not inside node_cidr {node_cidr} "
                         "(required unless BGP is enabled)"

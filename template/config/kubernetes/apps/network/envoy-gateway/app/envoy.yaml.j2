@@ -40,6 +40,7 @@ spec:
     kind: EnvoyProxy
     name: envoy
     namespace: network
+#% if ingress.mode != 'none' %#
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -70,6 +71,7 @@ spec:
         certificateRefs:
           - kind: Secret
             name: ${SECRET_DOMAIN/./-}-production-tls
+#% endif %#
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -156,9 +158,11 @@ metadata:
     external-dns.alpha.kubernetes.io/controller: none
 spec:
   parentRefs:
+    #% if ingress.mode != 'none' %#
     - name: envoy-external
       namespace: network
       sectionName: http
+    #% endif %#
     - name: envoy-internal
       namespace: network
       sectionName: http

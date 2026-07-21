@@ -15,9 +15,11 @@ external = "10.10.10.251"
 [repository]
 url = "https://github.com/onedr0p/cluster-template.git"
 
-[cloudflare]
-domain = "example.com"
-token  = "fake"
+[domain]
+name = "example.com"
+
+[dns]
+token = "fake"
 
 [[nodes]]
 name         = "k8s-0"

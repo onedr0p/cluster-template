@@ -97,6 +97,21 @@ def test_derived_fields_are_not_settable():
         _load_raw(raw)
 
 
+def test_ingress_mode_follows_dns_provider():
+    cloudflare = config_from("public.toml", ingress=None)
+    assert _load_raw(cloudflare).ingress.mode == "cloudflare-tunnel"
+    internal = config_from("internal.toml")
+    assert (REPO_ROOT / ".github/tests/valid/internal.toml").exists()
+    assert "ingress" not in internal
+    assert _load_raw(internal).ingress.mode == "none"
+
+
+def test_direct_mode_requires_cloudflare_dns():
+    raw = config_from("internal.toml", **{"ingress.mode": "direct"})
+    with pytest.raises(ConfigError, match="requires dns.provider 'cloudflare'"):
+        _load_raw(raw)
+
+
 def test_gateways_may_leave_node_cidr_only_with_bgp():
     with_bgp = config_from("public.toml", **{"gateways.external": "192.168.50.1"})
     _load_raw(with_bgp)  # public.toml enables BGP

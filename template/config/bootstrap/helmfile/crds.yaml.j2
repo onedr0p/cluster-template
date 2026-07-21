@@ -19,11 +19,13 @@ bases:
   - default.yaml
 
 releases:
+  #% if dns.provider == 'cloudflare' and ingress.mode != 'none' %#
   - name: cloudflare-dns
     namespace: network
     inherit:
       - template: default
 
+  #% endif %#
   - name: envoy-gateway
     namespace: network
     inherit:

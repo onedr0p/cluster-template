@@ -1,6 +1,5 @@
-# Negative fixture: a node claims the default gateway address (defaults to
-# the first IP in node_cidr).
-# Expected to be rejected by _addr_uniqueness_check.
+# Negative fixture: dns.provider "cloudflare" (the default) without a token.
+# Expected to be rejected by the Dns validator.
 [network]
 node_cidr = "10.10.10.0/24"
 
@@ -12,18 +11,18 @@ internal = "10.10.10.252"
 dns      = "10.10.10.253"
 external = "10.10.10.251"
 
-[repository]
-url = "https://github.com/onedr0p/cluster-template.git"
-
 [domain]
 name = "example.com"
 
 [dns]
-token = "fake"
+provider = "cloudflare"
+
+[repository]
+url = "https://github.com/onedr0p/cluster-template.git"
 
 [[nodes]]
 name         = "k8s-0"
-address      = "10.10.10.1"
+address      = "10.10.10.100"
 controller   = true
 disk         = "/dev/sdfake"
 mac_addr     = "00:00:00:00:00:00"

@@ -8,7 +8,11 @@ components:
 
 resources:
   - ./namespace.yaml
+  #% if dns.provider == 'cloudflare' and ingress.mode != 'none' %#
   - ./cloudflare-dns/ks.yaml
+  #% endif %#
+  #% if ingress.mode == 'cloudflare-tunnel' %#
   - ./cloudflare-tunnel/ks.yaml
+  #% endif %#
   - ./envoy-gateway/ks.yaml
   - ./k8s-gateway/ks.yaml

@@ -7,20 +7,15 @@ addr = "10.10.10.254"
 [gateways]
 internal = "10.10.10.252"
 dns      = "10.10.10.253"
-external = "10.10.10.251"
-
-[repository]
-url              = "ssh://git@git.example.com/k8s/home-ops.git"
-webhook_provider = "generic-hmac"
-known_hosts      = """
-git.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
-"""
 
 [domain]
 name = "example.com"
 
 [dns]
-token = "fake"
+provider = "none"
+
+[repository]
+url = "https://github.com/onedr0p/cluster-template.git"
 
 [[nodes]]
 name         = "k8s-0"

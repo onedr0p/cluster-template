@@ -19,7 +19,7 @@ spec:
       hostnames:
         - "{{ .Release.Name }}.${SECRET_DOMAIN}"
       parentRefs:
-        - name: envoy-external
+        - name: envoy-#{ 'external' if ingress.mode != 'none' else 'internal' }#
           namespace: network
     monitoring:
       serviceMonitor:
