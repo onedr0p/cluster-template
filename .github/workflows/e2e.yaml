@@ -29,12 +29,20 @@ jobs:
       matrix:
         fixture:
           - overlapping-cidrs
+          - nested-cidr-overlap
+          - non-canonical-cidr
+          - tiny-svc-cidr
           - duplicate-gateway-addrs
           - duplicate-node-names
           - reserved-node-name
           - bad-mac-address
           - bad-repo-url
           - missing-known-hosts
+          - node-addr-outside-cidr
+          - node-uses-gateway-addr
+          - gateway-node-collision
+          - bad-vlan-tag
+          - bad-bgp-asn
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

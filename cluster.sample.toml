@@ -34,7 +34,7 @@ node_cidr = ""
 
 # 802.1Q VLAN tag to apply to the Talos node interface. Only set this if
 # your switch ports are configured as trunks (passing tagged traffic to the
-# nodes); access ports already untag VLAN traffic.
+# nodes); access ports already untag VLAN traffic. Must be 1-4094.
 # REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
 # OPTIONAL.
 
@@ -61,6 +61,11 @@ node_cidr = ""
 # OPTIONAL. Default: "10.43.0.0/16"
 
 # svc_cidr = "10.43.0.0/16"
+
+# ClusterIP for the CoreDNS Service. Must be inside svc_cidr.
+# OPTIONAL. Default: the 10th IP in svc_cidr
+
+# coredns_addr = ""
 
 [kubernetes.api]
 
