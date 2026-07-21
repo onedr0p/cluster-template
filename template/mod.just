@@ -23,7 +23,7 @@ cloudflare_tunnel := justfile_dir() + '/cloudflare-tunnel.json'
 
 [doc('Render and validate configuration files')]
 [group('template')]
-configure: configure-preconditions render encrypt-secrets validate-kubernetes validate-talos
+configure: render encrypt-secrets validate-kubernetes validate-talos
 
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
 [group('template')]
@@ -77,16 +77,6 @@ reset:
 [group('template')]
 tidy: tidy-preconditions tidy-strip && tidy-archive
 
-# cloudflare-tunnel.json is only needed when the config uses the tunnel; an
-# unparseable config falls through so render can surface validation errors.
-[private]
-configure-preconditions:
-    mode="$(just template config-json 2>/dev/null | jq -r '.ingress.mode' || true)"
-    if [ "$mode" = "cloudflare-tunnel" ] && [ ! -f "{{ cloudflare_tunnel }}" ]; then
-        just log error "cloudflare-tunnel.json not found — see README"
-        exit 1
-    fi
-
 # Validated, defaulted cluster config as JSON on stdout; fails when the
 # config is invalid.
 [private]
@@ -119,9 +109,6 @@ encrypt-secrets:
 
 [private]
 render:
-    test -f "{{ validate_script }}"
-    test -f "{{ template_dir }}/scripts/plugin.py"
-    test -f "{{ makejinja_config }}"
     PYTHONDONTWRITEBYTECODE=1 uv run --locked makejinja
 
 [private]
@@ -169,7 +156,6 @@ test-helmfile:
 
 [private]
 validate-kubernetes:
-    test -f "{{ template_resources }}/kubeconform.sh"
     bash "{{ template_resources }}/kubeconform.sh" "{{ kubernetes_dir }}"
 
 # Rendering needs the secrets bundle; topf generates and sops-encrypts one
@@ -177,5 +163,4 @@ validate-kubernetes:
 [private]
 [working-directory('talos')]
 validate-talos:
-    test -f topf.yaml
     topf render --confirm=false --output "$(mktemp -d)" >/dev/null

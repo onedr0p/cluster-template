@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import base64
@@ -138,6 +139,11 @@ class Plugin(makejinja.plugin.Plugin):
 
     def data(self) -> makejinja.plugin.Data:
         data = validate_config()
+        if (
+            data['ingress']['mode'] == 'cloudflare-tunnel'
+            and not Path('cloudflare-tunnel.json').is_file()
+        ):
+            raise RuntimeError('cloudflare-tunnel.json not found — see README')
         # The deploy key secret always pins every bundled provider host key
         # (entries are matched per-hostname, so unused ones are inert);
         # user-supplied entries for self-hosted git servers are appended.

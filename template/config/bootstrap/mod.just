@@ -64,9 +64,7 @@ apps-namespaces:
     just log info "Applying namespaces for apps" stage "{{ recipe_name() }}"
     for app in "{{ kubernetes_dir }}/apps"/*/; do
         ns="$(basename "$app")"
-        if kubectl get namespace "$ns" &>/dev/null; then
-            just log info "Namespace already exists" namespace "$ns"
-        elif kubectl create namespace "$ns" --dry-run=client -o yaml \
+        if kubectl create namespace "$ns" --dry-run=client -o yaml \
                 | kubectl apply --server-side --filename - &>/dev/null; then
             just log info "Namespace applied" namespace "$ns"
         else
@@ -96,7 +94,11 @@ apps-secrets:
 apps-ready:
     just log info "Waiting for nodes to register as Ready=False" stage "{{ recipe_name() }}"
     if ! kubectl wait nodes --for=condition=Ready=True --all --timeout=10s &>/dev/null; then
+        deadline=$((SECONDS + 600))
         until kubectl wait nodes --for=condition=Ready=False --all --timeout=10s &>/dev/null; do
+            if (( SECONDS >= deadline )); then
+                just log fatal "Timed out waiting for nodes to register"
+            fi
             just log info "Nodes not available, waiting for nodes to be available. Retrying in 5 seconds..."
             sleep 5
         done
