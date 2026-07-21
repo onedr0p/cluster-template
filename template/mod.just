@@ -127,9 +127,9 @@ tidy-preconditions:
 
 [private]
 tidy-strip:
-    sd '\..\.j2'                       '' "{{ justfile_dir() }}/.renovaterc.json5"
-    sd '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
-    sd '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise/config.toml"
+    sd '\..\.j2'                          '' "{{ justfile_dir() }}/.renovaterc.json5"
+    sd -A '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
+    sd -A '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise/config.toml"
 
 [private]
 validate-kubernetes:
