@@ -1,7 +1,7 @@
 """Unit tests for the cluster.toml validator.
 
 Run from the repo root:
-    uv run --with pydantic==2.13.4 --with pytest -- pytest template/scripts/test_validate.py -q
+    uv run --locked pytest template/scripts/test_validate.py -q
 """
 
 from pathlib import Path

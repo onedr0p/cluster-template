@@ -580,13 +580,6 @@ provenance = "github-attestations"
 version = "0.59.0"
 backend = "npm:oxfmt"
 
-[[tools."pipx:makejinja"]]
-version = "2.8.2"
-backend = "pipx:makejinja"
-
-[tools."pipx:makejinja".options]
-uvx_args = "--with pydantic==2.13.4"
-
 [[tools.sd]]
 version = "1.1.0"
 backend = "aqua:chmln/sd"

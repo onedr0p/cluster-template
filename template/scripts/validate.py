@@ -1,10 +1,6 @@
-# /// script
-# requires-python = ">=3.14"
-# dependencies = ["pydantic==2.13.4"]
-# ///
 """Validate cluster.toml, apply defaults, and emit the config as JSON.
 
-Standalone usage (doctor, CI): uv run template/scripts/validate.py [cluster.toml]
+Standalone usage (doctor, CI): uv run --locked template/scripts/validate.py [cluster.toml]
 In-process usage (makejinja plugin): from validate import load
 
 Exits non-zero with one human-readable error per line on stderr when the

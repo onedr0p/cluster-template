@@ -33,7 +33,7 @@ doctor:
     just log info "just version" version "{{ just_version() }}"
     just template doctor-check "cluster.toml"           "{{ config_file }}"           || rc=1
     just template doctor-check "cluster.sample.toml"    "{{ sample_config_file }}"    || rc=1
-    mode="$(uv run --quiet "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
+    mode="$(uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
     if [ "$mode" = "cloudflare-tunnel" ]; then
         just template doctor-check "cloudflare-tunnel.json" "{{ cloudflare_tunnel }}" || rc=1
     fi
@@ -44,11 +44,11 @@ doctor:
     just template doctor-check "makejinja.toml"         "{{ makejinja_config }}"      || rc=1
     just template doctor-check "validate.py"            "{{ validate_script }}"       || rc=1
     if [ -f "{{ config_file }}" ] && [ -f "{{ validate_script }}" ]; then
-        if uv run --quiet "{{ validate_script }}" "{{ config_file }}" >/dev/null 2>&1; then
+        if uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}" >/dev/null 2>&1; then
             just log info "ok" check schema
         else
             just log error "fail" check schema
-            just log info "diagnose with: uv run {{ validate_script }} {{ config_file }}"
+            just log info "diagnose with: uv run --locked {{ validate_script }} {{ config_file }}"
             rc=1
         fi
     fi
@@ -81,7 +81,7 @@ tidy: tidy-preconditions tidy-strip && tidy-archive
 # unparseable config falls through so render can surface validation errors.
 [private]
 configure-preconditions:
-    mode="$(uv run --quiet "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
+    mode="$(uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
     if [ "$mode" = "cloudflare-tunnel" ] && [ ! -f "{{ cloudflare_tunnel }}" ]; then
         just log error "cloudflare-tunnel.json not found — see README"
         exit 1
@@ -116,7 +116,7 @@ render:
     test -f "{{ validate_script }}"
     test -f "{{ template_dir }}/scripts/plugin.py"
     test -f "{{ makejinja_config }}"
-    PYTHONDONTWRITEBYTECODE=1 makejinja
+    PYTHONDONTWRITEBYTECODE=1 uv run --locked makejinja
 
 [private]
 tidy-archive:
@@ -127,6 +127,9 @@ tidy-archive:
     mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
     mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
     mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
+    mv "{{ justfile_dir() }}/pyproject.toml" "$TIDY_FOLDER/pyproject.toml"
+    mv "{{ justfile_dir() }}/uv.lock"        "$TIDY_FOLDER/uv.lock"
+    rm -rf "{{ justfile_dir() }}/.venv"
 
 [private]
 tidy-preconditions:

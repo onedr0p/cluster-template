@@ -121,8 +121,8 @@ KNOWN_HOSTS = {
 }
 
 
-# makejinja adds import_paths (this directory) to sys.path, and pydantic is
-# installed into makejinja's venv via uvx_args in .mise/config.toml, so the
+# makejinja adds import_paths (this directory) to sys.path, and both
+# makejinja and pydantic come from the uv project environment, so the
 # validator runs in-process.
 def validate_config() -> dict[str, Any]:
     try:

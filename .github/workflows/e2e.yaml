@@ -60,13 +60,13 @@ jobs:
       - name: Assert schema rejects ${{ matrix.fixture }}.toml
         run: |
           fixture=./.github/tests/invalid/${{ matrix.fixture }}.toml
-          if uv run --quiet ./template/scripts/validate.py "$fixture" >/dev/null 2>&1; then
+          if uv run --quiet --locked ./template/scripts/validate.py "$fixture" >/dev/null 2>&1; then
             echo "::error::schema accepted invalid fixture ${{ matrix.fixture }} (expected rejection)"
             exit 1
           fi
           echo "schema correctly rejected ${{ matrix.fixture }}"
           # Also surface the actual error message in the log for debuggability.
-          uv run --quiet ./template/scripts/validate.py "$fixture" || true
+          uv run --quiet --locked ./template/scripts/validate.py "$fixture" || true
 
   validator-tests:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
@@ -86,7 +86,7 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Run validator tests
-        run: uv run --quiet --with pydantic==2.13.4 --with pytest -- pytest ./template/scripts/test_validate.py
+        run: uv run --quiet --locked pytest ./template/scripts/test_validate.py
 
   validate-valid:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
