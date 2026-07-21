@@ -85,10 +85,14 @@ def test_coredns_addr_default_and_override():
 
 def test_spegel_enabled_follows_node_count():
     two_nodes = config_from("private.toml")
-    assert _load_raw(two_nodes).spegel_enabled is True
+    assert _load_raw(two_nodes).spegel.enabled is True
     one_node = config_from("private.toml")
     one_node["nodes"] = one_node["nodes"][:1]
-    assert _load_raw(one_node).spegel_enabled is False
+    assert _load_raw(one_node).spegel.enabled is False
+    empty_section = config_from("private.toml", spegel={})
+    assert _load_raw(empty_section).spegel.enabled is True
+    explicit = config_from("private.toml", **{"spegel.enabled": False})
+    assert _load_raw(explicit).spegel.enabled is False
 
 
 def test_derived_fields_are_not_settable():

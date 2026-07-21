@@ -166,6 +166,11 @@ class Bgp(Model):
     node_asn: Asn = ""
 
 
+class Spegel(Model):
+    # True when the cluster has more than one node, unless set explicitly.
+    enabled: bool | None = None
+
+
 class Cilium(Model):
     loadbalancer_mode: Literal["dsr", "snat"] = "dsr"
     bgp: Bgp = Bgp()
@@ -205,9 +210,8 @@ class Config(Model):
         )
     )
     cilium: Cilium = Cilium()
+    spegel: Spegel = Spegel()
     nodes: list[Node]
-    # True when there is more than one node, unless set explicitly.
-    spegel_enabled: bool = Field(default_factory=lambda data: len(data["nodes"]) > 1)
 
     @computed_field
     @property
@@ -231,6 +235,8 @@ class Config(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
+        if self.spegel.enabled is None:
+            self.spegel.enabled = len(self.nodes) > 1
         if self.ingress.mode != "none" and self.dns.provider != "cloudflare":
             raise ValueError(
                 f"ingress.mode {self.ingress.mode!r} requires dns.provider 'cloudflare'"
