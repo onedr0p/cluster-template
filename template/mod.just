@@ -69,10 +69,13 @@ init:
 reset:
     rm -rf "{{ bootstrap_dir }}" "{{ kubernetes_dir }}" "{{ talos_dir }}" "{{ justfile_dir() }}/.sops.yaml"
 
+# tidy-archive moves template/ (this module's source) away, so it runs as a
+# subsequent dependency: the tidy script itself must spawn while the module
+# directory still exists.
 [confirm("All template related config will be archived — continue? [y/N]")]
 [doc('Archive all template tooling under .private/<ts>/ (one-way, run after configure works)')]
 [group('template')]
-tidy: tidy-preconditions tidy-strip tidy-archive
+tidy: tidy-preconditions tidy-strip && tidy-archive
 
 # cloudflare-tunnel.json is only needed when the config uses the tunnel; an
 # unparseable config falls through so render can surface validation errors.
