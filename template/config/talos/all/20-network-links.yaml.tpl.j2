@@ -1,8 +1,10 @@
 #| Node networking as Talos 1.13+ typed network documents. The MAC-matched
    link is enslaved to a single-link active-backup bond so every consumer
    (Cilium devices, VLANs, the VIP, metrics) sees a stable interface name,
-   bond0, regardless of kernel NIC naming — and a second NIC can join the
-   bond later without renaming anything. #|
+   bond0, regardless of kernel NIC naming; a second NIC can join the bond
+   later without renaming anything. The bond name is also referenced by
+   `devices` in the cilium HelmRelease. #|
+#% set link = 'bond0.' ~ network.vlan_tag if network.vlan_tag else 'bond0' %#
 ---
 apiVersion: v1alpha1
 kind: LinkAliasConfig
@@ -21,31 +23,19 @@ mtu: {{ .Node.Data.mtu }}
 ---
 apiVersion: v1alpha1
 kind: VLANConfig
-name: bond0.#{ network.vlan_tag }#
+name: #{ link }#
 parent: bond0
 vlanID: #{ network.vlan_tag }#
 mtu: {{ .Node.Data.mtu }}
-addresses:
-  - address: "{{ .Node.IP }}/#{ network.node_cidr.split('/') | last }#"
-routes:
-  - gateway: "#{ network.default_gateway }#"
-{{- if eq .Node.Role "control-plane" }}
----
-apiVersion: v1alpha1
-kind: Layer2VIPConfig
-link: bond0.#{ network.vlan_tag }#
-name: "#{ kubernetes.api.addr }#"
-{{- end }}
-#% else %#
-addresses:
-  - address: "{{ .Node.IP }}/#{ network.node_cidr.split('/') | last }#"
-routes:
-  - gateway: "#{ network.default_gateway }#"
-{{- if eq .Node.Role "control-plane" }}
----
-apiVersion: v1alpha1
-kind: Layer2VIPConfig
-link: bond0
-name: "#{ kubernetes.api.addr }#"
-{{- end }}
 #% endif %#
+addresses:
+  - address: "{{ .Node.IP }}/#{ network.node_cidr.split('/') | last }#"
+routes:
+  - gateway: "#{ network.default_gateway }#"
+{{- if eq .Node.Role "control-plane" }}
+---
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+link: #{ link }#
+name: "#{ kubernetes.api.addr }#"
+{{- end }}

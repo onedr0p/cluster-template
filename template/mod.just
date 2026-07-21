@@ -33,8 +33,8 @@ doctor:
     just log info "just version" version "{{ just_version() }}"
     just template doctor-check "cluster.toml"           "{{ config_file }}"           || rc=1
     just template doctor-check "cluster.sample.toml"    "{{ sample_config_file }}"    || rc=1
-    mode="$(uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
-    if [ "$mode" = "cloudflare-tunnel" ]; then
+    config_json="$(just template config-json 2>/dev/null || true)"
+    if [ "$(jq -r '.ingress.mode' <<< "$config_json" 2>/dev/null)" = "cloudflare-tunnel" ]; then
         just template doctor-check "cloudflare-tunnel.json" "{{ cloudflare_tunnel }}" || rc=1
     fi
     just template doctor-check "age.key"                "$SOPS_AGE_KEY_FILE"          || rc=1
@@ -44,7 +44,7 @@ doctor:
     just template doctor-check "makejinja.toml"         "{{ makejinja_config }}"      || rc=1
     just template doctor-check "validate.py"            "{{ validate_script }}"       || rc=1
     if [ -f "{{ config_file }}" ] && [ -f "{{ validate_script }}" ]; then
-        if uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}" >/dev/null 2>&1; then
+        if [ -n "$config_json" ]; then
             just log info "ok" check schema
         else
             just log error "fail" check schema
@@ -81,11 +81,17 @@ tidy: tidy-preconditions tidy-strip && tidy-archive
 # unparseable config falls through so render can surface validation errors.
 [private]
 configure-preconditions:
-    mode="$(uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
+    mode="$(just template config-json 2>/dev/null | jq -r '.ingress.mode' || true)"
     if [ "$mode" = "cloudflare-tunnel" ] && [ ! -f "{{ cloudflare_tunnel }}" ]; then
         just log error "cloudflare-tunnel.json not found — see README"
         exit 1
     fi
+
+# Validated, defaulted cluster config as JSON on stdout; fails when the
+# config is invalid.
+[private]
+config-json:
+    uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}"
 
 [no-exit-message]
 [private]

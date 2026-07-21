@@ -25,7 +25,7 @@ spec:
       automount:
         enabled: false
       hostRoot: /sys/fs/cgroup
-    # Node networking rides a single-link bond, so the device name is stable
+    # The stable bond name is defined in talos/all/20-network-links.yaml.tpl
     devices: bond0+
     dashboards:
       enabled: true

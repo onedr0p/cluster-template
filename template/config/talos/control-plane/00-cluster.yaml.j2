@@ -4,9 +4,7 @@ cluster:
     admissionControl:
       $patch: delete
     certSANs:
-      - "127.0.0.1"
-      - "#{ kubernetes.api.addr }#"
-      #% for item in kubernetes.api.tls_sans %#
+      #% for item in cert_sans %#
       - "#{ item }#"
       #% endfor %#
     extraArgs:

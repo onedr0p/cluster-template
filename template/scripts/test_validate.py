@@ -97,6 +97,13 @@ def test_derived_fields_are_not_settable():
         _load_raw(raw)
 
 
+def test_cert_sans_single_source():
+    raw = config_from("public.toml")
+    assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "example.com"]
+    raw = config_from("private.toml")
+    assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254"]
+
+
 def test_ingress_mode_follows_dns_provider():
     cloudflare = config_from("public.toml", ingress=None)
     assert _load_raw(cloudflare).ingress.mode == "cloudflare-tunnel"

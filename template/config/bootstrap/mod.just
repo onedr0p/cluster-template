@@ -16,8 +16,9 @@ talos: talos-secret talos-apply talos-talosconfig talos-kubeconfig
 apps: apps-ready apps-namespaces apps-secrets apps-crds apps-helm
     just log info "Cluster is bootstrapped — Flux will start syncing the Git repository"
 
-# topf generates the bundle on first use and stores it sops-encrypted with
-# the repo's age recipient; existing bundles are left untouched.
+# No sops call or existence guard is needed: the bundle is stored already
+# encrypted with the repo's age recipient, and existing bundles are left
+# untouched.
 [private]
 [working-directory('../talos')]
 talos-secret:
@@ -36,8 +37,8 @@ talos-talosconfig:
     just log info "Generating talosconfig" stage "{{ recipe_name() }}"
     topf talosconfig > talosconfig
 
-# topf issues short-lived admin certs by default; match the previous
-# long-lived kubeconfig behaviour.
+# topf issues short-lived admin certs by default; 8760h keeps the
+# kubeconfig usable long-term.
 [private]
 [working-directory('../talos')]
 talos-kubeconfig:
