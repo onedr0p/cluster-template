@@ -68,6 +68,26 @@ jobs:
           # Also surface the actual error message in the log for debuggability.
           uv run --quiet ./template/scripts/validate.py "$fixture" || true
 
+  validator-tests:
+    if: ${{ github.repository == 'onedr0p/cluster-template' }}
+    name: validator-tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup mise
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Run validator tests
+        run: uv run --quiet --with pydantic==2.13.4 --with pytest -- pytest ./template/scripts/test_validate.py
+
   validate-valid:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
     name: accept-valid (${{ matrix.fixture }})
@@ -124,6 +144,12 @@ jobs:
 
       - name: Render talos configs
         run: just talos render
+
+      - name: Validate talos configs
+        run: |
+          for config in ./talos/rendered/*.yaml; do
+            talosctl validate --config "$config" --mode metal
+          done
 
       - name: Dry run bootstrap apps recipe
         run: just --dry-run bootstrap apps

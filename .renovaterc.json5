@@ -77,9 +77,13 @@
   ],
   customManagers: [
     {
-      description: "Pydantic pinned in the validator script and makejinja venv",
+      description: "Pydantic pinned in the validator script, makejinja venv and CI",
       customType: "regex",
-      managerFilePatterns: ["/^\\.mise/config\\.toml$/", "/^template/scripts/.*\\.py$/"],
+      managerFilePatterns: [
+        "/^\\.mise/config\\.toml$/",
+        "/^template/scripts/.*\\.py$/",
+        "/^\\.github/workflows/e2e\\.yaml$/",
+      ],
       matchStrings: ["pydantic==(?<currentValue>[0-9.]+)"],
       depNameTemplate: "pydantic",
       datasourceTemplate: "pypi",
