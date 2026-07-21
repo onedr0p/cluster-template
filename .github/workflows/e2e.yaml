@@ -30,6 +30,8 @@ jobs:
         fixture:
           - overlapping-cidrs
           - nested-cidr-overlap
+          - non-canonical-cidr
+          - tiny-svc-cidr
           - duplicate-gateway-addrs
           - duplicate-node-names
           - reserved-node-name
@@ -37,6 +39,7 @@ jobs:
           - bad-repo-url
           - missing-known-hosts
           - node-addr-outside-cidr
+          - node-uses-gateway-addr
           - gateway-node-collision
           - bad-vlan-tag
           - bad-bgp-asn

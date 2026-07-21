@@ -62,6 +62,11 @@ node_cidr = ""
 
 # svc_cidr = "10.43.0.0/16"
 
+# ClusterIP for the CoreDNS Service. Must be inside svc_cidr.
+# OPTIONAL. Default: the 10th IP in svc_cidr
+
+# coredns_addr = ""
+
 [kubernetes.api]
 
 # Virtual IP for the Kubernetes API server. kubectl, flux, and every other
