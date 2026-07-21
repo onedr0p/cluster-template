@@ -1,3 +1,4 @@
+#% if dns.provider == 'cloudflare' and ingress.mode != 'none' %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
@@ -11,3 +12,4 @@ spec:
   ref:
     tag: 1.21.1
   url: oci://ghcr.io/home-operations/charts-mirror/external-dns
+#% endif %#

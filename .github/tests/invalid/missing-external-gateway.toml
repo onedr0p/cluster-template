@@ -1,6 +1,5 @@
-# Negative fixture: a node claims the default gateway address (defaults to
-# the first IP in node_cidr).
-# Expected to be rejected by _addr_uniqueness_check.
+# Negative fixture: cloudflare-tunnel ingress without gateways.external.
+# Expected to be rejected by the Config cross-check.
 [network]
 node_cidr = "10.10.10.0/24"
 
@@ -10,10 +9,6 @@ addr = "10.10.10.254"
 [gateways]
 internal = "10.10.10.252"
 dns      = "10.10.10.253"
-external = "10.10.10.251"
-
-[repository]
-url = "https://github.com/onedr0p/cluster-template.git"
 
 [domain]
 name = "example.com"
@@ -21,9 +16,12 @@ name = "example.com"
 [dns]
 token = "fake"
 
+[repository]
+url = "https://github.com/onedr0p/cluster-template.git"
+
 [[nodes]]
 name         = "k8s-0"
-address      = "10.10.10.1"
+address      = "10.10.10.100"
 controller   = true
 disk         = "/dev/sdfake"
 mac_addr     = "00:00:00:00:00:00"

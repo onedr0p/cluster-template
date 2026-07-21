@@ -101,10 +101,11 @@ internal = ""
 # REQUIRED.
 dns = ""
 
-# IP for the `envoy-external` gateway — sits behind the cloudflared tunnel
-# and handles traffic exposed to the public internet. HTTPRoutes that
-# reference this gateway become reachable via your cloudflare domain.
-# REQUIRED.
+# IP for the `envoy-external` gateway — sits behind the ingress path (e.g.
+# the cloudflared tunnel) and handles traffic exposed to the public
+# internet. HTTPRoutes that reference this gateway become reachable via
+# your public domain.
+# REQUIRED unless ingress.mode is "none" (internal-only cluster).
 external = ""
 
 
@@ -156,22 +157,49 @@ url = ""
 
 
 # =============================================================================
-#    DNS authority and tunnel provider for any apps you want to expose to
-#    the public internet. external-dns publishes records here automatically;
-#    cert-manager uses the same token for ACME DNS-01 challenges.
+#    The domain your cluster's hostnames live under. Used for every rendered
+#    hostname (echo, flux-webhook, internal split DNS) and the wildcard
+#    certificate, regardless of DNS provider.
 # =============================================================================
-[cloudflare]
+[domain]
 
-# The Cloudflare-managed domain hosting your cluster's public hostnames.
-# Used by external-dns, cert-manager, and the cloudflared tunnel.
 # REQUIRED. Example: "example.com"
-domain = ""
+name = ""
 
-# API token (NOT the global API key) with `Zone - DNS - Edit` and
+
+# =============================================================================
+#    Public DNS authority and certificate issuance. With "cloudflare",
+#    external-dns publishes records automatically and cert-manager issues a
+#    Let's Encrypt wildcard via ACME DNS-01. With "none", nothing is
+#    published and the wildcard certificate is issued by an in-cluster
+#    self-signed CA instead (internal-only cluster).
+# =============================================================================
+[dns]
+
+# OPTIONAL. Default: "cloudflare". Allowed: "cloudflare" | "none"
+
+# provider = "cloudflare"
+
+# Cloudflare API token (NOT the global API key) with `Zone - DNS - Edit` and
 # `Account - Cloudflare Tunnel - Read` permissions, scoped to the zone
 # above. See the README for token creation steps.
-# REQUIRED.
+# REQUIRED when provider is "cloudflare"; must be empty otherwise.
 token = ""
+
+
+# =============================================================================
+#    How the public internet reaches the cluster's external gateway. With
+#    "cloudflare-tunnel", cloudflared connects outbound so no ports are
+#    forwarded (requires dns.provider = "cloudflare" and
+#    cloudflare-tunnel.json). With "none", nothing is exposed and apps are
+#    only reachable on your LAN via the internal gateway.
+# =============================================================================
+[ingress]
+
+# OPTIONAL. Default: "cloudflare-tunnel" when dns.provider is "cloudflare",
+# otherwise "none". Allowed: "cloudflare-tunnel" | "none"
+
+# mode = "cloudflare-tunnel"
 
 
 # =============================================================================

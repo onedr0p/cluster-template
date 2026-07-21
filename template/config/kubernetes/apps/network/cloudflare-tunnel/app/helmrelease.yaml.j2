@@ -1,3 +1,4 @@
+#% if ingress.mode == 'cloudflare-tunnel' %#
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -82,3 +83,4 @@ spec:
         globalMounts:
           - path: /etc/cloudflared/config.yaml
             subPath: config.yaml
+#% endif %#

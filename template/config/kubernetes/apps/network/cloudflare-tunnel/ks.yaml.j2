@@ -1,3 +1,4 @@
+#% if ingress.mode == 'cloudflare-tunnel' %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -17,3 +18,4 @@ spec:
     namespace: flux-system
   targetNamespace: network
   wait: false
+#% endif %#

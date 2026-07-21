@@ -33,7 +33,10 @@ doctor:
     just log info "just version" version "{{ just_version() }}"
     just template doctor-check "cluster.toml"           "{{ config_file }}"           || rc=1
     just template doctor-check "cluster.sample.toml"    "{{ sample_config_file }}"    || rc=1
-    just template doctor-check "cloudflare-tunnel.json" "{{ cloudflare_tunnel }}"     || rc=1
+    mode="$(uv run --quiet "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
+    if [ "$mode" = "cloudflare-tunnel" ]; then
+        just template doctor-check "cloudflare-tunnel.json" "{{ cloudflare_tunnel }}" || rc=1
+    fi
     just template doctor-check "age.key"                "$SOPS_AGE_KEY_FILE"          || rc=1
     just template doctor-check "deploy.key"             "{{ deploy_key }}"            || rc=1
     just template doctor-check "flux-webhook-token.txt" "{{ webhook_token_file }}"    || rc=1
@@ -71,9 +74,16 @@ reset:
 [group('template')]
 tidy: tidy-preconditions tidy-strip tidy-archive
 
+# cloudflare-tunnel.json is only needed when the config uses the tunnel; an
+# unparseable config falls through so render can surface validation errors.
 [private]
+[script]
 configure-preconditions:
-    test -f "{{ cloudflare_tunnel }}" || { just log error "cloudflare-tunnel.json not found — see README"; exit 1; }
+    mode="$(uv run --quiet "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
+    if [ "$mode" = "cloudflare-tunnel" ] && [ ! -f "{{ cloudflare_tunnel }}" ]; then
+        just log error "cloudflare-tunnel.json not found — see README"
+        exit 1
+    fi
 
 [no-exit-message]
 [private]
