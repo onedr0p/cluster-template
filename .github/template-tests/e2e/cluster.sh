@@ -181,6 +181,20 @@ git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
 git -C "$STATE/gitwork" push --quiet "$GIT_PUSH_URL" main
 }
 
+assert_cluster_health() {
+echo "==> asserting cluster health"
+kubectl wait nodes --all --for=condition=Ready --timeout=10m
+for ns in kube-system cert-manager flux-system; do
+    kubectl wait pods --namespace "$ns" --all --for=condition=Ready --timeout=10m
+done
+
+echo "==> asserting flux reconciliation"
+kubectl wait fluxinstance/flux --namespace flux-system --for=condition=Ready --timeout=10m
+kubectl wait gitrepositories --all --all-namespaces --for=condition=Ready --timeout=5m
+kubectl wait kustomizations --all --all-namespaces --for=condition=Ready --timeout=10m
+kubectl wait helmreleases --all --all-namespaces --for=condition=Ready --timeout=10m
+}
+
 foundation() {
 deadline=$((SECONDS + 60))
 until git ls-remote "http://$GIT_HOST:$GIT_PORT/repo.git" >/dev/null 2>&1; do
@@ -194,23 +208,13 @@ just bootstrap talos
 
 echo "==> bootstrap apps"
 just bootstrap apps
+assert_cluster_health
 
 echo "==> asserting bootstrap idempotency"
 just configure
 just bootstrap talos
 just bootstrap apps
-
-echo "==> asserting cluster health"
-kubectl wait nodes --all --for=condition=Ready --timeout=10m
-for ns in kube-system cert-manager flux-system; do
-    kubectl wait pods --namespace "$ns" --all --for=condition=Ready --timeout=10m
-done
-
-echo "==> asserting flux reconciliation"
-kubectl wait fluxinstance/flux --namespace flux-system --for=condition=Ready --timeout=10m
-kubectl wait gitrepositories --all --all-namespaces --for=condition=Ready --timeout=5m
-kubectl wait kustomizations --all --all-namespaces --for=condition=Ready --timeout=10m
-kubectl wait helmreleases --all --all-namespaces --for=condition=Ready --timeout=10m
+assert_cluster_health
 }
 
 flux_sops() {
