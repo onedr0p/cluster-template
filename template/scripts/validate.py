@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.14"
-# dependencies = ["pydantic>=2.12"]
+# dependencies = ["pydantic==2.13.4"]
 # ///
 """Validate cluster.toml, apply defaults, and emit the config as JSON.
 
