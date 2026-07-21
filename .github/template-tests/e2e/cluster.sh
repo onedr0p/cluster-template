@@ -155,6 +155,11 @@ just bootstrap talos
 echo "==> bootstrap apps"
 just bootstrap apps
 
+echo "==> asserting bootstrap idempotency"
+just configure
+just bootstrap talos
+just bootstrap apps
+
 echo "==> asserting cluster health"
 kubectl wait nodes --all --for=condition=Ready --timeout=10m
 for ns in kube-system cert-manager flux-system; do
@@ -166,6 +171,121 @@ kubectl wait fluxinstance/flux --namespace flux-system --for=condition=Ready --t
 kubectl wait gitrepositories --all --all-namespaces --for=condition=Ready --timeout=5m
 kubectl wait kustomizations --all --all-namespaces --for=condition=Ready --timeout=10m
 kubectl wait helmreleases --all --all-namespaces --for=condition=Ready --timeout=10m
+
+echo "==> asserting Flux SOPS decryption"
+SOPS_SECRET="$STATE/gitwork/kubernetes/apps/default/e2e-sops.sops.yaml"
+cat > "$SOPS_SECRET" <<EOF
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: e2e-sops
+  namespace: default
+stringData:
+  value: flux-decrypted
+EOF
+sops encrypt --filename-override kubernetes/apps/default/e2e-sops.sops.yaml \
+    --in-place "$SOPS_SECRET"
+yq --inplace '.resources += ["./e2e-sops.sops.yaml"]' \
+    "$STATE/gitwork/kubernetes/apps/default/kustomization.yaml"
+git -C "$STATE/gitwork" add --all
+git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
+    commit --quiet --message "test Flux SOPS decryption"
+git -C "$STATE/gitwork" push --quiet "$STATE/repo.git" main
+flux reconcile kustomization cluster-apps --with-source --timeout=10m
+test "$(kubectl get secret e2e-sops --namespace default \
+    --output jsonpath='{.data.value}' | base64 --decode)" = "flux-decrypted"
+
+echo "==> asserting pod networking and DNS"
+CONTROLPLANE_NODE="$(kubectl get nodes --output json | jq -r \
+    '.items[] | select(.metadata.labels["node-role.kubernetes.io/control-plane"] != null) | .metadata.name' | head -1)"
+WORKER_NODE="$(kubectl get nodes --output json | jq -r \
+    '.items[] | select(.metadata.labels["node-role.kubernetes.io/control-plane"] == null) | .metadata.name' | head -1)"
+kubectl apply --filename - <<EOF
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: e2e-network-server
+  namespace: default
+  labels:
+    app: e2e-network-server
+spec:
+  nodeName: $WORKER_NODE
+  containers:
+    - name: server
+      image: registry.k8s.io/e2e-test-images/agnhost:2.63.0
+      args: ["netexec", "--http-port=8080"]
+      ports:
+        - name: http
+          containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: e2e-network-server
+  namespace: default
+spec:
+  selector:
+    app: e2e-network-server
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: e2e-network-client
+  namespace: default
+spec:
+  nodeName: $CONTROLPLANE_NODE
+  containers:
+    - name: client
+      image: registry.k8s.io/e2e-test-images/agnhost:2.63.0
+      args: ["pause"]
+EOF
+kubectl wait pods/e2e-network-server pods/e2e-network-client \
+    --namespace default --for=condition=Ready --timeout=5m
+SERVER_IP="$(kubectl get pod e2e-network-server --namespace default \
+    --output jsonpath='{.status.podIP}')"
+kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=10s "$SERVER_IP:8080"
+kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=10s e2e-network-server.default.svc.cluster.local:8080
+kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=10s github.com:443
+kubectl apply --filename - <<EOF
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: e2e-deny-server
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: e2e-network-server
+  policyTypes: ["Ingress"]
+EOF
+deadline=$((SECONDS + 60))
+while kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=2s "$SERVER_IP:8080" &>/dev/null; do
+    if (( SECONDS >= deadline )); then
+        just log fatal "NetworkPolicy did not block pod traffic"
+    fi
+    sleep 2
+done
+kubectl delete networkpolicy e2e-deny-server --namespace default
+deadline=$((SECONDS + 60))
+until kubectl exec --namespace default e2e-network-client -- \
+    /agnhost connect --timeout=2s "$SERVER_IP:8080" &>/dev/null; do
+    if (( SECONDS >= deadline )); then
+        just log fatal "Pod traffic did not recover after removing NetworkPolicy"
+    fi
+    sleep 2
+done
+
 kubectl get nodes --output wide
 kubectl get kustomizations,helmreleases --all-namespaces
 echo "==> e2e bootstrap succeeded"
