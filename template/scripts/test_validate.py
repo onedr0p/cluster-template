@@ -1,7 +1,7 @@
 """Unit tests for the cluster.toml validator.
 
 Run from the repo root:
-    uv run --with pydantic==2.13.4 --with pytest -- pytest template/scripts/test_validate.py -q
+    uv run --locked pytest template/scripts/test_validate.py -q
 """
 
 from pathlib import Path
@@ -95,6 +95,13 @@ def test_derived_fields_are_not_settable():
     raw = config_from("public.toml", cilium_bgp_enabled=True)
     with pytest.raises(ConfigError, match="cilium_bgp_enabled"):
         _load_raw(raw)
+
+
+def test_cert_sans_single_source():
+    raw = config_from("public.toml")
+    assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "example.com"]
+    raw = config_from("private.toml")
+    assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254"]
 
 
 def test_ingress_mode_follows_dns_provider():

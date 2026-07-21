@@ -1,0 +1,41 @@
+#| Node networking as Talos 1.13+ typed network documents. The MAC-matched
+   link is enslaved to a single-link active-backup bond so every consumer
+   (Cilium devices, VLANs, the VIP, metrics) sees a stable interface name,
+   bond0, regardless of kernel NIC naming; a second NIC can join the bond
+   later without renaming anything. The bond name is also referenced by
+   `devices` in the cilium HelmRelease. #|
+#% set link = 'bond0.' ~ network.vlan_tag if network.vlan_tag else 'bond0' %#
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: ethSel0
+selector:
+  match: glob("{{ .Node.Data.macAddr }}", mac(link.hardware_addr))
+---
+apiVersion: v1alpha1
+kind: BondConfig
+name: bond0
+links:
+  - ethSel0
+bondMode: active-backup
+mtu: {{ .Node.Data.mtu }}
+#% if network.vlan_tag %#
+---
+apiVersion: v1alpha1
+kind: VLANConfig
+name: #{ link }#
+parent: bond0
+vlanID: #{ network.vlan_tag }#
+mtu: {{ .Node.Data.mtu }}
+#% endif %#
+addresses:
+  - address: "{{ .Node.IP }}/#{ network.node_cidr.split('/') | last }#"
+routes:
+  - gateway: "#{ network.default_gateway }#"
+{{- if eq .Node.Role "control-plane" }}
+---
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+link: #{ link }#
+name: "#{ kubernetes.api.addr }#"
+{{- end }}

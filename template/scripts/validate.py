@@ -1,10 +1,6 @@
-# /// script
-# requires-python = ">=3.14"
-# dependencies = ["pydantic==2.13.4"]
-# ///
 """Validate cluster.toml, apply defaults, and emit the config as JSON.
 
-Standalone usage (doctor, CI): uv run template/scripts/validate.py [cluster.toml]
+Standalone usage (doctor, CI): uv run --locked template/scripts/validate.py [cluster.toml]
 In-process usage (makejinja plugin): from validate import load
 
 Exits non-zero with one human-readable error per line on stderr when the
@@ -225,6 +221,13 @@ class Config(Model):
         if self.dns.provider == "cloudflare":
             return "letsencrypt-production"
         return "internal-ca"
+
+    # Single source for the machine and apiServer certificate SAN lists,
+    # which live in separate patch files.
+    @computed_field
+    @property
+    def cert_sans(self) -> list[str]:
+        return ["127.0.0.1", str(self.kubernetes.api.addr), *(self.kubernetes.api.tls_sans or [])]
 
     @model_validator(mode="after")
     def check(self) -> Self:

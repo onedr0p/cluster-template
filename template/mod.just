@@ -1,5 +1,6 @@
 set quiet
 set default-list
+set default-script
 set shell := ['bash', '-euo', 'pipefail', '-c']
 set script-interpreter := ['bash', '-euo', 'pipefail']
 set working-directory := '..'
@@ -27,14 +28,13 @@ configure: configure-preconditions render encrypt-secrets validate-kubernetes va
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
 [group('template')]
 [no-exit-message]
-[script]
 doctor:
     rc=0
     just log info "just version" version "{{ just_version() }}"
     just template doctor-check "cluster.toml"           "{{ config_file }}"           || rc=1
     just template doctor-check "cluster.sample.toml"    "{{ sample_config_file }}"    || rc=1
-    mode="$(uv run --quiet "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
-    if [ "$mode" = "cloudflare-tunnel" ]; then
+    config_json="$(just template config-json 2>/dev/null || true)"
+    if [ "$(jq -r '.ingress.mode' <<< "$config_json" 2>/dev/null)" = "cloudflare-tunnel" ]; then
         just template doctor-check "cloudflare-tunnel.json" "{{ cloudflare_tunnel }}" || rc=1
     fi
     just template doctor-check "age.key"                "$SOPS_AGE_KEY_FILE"          || rc=1
@@ -44,11 +44,11 @@ doctor:
     just template doctor-check "makejinja.toml"         "{{ makejinja_config }}"      || rc=1
     just template doctor-check "validate.py"            "{{ validate_script }}"       || rc=1
     if [ -f "{{ config_file }}" ] && [ -f "{{ validate_script }}" ]; then
-        if uv run --quiet "{{ validate_script }}" "{{ config_file }}" >/dev/null 2>&1; then
+        if [ -n "$config_json" ]; then
             just log info "ok" check schema
         else
             just log error "fail" check schema
-            just log info "diagnose with: uv run {{ validate_script }} {{ config_file }}"
+            just log info "diagnose with: uv run --locked {{ validate_script }} {{ config_file }}"
             rc=1
         fi
     fi
@@ -69,25 +69,32 @@ init:
 reset:
     rm -rf "{{ bootstrap_dir }}" "{{ kubernetes_dir }}" "{{ talos_dir }}" "{{ justfile_dir() }}/.sops.yaml"
 
+# tidy-archive moves template/ (this module's source) away, so it runs as a
+# subsequent dependency: the tidy script itself must spawn while the module
+# directory still exists.
 [confirm("All template related config will be archived — continue? [y/N]")]
 [doc('Archive all template tooling under .private/<ts>/ (one-way, run after configure works)')]
 [group('template')]
-tidy: tidy-preconditions tidy-strip tidy-archive
+tidy: tidy-preconditions tidy-strip && tidy-archive
 
 # cloudflare-tunnel.json is only needed when the config uses the tunnel; an
 # unparseable config falls through so render can surface validation errors.
 [private]
-[script]
 configure-preconditions:
-    mode="$(uv run --quiet "{{ validate_script }}" "{{ config_file }}" 2>/dev/null | jq -r '.ingress.mode' || true)"
+    mode="$(just template config-json 2>/dev/null | jq -r '.ingress.mode' || true)"
     if [ "$mode" = "cloudflare-tunnel" ] && [ ! -f "{{ cloudflare_tunnel }}" ]; then
         just log error "cloudflare-tunnel.json not found — see README"
         exit 1
     fi
 
+# Validated, defaulted cluster config as JSON on stdout; fails when the
+# config is invalid.
+[private]
+config-json:
+    uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}"
+
 [no-exit-message]
 [private]
-[script]
 doctor-check label path:
     if [ -e "{{ path }}" ]; then
         just log info "ok" file "{{ label }}"
@@ -97,7 +104,6 @@ doctor-check label path:
     fi
 
 [private]
-[script]
 encrypt-secrets:
     find "{{ bootstrap_dir }}" "{{ kubernetes_dir }}" "{{ talos_dir }}" -type f -name '*.sops.*' -print0 \
         | while IFS= read -r -d '' f; do
@@ -116,10 +122,9 @@ render:
     test -f "{{ validate_script }}"
     test -f "{{ template_dir }}/scripts/plugin.py"
     test -f "{{ makejinja_config }}"
-    PYTHONDONTWRITEBYTECODE=1 makejinja
+    PYTHONDONTWRITEBYTECODE=1 uv run --locked makejinja
 
 [private]
-[script]
 tidy-archive:
     TIDY_FOLDER="{{ private_dir }}/$(date +%s)"
     mkdir -p "$TIDY_FOLDER"
@@ -128,6 +133,9 @@ tidy-archive:
     mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
     mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
     mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
+    mv "{{ justfile_dir() }}/pyproject.toml" "$TIDY_FOLDER/pyproject.toml"
+    mv "{{ justfile_dir() }}/uv.lock"        "$TIDY_FOLDER/uv.lock"
+    rm -rf "{{ justfile_dir() }}/.venv"
 
 [private]
 tidy-preconditions:
@@ -146,8 +154,10 @@ validate-kubernetes:
     test -f "{{ template_resources }}/kubeconform.sh"
     bash "{{ template_resources }}/kubeconform.sh" "{{ kubernetes_dir }}"
 
+# Rendering needs the secrets bundle; topf generates and sops-encrypts one
+# on first run (--confirm=false so it never prompts mid-pipeline).
 [private]
 [working-directory('talos')]
 validate-talos:
-    test -f talconfig.yaml
-    talhelper validate talconfig talconfig.yaml
+    test -f topf.yaml
+    topf render --confirm=false --output "$(mktemp -d)" >/dev/null

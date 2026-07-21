@@ -2,7 +2,11 @@ cluster:
   allowSchedulingOnControlPlanes: true
   apiServer:
     admissionControl:
-      $$patch: delete
+      $patch: delete
+    certSANs:
+      #% for item in cert_sans %#
+      - "#{ item }#"
+      #% endfor %#
     extraArgs:
       # https://kubernetes.io/docs/tasks/extend-kubernetes/configure-aggregation-layer/
       enable-aggregator-routing: true

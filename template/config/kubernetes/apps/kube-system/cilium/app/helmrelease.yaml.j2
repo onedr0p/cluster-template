@@ -25,8 +25,8 @@ spec:
       automount:
         enabled: false
       hostRoot: /sys/fs/cgroup
-    # NOTE: devices might need to be set if you have more than one active NIC on your hosts
-    # devices: eno+ eth+
+    # The stable bond name is defined in talos/all/20-network-links.yaml.tpl
+    devices: bond0+
     dashboards:
       enabled: true
     endpointRoutes:

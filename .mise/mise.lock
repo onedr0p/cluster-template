@@ -191,6 +191,40 @@ url = "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_windows_am
 url_api = "https://api.github.com/repos/cli/cli/releases/assets/464728577"
 provenance = "github-attestations"
 
+[[tools."github:postfinance/topf"]]
+version = "0.4.2"
+backend = "github:postfinance/topf"
+
+[tools."github:postfinance/topf"."platforms.linux-arm64"]
+checksum = "sha256:d366d232d9f5f2d244945972f6c769c3b1e5e95120407459fedb9248fcbf2cb1"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354097"
+
+[tools."github:postfinance/topf"."platforms.linux-arm64-musl"]
+checksum = "sha256:d366d232d9f5f2d244945972f6c769c3b1e5e95120407459fedb9248fcbf2cb1"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354097"
+
+[tools."github:postfinance/topf"."platforms.linux-x64"]
+checksum = "sha256:2cc3b63210fe2a9165f5d47a5e07a84e446307243b54c352aaf0c5d937ea20b9"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354094"
+
+[tools."github:postfinance/topf"."platforms.linux-x64-musl"]
+checksum = "sha256:2cc3b63210fe2a9165f5d47a5e07a84e446307243b54c352aaf0c5d937ea20b9"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354094"
+
+[tools."github:postfinance/topf"."platforms.macos-arm64"]
+checksum = "sha256:8781cb1dc847156a80486b6fc324b10039d664e98d40440cc7fc29fead7637da"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354092"
+
+[tools."github:postfinance/topf"."platforms.macos-x64"]
+checksum = "sha256:800bca769be4f786abd5785a159bd1cc6b7d17a5a16bfafe5e434b8e0a64e2b2"
+url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354095"
+
 [[tools.gum]]
 version = "0.17.0"
 backend = "aqua:charmbracelet/gum"
@@ -546,13 +580,6 @@ provenance = "github-attestations"
 version = "0.59.0"
 backend = "npm:oxfmt"
 
-[[tools."pipx:makejinja"]]
-version = "2.8.2"
-backend = "pipx:makejinja"
-
-[tools."pipx:makejinja".options]
-uvx_args = "--with pydantic==2.13.4"
-
 [[tools.sd]]
 version = "1.1.0"
 backend = "aqua:chmln/sd"
@@ -651,45 +678,6 @@ url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838690"
 
 [tools.sops."platforms.windows-x64".provenance.slsa]
 url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
-
-[[tools.talhelper]]
-version = "3.1.13"
-backend = "aqua:budimanjojo/talhelper"
-
-[tools.talhelper."platforms.linux-arm64"]
-checksum = "sha256:63a04de5098e310ca0118bfad7f380b7c6aa811c1b9251a4a34891eeda8a7930"
-url = "https://github.com/budimanjojo/talhelper/releases/download/v3.1.13/talhelper_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/budimanjojo/talhelper/releases/assets/473100884"
-
-[tools.talhelper."platforms.linux-arm64-musl"]
-checksum = "sha256:63a04de5098e310ca0118bfad7f380b7c6aa811c1b9251a4a34891eeda8a7930"
-url = "https://github.com/budimanjojo/talhelper/releases/download/v3.1.13/talhelper_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/budimanjojo/talhelper/releases/assets/473100884"
-
-[tools.talhelper."platforms.linux-x64"]
-checksum = "sha256:2975e70b3d598c2023f7045a495ba3598269bc62ceb56e8eeb93df10c049978d"
-url = "https://github.com/budimanjojo/talhelper/releases/download/v3.1.13/talhelper_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/budimanjojo/talhelper/releases/assets/473100886"
-
-[tools.talhelper."platforms.linux-x64-musl"]
-checksum = "sha256:2975e70b3d598c2023f7045a495ba3598269bc62ceb56e8eeb93df10c049978d"
-url = "https://github.com/budimanjojo/talhelper/releases/download/v3.1.13/talhelper_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/budimanjojo/talhelper/releases/assets/473100886"
-
-[tools.talhelper."platforms.macos-arm64"]
-checksum = "sha256:61e4bf3a32e5daed348097a2d0b0fbe09cae4e6f4b29327dab01fa1dd0ad9717"
-url = "https://github.com/budimanjojo/talhelper/releases/download/v3.1.13/talhelper_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/budimanjojo/talhelper/releases/assets/473100885"
-
-[tools.talhelper."platforms.macos-x64"]
-checksum = "sha256:a86b7d44b348ceeb56ab027ae4af4355494ac16b7e52649589d4514cf954ef62"
-url = "https://github.com/budimanjojo/talhelper/releases/download/v3.1.13/talhelper_darwin_amd64.tar.gz"
-url_api = "https://api.github.com/repos/budimanjojo/talhelper/releases/assets/473100883"
-
-[tools.talhelper."platforms.windows-x64"]
-checksum = "sha256:eeddb72d66127e50fe91c491c095b61595a89336db2c9faf45aa920daaf3e8ce"
-url = "https://github.com/budimanjojo/talhelper/releases/download/v3.1.13/talhelper_windows_amd64.tar.gz"
-url_api = "https://api.github.com/repos/budimanjojo/talhelper/releases/assets/473100918"
 
 [[tools.talosctl]]
 version = "1.13.6"
