@@ -28,6 +28,7 @@ jobs:
         env:
           SOFT_SERVE_GIT_ENABLED: "false"
           SOFT_SERVE_LFS_ENABLED: "false"
+          SOFT_SERVE_SSH_LISTEN_ADDR: "127.0.0.1:23231"
           SOFT_SERVE_STATS_ENABLED: "false"
         ports:
           - 8418:23232

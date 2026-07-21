@@ -85,6 +85,7 @@ start_local_git_server() {
         --publish "$GIT_PORT:23232" \
         --env SOFT_SERVE_GIT_ENABLED=false \
         --env SOFT_SERVE_LFS_ENABLED=false \
+        --env SOFT_SERVE_SSH_LISTEN_ADDR=127.0.0.1:23231 \
         --env SOFT_SERVE_STATS_ENABLED=false \
         --entrypoint /bin/sh \
         ghcr.io/charmbracelet/soft-serve:v0.11.6 \
