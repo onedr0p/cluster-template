@@ -118,7 +118,6 @@ tidy-archive:
     mv "{{ makejinja_config }}"     "$TIDY_FOLDER/makejinja.toml"
     mv "{{ config_file }}"          "$TIDY_FOLDER/cluster.toml"
     mv "{{ sample_config_file }}"   "$TIDY_FOLDER/cluster.sample.toml"
-    mv "{{ justfile_dir() }}/.venv" "$TIDY_FOLDER/.venv"
 
 [private]
 tidy-preconditions:
@@ -128,9 +127,9 @@ tidy-preconditions:
 
 [private]
 tidy-strip:
-    sd '\..\.j2'                       '' "{{ justfile_dir() }}/.renovaterc.json5"
-    sd '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
-    sd '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise/config.toml"
+    sd '\..\.j2'                          '' "{{ justfile_dir() }}/.renovaterc.json5"
+    sd -A '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
+    sd -A '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise/config.toml"
 
 [private]
 validate-kubernetes:
