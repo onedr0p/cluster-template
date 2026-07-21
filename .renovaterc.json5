@@ -8,6 +8,12 @@
   },
   packageRules: [
     {
+      description: "Talos Group",
+      groupName: "talos",
+      matchPackageNames: ["ghcr.io/siderolabs/installer", "siderolabs/talos", "talosctl"],
+      minimumGroupSize: 3,
+    },
+    {
       description: "Flux Operator Group",
       groupName: "flux-operator",
       matchDatasources: ["docker"],
