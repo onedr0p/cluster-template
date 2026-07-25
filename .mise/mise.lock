@@ -620,64 +620,64 @@ url = "https://github.com/chmln/sd/releases/download/v1.1.0/sd-v1.1.0-x86_64-pc-
 url_api = "https://api.github.com/repos/chmln/sd/releases/assets/362325573"
 
 [[tools.sops]]
-version = "3.13.2"
+version = "3.13.3"
 backend = "aqua:getsops/sops"
 
 [tools.sops."platforms.linux-arm64"]
-checksum = "sha256:78abf2e15c86250a1553ae6f53aba96be6b2a8126f160b1534959add3467ad76"
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.linux.arm64"
-url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838764"
+checksum = "sha256:53b0abacd38ef1b12a66d6c100956691b9cefce018d91f81e73ddf7438b94d77"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.linux.arm64"
+url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808229"
 
 [tools.sops."platforms.linux-arm64".provenance.slsa]
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [tools.sops."platforms.linux-arm64-musl"]
-checksum = "sha256:78abf2e15c86250a1553ae6f53aba96be6b2a8126f160b1534959add3467ad76"
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.linux.arm64"
-url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838764"
+checksum = "sha256:53b0abacd38ef1b12a66d6c100956691b9cefce018d91f81e73ddf7438b94d77"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.linux.arm64"
+url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808229"
 
 [tools.sops."platforms.linux-arm64-musl".provenance.slsa]
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [tools.sops."platforms.linux-x64"]
-checksum = "sha256:154dfe4cd70554bdd82b98e4cd4acf191d43d01ead6f00a73477aa44c4ac42ef"
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.linux.amd64"
-url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838689"
+checksum = "sha256:e5bec3346a873ae91d871550f3e698c1aad962aff462a080e40f25fde17fef6b"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.linux.amd64"
+url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808201"
 
 [tools.sops."platforms.linux-x64".provenance.slsa]
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [tools.sops."platforms.linux-x64-musl"]
-checksum = "sha256:154dfe4cd70554bdd82b98e4cd4acf191d43d01ead6f00a73477aa44c4ac42ef"
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.linux.amd64"
-url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838689"
+checksum = "sha256:e5bec3346a873ae91d871550f3e698c1aad962aff462a080e40f25fde17fef6b"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.linux.amd64"
+url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808201"
 
 [tools.sops."platforms.linux-x64-musl".provenance.slsa]
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [tools.sops."platforms.macos-arm64"]
-checksum = "sha256:412c475b52f167f1facd75d564422ffd1fa5302aaa7a404bdf4e30087e04b5a8"
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.darwin.arm64"
-url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838691"
+checksum = "sha256:b97c0d434aab577dc40310e8d22ff9e45eef4c80638ab978daae9b4681c59286"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.darwin.arm64"
+url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808198"
 
 [tools.sops."platforms.macos-arm64".provenance.slsa]
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [tools.sops."platforms.macos-x64"]
-checksum = "sha256:5a66836229ff4a73779b19644b6db28fd574a6b995c15fc333469b2f93ee2acd"
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.darwin.amd64"
-url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838762"
+checksum = "sha256:42162d5cef10b74fcf80a045a70e658d7ce6e63d6ea1be6f347e44015714468d"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.darwin.amd64"
+url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808228"
 
 [tools.sops."platforms.macos-x64".provenance.slsa]
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [tools.sops."platforms.windows-x64"]
-checksum = "sha256:cb6fec76e23cb4ac56771ac38472b0fe1ba79a849bf2200aeda7c9467a045b7b"
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.amd64.exe"
-url_api = "https://api.github.com/repos/getsops/sops/releases/assets/461838690"
+checksum = "sha256:a4a9a398858fe8b2ef72d9686d930bf7c5cece9be74ad83ac3b53cfdd70e6b1c"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.amd64.exe"
+url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808200"
 
 [tools.sops."platforms.windows-x64".provenance.slsa]
-url = "https://github.com/getsops/sops/releases/download/v3.13.2/sops-v3.13.2.intoto.jsonl"
+url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [[tools.talosctl]]
 version = "1.13.7"
