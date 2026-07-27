@@ -106,6 +106,7 @@ jobs:
           - no-webhook
           - internal
           - direct
+          - single-node
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -129,6 +130,11 @@ jobs:
 
       - name: Run configure recipe
         run: just configure
+
+      # Rendered output must already match the format-yaml pre-commit hook,
+      # otherwise every `just configure` shows up as formatting churn.
+      - name: Assert rendered output is formatted
+        run: oxfmt --check ./.sops.yaml ./bootstrap ./kubernetes ./talos
 
       - name: Install flate
         uses: home-operations/flate/action@bf3405a189626478b0aa6ec98dc4d6f7d419df17 # v0.4.12

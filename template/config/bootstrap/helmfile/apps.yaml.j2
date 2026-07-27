@@ -27,14 +27,14 @@ releases:
     namespace: kube-system
     inherit:
       - template: default
-    needs: ['kube-system/cilium']
-
+    needs: ["kube-system/cilium"]
   #% if spegel.enabled %#
+
   - name: spegel
     namespace: kube-system
     inherit:
       - template: default
-    needs: ['kube-system/coredns']
+    needs: ["kube-system/coredns"]
   #% endif %#
 
   - name: cert-manager
@@ -42,19 +42,19 @@ releases:
     inherit:
       - template: default
     #% if spegel.enabled %#
-    needs: ['kube-system/spegel']
+    needs: ["kube-system/spegel"]
     #% else %#
-    needs: ['kube-system/coredns']
+    needs: ["kube-system/coredns"]
     #% endif %#
 
   - name: flux-operator
     namespace: flux-system
     inherit:
       - template: default
-    needs: ['cert-manager/cert-manager']
+    needs: ["cert-manager/cert-manager"]
 
   - name: flux-instance
     namespace: flux-system
     inherit:
       - template: default
-    needs: ['flux-system/flux-operator']
+    needs: ["flux-system/flux-operator"]
