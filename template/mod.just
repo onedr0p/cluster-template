@@ -23,7 +23,7 @@ cloudflare_tunnel := justfile_dir() + '/cloudflare-tunnel.json'
 
 [doc('Render and validate configuration files')]
 [group('template')]
-configure: render encrypt-secrets validate-kubernetes validate-talos
+configure: render encrypt-secrets restore-secrets validate-kubernetes validate-talos
 
 [doc('Check that all prerequisite files exist and cluster.toml validates against the schema')]
 [group('template')]
@@ -110,6 +110,22 @@ encrypt-secrets:
 [private]
 render:
     PYTHONDONTWRITEBYTECODE=1 uv run --locked makejinja
+
+# sops picks a fresh data key on every encrypt, so re-rendering a secret whose
+# values did not change still rewrites the whole file. Both sides are compared
+# decrypted, which is also how sops normalises them. Untracked secrets and
+# repos without a commit yet never show up in the diff, so they are left as-is.
+[private]
+restore-secrets:
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
+    git diff --name-only -z -- '*.sops.*' \
+        | while IFS= read -r -d '' f; do
+            if diff -q \
+                    <(git show ":$f" | sops decrypt --input-type yaml --output-type yaml /dev/stdin) \
+                    <(sops decrypt "$f") >/dev/null 2>&1; then
+                git restore -- "$f"
+            fi
+        done
 
 [private]
 tidy-archive:
