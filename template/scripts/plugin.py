@@ -41,6 +41,8 @@ def cloudflare_tunnel_id(file_path: str = 'cloudflare-tunnel.json') -> str:
         tunnel_id = data.get("TunnelID")
         if tunnel_id is None:
             raise KeyError(f"Missing 'TunnelID' key in {file_path}")
+        if not tunnel_id:
+            raise ValueError(f"'TunnelID' is empty in {file_path}")
         return tunnel_id
 
     except FileNotFoundError:
@@ -58,6 +60,9 @@ def cloudflare_tunnel_secret(file_path: str = 'cloudflare-tunnel.json') -> str:
     try:
         with open(file_path, 'r') as file:
             data = json.load(file)
+        for field in ("AccountTag", "TunnelID", "TunnelSecret"):
+            if not data[field]:
+                raise ValueError(f"'{field}' is empty in {file_path}")
         transformed_data = {
             "a": data["AccountTag"],
             "t": data["TunnelID"],
@@ -80,7 +85,10 @@ def cloudflare_tunnel_secret(file_path: str = 'cloudflare-tunnel.json') -> str:
 def deploy_key(file_path: str = 'deploy.key') -> str:
     try:
         with open(file_path, 'r') as file:
-            return file.read().strip()
+            key = file.read().strip()
+        if not key:
+            raise ValueError(f"{file_path} is empty")
+        return key
     except FileNotFoundError:
         raise FileNotFoundError(f"File not found: {file_path}")
     except Exception as e:
@@ -91,7 +99,10 @@ def deploy_key(file_path: str = 'deploy.key') -> str:
 def webhook_token(file_path: str = 'flux-webhook-token.txt') -> str:
     try:
         with open(file_path, 'r') as file:
-            return file.read().strip()
+            token = file.read().strip()
+        if not token:
+            raise ValueError(f"{file_path} is empty")
+        return token
     except FileNotFoundError:
         raise FileNotFoundError(f"File not found: {file_path}")
     except Exception as e:
