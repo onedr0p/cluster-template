@@ -141,7 +141,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
 4. Push your changes to git:
 
-    📍 _**Verify** all the `./kubernetes/**/*.sops.*` files are **encrypted** with SOPS_
+    📍 _**Verify** all the `./bootstrap/**/*.sops.*`, `./kubernetes/**/*.sops.*` and `./talos/secrets.sops.yaml` files are **encrypted** with SOPS_
 
     ```sh
     git add -A
@@ -163,21 +163,13 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     just bootstrap talos
     ```
 
-2. Push your changes to git:
-
-    ```sh
-    git add -A
-    git commit -m "chore: add talos encrypted secret :lock:"
-    git push
-    ```
-
-3. Install cilium, coredns, spegel, flux and sync the cluster to the repository state:
+2. Install cilium, coredns, spegel, flux and sync the cluster to the repository state:
 
     ```sh
     just bootstrap apps
     ```
 
-4. Watch the rollout of your cluster happen:
+3. Watch the rollout of your cluster happen:
 
     ```sh
     kubectl get pods --all-namespaces --watch
