@@ -358,7 +358,10 @@ def load(config_file: str = "cluster.toml") -> dict[str, Any]:
     except ValidationError as e:
         raise ConfigError(format_errors(e)) from None
 
-    return config.model_dump(mode="json", exclude_none=True)
+    # Unset optionals stay in the dump as None rather than being dropped:
+    # makejinja renders with StrictUndefined, so a template testing
+    # network.vlan_tag needs the key to exist.
+    return config.model_dump(mode="json")
 
 
 def main() -> int:
