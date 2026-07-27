@@ -8,7 +8,7 @@ loaders = ["plugin:Plugin"]
 jinja_suffix = ".j2"
 copy_metadata = true
 force = true
-undefined = "chainable"
+undefined = "strict"
 
 [makejinja.delimiter]
 block_start = "#%"
