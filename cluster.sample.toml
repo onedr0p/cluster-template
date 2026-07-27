@@ -96,7 +96,7 @@ addr = ""
 internal = ""
 
 # IP for `k8s_gateway`, which serves DNS for cluster-managed hostnames.
-# Point your home DNS server's conditional forwarder for cloudflare.domain
+# Point your home DNS server's conditional forwarder for domain.name
 # at this IP to enable split-DNS resolution from your LAN.
 # REQUIRED.
 dns = ""
