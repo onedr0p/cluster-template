@@ -102,18 +102,21 @@ start_local_git_server() {
 }
 
 prepare() {
+# In CI the action itself waits for every node's maintenance API before
+# returning, so the poll here covers only the local path, where cluster
+# create returns as soon as the VMs launch.
 if [ "$PROVISIONED" = false ]; then
     echo "==> booting maintenance-mode nodes"
     (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
         "$TALOSCTL" cluster create qemu --name "$NAME" --presets iso,maintenance \
         --controlplanes 1 --workers 1 --cidr "$CIDR" \
         --memory-controlplanes 4GiB --memory-workers 3GiB)
-fi
 
-echo "==> waiting for the maintenance API"
-for ip in "${NODES[@]}"; do
-    until talosctl -n "$ip" get links --insecure >/dev/null 2>&1; do sleep 5; done
-done
+    echo "==> waiting for the maintenance API"
+    for ip in "${NODES[@]}"; do
+        until talosctl -n "$ip" get links --insecure >/dev/null 2>&1; do sleep 5; done
+    done
+fi
 
 echo "==> discovering node hardware"
 declare -A MACS DISKS
