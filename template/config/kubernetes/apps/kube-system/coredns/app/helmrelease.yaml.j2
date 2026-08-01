@@ -18,7 +18,8 @@ spec:
     service:
       name: kube-dns
       clusterIP: "#{ kubernetes.coredns_addr }#"
-    replicaCount: 2
+    replicaCount: #{ 2 if controller_count > 1 else 1 }#
+    priorityClassName: system-cluster-critical
     servers:
       - zones:
           - zone: .
@@ -44,6 +45,7 @@ spec:
             configBlock: |-
               prefetch 20
               serve_stale
+              servfail 0
           - name: loop
           - name: reload
           - name: loadbalance

@@ -48,7 +48,7 @@ doctor:
             just log info "ok" check schema
         else
             just log error "fail" check schema
-            just log info "diagnose with: uv run --locked {{ validate_script }} {{ config_file }}"
+            just log info "diagnose with: uv run --locked --no-dev {{ validate_script }} {{ config_file }}"
             rc=1
         fi
     fi
@@ -81,7 +81,7 @@ tidy: tidy-preconditions tidy-strip && tidy-archive
 # config is invalid.
 [private]
 config-json:
-    uv run --quiet --locked "{{ validate_script }}" "{{ config_file }}"
+    uv run --quiet --locked --no-dev "{{ validate_script }}" "{{ config_file }}"
 
 [no-exit-message]
 [private]
@@ -109,7 +109,7 @@ encrypt-secrets:
 
 [private]
 render:
-    PYTHONDONTWRITEBYTECODE=1 uv run --locked makejinja
+    PYTHONDONTWRITEBYTECODE=1 uv run --locked --no-dev makejinja
 
 [private]
 tidy-archive:

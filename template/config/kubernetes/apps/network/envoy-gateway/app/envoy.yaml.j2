@@ -11,7 +11,7 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyDeployment:
-        replicas: 2
+        replicas: #{ 2 if nodes | length > 1 else 1 }#
         container:
           imageRepository: mirror.gcr.io/envoyproxy/envoy
           resources:

@@ -62,13 +62,13 @@ jobs:
       - name: Assert schema rejects ${{ matrix.fixture }}.toml
         run: |
           fixture=./.github/template-tests/invalid/${{ matrix.fixture }}.toml
-          if uv run --quiet --locked ./template/scripts/validate.py "$fixture" >/dev/null 2>&1; then
+          if uv run --quiet --locked --no-dev ./template/scripts/validate.py "$fixture" >/dev/null 2>&1; then
             echo "::error::schema accepted invalid fixture ${{ matrix.fixture }} (expected rejection)"
             exit 1
           fi
           echo "schema correctly rejected ${{ matrix.fixture }}"
           # Also surface the actual error message in the log for debuggability.
-          uv run --quiet --locked ./template/scripts/validate.py "$fixture" || true
+          uv run --quiet --locked --no-dev ./template/scripts/validate.py "$fixture" || true
 
   validator-tests:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
@@ -107,6 +107,7 @@ jobs:
           - internal
           - direct
           - single-node
+          - multi-controller
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

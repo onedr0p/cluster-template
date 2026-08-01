@@ -58,7 +58,7 @@ spec:
         enabled: true
         serviceMonitor:
           enabled: true
-      replicas: 1
+      replicas: #{ 2 if nodes | length > 1 else 1 }#
       rollOutPods: true
     prometheus:
       enabled: true

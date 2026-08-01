@@ -8,105 +8,80 @@ import re
 import validate
 
 
+# Return the stripped contents of file_path, rejecting a missing or empty file
+def _read_stripped(file_path: str) -> str:
+    try:
+        content = Path(file_path).read_text().strip()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}") from None
+    if not content:
+        raise ValueError(f"{file_path} is empty")
+    return content
+
+
+# Return the parsed contents of a JSON file
+def _read_json(file_path: str) -> dict[str, Any]:
+    try:
+        return json.loads(_read_stripped(file_path))
+    except json.JSONDecodeError:
+        raise ValueError(f"Could not decode JSON file: {file_path}") from None
+
+
 # Return the age public or private key from age.key
 def age_key(key_type: str, file_path: str = 'age.key') -> str:
-    try:
-        with open(file_path, 'r') as file:
-            file_content = file.read().strip()
-        if key_type == 'public':
-            # Matches both classic (age1...) and post-quantum (age1pq1...) recipients
-            key_match = re.search(r"# public key: (age1[\w]+)", file_content)
-            if not key_match:
-                raise ValueError("Could not find public key in the age key file.")
-            return key_match.group(1)
-        elif key_type == 'private':
-            # (?:PQ-)? matches post-quantum identities (AGE-SECRET-KEY-PQ-1...) as well as classic ones
-            key_match = re.search(r"(AGE-SECRET-KEY-(?:PQ-)?1[\w]+)", file_content)
-            if not key_match:
-                raise ValueError("Could not find private key in the age key file.")
-            return key_match.group(1)
-        else:
-            raise ValueError("Invalid key type. Use 'public' or 'private'.")
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
+    file_content = _read_stripped(file_path)
+    if key_type == 'public':
+        # Matches both classic (age1...) and post-quantum (age1pq1...) recipients
+        key_match = re.search(r"# public key: (age1[\w]+)", file_content)
+        if not key_match:
+            raise ValueError("Could not find public key in the age key file.")
+        return key_match.group(1)
+    elif key_type == 'private':
+        # (?:PQ-)? matches post-quantum identities (AGE-SECRET-KEY-PQ-1...) as well as classic ones
+        key_match = re.search(r"(AGE-SECRET-KEY-(?:PQ-)?1[\w]+)", file_content)
+        if not key_match:
+            raise ValueError("Could not find private key in the age key file.")
+        return key_match.group(1)
+    else:
+        raise ValueError("Invalid key type. Use 'public' or 'private'.")
 
 
 # Return cloudflare tunnel fields from cloudflare-tunnel.json
 def cloudflare_tunnel_id(file_path: str = 'cloudflare-tunnel.json') -> str:
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-        tunnel_id = data.get("TunnelID")
-        if tunnel_id is None:
-            raise KeyError(f"Missing 'TunnelID' key in {file_path}")
-        if not tunnel_id:
-            raise ValueError(f"'TunnelID' is empty in {file_path}")
-        return tunnel_id
-
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Could not decode JSON file: {file_path}")
-    except KeyError as e:
-        raise KeyError(f"Error in JSON structure: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
+    data = _read_json(file_path)
+    tunnel_id = data.get("TunnelID")
+    if tunnel_id is None:
+        raise KeyError(f"Missing 'TunnelID' key in {file_path}")
+    if not tunnel_id:
+        raise ValueError(f"'TunnelID' is empty in {file_path}")
+    return tunnel_id
 
 
 # Return cloudflare tunnel fields from cloudflare-tunnel.json in TUNNEL_TOKEN format
 def cloudflare_tunnel_secret(file_path: str = 'cloudflare-tunnel.json') -> str:
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-        for field in ("AccountTag", "TunnelID", "TunnelSecret"):
-            if not data[field]:
-                raise ValueError(f"'{field}' is empty in {file_path}")
-        transformed_data = {
-            "a": data["AccountTag"],
-            "t": data["TunnelID"],
-            "s": data["TunnelSecret"]
-        }
-        json_string = json.dumps(transformed_data, separators=(',', ':'))
-        return base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
-
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Could not decode JSON file: {file_path}")
-    except KeyError as e:
-        raise KeyError(f"Missing key in JSON file {file_path}: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
+    data = _read_json(file_path)
+    for field in ("AccountTag", "TunnelID", "TunnelSecret"):
+        if field not in data:
+            raise KeyError(f"Missing '{field}' key in {file_path}")
+        if not data[field]:
+            raise ValueError(f"'{field}' is empty in {file_path}")
+    transformed_data = {
+        "a": data["AccountTag"],
+        "t": data["TunnelID"],
+        "s": data["TunnelSecret"]
+    }
+    json_string = json.dumps(transformed_data, separators=(',', ':'))
+    return base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
 
 
 # Return the Flux deploy key from deploy.key
 def deploy_key(file_path: str = 'deploy.key') -> str:
-    try:
-        with open(file_path, 'r') as file:
-            key = file.read().strip()
-        if not key:
-            raise ValueError(f"{file_path} is empty")
-        return key
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error while reading {file_path}: {e}")
+    return _read_stripped(file_path)
 
 
 # Return the Flux webhook token from flux-webhook-token.txt
 def webhook_token(file_path: str = 'flux-webhook-token.txt') -> str:
-    try:
-        with open(file_path, 'r') as file:
-            token = file.read().strip()
-        if not token:
-            raise ValueError(f"{file_path} is empty")
-        return token
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error while reading {file_path}: {e}")
+    return _read_stripped(file_path)
 
 
 CONFIG_FILE = 'cluster.toml'
