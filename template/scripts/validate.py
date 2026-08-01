@@ -236,6 +236,13 @@ class Config(Model):
         bgp = self.cilium.bgp
         return bgp.router_addr != "" and bgp.router_asn != "" and bgp.node_asn != ""
 
+    # Replica counts for control-plane-only workloads key off this rather
+    # than len(nodes); a cluster can have many workers but one controller.
+    @computed_field
+    @property
+    def controller_count(self) -> int:
+        return sum(1 for node in self.nodes if node.controller)
+
     @computed_field
     @property
     def cluster_issuer(self) -> str:

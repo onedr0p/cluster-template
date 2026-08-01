@@ -95,9 +95,20 @@ def test_spegel_enabled_follows_node_count():
     assert _load_raw(explicit).spegel.enabled is False
 
 
+def test_controller_count_ignores_workers():
+    raw = config_from("private.toml")
+    assert [n["controller"] for n in raw["nodes"]] == [True, False]
+    assert _load_raw(raw).controller_count == 1
+    raw["nodes"][1]["controller"] = True
+    assert _load_raw(raw).controller_count == 2
+
+
 def test_derived_fields_are_not_settable():
     raw = config_from("public.toml", cilium_bgp_enabled=True)
     with pytest.raises(ConfigError, match="cilium_bgp_enabled"):
+        _load_raw(raw)
+    raw = config_from("public.toml", controller_count=3)
+    with pytest.raises(ConfigError, match="controller_count"):
         _load_raw(raw)
 
 
