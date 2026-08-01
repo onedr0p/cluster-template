@@ -1,0 +1,2028 @@
+===== .sops.yaml
+---
+creation_rules:
+  - path_regex: talos/.*\.sops\.ya?ml
+    mac_only_encrypted: true
+    age: "<age-public-key>"
+  - path_regex: (bootstrap|kubernetes)/.*\.sops\.ya?ml
+    encrypted_regex: "^(data|stringData)$"
+    mac_only_encrypted: true
+    age: "<age-public-key>"
+stores:
+  yaml:
+    indent: 2
+
+===== bootstrap/deploy-key.sops.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: deploy-key
+  namespace: flux-system
+stringData:
+  identity: |
+    first-line-of-example-deploy-key
+    second-line-of-example-deploy-key
+  known_hosts: |
+    github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+    github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+    github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+    gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf
+    gitlab.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=
+    gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9
+    codeberg.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB
+    codeberg.org ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBL2pDxWr18SoiDJCGZ5LmxPygTlPu+cCKSkpqkvCyQzl5xmIMeKNdfdBpfbCGDPoZQghePzFZkKJNR/v9Win3Sc=
+    codeberg.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8hZi7K1/2E2uBX8gwPRJAHvRAob+3Sn+y2hxiEhN0buv1igjYFTgFO2qQD8vLfU/HT/P/rqvEeTvaDfY1y/vcvQ8+YuUYyTwE2UaVU5aJv89y6PEZBYycaJCPdGIfZlLMmjilh/Sk8IWSEK6dQr+g686lu5cSWrFW60ixWpHpEVB26eRWin3lKYWSQGMwwKv4LwmW3ouqqs4Z4vsqRFqXJ/eCi3yhpT+nOjljXvZKiYTpYajqUC48IHAxTWugrKe1vXWOPxVXXMQEPsaIRc2hpK+v1LmfB7GnEGvF1UAKnEZbUuiD9PBEeD5a1MZQIzcoPWCrTxipEpuXQ5Tni4mN
+
+===== bootstrap/helmfile/apps.yaml
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+
+# Bootstraps core applications that provide a minimal runtime base for the
+# cluster. These releases are installed first so the cluster has the resources
+# Flux needs before its own reconciliation begins.
+#
+# After this bootstrap phase, Flux is ready to take over management of the
+# application stack and continue reconciling downstream state.
+
+helmDefaults:
+  cleanupOnFail: true
+  forceConflicts: true
+  wait: true
+  waitForJobs: true
+
+bases:
+  - default.yaml
+
+releases:
+  - name: cilium
+    namespace: kube-system
+    inherit:
+      - template: default
+
+  - name: coredns
+    namespace: kube-system
+    inherit:
+      - template: default
+    needs: ["kube-system/cilium"]
+
+  - name: spegel
+    namespace: kube-system
+    inherit:
+      - template: default
+    needs: ["kube-system/coredns"]
+
+  - name: cert-manager
+    namespace: cert-manager
+    inherit:
+      - template: default
+    needs: ["kube-system/spegel"]
+
+  - name: flux-operator
+    namespace: flux-system
+    inherit:
+      - template: default
+    needs: ["cert-manager/cert-manager"]
+
+  - name: flux-instance
+    namespace: flux-system
+    inherit:
+      - template: default
+    needs: ["flux-system/flux-operator"]
+
+===== bootstrap/helmfile/crds.yaml
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+
+# Bootstraps cluster-wide Custom Resource Definitions (CRDs) by extracting them
+# from upstream Helm charts and applying them directly with kubectl. The releases
+# below are never reconciled with helmfile apply or helmfile sync — only their
+# CRDs are rendered (via --include-crds) and piped to the cluster.
+#
+# Installing CRDs out-of-band ensures they exist before Flux begins reconciling
+# workloads that reference them, avoiding the need for dependsOn chains on nearly
+# every Kustomization that consumes a CRD-backed resource.
+
+helmDefaults:
+  args:
+    - --include-crds
+    - --no-hooks
+
+bases:
+  - default.yaml
+
+releases:
+  - name: envoy-gateway
+    namespace: network
+    inherit:
+      - template: default
+
+  - name: prometheus-operator-crds
+    namespace: observability
+    chart: oci://ghcr.io/prometheus-community/charts/prometheus-operator-crds
+    version: 29.0.0
+
+===== bootstrap/helmfile/default.yaml
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+templates:
+  default:
+    chart: '{{ (fromYaml (tpl (readFile "./templates/release.yaml.gotmpl") .)).chart }}'
+    version: '{{ (fromYaml (tpl (readFile "./templates/release.yaml.gotmpl") .)).version }}'
+    values:
+      - ./templates/values.yaml.gotmpl
+
+===== bootstrap/helmfile/templates/release.yaml.gotmpl
+{{- $oci := fromYaml (readFile (printf "../../kubernetes/apps/%s/%s/app/ocirepository.yaml" .Release.Namespace .Release.Name)) -}}
+chart: {{ $oci.spec.url }}
+version: {{ $oci.spec.ref.tag }}
+
+===== bootstrap/helmfile/templates/values.yaml.gotmpl
+{{ (fromYaml (readFile (printf "../../../kubernetes/apps/%s/%s/app/helmrelease.yaml" .Release.Namespace .Release.Name))).spec.values | toYaml }}
+
+===== bootstrap/mod.just
+set no-exit-message
+set quiet
+set shell := ['bash', '-euo', 'pipefail', '-c']
+set script-interpreter := ['bash', '-euo', 'pipefail']
+set default-list
+set default-script
+
+kubernetes_dir := justfile_dir() + '/kubernetes'
+
+[doc('Bootstrap the Talos cluster')]
+[group('bootstrap')]
+talos: talos-secret talos-apply talos-talosconfig talos-kubeconfig
+
+[doc('Bootstrap apps into the Talos cluster')]
+[group('bootstrap')]
+apps: apps-ready apps-namespaces apps-secrets apps-crds apps-helm
+    just log info "Cluster is bootstrapped — Flux will start syncing the Git repository"
+
+# No sops call or existence guard is needed: the bundle is stored already
+# encrypted with the repo's age recipient, and existing bundles are left
+# untouched.
+[private]
+[working-directory('../talos')]
+talos-secret:
+    just log info "Generating secrets" stage "{{ recipe_name() }}"
+    topf secrets --confirm=false > /dev/null
+
+[private]
+[working-directory('../talos')]
+talos-apply:
+    just log info "Applying talos config and bootstrapping" stage "{{ recipe_name() }}"
+    topf apply --auto-bootstrap --confirm=false
+
+[private]
+[working-directory('../talos')]
+talos-talosconfig:
+    just log info "Generating talosconfig" stage "{{ recipe_name() }}"
+    topf talosconfig > talosconfig
+
+# topf issues short-lived admin certs by default; 8760h keeps the
+# kubeconfig usable long-term.
+[private]
+[working-directory('../talos')]
+talos-kubeconfig:
+    just log info "Fetching kubeconfig" stage "{{ recipe_name() }}"
+    topf kubeconfig --validity 8760h > "{{ justfile_dir() }}/kubeconfig"
+
+[private]
+apps-crds:
+    just log info "Applying CRDs" stage "{{ recipe_name() }}"
+    if ! helmfile --file "{{ source_directory() }}/helmfile/crds.yaml" template --quiet | yq eval-all --exit-status 'select(.kind == "CustomResourceDefinition")' | kubectl apply --server-side --force-conflicts --filename -; then
+        just log fatal "Failed to apply crds"
+    fi
+
+[private]
+apps-helm:
+    just log info "Syncing helmfile" stage "{{ recipe_name() }}"
+    if ! helmfile --file "{{ source_directory() }}/helmfile/apps.yaml" sync --hide-notes; then
+        just log fatal "Failed to sync helmfile"
+    fi
+
+[private]
+apps-namespaces:
+    just log info "Applying namespaces for apps" stage "{{ recipe_name() }}"
+    for app in "{{ kubernetes_dir }}/apps"/*/; do
+        ns="$(basename "$app")"
+        if kubectl create namespace "$ns" --dry-run=client -o yaml \
+                | kubectl apply --server-side --filename - &>/dev/null; then
+            just log info "Namespace applied" namespace "$ns"
+        else
+            just log fatal "Failed to apply namespace" namespace "$ns"
+        fi
+    done
+
+[private]
+apps-secrets:
+    just log info "Applying secrets for apps" stage "{{ recipe_name() }}"
+    for secret in \
+        "{{ source_directory() }}/deploy-key.sops.yaml" \
+        "{{ source_directory() }}/sops-age.sops.yaml" \
+        "{{ kubernetes_dir }}/components/sops/cluster-secrets.sops.yaml"
+    do
+        name="$(basename "$secret" .sops.yaml)"
+        if sops decrypt "$secret" \
+                | kubectl --namespace flux-system apply --server-side --filename - &>/dev/null; then
+            just log info "Secret applied" resource "$name"
+        else
+            just log fatal "Failed to apply secret" resource "$name"
+        fi
+    done
+
+# Wait until nodes register as Ready=False. They only become Ready=True once the CNI is healthy.
+[private]
+apps-ready:
+    just log info "Waiting for nodes to register as Ready=False" stage "{{ recipe_name() }}"
+    if ! kubectl wait nodes --for=condition=Ready=True --all --timeout=10s &>/dev/null; then
+        deadline=$((SECONDS + 600))
+        until kubectl wait nodes --for=condition=Ready=False --all --timeout=10s &>/dev/null; do
+            if (( SECONDS >= deadline )); then
+                just log fatal "Timed out waiting for nodes to register"
+            fi
+            just log info "Nodes not available, waiting for nodes to be available. Retrying in 5 seconds..."
+            sleep 5
+        done
+    fi
+
+===== bootstrap/sops-age.sops.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sops-age
+  namespace: flux-system
+stringData:
+  age.agekey: "<age-secret-key>"
+
+===== kubernetes/apps/cert-manager/cert-manager/app/clusterissuer.yaml
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: internal-ca
+spec:
+  isCA: true
+  commonName: internal-ca
+  secretName: internal-ca
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: internal-ca
+spec:
+  ca:
+    secretName: internal-ca
+
+===== kubernetes/apps/cert-manager/cert-manager/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: cert-manager
+  interval: 1h
+  values:
+    crds:
+      enabled: true
+    replicaCount: 2
+    dns01RecursiveNameservers: https://1.1.1.1:443/dns-query,https://1.0.0.1:443/dns-query
+    dns01RecursiveNameserversOnly: true
+    prometheus:
+      enabled: true
+      servicemonitor:
+        enabled: true
+
+===== kubernetes/apps/cert-manager/cert-manager/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./clusterissuer.yaml
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/cert-manager/cert-manager/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: cert-manager
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: v1.21.1
+  url: oci://quay.io/jetstack/charts/cert-manager
+
+===== kubernetes/apps/cert-manager/cert-manager/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager
+spec:
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: cert-manager
+      namespace: cert-manager
+    - apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      name: internal-ca
+  healthCheckExprs:
+    - apiVersion: cert-manager.io/v1
+      kind: ClusterIssuer
+      current: status.conditions.exists(e, e.type == 'Ready' && e.status == 'True')
+  interval: 1h
+  path: ./kubernetes/apps/cert-manager/cert-manager/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: cert-manager
+
+===== kubernetes/apps/cert-manager/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: cert-manager
+
+components:
+  - ../../components/sops
+
+resources:
+  - ./namespace.yaml
+  - ./cert-manager/ks.yaml
+
+===== kubernetes/apps/cert-manager/namespace.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+
+===== kubernetes/apps/default/echo/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: echo
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: echo
+  interval: 1h
+  values:
+    replicaCount: 2
+    config:
+      kubernetes: true
+      trustedProxies:
+        - "10.42.0.0/16"
+    httpRoute:
+      enabled: true
+      hostnames:
+        - "{{ .Release.Name }}.${SECRET_DOMAIN}"
+      parentRefs:
+        - name: envoy-internal
+          namespace: network
+    monitoring:
+      serviceMonitor:
+        enabled: true
+    resources:
+      requests:
+        cpu: 10m
+      limits:
+        memory: 64Mi
+
+===== kubernetes/apps/default/echo/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/default/echo/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: echo
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.2.2
+  url: oci://ghcr.io/home-operations/charts/echo
+
+===== kubernetes/apps/default/echo/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: echo
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/default/echo/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: default
+  wait: false
+
+===== kubernetes/apps/default/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+
+components:
+  - ../../components/sops
+
+resources:
+  - ./namespace.yaml
+  - ./echo/ks.yaml
+
+===== kubernetes/apps/default/namespace.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+
+===== kubernetes/apps/flux-system/flux-instance/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: flux-instance
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: flux-instance
+  interval: 1h
+  values:
+    commonAnnotations:
+      fluxcd.controlplane.io/reconcileArtifactEvery: 1h
+    instance:
+      cluster:
+        networkPolicy: false
+      components:
+        - source-controller
+        - kustomize-controller
+        - helm-controller
+        - notification-controller
+      sync:
+        kind: GitRepository
+        url: "https://github.com/onedr0p/cluster-template.git"
+        ref: "refs/heads/main"
+        path: kubernetes/flux/cluster
+      commonMetadata:
+        labels:
+          app.kubernetes.io/name: flux
+      kustomize:
+        patches:
+          - # Increase the number of workers
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --concurrent=10
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --requeue-dependency=5s
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller)
+          - # Increase the memory limits
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: all
+              spec:
+                template:
+                  spec:
+                    containers:
+                      - name: manager
+                        resources:
+                          limits:
+                            memory: 1Gi
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller)
+          - # Enable in-memory kustomize builds
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --concurrent=20
+              - op: replace
+                path: /spec/template/spec/volumes/0
+                value:
+                  name: temp
+                  emptyDir:
+                    medium: Memory
+            target:
+              kind: Deployment
+              name: kustomize-controller
+          - # Enable Helm repositories caching
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --helm-cache-max-size=10
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --helm-cache-ttl=60m
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --helm-cache-purge-interval=5m
+            target:
+              kind: Deployment
+              name: source-controller
+          - # Flux near OOM detection for Helm
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --feature-gates=OOMWatch=true
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --oom-watch-memory-threshold=95
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --oom-watch-interval=500ms
+            target:
+              kind: Deployment
+              name: helm-controller
+          - # Disable chart digest tracking
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --feature-gates=DisableChartDigestTracking=true
+            target:
+              kind: Deployment
+              name: helm-controller
+          - # Controller-level SOPS decryption
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --sops-age-secret=sops-age
+            target:
+              kind: Deployment
+              name: kustomize-controller
+          - # Watch configmaps and secrets attached to HelmReleases and Kustomizations
+            patch: |-
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --watch-configs-label-selector=owner!=helm
+            target:
+              kind: Deployment
+              name: (helm-controller|kustomize-controller)
+          - # Cancel health checks on new Kustomizations revisions
+            patch: |-
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --feature-gates=CancelHealthCheckOnNewRevision=true
+            target:
+              kind: Deployment
+              name: kustomize-controller
+
+===== kubernetes/apps/flux-system/flux-instance/app/httproute.yaml
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: flux-webhook
+spec:
+  hostnames: ["flux-webhook.${SECRET_DOMAIN}"]
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: https
+  rules:
+    - backendRefs:
+        - name: webhook-receiver
+          namespace: flux-system
+          port: 80
+      matches:
+        - path:
+            type: PathPrefix
+            value: /hook/
+
+===== kubernetes/apps/flux-system/flux-instance/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+  - ./secret.sops.yaml
+  - ./httproute.yaml
+  - ./receiver.yaml
+
+===== kubernetes/apps/flux-system/flux-instance/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: flux-instance
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.57.0
+  url: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
+
+===== kubernetes/apps/flux-system/flux-instance/app/receiver.yaml
+---
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: flux-webhook
+spec:
+  type: github
+  events: ["ping", "push"]
+  secretRef:
+    name: flux-webhook-token
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      name: flux-system
+      namespace: flux-system
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      name: flux-system
+      namespace: flux-system
+
+===== kubernetes/apps/flux-system/flux-instance/app/secret.sops.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: flux-webhook-token
+stringData:
+  token: "example-webhook-token"
+
+===== kubernetes/apps/flux-system/flux-instance/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-instance
+spec:
+  dependsOn:
+    - name: flux-operator
+  interval: 1h
+  path: ./kubernetes/apps/flux-system/flux-instance/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: flux-system
+  wait: false
+
+===== kubernetes/apps/flux-system/flux-operator/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: flux-operator
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: flux-operator
+  interval: 1h
+  values:
+    serviceMonitor:
+      create: true
+
+===== kubernetes/apps/flux-system/flux-operator/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/flux-system/flux-operator/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: flux-operator
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.57.0
+  url: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
+
+===== kubernetes/apps/flux-system/flux-operator/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-operator
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/flux-system/flux-operator/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: flux-system
+  wait: true
+
+===== kubernetes/apps/flux-system/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: flux-system
+
+components:
+  - ../../components/sops
+
+resources:
+  - ./namespace.yaml
+  - ./flux-instance/ks.yaml
+  - ./flux-operator/ks.yaml
+
+===== kubernetes/apps/flux-system/namespace.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flux-system
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+
+===== kubernetes/apps/kube-system/cilium/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cilium
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: cilium
+  interval: 1h
+  values:
+    autoDirectNodeRoutes: true
+    bpf:
+      masquerade: true
+      # Ref: https://github.com/siderolabs/talos/issues/10002
+      hostLegacyRouting: true
+    cni:
+      # Required for pairing with Multus CNI
+      exclusive: false
+    cgroup:
+      automount:
+        enabled: false
+      hostRoot: /sys/fs/cgroup
+    # The stable bond name is defined in talos/all/20-network-links.yaml.tpl
+    devices: bond0+
+    dashboards:
+      enabled: true
+    endpointRoutes:
+      enabled: true
+    envoy:
+      enabled: false
+    gatewayAPI:
+      enabled: false
+    hubble:
+      enabled: false
+    ipam:
+      mode: kubernetes
+    ipv4NativeRoutingCIDR: "10.42.0.0/16"
+    k8sServiceHost: 127.0.0.1
+    k8sServicePort: 7445
+    kubeProxyReplacement: true
+    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    l2announcements:
+      enabled: true
+    loadBalancer:
+      algorithm: maglev
+      mode: "dsr"
+    localRedirectPolicies:
+      enabled: true
+    operator:
+      dashboards:
+        enabled: true
+      prometheus:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      replicas: 2
+      rollOutPods: true
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        trustCRDsExist: true
+    rollOutCiliumPods: true
+    routingMode: native
+    securityContext:
+      capabilities:
+        ciliumAgent:
+          - CHOWN
+          - KILL
+          - NET_ADMIN
+          - NET_RAW
+          - IPC_LOCK
+          - SYS_ADMIN
+          - SYS_RESOURCE
+          - PERFMON
+          - BPF
+          - DAC_OVERRIDE
+          - FOWNER
+          - SETGID
+          - SETUID
+        cleanCiliumState:
+          - NET_ADMIN
+          - SYS_ADMIN
+          - SYS_RESOURCE
+    socketLB:
+      enabled: true
+
+===== kubernetes/apps/kube-system/cilium/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+  - ./networks.yaml
+
+===== kubernetes/apps/kube-system/cilium/app/networks.yaml
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: pool
+spec:
+  allowFirstLastIPs: "No"
+  blocks:
+    - cidr: "10.10.10.0/24"
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2-policy
+spec:
+  loadBalancerIPs: true
+  # NOTE: interfaces might need to be set if you have more than one active NIC on your hosts
+  # interfaces:
+  #   - ^eno[0-9]+
+  #   - ^eth[0-9]+
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+
+===== kubernetes/apps/kube-system/cilium/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: cilium
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 1.20.0
+  url: oci://quay.io/cilium/charts/cilium
+
+===== kubernetes/apps/kube-system/cilium/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cilium
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/kube-system/cilium/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: kube-system
+  wait: false
+
+===== kubernetes/apps/kube-system/coredns/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: coredns
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: coredns
+  interval: 1h
+  values:
+    fullnameOverride: coredns
+    image:
+      repository: mirror.gcr.io/coredns/coredns
+    k8sAppLabelOverride: kube-dns
+    serviceAccount:
+      create: true
+    service:
+      name: kube-dns
+      clusterIP: "10.43.0.10"
+    replicaCount: 1
+    priorityClassName: system-cluster-critical
+    servers:
+      - zones:
+          - zone: .
+            scheme: dns://
+            use_tcp: true
+        port: 53
+        plugins:
+          - name: errors
+          - name: health
+            configBlock: |-
+              lameduck 5s
+          - name: ready
+          - name: kubernetes
+            parameters: cluster.local in-addr.arpa ip6.arpa
+            configBlock: |-
+              pods verified
+              fallthrough in-addr.arpa ip6.arpa
+          - name: autopath
+            parameters: "@kubernetes"
+          - name: forward
+            parameters: . /etc/resolv.conf
+          - name: cache
+            configBlock: |-
+              prefetch 20
+              serve_stale
+              servfail 0
+          - name: loop
+          - name: reload
+          - name: loadbalance
+          - name: prometheus
+            parameters: 0.0.0.0:9153
+          - name: log
+            configBlock: |-
+              class error
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+
+===== kubernetes/apps/kube-system/coredns/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/kube-system/coredns/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: coredns
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  url: oci://ghcr.io/coredns/charts/coredns
+  ref:
+    tag: 1.47.0
+
+===== kubernetes/apps/kube-system/coredns/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: coredns
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/kube-system/coredns/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: kube-system
+  wait: false
+
+===== kubernetes/apps/kube-system/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kube-system
+
+components:
+  - ../../components/sops
+
+resources:
+  - ./namespace.yaml
+  - ./cilium/ks.yaml
+  - ./coredns/ks.yaml
+  - ./metrics-server/ks.yaml
+  - ./reloader/ks.yaml
+  - ./spegel/ks.yaml
+
+===== kubernetes/apps/kube-system/metrics-server/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: metrics-server
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: metrics-server
+  interval: 1h
+  values:
+    args:
+      - --kubelet-insecure-tls
+      - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      - --kubelet-use-node-status-port
+      - --metric-resolution=10s
+      - --kubelet-request-timeout=2s
+    metrics:
+      enabled: true
+    serviceMonitor:
+      enabled: true
+
+===== kubernetes/apps/kube-system/metrics-server/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/kube-system/metrics-server/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: metrics-server
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 3.13.1
+  url: oci://ghcr.io/home-operations/charts-mirror/metrics-server
+
+===== kubernetes/apps/kube-system/metrics-server/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: metrics-server
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/kube-system/metrics-server/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: kube-system
+  wait: false
+
+===== kubernetes/apps/kube-system/namespace.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-system
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+
+===== kubernetes/apps/kube-system/reloader/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: reloader
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: reloader
+  interval: 1h
+  values:
+    fullnameOverride: reloader
+    reloader:
+      readOnlyRootFileSystem: true
+      podMonitor:
+        enabled: true
+        namespace: "{{ .Release.Namespace }}"
+
+===== kubernetes/apps/kube-system/reloader/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/kube-system/reloader/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: reloader
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 2.2.14
+  url: oci://ghcr.io/stakater/charts/reloader
+
+===== kubernetes/apps/kube-system/reloader/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: reloader
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/kube-system/reloader/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: kube-system
+  wait: false
+
+===== kubernetes/apps/kube-system/spegel/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: spegel
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: spegel
+  interval: 1h
+  values:
+    spegel:
+      containerdSock: /run/containerd/containerd.sock
+      containerdRegistryConfigPath: /etc/cri/conf.d/hosts
+    service:
+      registry:
+        hostPort: 29999
+    serviceMonitor:
+      enabled: true
+
+===== kubernetes/apps/kube-system/spegel/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/kube-system/spegel/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: spegel
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 0.7.4
+  url: oci://ghcr.io/spegel-org/helm-charts/spegel
+
+===== kubernetes/apps/kube-system/spegel/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: spegel
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/kube-system/spegel/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: kube-system
+  wait: false
+
+===== kubernetes/apps/network/envoy-gateway/app/certificate.yaml
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "${SECRET_DOMAIN/./-}-production"
+spec:
+  dnsNames:
+    - "${SECRET_DOMAIN}"
+    - "*.${SECRET_DOMAIN}"
+  duration: 160h
+  issuerRef:
+    name: internal-ca
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: ECDSA
+  secretName: "${SECRET_DOMAIN/./-}-production-tls"
+  usages:
+    - digital signature
+
+===== kubernetes/apps/network/envoy-gateway/app/envoy.yaml
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy
+spec:
+  logging:
+    level:
+      default: info
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 2
+        container:
+          imageRepository: mirror.gcr.io/envoyproxy/envoy
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              memory: 1Gi
+      envoyService:
+        externalTrafficPolicy: Cluster
+  shutdown:
+    drainTimeout: 180s
+  telemetry:
+    metrics:
+      prometheus:
+        compression:
+          type: Zstd
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: envoy
+    namespace: network
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: envoy-internal
+  annotations:
+    external-dns.alpha.kubernetes.io/target: internal.${SECRET_DOMAIN}
+spec:
+  gatewayClassName: envoy
+  infrastructure:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: internal.${SECRET_DOMAIN}
+      lbipam.cilium.io/ips: "10.10.10.252"
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: ${SECRET_DOMAIN/./-}-production-tls
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: envoy
+spec:
+  compressor:
+    - type: Zstd
+      zstd: {}
+    - type: Brotli
+      brotli: {}
+    - type: Gzip
+      gzip: {}
+  retry:
+    numRetries: 2
+    retryOn:
+      triggers:
+        - reset
+  targetSelectors:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+  tcpKeepalive: {}
+  timeout:
+    http:
+      requestTimeout: 0s
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: envoy
+spec:
+  clientIPDetection:
+    xForwardedFor:
+      trustedCIDRs:
+        - "10.42.0.0/16"
+  http2:
+    onInvalidMessage: TerminateStream
+  http3: {}
+  targetSelectors:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+  tcpKeepalive: {}
+  tls:
+    minVersion: "1.2"
+    alpnProtocols:
+      - h2
+      - http/1.1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect
+  annotations:
+    external-dns.alpha.kubernetes.io/controller: none
+spec:
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+      sectionName: http
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+
+===== kubernetes/apps/network/envoy-gateway/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: envoy-gateway
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: envoy-gateway
+  interval: 1h
+  values:
+    global:
+      imageRegistry: mirror.gcr.io
+    config:
+      envoyGateway:
+        provider:
+          type: Kubernetes
+          kubernetes:
+            deploy:
+              type: GatewayNamespace
+
+===== kubernetes/apps/network/envoy-gateway/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./certificate.yaml
+  - ./envoy.yaml
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+  - ./podmonitor.yaml
+
+===== kubernetes/apps/network/envoy-gateway/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: envoy-gateway
+spec:
+  interval: 15m
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 1.8.3
+  url: oci://mirror.gcr.io/envoyproxy/gateway-helm
+
+===== kubernetes/apps/network/envoy-gateway/app/podmonitor.yaml
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: envoy-proxy
+spec:
+  jobLabel: envoy-proxy
+  namespaceSelector:
+    matchNames:
+      - network
+  podMetricsEndpoints:
+    - port: metrics
+      path: /stats/prometheus
+      honorLabels: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: proxy
+      app.kubernetes.io/name: envoy
+
+===== kubernetes/apps/network/envoy-gateway/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: envoy-gateway
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/network/envoy-gateway/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: network
+  wait: false
+
+===== kubernetes/apps/network/k8s-gateway/app/helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: k8s-gateway
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: k8s-gateway
+  interval: 1h
+  values:
+    fullnameOverride: k8s-gateway
+    domain: "${SECRET_DOMAIN}"
+    ttl: 1
+    service:
+      type: LoadBalancer
+      port: 53
+      annotations:
+        lbipam.cilium.io/ips: "10.10.10.253"
+      externalTrafficPolicy: Cluster
+    watchedResources: ["HTTPRoute", "Service"]
+
+===== kubernetes/apps/network/k8s-gateway/app/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+
+===== kubernetes/apps/network/k8s-gateway/app/ocirepository.yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: k8s-gateway
+spec:
+  interval: 1h
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+  ref:
+    tag: 3.7.2
+  url: oci://ghcr.io/k8s-gateway/charts/k8s-gateway
+
+===== kubernetes/apps/network/k8s-gateway/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: k8s-gateway
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/network/k8s-gateway/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: network
+  wait: false
+
+===== kubernetes/apps/network/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: network
+
+components:
+  - ../../components/sops
+
+resources:
+  - ./namespace.yaml
+  - ./envoy-gateway/ks.yaml
+  - ./k8s-gateway/ks.yaml
+
+===== kubernetes/apps/network/namespace.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: network
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+
+===== kubernetes/components/sops/cluster-secrets.sops.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-secrets
+stringData:
+  SECRET_DOMAIN: "example.com"
+
+===== kubernetes/components/sops/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - ./cluster-secrets.sops.yaml
+
+===== kubernetes/flux/cluster/ks.yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps
+  namespace: flux-system
+spec:
+  decryption:
+    provider: sops
+  deletionPolicy: WaitForTermination
+  interval: 1h
+  path: ./kubernetes/apps
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: false
+  patches:
+    - # Add Kustomization defaults for all child Kustomizations
+      patch: |-
+        apiVersion: kustomize.toolkit.fluxcd.io/v1
+        kind: Kustomization
+        metadata:
+          name: _
+        spec:
+          decryption:
+            provider: sops
+          deletionPolicy: WaitForTermination
+          patches:
+            - patch: |-
+                apiVersion: helm.toolkit.fluxcd.io/v2
+                kind: HelmRelease
+                metadata:
+                  name: _
+                spec:
+                  install:
+                    crds: CreateReplace
+                    strategy:
+                      name: RetryOnFailure
+                  rollback:
+                    cleanupOnFail: true
+                    recreate: true
+                  upgrade:
+                    cleanupOnFail: true
+                    crds: CreateReplace
+                    strategy:
+                      name: RemediateOnFailure
+                    remediation:
+                      remediateLastFailure: true
+                      retries: 2
+              target:
+                group: helm.toolkit.fluxcd.io
+                kind: HelmRelease
+      target:
+        group: kustomize.toolkit.fluxcd.io
+        kind: Kustomization
+
+===== kubernetes/mod.just
+set quiet
+set shell := ['bash', '-euo', 'pipefail', '-c']
+set script-interpreter := ['bash', '-euo', 'pipefail']
+set default-list
+set default-script
+
+[doc('Force Flux to pull in changes from your Git repository')]
+[group('kube')]
+reconcile:
+    flux --namespace flux-system reconcile kustomization flux-system --with-source
+
+===== talos/README.md
+# Talos Patching
+
+Machine configs are assembled by [topf](https://postfinance.github.io/topf/) from
+`topf.yaml` plus the strategic merge patches in this directory.
+
+<https://www.talos.dev/latest/talos-guides/configuration/patching/>
+
+## Patch Directories
+
+Patches merge in this order, alphabetically within each directory, with later
+patches taking precedence:
+
+- `all/`: applied to every node
+- `control-plane/`: applied to control-plane nodes
+- `worker/`: applied to worker nodes
+- `node/${hostname}/`: applied to the node with the specified name
+
+Files ending in `.yaml.tpl` are Go-templated per node; see the
+[topf configuration model](https://postfinance.github.io/topf/main/configuration-model/)
+for the available template variables.
+
+===== talos/all/00-install.yaml.tpl
+machine:
+  install:
+    {{- if .Node.Data.installDisk }}
+    disk: "{{ .Node.Data.installDisk }}"
+    {{- else }}
+    diskSelector:
+      serial: "{{ .Node.Data.installDiskSerial }}"
+    {{- end }}
+
+===== talos/all/01-hostname.yaml.tpl
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: "off"
+hostname: "{{ .Node.Host }}"
+
+===== talos/all/10-cluster.yaml
+# Disable built-in CNI to use Cilium
+cluster:
+  network:
+    cni:
+      name: none
+    podSubnets: ["10.42.0.0/16"]
+    serviceSubnets: ["10.43.0.0/16"]
+machine:
+  certSANs:
+    - "127.0.0.1"
+    - "10.10.10.254"
+
+===== talos/all/20-network-links.yaml.tpl
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: ethSel0
+selector:
+  match: glob("{{ .Node.Data.macAddr }}", mac(link.hardware_addr))
+---
+apiVersion: v1alpha1
+kind: BondConfig
+name: bond0
+links:
+  - ethSel0
+bondMode: active-backup
+mtu: {{ .Node.Data.mtu }}
+addresses:
+  - address: "{{ .Node.IP }}/24"
+routes:
+  - gateway: "10.10.10.1"
+{{- if eq .Node.Role "control-plane" }}
+---
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+link: bond0
+name: "10.10.10.254"
+{{- end }}
+
+===== talos/all/21-network.yaml
+machine:
+  network:
+    disableSearchDomain: true
+    nameservers:
+      - 1.1.1.1
+      - 1.0.0.1
+
+===== talos/all/22-time.yaml
+machine:
+  time:
+    disabled: false
+    servers:
+      - 162.159.200.1
+      - 162.159.200.123
+
+===== talos/all/30-kubelet.yaml
+machine:
+  kubelet:
+    extraConfig:
+      crashLoopBackOff:
+        maxContainerRestartPeriod: 60s
+      imageMaximumGCAge: 168h
+      maxParallelImagePulls: 3
+      serializeImagePulls: false
+      shutdownGracePeriod: 90s
+      shutdownGracePeriodCriticalPods: 60s
+    nodeIP:
+      validSubnets:
+        - 10.10.10.0/24
+
+===== talos/all/40-sysctls.yaml
+machine:
+  sysctls:
+    fs.inotify.max_user_watches: "1048576" # Watchdog
+    fs.inotify.max_user_instances: "8192" # Watchdog
+    net.core.rmem_max: "7500000" # Cloudflared | QUIC
+    net.core.wmem_max: "7500000" # Cloudflared | QUIC
+    net.ipv4.neigh.default.gc_thresh1: "4096" # Prevent ARP cache overflows
+    net.ipv4.neigh.default.gc_thresh2: "8192" # Prevent ARP cache overflows
+    net.ipv4.neigh.default.gc_thresh3: "16384" # Prevent ARP cache overflows
+    net.ipv4.tcp_slow_start_after_idle: "0" # Preserve congestion window after idle
+    user.max_user_namespaces: "11255" # User Namespaces
+
+===== talos/all/50-files.yaml
+machine:
+  files:
+    - op: create
+      path: /etc/cri/conf.d/20-customization.part
+      content: |
+        [plugins."io.containerd.cri.v1.images"]
+          discard_unpacked_layers = false
+        [plugins."io.containerd.cri.v1.runtime"]
+          device_ownership_from_security_context = true
+
+===== talos/all/60-encryption.yaml.tpl
+{{- if .Node.Data.encryptDisk }}
+# Encrypt system disk with TPM
+machine:
+  systemDiskEncryption:
+    state:
+      provider: luks2
+      keys:
+        - slot: 0
+          tpm: {}
+    ephemeral:
+      provider: luks2
+      keys:
+        - slot: 0
+          tpm: {}
+{{- end }}
+
+===== talos/all/61-kernel-modules.yaml.tpl
+{{- if .Node.Data.kernelModules }}
+machine:
+  kernel:
+    modules:
+      {{- range .Node.Data.kernelModules }}
+      - name: {{ . }}
+      {{- end }}
+{{- end }}
+
+===== talos/control-plane/00-cluster.yaml
+cluster:
+  allowSchedulingOnControlPlanes: true
+  apiServer:
+    admissionControl:
+      $patch: delete
+    certSANs:
+      - "127.0.0.1"
+      - "10.10.10.254"
+    extraArgs:
+      # https://kubernetes.io/docs/tasks/extend-kubernetes/configure-aggregation-layer/
+      enable-aggregator-routing: true
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
+  coreDNS:
+    disabled: true
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+    advertisedSubnets:
+      - 10.10.10.0/24
+  proxy:
+    disabled: true
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
+    config:
+      profiles:
+        - schedulerName: default-scheduler
+          pluginConfig:
+            - name: PodTopologySpread
+              args:
+                defaultingType: List
+                defaultConstraints:
+                  - maxSkew: 1
+                    topologyKey: kubernetes.io/hostname
+                    whenUnsatisfiable: ScheduleAnyway
+
+===== talos/mod.just
+set quiet
+set shell := ['bash', '-euo', 'pipefail', '-c']
+set script-interpreter := ['bash', '-euo', 'pipefail']
+set default-list
+set default-script
+
+# Day-2 apply/upgrade recipes rely on topf's built-in diff-and-confirm
+# prompt; only the destructive reset recipes disable it in favour of just's
+# own confirmation.
+
+[doc('Apply Talos config to all nodes (shows a diff and asks first)')]
+[group('talos')]
+apply:
+    topf apply
+
+[arg('mode', pattern='auto|reboot|no-reboot|staged|try')]
+[doc('Apply Talos config to a node (shows a diff and asks first)')]
+[group('talos')]
+apply-node node mode='auto':
+    topf apply --nodes-filter "^{{ node }}$" --mode "{{ mode }}"
+
+[doc('Show pending config changes without applying them')]
+[group('talos')]
+diff:
+    topf apply --dry-run
+
+[doc('List all nodes and their current state')]
+[group('talos')]
+nodes:
+    topf nodes
+
+[doc('Render Talos machine configs to ./rendered')]
+[group('talos')]
+render:
+    topf render --output ./rendered
+
+[confirm("This will destroy your cluster and reset all nodes to maintenance mode — continue? [y/N]")]
+[doc('Reset all nodes back to maintenance mode (DESTRUCTIVE)')]
+[group('talos')]
+reset:
+    topf reset --confirm=false
+
+[confirm("This will reset node " + node + " to maintenance mode — continue? [y/N]")]
+[doc('Reset a single node back to maintenance mode (DESTRUCTIVE)')]
+[group('talos')]
+reset-node node:
+    topf reset --nodes-filter "^{{ node }}$" --confirm=false
+
+# topf intentionally does not manage Kubernetes upgrades
+[doc('Upgrade Kubernetes')]
+[group('talos')]
+upgrade-k8s:
+    talosctl --nodes "$(yq '[.nodes[] | select(.role == "control-plane")][0].ip' topf.yaml)" \
+        upgrade-k8s --to "$(yq '.kubernetesVersion' topf.yaml)"
+
+[doc('Upgrade Talos on all nodes, one at a time (asks first)')]
+[group('talos')]
+upgrade:
+    topf upgrade
+
+[doc('Upgrade Talos on a single node (asks first)')]
+[group('talos')]
+upgrade-node node:
+    topf upgrade --nodes-filter "^{{ node }}$"
+
+===== talos/topf.yaml
+---
+clusterName: kubernetes
+clusterEndpoint: https://10.10.10.254:6443
+
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+talosVersion: v1.13.7
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.36.3
+
+secretsPath: secrets.sops.yaml
+
+nodes:
+  - host: "k8s-0"
+    ip: "10.10.10.100"
+    role: control-plane
+    schematicId: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+    data:
+      installDisk: "/dev/sdfake"
+      installDiskSerial: ""
+      macAddr: "00:00:00:00:00:00"
+      mtu: 1500
+      encryptDisk: false
+      kernelModules: []
+  - host: "k8s-1"
+    ip: "10.10.10.101"
+    role: worker
+    schematicId: "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+    data:
+      installDisk: "/dev/sdfake"
+      installDiskSerial: ""
+      macAddr: "00:00:00:00:00:01"
+      mtu: 1500
+      encryptDisk: false
+      kernelModules: []

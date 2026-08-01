@@ -10,6 +10,7 @@ dependencies = [
 [dependency-groups]
 dev = [
   "pytest>=8",
+  "syrupy>=5",
 ]
 
 [tool.uv]
