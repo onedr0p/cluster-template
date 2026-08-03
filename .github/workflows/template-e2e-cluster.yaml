@@ -24,7 +24,7 @@ jobs:
       contents: read
     services:
       git:
-        image: ghcr.io/charmbracelet/soft-serve:v0.11.6
+        image: ghcr.io/charmbracelet/soft-serve:v0.12.0
         env:
           SOFT_SERVE_GIT_ENABLED: "false"
           SOFT_SERVE_LFS_ENABLED: "false"
