@@ -471,11 +471,11 @@ If this repo is too hot to handle or too cold to hold check out these following 
 
 <div align="center">
 
-<a href="https://star-history.com/#onedr0p/cluster-template&Date">
+<a href="https://star-history.dera.page/#onedr0p/cluster-template&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=onedr0p/cluster-template&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=onedr0p/cluster-template&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=onedr0p/cluster-template&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=onedr0p/cluster-template&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=onedr0p/cluster-template&type=Date" />
+    <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=onedr0p/cluster-template&type=Date" />
   </picture>
 </a>
 
