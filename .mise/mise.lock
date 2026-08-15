@@ -192,38 +192,38 @@ url_api = "https://api.github.com/repos/cli/cli/releases/assets/496108319"
 provenance = "github-attestations"
 
 [[tools."github:postfinance/topf"]]
-version = "0.4.2"
+version = "0.5.0"
 backend = "github:postfinance/topf"
 
 [tools."github:postfinance/topf"."platforms.linux-arm64"]
-checksum = "sha256:d366d232d9f5f2d244945972f6c769c3b1e5e95120407459fedb9248fcbf2cb1"
-url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354097"
+checksum = "sha256:d8aa6515ae9de54588fc0bba3fad9fe37a93c08cf20adc931baed4a67912cef1"
+url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553235"
 
 [tools."github:postfinance/topf"."platforms.linux-arm64-musl"]
-checksum = "sha256:d366d232d9f5f2d244945972f6c769c3b1e5e95120407459fedb9248fcbf2cb1"
-url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354097"
+checksum = "sha256:d8aa6515ae9de54588fc0bba3fad9fe37a93c08cf20adc931baed4a67912cef1"
+url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553235"
 
 [tools."github:postfinance/topf"."platforms.linux-x64"]
-checksum = "sha256:2cc3b63210fe2a9165f5d47a5e07a84e446307243b54c352aaf0c5d937ea20b9"
-url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354094"
+checksum = "sha256:0a5ba8187887972acc7905cf12e804317b1869219bbf070d8dd2a9e29b70570c"
+url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553236"
 
 [tools."github:postfinance/topf"."platforms.linux-x64-musl"]
-checksum = "sha256:2cc3b63210fe2a9165f5d47a5e07a84e446307243b54c352aaf0c5d937ea20b9"
-url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354094"
+checksum = "sha256:0a5ba8187887972acc7905cf12e804317b1869219bbf070d8dd2a9e29b70570c"
+url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553236"
 
 [tools."github:postfinance/topf"."platforms.macos-arm64"]
-checksum = "sha256:8781cb1dc847156a80486b6fc324b10039d664e98d40440cc7fc29fead7637da"
-url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354092"
+checksum = "sha256:e7de2cde889c1fba552a35c18e500f03ca120d79eb1a7643ee7503eb2572c166"
+url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553237"
 
 [tools."github:postfinance/topf"."platforms.macos-x64"]
-checksum = "sha256:800bca769be4f786abd5785a159bd1cc6b7d17a5a16bfafe5e434b8e0a64e2b2"
-url = "https://github.com/postfinance/topf/releases/download/v0.4.2/topf_darwin_amd64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/455354095"
+checksum = "sha256:5075cf8120e2512065b174f444c725171663b2155faeceab5f85d45bb6740ea1"
+url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553239"
 
 [[tools.gum]]
 version = "0.17.0"
@@ -609,7 +609,7 @@ checksum = "sha256:57f71ab3652e797d84acddc79c81cc9ff1c6ddb2a1974cdb83f00fee9bff4
 url = "https://nodejs.org/dist/v24.19.0/node-v24.19.0-win-x64.zip"
 
 [[tools.oxfmt]]
-version = "0.62.0"
+version = "0.63.0"
 backend = "npm:oxfmt"
 
 [[tools.sd]]
