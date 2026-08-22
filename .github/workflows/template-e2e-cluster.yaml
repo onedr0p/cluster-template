@@ -63,7 +63,7 @@ jobs:
 
       - name: Boot maintenance-mode nodes
         id: cluster
-        uses: home-operations/talosctl-cluster-action@42a2d1c476f87245e2d1882ec825fb31368b9686 # v0.1.6
+        uses: home-operations/talosctl-cluster-action@9181b206f3e87c685ef63f53bbf5dc25ed45e85a # v0.2.1
         with:
           config: ./.github/template-tests/e2e/talos-cluster.yaml
           cache: true
