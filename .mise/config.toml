@@ -26,7 +26,7 @@ sd = "1.1.0"                        # required:template
 sops = "3.13.3"
 talosctl = "1.13.7"
 "github:postfinance/topf" = "v0.5.0"
-yq = "4.53.4"
+yq = "4.53.6"
 zizmor = "1.29.0"
 
 [hooks]
