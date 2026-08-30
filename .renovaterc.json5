@@ -19,7 +19,6 @@
       description: "Mise Tools Group",
       matchManagers: ["mise"],
       groupName: "mise tools",
-      groupSlug: "mise-tools",
       minimumReleaseAge: "3 days",
     },
     {
