@@ -6,7 +6,7 @@
     enabled: true,
     schedule: ["before 3am on the first day of the month"],
     commitMessageExtra: "({{manager}})",
-    additionalBranchPrefix: "{{manager}}-"
+    additionalBranchPrefix: "{{manager}}-",
   },
   packageRules: [
     {
@@ -25,8 +25,8 @@
     {
       description: "Talos Group",
       groupName: "talos",
-      matchPackageNames: ["ghcr.io/siderolabs/installer", "siderolabs/talos", "talosctl"],
-      minimumGroupSize: 3,
+      matchPackageNames: ["ghcr.io/siderolabs/installer", "talosctl"],
+      minimumGroupSize: 2,
     },
     {
       description: "Flux Operator Group",
