@@ -24,7 +24,7 @@
     {
       description: "Talos Group",
       groupName: "talos",
-      matchPackageNames: ["ghcr.io/siderolabs/installer", "siderolabs/talos"],
+      matchPackageNames: ["siderolabs/talos"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },

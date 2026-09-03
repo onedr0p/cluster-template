@@ -92,23 +92,23 @@ url_api = "https://api.github.com/repos/cli/cli/releases/assets/522857972"
 provenance = "github-attestations"
 
 [[tools."github:postfinance/topf"]]
-version = "0.5.0"
+version = "0.6.0"
 backend = "github:postfinance/topf"
 
 [tools."github:postfinance/topf"."platforms.linux-arm64"]
-checksum = "sha256:d8aa6515ae9de54588fc0bba3fad9fe37a93c08cf20adc931baed4a67912cef1"
-url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553235"
+checksum = "sha256:7e5d4bf21f07ba91b83c4653eb65dd3cf5ee67aa8fa4131ca403b38791476367"
+url = "https://github.com/postfinance/topf/releases/download/v0.6.0/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/542955869"
 
 [tools."github:postfinance/topf"."platforms.linux-x64"]
-checksum = "sha256:0a5ba8187887972acc7905cf12e804317b1869219bbf070d8dd2a9e29b70570c"
-url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553236"
+checksum = "sha256:458df4b25f4181a31ed361c0592194f7eb9e6e7b13e7096f8745453afdeaadfb"
+url = "https://github.com/postfinance/topf/releases/download/v0.6.0/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/542955866"
 
 [tools."github:postfinance/topf"."platforms.macos-arm64"]
-checksum = "sha256:e7de2cde889c1fba552a35c18e500f03ca120d79eb1a7643ee7503eb2572c166"
-url = "https://github.com/postfinance/topf/releases/download/v0.5.0/topf_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/508553237"
+checksum = "sha256:48b22175d61eadba0c287411c34a90f73dbaa716fd792b7b28625d3edbf870e2"
+url = "https://github.com/postfinance/topf/releases/download/v0.6.0/topf_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/542955870"
 
 [[tools.gum]]
 version = "2.0.0"
@@ -349,25 +349,25 @@ url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808198"
 url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [[tools.talosctl]]
-version = "1.13.9"
+version = "1.14.0"
 backend = "aqua:siderolabs/talos"
 
 [tools.talosctl."platforms.linux-arm64"]
-checksum = "sha256:51caed158eda73d2888cbf2df2d67551f9c9f8229aa42d3725e481d073e76f0b"
-url = "https://github.com/siderolabs/talos/releases/download/v1.13.9/talosctl-linux-arm64"
-url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/520547649"
+checksum = "sha256:19615e1d0eb222de86ec2f1487e7d6e74f5171a9038e73aeacde8cc647e3d9e0"
+url = "https://github.com/siderolabs/talos/releases/download/v1.14.0/talosctl-linux-arm64"
+url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/542359013"
 provenance = "cosign"
 
 [tools.talosctl."platforms.linux-x64"]
-checksum = "sha256:7e1d4b7d5846964bdcf63a794e3c8161bb6ef2983d5ace58ea5322f3bf32a27e"
-url = "https://github.com/siderolabs/talos/releases/download/v1.13.9/talosctl-linux-amd64"
-url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/520547641"
+checksum = "sha256:2c147c4a99d124c95bd5c190fe054e0b3c93495f2243fd652ebd423adb8377c7"
+url = "https://github.com/siderolabs/talos/releases/download/v1.14.0/talosctl-linux-amd64"
+url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/542359015"
 provenance = "cosign"
 
 [tools.talosctl."platforms.macos-arm64"]
-checksum = "sha256:ab4c27a959ff6c52f62c6cc2af07b22ca86ed27f1a138ed57582fa67f7b50f98"
-url = "https://github.com/siderolabs/talos/releases/download/v1.13.9/talosctl-darwin-arm64"
-url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/520547612"
+checksum = "sha256:f0c65a0e970b6f23cf0160e432e7496ba93957a49f369780d4e53888ed66ef46"
+url = "https://github.com/siderolabs/talos/releases/download/v1.14.0/talosctl-darwin-arm64"
+url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/542359001"
 provenance = "cosign"
 
 [[tools.uv]]
