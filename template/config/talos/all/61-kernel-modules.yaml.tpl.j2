@@ -1,8 +1,6 @@
-{{- if .Node.Data.kernelModules }}
-machine:
-  kernel:
-    modules:
-      {{- range .Node.Data.kernelModules }}
-      - name: {{ . }}
-      {{- end }}
+{{- range .Node.Data.kernelModules }}
+---
+apiVersion: v1alpha1
+kind: KernelModuleConfig
+name: {{ . }}
 {{- end }}
