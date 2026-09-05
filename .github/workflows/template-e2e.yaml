@@ -138,7 +138,7 @@ jobs:
         run: oxfmt --check ./.sops.yaml ./bootstrap ./kubernetes ./talos
 
       - name: Install flate
-        uses: home-operations/flate/action@6664ea2690ed8465d59a4bdc82109ffb6b4d4f63 # v0.6.2
+        uses: home-operations/flate/action@317908633d5acf3fc40f7fa02a5153a0499362a0 # v0.6.4
         with:
           base: ""
 
