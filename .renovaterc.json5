@@ -6,7 +6,7 @@
     enabled: true,
     schedule: ["before 3am on the first day of the month"],
     commitMessageExtra: "({{manager}})",
-    additionalBranchPrefix: "{{manager}}-"
+    additionalBranchPrefix: "{{manager}}-",
   },
   packageRules: [
     {
@@ -19,14 +19,16 @@
       description: "Mise Tools Group",
       matchManagers: ["mise"],
       groupName: "mise tools",
-      groupSlug: "mise-tools",
       minimumReleaseAge: "3 days",
     },
     {
       description: "Talos Group",
       groupName: "talos",
-      matchPackageNames: ["ghcr.io/siderolabs/installer", "siderolabs/talos", "talosctl"],
-      minimumGroupSize: 3,
+      matchPackageNames: ["siderolabs/talos"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+      minimumGroupSize: 2,
     },
     {
       description: "Flux Operator Group",

@@ -55,7 +55,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
@@ -83,7 +83,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
@@ -115,7 +115,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup mise
-        uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           experimental: true
           install_args: --locked
@@ -138,7 +138,7 @@ jobs:
         run: oxfmt --check ./.sops.yaml ./bootstrap ./kubernetes ./talos
 
       - name: Install flate
-        uses: home-operations/flate/action@bf3405a189626478b0aa6ec98dc4d6f7d419df17 # v0.4.12
+        uses: home-operations/flate/action@317908633d5acf3fc40f7fa02a5153a0499362a0 # v0.6.4
         with:
           base: ""
 

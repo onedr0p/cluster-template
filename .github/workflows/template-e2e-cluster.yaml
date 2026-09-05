@@ -57,13 +57,13 @@ jobs:
           sudo apt-get install --yes --no-install-recommends gettext-base qemu-system-x86 qemu-utils ovmf
 
       - name: Setup mise
-        uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Boot maintenance-mode nodes
         id: cluster
-        uses: home-operations/talosctl-cluster-action@42a2d1c476f87245e2d1882ec825fb31368b9686 # v0.1.6
+        uses: home-operations/talosctl-cluster-action@fb6a31bf5de43218acc80d2e23958a16eee7380c # v0.2.2
         with:
           config: ./.github/template-tests/e2e/talos-cluster.yaml
           cache: true

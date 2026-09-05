@@ -1,7 +1,7 @@
-machine:
-  time:
-    disabled: false
-    servers:
-      #% for item in network.ntp_servers %#
-      - #{ item }#
-      #% endfor %#
+apiVersion: v1alpha1
+kind: TimeSyncConfig
+ntp:
+  servers:
+    #% for item in network.ntp_servers %#
+    - #{ item }#
+    #% endfor %#

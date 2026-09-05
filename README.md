@@ -91,6 +91,8 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
     📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
 
+    📍 _**Platforms:** `.mise/mise.lock` pins tool downloads for Linux on amd64 and arm64 and macOS on arm64 (`linux-x64`, `linux-arm64`, `macos-arm64`). If you also need musl (e.g. Alpine), Windows or Intel macOS, add those platforms to the lockfile and commit it: `mise lock -p linux-x64-musl,linux-arm64-musl,windows-x64,macos-x64`_
+
 5. Logout of the GitHub Container Registry as this may cause authorization problems in future steps when using the public registry:
 
     ```sh

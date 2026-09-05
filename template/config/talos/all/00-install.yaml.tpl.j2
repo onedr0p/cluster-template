@@ -1,8 +1,9 @@
-machine:
-  install:
+apiVersion: v1alpha1
+kind: UnattendedInstallConfig
+provisioning:
+  diskSelector:
     {{- if .Node.Data.installDisk }}
-    disk: "{{ .Node.Data.installDisk }}"
+    match: disk.dev_path == "{{ .Node.Data.installDisk }}" || "{{ .Node.Data.installDisk }}" in disk.symlinks
     {{- else }}
-    diskSelector:
-      serial: "{{ .Node.Data.installDiskSerial }}"
+    match: disk.serial == "{{ .Node.Data.installDiskSerial }}"
     {{- end }}
