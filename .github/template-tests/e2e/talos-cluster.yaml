@@ -18,3 +18,4 @@ spec:
     cidr: 10.9.0.0/24
   qemu:
     presets: [iso, maintenance]
+    disks: [virtio:10GiB]
