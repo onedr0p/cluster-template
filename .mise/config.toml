@@ -6,11 +6,11 @@ TALOSCONFIG = "{{config_root}}/talos/talosconfig"
 JUST_UNSTABLE = "1"
 
 [tools]
-uv = "0.12.6"                        # required:template
-age = "1.3.1"
-cloudflared = "2026.8.2"
-flux2 = "2.9.4"
-gh = "2.98.0"
+uv = "0.12.9"                        # required:template
+age = "1.3.2"
+cloudflared = "2026.8.3"
+flux2 = "2.9.5"
+gh = "2.99.0"
 gum = "2.0.0"
 helm = "4.2.4"
 helmfile = "1.7.4"
@@ -19,7 +19,7 @@ just = "1.58.0"
 kubeconform = "0.8.0"
 kubectl = "1.37.0"
 kustomize = "5.8.1"
-lefthook = "2.1.11"
+lefthook = "2.1.12"
 node = "24.20.0"
 oxfmt = "0.65.0"
 sd = "1.1.0"                         # required:template
@@ -27,7 +27,7 @@ sops = "3.13.3"
 talosctl = "1.14.0"
 "github:postfinance/topf" = "v0.6.0"
 yq = "4.53.6"
-zizmor = "1.29.0"
+zizmor = "1.30.0"
 
 [hooks]
 postinstall = "lefthook install"
