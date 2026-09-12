@@ -129,6 +129,9 @@ jobs:
           echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflare-tunnel.json
           touch kubeconfig
 
+      - name: Assert cluster.toml passes the JSON Schema
+        run: taplo check --schema "file://$PWD/cluster.schema.json" ./cluster.toml
+
       - name: Run configure recipe
         run: just configure
 

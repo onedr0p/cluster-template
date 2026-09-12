@@ -1,4 +1,4 @@
-#:schema ./template/cluster.schema.json
+#:schema ./cluster.schema.json
 # =============================================================================
 #    Physical LAN that your Talos nodes live on. Defines the address space
 #    used for node IPs, the gateway/DNS/NTP servers nodes will use, and an
