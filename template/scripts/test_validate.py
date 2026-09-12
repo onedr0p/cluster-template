@@ -6,6 +6,7 @@ Run from the repo root:
 
 from pathlib import Path
 
+import json
 import sys
 import tomllib
 
@@ -14,7 +15,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent))
 
 from pydantic import ValidationError  # noqa: E402
-from validate import Config, ConfigError, format_errors, load  # noqa: E402
+from validate import Config, ConfigError, format_errors, load, schema  # noqa: E402
 
 REPO_ROOT = Path(__file__).parents[2]
 VALID = sorted((REPO_ROOT / ".github/template-tests/valid").glob("*.toml"))
@@ -161,3 +162,12 @@ def test_gateways_may_leave_node_cidr_only_with_bgp():
     without_bgp = config_from("private.toml", **{"gateways.external": "192.168.50.1"})
     with pytest.raises(ConfigError, match="required unless BGP is enabled"):
         _load_raw(without_bgp)
+
+
+def test_schema_file_matches_model():
+    committed = json.loads((REPO_ROOT / "template/cluster.schema.json").read_text())
+    assert committed == schema(), "cluster.schema.json is stale: run `just template schema`"
+
+
+def test_schema_omits_computed_fields():
+    assert "cluster_issuer" not in schema()["properties"]

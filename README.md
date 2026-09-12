@@ -133,7 +133,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     just init
     ```
 
-2. Fill out the `cluster.toml` configuration file using the comments in it as a guide.
+2. Fill out the `cluster.toml` configuration file using the comments in it as a guide. Editors with TOML schema support (VS Code's Even Better TOML, taplo in Neovim) pick up the `#:schema` directive at the top of the file and provide completion and inline validation.
 
 3. Template out the kubernetes and talos configuration files, if any issues come up be sure to read the error and adjust your config files accordingly.
 

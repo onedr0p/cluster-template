@@ -1,6 +1,7 @@
 """Validate cluster.toml, apply defaults, and emit the config as JSON.
 
 Standalone usage (doctor, CI): uv run --locked --no-dev template/scripts/validate.py [cluster.toml]
+Schema export (just template schema): uv run --locked --no-dev template/scripts/validate.py --schema
 In-process usage (makejinja plugin): from validate import load
 
 Exits non-zero with one human-readable error per line on stderr when the
@@ -212,6 +213,8 @@ class Node(Model):
 
 
 class Config(Model):
+    model_config = ConfigDict(extra="forbid", title="cluster.toml")
+
     network: Network
     kubernetes: Kubernetes
     gateways: Gateways
@@ -371,7 +374,21 @@ def load(config_file: str = "cluster.toml") -> dict[str, Any]:
     return config.model_dump(mode="json")
 
 
+# JSON Schema for editor completion and validation of cluster.toml (taplo's
+# #:schema directive). Cross-field rules and data-aware defaults only exist in
+# the model validators, so the schema is an editing aid, not the gate.
+def schema() -> dict[str, Any]:
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        **Config.model_json_schema(),
+    }
+
+
 def main() -> int:
+    if sys.argv[1:] == ["--schema"]:
+        json.dump(schema(), sys.stdout, indent=2)
+        sys.stdout.write("\n")
+        return 0
     try:
         data = load(sys.argv[1] if len(sys.argv) > 1 else "cluster.toml")
     except ConfigError as e:

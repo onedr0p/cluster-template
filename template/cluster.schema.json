@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Api": {
+      "additionalProperties": false,
+      "properties": {
+        "addr": {
+          "format": "ipv4",
+          "title": "Addr",
+          "type": "string"
+        },
+        "tls_sans": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Fqdn"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tls Sans"
+        }
+      },
+      "required": ["addr"],
+      "title": "Api",
+      "type": "object"
+    },
+    "Asn": {
+      "type": "string"
+    },
+    "Bgp": {
+      "additionalProperties": false,
+      "properties": {
+        "router_addr": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "const": "",
+              "type": "string"
+            }
+          ],
+          "default": "",
+          "title": "Router Addr"
+        },
+        "router_asn": {
+          "$ref": "#/$defs/Asn",
+          "default": ""
+        },
+        "node_asn": {
+          "$ref": "#/$defs/Asn",
+          "default": ""
+        }
+      },
+      "title": "Bgp",
+      "type": "object"
+    },
+    "Cidr": {
+      "format": "ipv4network",
+      "type": "string"
+    },
+    "Cilium": {
+      "additionalProperties": false,
+      "properties": {
+        "loadbalancer_mode": {
+          "default": "dsr",
+          "enum": ["dsr", "snat"],
+          "title": "Loadbalancer Mode",
+          "type": "string"
+        },
+        "bgp": {
+          "$ref": "#/$defs/Bgp",
+          "default": {
+            "router_addr": "",
+            "router_asn": "",
+            "node_asn": ""
+          }
+        }
+      },
+      "title": "Cilium",
+      "type": "object"
+    },
+    "Dns": {
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "default": "cloudflare",
+          "enum": ["cloudflare", "none"],
+          "title": "Provider",
+          "type": "string"
+        },
+        "token": {
+          "default": "",
+          "title": "Token",
+          "type": "string"
+        }
+      },
+      "title": "Dns",
+      "type": "object"
+    },
+    "Domain": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Fqdn"
+        }
+      },
+      "required": ["name"],
+      "title": "Domain",
+      "type": "object"
+    },
+    "Fqdn": {
+      "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
+      "type": "string"
+    },
+    "Gateways": {
+      "additionalProperties": false,
+      "properties": {
+        "internal": {
+          "format": "ipv4",
+          "title": "Internal",
+          "type": "string"
+        },
+        "dns": {
+          "format": "ipv4",
+          "title": "Dns",
+          "type": "string"
+        },
+        "external": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "External"
+        }
+      },
+      "required": ["internal", "dns"],
+      "title": "Gateways",
+      "type": "object"
+    },
+    "Ingress": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "cloudflare-tunnel",
+          "enum": ["cloudflare-tunnel", "direct", "none"],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "title": "Ingress",
+      "type": "object"
+    },
+    "Kubernetes": {
+      "additionalProperties": false,
+      "properties": {
+        "pod_cidr": {
+          "$ref": "#/$defs/Cidr",
+          "default": "10.42.0.0/16"
+        },
+        "svc_cidr": {
+          "$ref": "#/$defs/Cidr",
+          "default": "10.43.0.0/16"
+        },
+        "coredns_addr": {
+          "format": "ipv4",
+          "title": "Coredns Addr",
+          "type": "string"
+        },
+        "api": {
+          "$ref": "#/$defs/Api"
+        }
+      },
+      "required": ["api"],
+      "title": "Kubernetes",
+      "type": "object"
+    },
+    "Network": {
+      "additionalProperties": false,
+      "properties": {
+        "node_cidr": {
+          "$ref": "#/$defs/Cidr"
+        },
+        "dns_servers": {
+          "default": ["1.1.1.1", "1.0.0.1"],
+          "items": {
+            "format": "ipv4",
+            "type": "string"
+          },
+          "title": "Dns Servers",
+          "type": "array"
+        },
+        "ntp_servers": {
+          "default": ["162.159.200.1", "162.159.200.123"],
+          "items": {
+            "format": "ipv4",
+            "type": "string"
+          },
+          "title": "Ntp Servers",
+          "type": "array"
+        },
+        "default_gateway": {
+          "format": "ipv4",
+          "title": "Default Gateway",
+          "type": "string"
+        },
+        "vlan_tag": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vlan Tag"
+        }
+      },
+      "required": ["node_cidr"],
+      "title": "Network",
+      "type": "object"
+    },
+    "Node": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[a-z0-9][a-z0-9\\-]{0,61}[a-z0-9]$|^[a-z0-9]$",
+          "title": "Name",
+          "type": "string"
+        },
+        "address": {
+          "format": "ipv4",
+          "title": "Address",
+          "type": "string"
+        },
+        "controller": {
+          "title": "Controller",
+          "type": "boolean"
+        },
+        "disk": {
+          "title": "Disk",
+          "type": "string"
+        },
+        "mac_addr": {
+          "pattern": "^([0-9a-f]{2}:){5}[0-9a-f]{2}$",
+          "title": "Mac Addr",
+          "type": "string"
+        },
+        "schematic_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schematic Id"
+        },
+        "mtu": {
+          "default": 1500,
+          "maximum": 9000,
+          "minimum": 1450,
+          "title": "Mtu",
+          "type": "integer"
+        },
+        "secureboot": {
+          "default": false,
+          "title": "Secureboot",
+          "type": "boolean"
+        },
+        "encrypt_disk": {
+          "default": false,
+          "title": "Encrypt Disk",
+          "type": "boolean"
+        },
+        "kernel_modules": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Kernel Modules",
+          "type": "array"
+        }
+      },
+      "required": ["name", "address", "controller", "disk", "mac_addr"],
+      "title": "Node",
+      "type": "object"
+    },
+    "Repository": {
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "pattern": "^(https?://|ssh://git@)[^/]+/.+$",
+          "title": "Url",
+          "type": "string"
+        },
+        "branch": {
+          "default": "main",
+          "minLength": 1,
+          "title": "Branch",
+          "type": "string"
+        },
+        "webhook_provider": {
+          "default": "github",
+          "enum": ["github", "gitlab", "generic-hmac", "none"],
+          "title": "Webhook Provider",
+          "type": "string"
+        },
+        "known_hosts": {
+          "default": "",
+          "title": "Known Hosts",
+          "type": "string"
+        }
+      },
+      "required": ["url"],
+      "title": "Repository",
+      "type": "object"
+    },
+    "Spegel": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Enabled"
+        }
+      },
+      "title": "Spegel",
+      "type": "object"
+    },
+    "Talos": {
+      "additionalProperties": false,
+      "properties": {
+        "schematic_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schematic Id"
+        }
+      },
+      "title": "Talos",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "network": {
+      "$ref": "#/$defs/Network"
+    },
+    "kubernetes": {
+      "$ref": "#/$defs/Kubernetes"
+    },
+    "gateways": {
+      "$ref": "#/$defs/Gateways"
+    },
+    "repository": {
+      "$ref": "#/$defs/Repository"
+    },
+    "domain": {
+      "$ref": "#/$defs/Domain"
+    },
+    "dns": {
+      "$ref": "#/$defs/Dns"
+    },
+    "ingress": {
+      "$ref": "#/$defs/Ingress"
+    },
+    "cilium": {
+      "$ref": "#/$defs/Cilium",
+      "default": {
+        "loadbalancer_mode": "dsr",
+        "bgp": {
+          "node_asn": "",
+          "router_addr": "",
+          "router_asn": ""
+        }
+      }
+    },
+    "talos": {
+      "$ref": "#/$defs/Talos",
+      "default": {
+        "schematic_id": null
+      }
+    },
+    "spegel": {
+      "$ref": "#/$defs/Spegel",
+      "default": {
+        "enabled": null
+      }
+    },
+    "nodes": {
+      "items": {
+        "$ref": "#/$defs/Node"
+      },
+      "title": "Nodes",
+      "type": "array"
+    }
+  },
+  "required": ["network", "kubernetes", "gateways", "repository", "domain", "dns", "nodes"],
+  "title": "cluster.toml",
+  "type": "object"
+}
