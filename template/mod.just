@@ -13,6 +13,7 @@ private_dir := justfile_dir() + '/.private'
 template_dir := justfile_dir() + '/template'
 template_resources := template_dir + '/resources'
 makejinja_config := justfile_dir() + '/makejinja.toml'
+mise_fragment := justfile_dir() + '/.mise/conf.d/template.toml'
 
 config_file := justfile_dir() + '/cluster.toml'
 sample_config_file := justfile_dir() + '/cluster.sample.toml'
@@ -119,11 +120,13 @@ tidy-archive:
     mv \
         "{{ template_dir }}" \
         "{{ makejinja_config }}" \
+        "{{ mise_fragment }}" \
         "{{ config_file }}" \
         "{{ sample_config_file }}" \
         "{{ justfile_dir() }}/pyproject.toml" \
         "{{ justfile_dir() }}/uv.lock" \
         "$TIDY_FOLDER/"
+    rmdir "$(dirname "{{ mise_fragment }}")" 2>/dev/null || true
     rm -rf "{{ justfile_dir() }}/.venv"
 
 [private]
@@ -136,7 +139,7 @@ tidy-preconditions:
     test -f "{{ justfile_dir() }}/pyproject.toml"
     test -f "{{ justfile_dir() }}/uv.lock"
     test -f "{{ justfile_dir() }}/justfile"
-    test -f "{{ justfile_dir() }}/.mise/config.toml"
+    test -f "{{ mise_fragment }}"
     test -f "{{ justfile_dir() }}/.renovaterc.json5"
     compgen -G "{{ justfile_dir() }}/.github/workflows/template-*.yaml" > /dev/null
 
@@ -144,7 +147,6 @@ tidy-preconditions:
 tidy-strip:
     sd '\..\.j2'                          '' "{{ justfile_dir() }}/.renovaterc.json5"
     sd -A '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
-    sd -A '.*required:template.*\n'       '' "{{ justfile_dir() }}/.mise/config.toml"
 
 # Renders every bootstrap chart with the rendered values, catching chart or
 # values drift that dry runs cannot; needs network access to pull charts.

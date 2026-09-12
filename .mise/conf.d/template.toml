@@ -1,0 +1,4 @@
+# Tools only the template step needs; `just template tidy` archives this file.
+[tools]
+uv = "0.12.13"
+sd = "1.1.0"

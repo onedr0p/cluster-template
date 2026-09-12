@@ -8,6 +8,9 @@
     commitMessageExtra: "({{manager}})",
     additionalBranchPrefix: "{{manager}}-",
   },
+  mise: {
+    managerFilePatterns: ["/^\\.mise/conf\\.d/[^/]+\\.toml$/"],
+  },
   packageRules: [
     {
       description: "GitHub Actions Group",
