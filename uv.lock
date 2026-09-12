@@ -58,7 +58,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "makejinja", specifier = "==2.8.2" },
+    { name = "makejinja", specifier = "==2.8.3" },
     { name = "pydantic", specifier = "==2.13.5" },
 ]
 
@@ -106,7 +106,7 @@ wheels = [
 
 [[package]]
 name = "makejinja"
-version = "2.8.2"
+version = "2.8.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "frozendict" },
@@ -115,9 +115,9 @@ dependencies = [
     { name = "rich-click" },
     { name = "typed-settings", extra = ["attrs", "cattrs", "click"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/48/5a/88b1788dbc42792c7d48f36da474a607ccb884f851166e2be588dd0608c9/makejinja-2.8.2.tar.gz", hash = "sha256:302ffbd974d5786508101f0a01627b7516255f89aef7d2183f56485e0991a80a", size = 12676, upload-time = "2025-12-05T08:08:30.792Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/94/313ff9b192ee37fad7c7b65bfd62888a7e3d7dfe394e93a7a986bc8d3710/makejinja-2.8.3.tar.gz", hash = "sha256:3462e7718f4deba02beecbcb4a77b5f60c1df32391c5f9f5e9fc9985320b3236", size = 13238, upload-time = "2026-09-07T11:10:03.126Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/35/8e104dd19a279e9303e615b54c0e64a512eb7d3eccc78871e93ea7437a8b/makejinja-2.8.2-py3-none-any.whl", hash = "sha256:f91fed7f7328c690c10a8f3920ed46a72108fb81205b74fb5f2f56e6c57c7547", size = 15080, upload-time = "2025-12-05T08:08:29.545Z" },
+    { url = "https://files.pythonhosted.org/packages/71/fe/ff26698949c66d86888a0ae2605c2a94c599527cfaf83306718efaaca0b5/makejinja-2.8.3-py3-none-any.whl", hash = "sha256:564e5191fc75e7d8b83fb4d478f89ef6bc7a0395ae296ee56eb9b58a91de43fa", size = 15519, upload-time = "2026-09-07T11:10:01.845Z" },
 ]
 
 [[package]]
