@@ -91,7 +91,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
 
     📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
 
-    📍 _**Platforms:** `.mise/mise.lock` pins tool downloads for the platforms listed under `lockfile_platforms` in `.mise/config.toml`: Linux on amd64 and arm64 and macOS on arm64 (`linux-x64`, `linux-arm64`, `macos-arm64`). If you also need musl (e.g. Alpine), Windows or Intel macOS, add the platform to that list (`linux-x64-musl`, `linux-arm64-musl`, `windows-x64`, `macos-x64`), run `mise lock`, and commit both files. Your own platform is always locked, even when it is not in the list._
+    📍 _**Platforms:** `.mise/mise.lock` pins tool downloads for the platforms listed under `lockfile_platforms` in `.mise/config.toml`: Linux and macOS on amd64 and arm64 (`linux-x64`, `linux-arm64`, `macos-x64`, `macos-arm64`). If you also need musl (e.g. Alpine) or Windows, add the platform to that list (`linux-x64-musl`, `linux-arm64-musl`, `windows-x64`), run `mise lock`, and commit both files. Your own platform is always locked, even when it is not in the list._
 
 5. Logout of the GitHub Container Registry as this may cause authorization problems in future steps when using the public registry:
 
