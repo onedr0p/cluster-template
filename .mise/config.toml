@@ -6,7 +6,7 @@ TALOSCONFIG = "{{config_root}}/talos/talosconfig"
 JUST_UNSTABLE = "1"
 
 [tools]
-uv = "0.12.9"                        # required:template
+uv = "0.12.11"                        # required:template
 age = "1.3.2"
 cloudflared = "2026.8.3"
 flux2 = "2.9.5"
@@ -20,7 +20,7 @@ kubeconform = "0.8.0"
 kubectl = "1.37.0"
 kustomize = "5.8.1"
 lefthook = "2.1.12"
-node = "24.20.0"
+node = "24.21.0"
 oxfmt = "0.67.0"
 sd = "1.1.0"                         # required:template
 sops = "3.13.3"
