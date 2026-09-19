@@ -445,31 +445,31 @@ url_api = "https://api.github.com/repos/getsops/sops/releases/assets/486808228"
 url = "https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.intoto.jsonl"
 
 [[tools.talosctl]]
-version = "1.14.0"
+version = "1.14.1"
 backend = "aqua:siderolabs/talos"
 
 [tools.talosctl."platforms.linux-arm64"]
-checksum = "sha256:19615e1d0eb222de86ec2f1487e7d6e74f5171a9038e73aeacde8cc647e3d9e0"
-url = "https://github.com/siderolabs/talos/releases/download/v1.14.0/talosctl-linux-arm64"
-url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/542359013"
+checksum = "sha256:812406cfc3bd83a937108d5f4872a48645b96de3c01e1f3d82445e8cbd1e7a21"
+url = "https://github.com/siderolabs/talos/releases/download/v1.14.1/talosctl-linux-arm64"
+url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/566050793"
 provenance = "cosign"
 
 [tools.talosctl."platforms.linux-x64"]
-checksum = "sha256:2c147c4a99d124c95bd5c190fe054e0b3c93495f2243fd652ebd423adb8377c7"
-url = "https://github.com/siderolabs/talos/releases/download/v1.14.0/talosctl-linux-amd64"
-url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/542359015"
+checksum = "sha256:7233ece94c94296a033a6ddb5efe0baf508a94c71de7e6c7b286500705924208"
+url = "https://github.com/siderolabs/talos/releases/download/v1.14.1/talosctl-linux-amd64"
+url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/566050764"
 provenance = "cosign"
 
 [tools.talosctl."platforms.macos-arm64"]
-checksum = "sha256:f0c65a0e970b6f23cf0160e432e7496ba93957a49f369780d4e53888ed66ef46"
-url = "https://github.com/siderolabs/talos/releases/download/v1.14.0/talosctl-darwin-arm64"
-url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/542359001"
+checksum = "sha256:8335917a3c3eb7ad466cc4b834defcbd4948d51312a6e47de11113d7c399a8f8"
+url = "https://github.com/siderolabs/talos/releases/download/v1.14.1/talosctl-darwin-arm64"
+url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/566050771"
 provenance = "cosign"
 
 [tools.talosctl."platforms.macos-x64"]
-checksum = "sha256:6563baa43774ef5c351e0d9f2fd720941c482da01fe3aed53ee9644b552453c5"
-url = "https://github.com/siderolabs/talos/releases/download/v1.14.0/talosctl-darwin-amd64"
-url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/542359004"
+checksum = "sha256:8cb8654c7af2be501667fccb6a4879b91c213101d83b49fe59e1a1e4e70ed5f4"
+url = "https://github.com/siderolabs/talos/releases/download/v1.14.1/talosctl-darwin-amd64"
+url_api = "https://api.github.com/repos/siderolabs/talos/releases/assets/566050751"
 provenance = "cosign"
 
 [[tools.taplo]]
