@@ -119,10 +119,6 @@ def validate_config() -> dict[str, Any]:
 
 
 class Plugin(makejinja.plugin.Plugin):
-    def __init__(self, data: dict[str, Any]):
-        self._data = data
-
-
     def data(self) -> makejinja.plugin.Data:
         data = validate_config()
         if (
