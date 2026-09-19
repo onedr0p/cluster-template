@@ -381,7 +381,7 @@ checksum = "sha256:1462cb3b3046b815cf8ea436d3da450ec1a9f11dac7e5a46b0ada5305d7e8
 url = "https://nodejs.org/dist/v24.21.0/node-v24.21.0-darwin-x64.tar.gz"
 
 [[tools.oxfmt]]
-version = "0.67.0"
+version = "0.68.0"
 backend = "npm:oxfmt"
 
 [[tools.sd]]
