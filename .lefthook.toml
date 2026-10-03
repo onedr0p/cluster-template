@@ -8,7 +8,7 @@ run = 'for f in {staged_files}; do just --justfile "$f" --fmt; done'
 stage_fixed = true
 
 [pre-commit.commands.format-mise]
-glob = [".mise.toml", ".mise/config.toml", ".mise/conf.d/*.toml"]
+glob = [".mise/config.toml", ".mise/conf.d/*.toml"]
 run = "mise fmt"
 stage_fixed = true
 
