@@ -28,8 +28,8 @@ run = "oxfmt {staged_files}"
 stage_fixed = true
 
 [pre-commit.commands.mise-lock]
-glob = [".mise.toml", ".mise/config.toml", ".mise/conf.d/*.toml"]
-run = "mise lock && git add .mise/mise.lock"
+glob = [".mise/config.toml", ".mise/conf.d/*.toml"]
+run = 'mise lock && git add -A -- .mise ":(exclude).mise/*.toml"'
 
 [pre-commit.commands.zizmor]
 glob = [".github/workflows/*.yaml", ".github/actions/**/action.yaml"]
