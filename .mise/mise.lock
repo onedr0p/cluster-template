@@ -309,28 +309,28 @@ checksum = "sha256:6851381c486ff6edd691623e3d65c87cb9a5b02887ff8fbbb38d8a031b748
 url = "https://dl.k8s.io/v1.37.1/bin/darwin/amd64/kubectl"
 
 [[tools.kustomize]]
-version = "5.8.1"
+version = "5.8.2"
 backend = "aqua:kubernetes-sigs/kustomize"
 
 [tools.kustomize."platforms.linux-arm64"]
-checksum = "sha256:0953ea3e476f66d6ddfcd911d750f5167b9365aa9491b2326398e289fef2c142"
-url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1/kustomize_v5.8.1_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/353160971"
+checksum = "sha256:0991957191951cb7dddd142403b5bb98a1fcd6378ba0079dddc1e2c309080a7f"
+url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.2/kustomize_v5.8.2_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/600925223"
 
 [tools.kustomize."platforms.linux-x64"]
-checksum = "sha256:029a7f0f4e1932c52a0476cf02a0fd855c0bb85694b82c338fc648dcb53a819d"
-url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1/kustomize_v5.8.1_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/353160972"
+checksum = "sha256:06af0a202c2b831207d0173f9c9cdb1b30abceca0747cb3fbb72792d26055c95"
+url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.2/kustomize_v5.8.2_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/600925225"
 
 [tools.kustomize."platforms.macos-arm64"]
-checksum = "sha256:8886f8a78474e608cc81234f729fda188a9767da23e28925802f00ece2bab288"
-url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1/kustomize_v5.8.1_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/353160975"
+checksum = "sha256:4ce452c096a4005be16ddc02129255830d1d6605ffe3693699c72a1b2be48658"
+url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.2/kustomize_v5.8.2_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/600925224"
 
 [tools.kustomize."platforms.macos-x64"]
-checksum = "sha256:ee7cf0c1e3592aa7bb66ba82b359933a95e7f2e0b36e5f53ed0a4535b017f2f8"
-url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1/kustomize_v5.8.1_darwin_amd64.tar.gz"
-url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/353160974"
+checksum = "sha256:1ee90e851535f13b21b5fb69a24a6e843da13ca7aa52538e345ce7c15471ef47"
+url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.2/kustomize_v5.8.2_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/600925221"
 
 [[tools.lefthook]]
 version = "2.1.15"
