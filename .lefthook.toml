@@ -7,13 +7,30 @@ glob = ["justfile", "*.just", ".justfile"]
 run = 'for f in {staged_files}; do just --justfile "$f" --fmt; done'
 stage_fixed = true
 
-[pre-commit.commands.format-mise]
-glob = [".mise.toml", ".mise/config.toml", ".mise/conf.d/*.toml"]
+# mise fmt rewrites the config in place on every run, and a mise lock that
+# reads it mid-rewrite prunes every tool from the lockfile, so the two run
+# piped while the rest of pre-commit stays parallel.
+[[pre-commit.jobs]]
+name = "mise"
+glob = [".mise/config.toml", ".mise/conf.d/*.toml"]
+
+[pre-commit.jobs.group]
+piped = true
+
+[[pre-commit.jobs.group.jobs]]
+name = "format-mise"
 run = "mise fmt"
 stage_fixed = true
 
+[[pre-commit.jobs.group.jobs]]
+name = "lock-mise"
+run = 'mise lock && git add -A -- .mise ":(exclude).mise/*.toml"'
+
 [pre-commit.commands.format-json]
 glob = ["*.json", "*.json5", "*.jsonc"]
+# mise lock sidecars are digest-pinned in mise.lock; reformatting them makes
+# `mise install --locked` fail with a digest mismatch.
+exclude = [".mise/locks/**"]
 run = "oxfmt {staged_files}"
 stage_fixed = true
 
@@ -24,12 +41,9 @@ stage_fixed = true
 
 [pre-commit.commands.format-yaml]
 glob = ["*.yaml", "*.yml"]
+exclude = [".mise/locks/**"]
 run = "oxfmt {staged_files}"
 stage_fixed = true
-
-[pre-commit.commands.mise-lock]
-glob = [".mise.toml", ".mise/config.toml", ".mise/conf.d/*.toml"]
-run = "mise lock && git add .mise/mise.lock"
 
 [pre-commit.commands.zizmor]
 glob = [".github/workflows/*.yaml", ".github/actions/**/action.yaml"]
