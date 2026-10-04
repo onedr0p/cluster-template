@@ -336,32 +336,32 @@ url = "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/
 url_api = "https://api.github.com/repos/kubernetes-sigs/kustomize/releases/assets/600925221"
 
 [[tools.lefthook]]
-version = "2.1.15"
+version = "2.1.16"
 backend = "aqua:evilmartians/lefthook"
-specifiers = ["2.1.15"]
+specifiers = ["2.1.16"]
 
 [tools.lefthook."platforms.linux-arm64"]
-checksum = "sha256:883bd1d697eb926b4f4c4fb08ff000fda0306432368199923e415f8e9a4c22d4"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.15/lefthook_2.1.15_Linux_aarch64.gz"
-url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/598600348"
+checksum = "sha256:2f8b694c37632df1b805163ebdbdf85c8ecf6cba47f0bff4a3e565a1b66ef3cd"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.16/lefthook_2.1.16_Linux_aarch64.gz"
+url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/603767234"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.linux-x64"]
-checksum = "sha256:b3ed1e83389d0a98b5f243a8a1afcb0fdfad527834f87170f2a2ff9ddfe0f836"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.15/lefthook_2.1.15_Linux_x86_64.gz"
-url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/598600261"
+checksum = "sha256:bcf67d241ebb062a4fe9053ef0d7fde6692f846e504843ed33ab39b08334f299"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.16/lefthook_2.1.16_Linux_x86_64.gz"
+url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/603767179"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.macos-arm64"]
-checksum = "sha256:8b40280a2bae6a21a546e42c1f02cb190cfe9888ff541eb500a0b05bd38db17f"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.15/lefthook_2.1.15_MacOS_arm64.gz"
-url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/598600263"
+checksum = "sha256:3deee257054b3cd3d3288bef65436e17239d49ebb738af939e4a92f573865151"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.16/lefthook_2.1.16_MacOS_arm64.gz"
+url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/603767184"
 provenance = "github-attestations"
 
 [tools.lefthook."platforms.macos-x64"]
-checksum = "sha256:61e85903bd9b7ba51b2980ecd2229e61d6c4c2f8961d1ad64a6e0445b1ab0dc6"
-url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.15/lefthook_2.1.15_MacOS_x86_64.gz"
-url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/598600306"
+checksum = "sha256:1a129fb921ca7413b17561838cbff387d8c1a7b22a54a9fdee1249952fe5204f"
+url = "https://github.com/evilmartians/lefthook/releases/download/v2.1.16/lefthook_2.1.16_MacOS_x86_64.gz"
+url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/603767199"
 provenance = "github-attestations"
 
 [[tools.node]]
