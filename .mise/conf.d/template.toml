@@ -1,5 +1,5 @@
 # Tools only the template step needs; `just template tidy` archives this file.
 [tools]
-uv = "0.12.21"
+uv = "0.12.23"
 sd = "1.1.0"
 taplo = "0.10.0"
