@@ -386,10 +386,10 @@ checksum = "sha256:495e3f273c645f3c4677d438304cdfc701729ea5dec5728f5c8e76a2dece4
 url = "https://nodejs.org/dist/v24.22.0/node-v24.22.0-darwin-x64.tar.gz"
 
 [[tools.oxfmt]]
-version = "0.72.0"
-aube = { path = "locks/oxfmt/0.72.0", digest = "sha256:8cff19be82a82e83efe243f08fd8bf1a2a2f635f10384d070d7956209ddd9b44" }
+version = "0.73.0"
+aube = { path = "locks/oxfmt/0.73.0", digest = "sha256:e42eeebedd060ec6393c40caa35362b541991453b9aab2de3d33d41a0c245a62" }
 backend = "npm:oxfmt"
-specifiers = ["0.72.0"]
+specifiers = ["0.73.0"]
 
 [[tools.sd]]
 version = "1.1.0"
@@ -504,32 +504,32 @@ url = "https://github.com/tamasfe/taplo/releases/download/0.10.0/taplo-darwin-x8
 url_api = "https://api.github.com/repos/tamasfe/taplo/releases/assets/257323116"
 
 [[tools.uv]]
-version = "0.12.24"
+version = "0.13.1"
 backend = "aqua:astral-sh/uv"
-specifiers = ["0.12.24"]
+specifiers = ["0.13.1"]
 
 [tools.uv."platforms.linux-arm64"]
-checksum = "sha256:5231be65f496304623895dacdbf1de8504fec90303684bdf05805aa34414dd21"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.24/uv-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/622872824"
+checksum = "sha256:9041c73c99fdc5892cf128140beb354eca9231d502068cc36e6cb53a8e59ad14"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.1/uv-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/639312990"
 provenance = "github-attestations"
 
 [tools.uv."platforms.linux-x64"]
-checksum = "sha256:b4dfaef47d491a7296981f8374a4595f55dbf84e8937c8ecd2983574d8bb3da6"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.24/uv-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/622873043"
+checksum = "sha256:eadd9d27c134ab5ac1ffd4473b97a741407f3ea238288f03121fc4deddf90220"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.1/uv-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/639313223"
 provenance = "github-attestations"
 
 [tools.uv."platforms.macos-arm64"]
-checksum = "sha256:0c4346de7abdb49495b393b9ec809fe387aa43e586be20fecb972216c1e71732"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.24/uv-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/622872807"
+checksum = "sha256:cfe454573412ff7380d15fc7dae5997ab53ffce72fce0a78e91ddbc84001acd2"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.1/uv-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/639312976"
 provenance = "github-attestations"
 
 [tools.uv."platforms.macos-x64"]
-checksum = "sha256:4fa82e37cb94767661f532b001e470b67a186c7260e305bd84ddb78fd545c0b6"
-url = "https://github.com/astral-sh/uv/releases/download/0.12.24/uv-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/622873012"
+checksum = "sha256:bb7b805bdcf3d0bc8c74ceb94569e6b3e8aa35bd492acdbb9d46bf46d9d4ff6b"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.1/uv-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/639313196"
 provenance = "github-attestations"
 
 [[tools.yq]]
