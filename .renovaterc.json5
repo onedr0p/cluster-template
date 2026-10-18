@@ -26,6 +26,8 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
       minimumGroupSize: 2,
+      minimumReleaseAge: "3 days",
+      overrideDatasource: "github-releases",
     },
     {
       description: "Flux Operator Group",
