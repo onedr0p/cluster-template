@@ -62,9 +62,25 @@ def _asn(value: str) -> str:
     return value
 
 
+def _empty_to_none(value: Any) -> Any:
+    return None if value == "" else value
+
+
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
 type Asn = Annotated[str, AfterValidator(_asn)]
 type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN)]
+type SchematicId = Annotated[str, Field(pattern=r"^[a-z0-9]{64}$")]
+
+# An empty string means unset, so placeholders left in cluster.toml validate
+# the same as an omitted key.
+type OptionalIPv4Address = Annotated[
+    IPv4Address | None,
+    BeforeValidator(_empty_to_none, json_schema_input_type=IPv4Address | Literal[""] | None),
+]
+type OptionalSchematicId = Annotated[
+    SchematicId | None,
+    BeforeValidator(_empty_to_none, json_schema_input_type=SchematicId | Literal[""] | None),
+]
 
 
 class Model(BaseModel):
@@ -119,7 +135,7 @@ class Gateways(Model):
     internal: IPv4Address
     dns: IPv4Address
     # Required when ingress.mode is not "none".
-    external: IPv4Address | None = None
+    external: OptionalIPv4Address = None
 
 
 class Repository(Model):
@@ -179,7 +195,7 @@ class Bgp(Model):
 
 class Talos(Model):
     # Default Image Factory schematic for nodes that don't set their own.
-    schematic_id: str | None = Field(default=None, pattern=r"^[a-z0-9]{64}$")
+    schematic_id: OptionalSchematicId = None
 
 
 class Spegel(Model):
@@ -199,7 +215,7 @@ class Node(Model):
     disk: str
     mac_addr: str = Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
     # Falls back to talos.schematic_id when unset.
-    schematic_id: str | None = Field(default=None, pattern=r"^[a-z0-9]{64}$")
+    schematic_id: OptionalSchematicId = None
     mtu: int = Field(default=1500, ge=1450, le=9000)
     secureboot: bool = False
     encrypt_disk: bool = False
@@ -342,6 +358,10 @@ class Config(Model):
 def format_errors(error: ValidationError) -> str:
     lines = []
     for err in error.errors():
+        # Reported alongside the real error whenever a field a default
+        # factory depends on failed; it carries no information of its own.
+        if err["type"] == "default_factory_not_called":
+            continue
         loc = ".".join(str(part) for part in err["loc"])
         msg = err["msg"].removeprefix("Value error, ")
         lines.append(f"{loc}: {msg}" if loc else msg)

@@ -135,6 +135,27 @@ def test_direct_mode_requires_cloudflare_dns():
         _load_raw(raw)
 
 
+def test_empty_string_means_unset():
+    raw = config_from("internal.toml", **{"gateways.external": "", "talos.schematic_id": ""})
+    cfg = _load_raw(raw)
+    assert cfg.gateways.external is None
+    assert cfg.talos.schematic_id is None
+    raw = config_from("public.toml")
+    raw["nodes"][1]["schematic_id"] = ""
+    cfg = _load_raw(raw)
+    assert cfg.nodes[1].schematic_id == cfg.talos.schematic_id
+    raw = config_from("private.toml", **{"gateways.external": ""})
+    with pytest.raises(ConfigError, match="gateways.external is required"):
+        _load_raw(raw)
+
+
+def test_errors_omit_default_factory_noise():
+    raw = config_from("public.toml", **{"network.vlan_tag": "5000"})
+    with pytest.raises(ConfigError) as excinfo:
+        _load_raw(raw)
+    assert str(excinfo.value) == "network: vlan_tag 5000 must be in the range 1-4094"
+
+
 def test_schematic_id_inherits_from_talos_section():
     raw = config_from("public.toml")
     cfg = _load_raw(raw)

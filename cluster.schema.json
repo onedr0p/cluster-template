@@ -133,17 +133,8 @@
           "type": "string"
         },
         "external": {
-          "anyOf": [
-            {
-              "format": "ipv4",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "External"
+          "$ref": "#/$defs/OptionalIPv4Address",
+          "default": null
         }
       },
       "required": ["internal", "dns"],
@@ -261,17 +252,8 @@
           "type": "string"
         },
         "schematic_id": {
-          "anyOf": [
-            {
-              "pattern": "^[a-z0-9]{64}$",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Schematic Id"
+          "$ref": "#/$defs/OptionalSchematicId",
+          "default": null
         },
         "mtu": {
           "default": 1500,
@@ -303,6 +285,35 @@
       "title": "Node",
       "type": "object"
     },
+    "OptionalIPv4Address": {
+      "anyOf": [
+        {
+          "format": "ipv4",
+          "type": "string"
+        },
+        {
+          "const": "",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "OptionalSchematicId": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SchematicId"
+        },
+        {
+          "const": "",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "Repository": {
       "additionalProperties": false,
       "properties": {
@@ -333,6 +344,10 @@
       "title": "Repository",
       "type": "object"
     },
+    "SchematicId": {
+      "pattern": "^[a-z0-9]{64}$",
+      "type": "string"
+    },
     "Spegel": {
       "additionalProperties": false,
       "properties": {
@@ -356,17 +371,8 @@
       "additionalProperties": false,
       "properties": {
         "schematic_id": {
-          "anyOf": [
-            {
-              "pattern": "^[a-z0-9]{64}$",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Schematic Id"
+          "$ref": "#/$defs/OptionalSchematicId",
+          "default": null
         }
       },
       "title": "Talos",
