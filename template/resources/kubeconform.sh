@@ -12,7 +12,7 @@ kubeconform_args=(
     "-strict"
     "-ignore-missing-schemas"
     "-skip"
-    "Gateway,HTTPRoute,Secret"
+    "Gateway,HTTPRoute,Secret,DNSEndpoint"
     "-schema-location"
     "default"
     "-schema-location"
