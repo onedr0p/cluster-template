@@ -46,6 +46,25 @@ INVALID_REASONS = {
     "tunnel-without-dns": r"ingress\.mode 'cloudflare-tunnel' requires dns\.provider 'cloudflare'",
 }
 
+# Rejections expressed as one override on a valid fixture:
+# (fixture, dotted key, value, expected error).
+REJECTIONS = {
+    "invalid-cidr": ("private.toml", "network.node_cidr", "10.10.10.0/33", r"'10\.10\.10\.0/33' is not a valid IPv4 CIDR"),
+    "default-gateway-outside-node-cidr": ("private.toml", "network.default_gateway", "10.10.11.1", r"default_gateway 10\.10\.11\.1 is not inside node_cidr 10\.10\.10\.0/24"),
+    "api-addr-outside-node-cidr": ("private.toml", "kubernetes.api.addr", "10.10.11.254", r"kubernetes\.api\.addr 10\.10\.11\.254 is not inside node_cidr 10\.10\.10\.0/24"),
+    "pod-svc-cidr-overlap": ("private.toml", "kubernetes.svc_cidr", "10.42.0.0/16", r"kubernetes\.pod_cidr 10\.42\.0\.0/16 overlaps kubernetes\.svc_cidr 10\.42\.0\.0/16"),
+    "token-without-dns-provider": ("internal.toml", "dns.token", "fake", r"token must be empty when dns\.provider is 'none'"),
+    "non-decimal-asn": ("public.toml", "cilium.bgp.node_asn", "AS64514", r"'AS64514' must be a decimal ASN"),
+    "bad-domain-name": ("private.toml", "domain.name", "Example.com", r"domain\.name: String should match pattern"),
+    "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: String should match pattern"),
+    "bad-node-name": ("private.toml", "nodes.0.name", "k8s-0-", r"nodes\.0\.name: String should match pattern"),
+    "mtu-too-small": ("private.toml", "nodes.0.mtu", 1449, r"nodes\.0\.mtu: Input should be greater than or equal to 1450"),
+    "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
+    "bad-schematic-id": ("private.toml", "nodes.0.schematic_id", "376567", r"nodes\.0\.schematic_id: String should match pattern"),
+    "duplicate-mac-address": ("private.toml", "nodes.1.mac_addr", "00:00:00:00:00:00", r"duplicate node MAC address '00:00:00:00:00:00' on nodes\[0\] and nodes\[1\]"),
+    "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
+}
+
 
 def config_from(fixture: str, **overrides) -> dict:
     raw = tomllib.loads((REPO_ROOT / ".github/template-tests/valid" / fixture).read_text())
@@ -53,7 +72,7 @@ def config_from(fixture: str, **overrides) -> dict:
         target = raw
         *parents, leaf = dotted.split(".")
         for key in parents:
-            target = target.setdefault(key, {})
+            target = target[int(key)] if isinstance(target, list) else target.setdefault(key, {})
         if value is None:
             target.pop(leaf, None)
         else:
@@ -81,6 +100,25 @@ def _load_raw(raw: dict) -> Config:
         return Config.model_validate(raw)
     except ValidationError as e:
         raise ConfigError(format_errors(e)) from None
+
+
+@pytest.mark.parametrize(("fixture", "key", "value", "reason"), REJECTIONS.values(), ids=REJECTIONS.keys())
+def test_override_rejected(fixture: str, key: str, value, reason: str):
+    _load_raw(config_from(fixture))
+    with pytest.raises(ConfigError, match=reason):
+        _load_raw(config_from(fixture, **{key: value}))
+
+
+def test_ssh_port_on_bundled_host_needs_no_known_hosts():
+    raw = config_from("private.toml", **{"repository.url": "ssh://git@github.com:22/onedr0p/cluster-template.git"})
+    assert _load_raw(raw).repository.known_hosts == ""
+
+
+def test_cluster_issuer_follows_dns_provider():
+    public = _load_raw(config_from("public.toml")).model_dump(mode="json")
+    assert public["cluster_issuer"] == "letsencrypt-production"
+    internal = _load_raw(config_from("internal.toml")).model_dump(mode="json")
+    assert internal["cluster_issuer"] == "internal-ca"
 
 
 def test_default_gateway_derived_from_node_cidr():

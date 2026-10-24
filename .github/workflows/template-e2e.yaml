@@ -71,8 +71,10 @@ jobs:
         run: just init
 
       - name: Prepare files
+        env:
+          FIXTURE: ${{ matrix.fixture }}
         run: |
-          cp ./.github/template-tests/valid/${{ matrix.fixture }}.toml cluster.toml
+          cp "./.github/template-tests/valid/$FIXTURE.toml" cluster.toml
           echo '{"AccountTag":"fake","TunnelSecret":"fake","TunnelID":"fake"}' > cloudflare-tunnel.json
           touch kubeconfig
 
