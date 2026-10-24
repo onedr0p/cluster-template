@@ -85,11 +85,11 @@ jobs:
         run: mise run configure
 
       # tasks validate only sees the current project and the root, so it runs
-      # once per monorepo project.
+      # once per monorepo project (the same top-level glob as config_roots).
       - name: Validate mise tasks
         run: |
-          for project in bootstrap kubernetes talos template; do
-            (cd "$project" && mise tasks validate)
+          for config in */mise.toml; do
+            mise -C "${config%/mise.toml}" tasks validate
           done
 
       # Rendered output must already match the format-yaml pre-commit hook,

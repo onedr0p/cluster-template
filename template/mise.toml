@@ -6,9 +6,9 @@ dir = "{{ config_root }}/.."
 [tasks.configure]
 description = "Render and validate configuration files"
 run = [
-  { task = ":render" },
+  "PYTHONDONTWRITEBYTECODE=1 uv run --locked --no-dev makejinja",
   { task = ":encrypt-secrets" },
-  { task = ":validate-kubernetes" },
+  "bash template/resources/kubeconform.sh kubernetes",
   { task = ":validate-talos" },
 ]
 
@@ -35,12 +35,34 @@ description = "Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yam
 confirm = { message = "Remove all templated files and directories?", default = "no" }
 run = "rm -rf bootstrap kubernetes talos .sops.yaml"
 
-# tidy-archive moves template/ (this file's directory) away, so it must be
-# the last step.
+# Moving template/ (this file's directory) mid-run is safe: bash has already
+# read the script.
 [tasks.tidy]
 description = "Archive all template tooling under .private/<ts>/ (one-way, run after configure works)"
 confirm = { message = "All template related config will be archived, continue?", default = "no" }
-run = [{ task = ":tidy-preconditions" }, { task = ":tidy-archive" }]
+run = '''
+archive=(
+    template
+    makejinja.toml
+    .mise/conf.d/template.toml
+    cluster.schema.json
+    cluster.toml
+    cluster.sample.toml
+    pyproject.toml
+    uv.lock
+)
+for path in "${archive[@]}"; do
+    test -e "$path"
+done
+test -d .github/template-tests
+compgen -G ".github/workflows/template-*.yaml" > /dev/null
+dest=".private/$(date +%s)"
+mkdir -p "$dest"
+rm -rf .github/template-tests .github/workflows/template-*.yaml
+mv "${archive[@]}" "$dest/"
+rmdir .mise/conf.d 2>/dev/null || true
+rm -rf .venv
+'''
 
 [tasks.encrypt-secrets]
 hide = true
@@ -48,54 +70,14 @@ run = '''
 find bootstrap kubernetes talos -type f -name '*.sops.*' -print0 \
     | while IFS= read -r -d '' f; do
         if ! status="$(sops filestatus "$f" | jq -r '.encrypted')"; then
-            mise run //:log fatal "could not read encryption status" file "$f"
+            {{ vars.log }} fatal "could not read encryption status" file "$f"
         fi
         case "$status" in
             false) sops encrypt --in-place "$f" ;;
             true)  : ;;
-            *)     mise run //:log fatal "could not determine encryption status" file "$f" ;;
+            *)     {{ vars.log }} fatal "could not determine encryption status" file "$f" ;;
         esac
     done
-'''
-
-[tasks.render]
-hide = true
-env = { PYTHONDONTWRITEBYTECODE = "1" }
-run = "uv run --locked --no-dev makejinja"
-
-[tasks.tidy-archive]
-hide = true
-run = '''
-TIDY_FOLDER=".private/$(date +%s)"
-mkdir -p "$TIDY_FOLDER"
-rm -rf .github/template-tests .github/workflows/template-*.yaml
-mv \
-    template \
-    makejinja.toml \
-    .mise/conf.d/template.toml \
-    cluster.schema.json \
-    cluster.toml \
-    cluster.sample.toml \
-    pyproject.toml \
-    uv.lock \
-    "$TIDY_FOLDER/"
-rmdir .mise/conf.d 2>/dev/null || true
-rm -rf .venv
-'''
-
-[tasks.tidy-preconditions]
-hide = true
-run = '''
-test -d template
-test -d .github/template-tests
-test -f makejinja.toml
-test -f cluster.toml
-test -f cluster.sample.toml
-test -f pyproject.toml
-test -f uv.lock
-test -f .mise/conf.d/template.toml
-test -f cluster.schema.json
-compgen -G ".github/workflows/template-*.yaml" > /dev/null
 '''
 
 # Renders every bootstrap chart with the rendered values, catching chart or
@@ -104,12 +86,8 @@ compgen -G ".github/workflows/template-*.yaml" > /dev/null
 description = "Render the bootstrap helmfile charts against the rendered values"
 run = '''
 helmfile --file bootstrap/helmfile/apps.yaml template --quiet > /dev/null
-mise run //:log info "bootstrap charts rendered cleanly"
+{{ vars.log }} info "bootstrap charts rendered cleanly"
 '''
-
-[tasks.validate-kubernetes]
-hide = true
-run = "bash template/resources/kubeconform.sh kubernetes"
 
 # Rendering needs the secrets bundle; topf generates and sops-encrypts one
 # on first run (--confirm=false so it never prompts mid-pipeline).
@@ -119,6 +97,6 @@ dir = "{{ config_root }}/../talos"
 run = '''
 topf render --confirm=false --output "$(mktemp -d)" >/dev/null
 if ! sops filestatus secrets.sops.yaml | jq --exit-status '.encrypted == true' >/dev/null; then
-    mise run //:log fatal "Talos secrets bundle is not encrypted"
+    {{ vars.log }} fatal "Talos secrets bundle is not encrypted"
 fi
 '''
