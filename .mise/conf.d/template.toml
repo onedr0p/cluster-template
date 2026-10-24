@@ -1,5 +1,63 @@
-# Tools only the template step needs; `just template tidy` archives this file.
+# Tools and tasks only the template step needs; `mise run //template:tidy`
+# archives this file.
 [tools]
 uv = "0.13.5"
-sd = "1.1.0"
 taplo = "0.10.0"
+
+[tasks.configure]
+description = "Render and validate configuration files"
+run = [{ task = "//template:configure" }]
+
+[tasks.init]
+description = "Initialize configuration files (cluster.toml, age key, deploy key, webhook token)"
+run = [{ task = "//template:init" }]
+
+# `mise doctor project` runs these from the repository root.
+[doctor.checks.cluster-toml]
+description = "cluster.toml exists"
+run = "test -f cluster.toml"
+hint = "Run `mise run init`, then fill out cluster.toml."
+
+[doctor.checks.cluster-sample-toml]
+description = "cluster.sample.toml exists"
+run = "test -f cluster.sample.toml"
+hint = "Restore it with `git checkout -- cluster.sample.toml`."
+
+[doctor.checks.age-key]
+description = "The SOPS age key exists"
+run = 'test -f "$SOPS_AGE_KEY_FILE"'
+hint = "Run `mise run init`."
+
+[doctor.checks.deploy-key]
+description = "deploy.key exists"
+run = "test -f deploy.key"
+hint = "Run `mise run init`."
+
+[doctor.checks.flux-webhook-token]
+description = "flux-webhook-token.txt exists"
+run = "test -f flux-webhook-token.txt"
+hint = "Run `mise run init`."
+
+[doctor.checks.template-files]
+description = "template/, makejinja.toml and the validator are present"
+run = "test -d template && test -f makejinja.toml && test -f template/scripts/validate.py"
+hint = "Restore them with `git checkout -- template makejinja.toml`."
+
+# The first uv run creates the virtualenv, which can outlast the default 10s.
+[doctor.checks.cluster-toml-valid]
+description = "cluster.toml validates against the schema"
+depends = ["cluster-toml", "template-files"]
+run = "uv run --quiet --locked --no-dev template/scripts/validate.py cluster.toml > /dev/null"
+hint = "Run `uv run --locked --no-dev template/scripts/validate.py cluster.toml` to see the errors."
+timeout = "2m"
+
+[doctor.checks.cloudflare-tunnel-json]
+description = "cloudflare-tunnel.json exists when ingress.mode is cloudflare-tunnel"
+depends = ["cluster-toml-valid"]
+shell = "bash -euo pipefail -c"
+run = '''
+mode="$(uv run --quiet --locked --no-dev template/scripts/validate.py cluster.toml | jq -r .ingress.mode)"
+[ "$mode" != cloudflare-tunnel ] || test -f cloudflare-tunnel.json
+'''
+hint = "Create the tunnel as described in the README, or set another ingress.mode in cluster.toml."
+timeout = "2m"

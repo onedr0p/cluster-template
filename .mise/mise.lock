@@ -239,31 +239,6 @@ url = "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-macos-amd64"
 url_api = "https://api.github.com/repos/jqlang/jq/releases/assets/453012782"
 provenance = "github-attestations"
 
-[[tools.just]]
-version = "1.59.0"
-backend = "aqua:casey/just"
-specifiers = ["1.59.0"]
-
-[tools.just."platforms.linux-arm64"]
-checksum = "sha256:23871b1702bfd550fb5f901778fd4290ecf2ee034a45a889fbe96d89b188086d"
-url = "https://github.com/casey/just/releases/download/1.59.0/just-1.59.0-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/casey/just/releases/assets/642950086"
-
-[tools.just."platforms.linux-x64"]
-checksum = "sha256:409044617b6f06517c1035e55ca38c8c856ff8b650e41bc2aa1ef82d5903a23e"
-url = "https://github.com/casey/just/releases/download/1.59.0/just-1.59.0-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/casey/just/releases/assets/642949555"
-
-[tools.just."platforms.macos-arm64"]
-checksum = "sha256:6574cea774ed4cae12e24b6aa11857de33e80dab4667cf628fd5840df96a2a9d"
-url = "https://github.com/casey/just/releases/download/1.59.0/just-1.59.0-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/casey/just/releases/assets/643129724"
-
-[tools.just."platforms.macos-x64"]
-checksum = "sha256:036ead9df9bc31dbae9934ae3b4236ed124d0bafcffd33439460ae084d5c9cb7"
-url = "https://github.com/casey/just/releases/download/1.59.0/just-1.59.0-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/casey/just/releases/assets/643131819"
-
 [[tools.kubeconform]]
 version = "0.8.0"
 backend = "aqua:yannh/kubeconform"
@@ -390,31 +365,6 @@ version = "0.74.0"
 aube = { path = "locks/oxfmt/0.74.0", digest = "sha256:b7977a181c0e11736ab44f83b24a4b862754204c253477e29d1758b0f898aad7" }
 backend = "npm:oxfmt"
 specifiers = ["0.74.0"]
-
-[[tools.sd]]
-version = "1.1.0"
-backend = "aqua:chmln/sd"
-specifiers = ["1.1.0"]
-
-[tools.sd."platforms.linux-arm64"]
-checksum = "sha256:ec8c93c0533ff21f4851d11566808d4082544baf063d9b96ea77c27e98b7cd99"
-url = "https://github.com/chmln/sd/releases/download/v1.1.0/sd-v1.1.0-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/chmln/sd/releases/assets/362325535"
-
-[tools.sd."platforms.linux-x64"]
-checksum = "sha256:3613eca74cd686739bb5a6d68319aa56c747e7315274d02323a2ca2b1c5d82d2"
-url = "https://github.com/chmln/sd/releases/download/v1.1.0/sd-v1.1.0-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/chmln/sd/releases/assets/362325296"
-
-[tools.sd."platforms.macos-arm64"]
-checksum = "sha256:4bd3c09226376ca0a1d69589c91e86276fae36c5fbaaee669afce583f6682030"
-url = "https://github.com/chmln/sd/releases/download/v1.1.0/sd-v1.1.0-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/chmln/sd/releases/assets/362325451"
-
-[tools.sd."platforms.macos-x64"]
-checksum = "sha256:1fca1e9c91813a8aac6821063c923107ba0f66a83309e095edcd3b202f67f97e"
-url = "https://github.com/chmln/sd/releases/download/v1.1.0/sd-v1.1.0-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/chmln/sd/releases/assets/362325430"
 
 [[tools.shellcheck]]
 version = "0.11.0"

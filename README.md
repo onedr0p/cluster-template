@@ -13,7 +13,7 @@ A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/t
 
 **Other features include:**
 
-- Dev env managed w/ [mise](https://mise.jdx.dev/)
+- Dev env and tasks managed w/ [mise](https://mise.jdx.dev/)
 - Workflow automation w/ [GitHub Actions](https://github.com/features/actions)
 - Dependency automation w/ [Renovate](https://www.mend.io/renovate)
 - Flux `HelmRelease` and `Kustomization` diffs w/ [flate](https://github.com/home-operations/flate)
@@ -123,15 +123,17 @@ These guidelines are a baseline, not a guarantee: **test and benchmark** your ha
 1. Generate the config files from the sample files:
 
     ```sh
-    just init
+    mise run init
     ```
 
 2. Fill out the `cluster.toml` configuration file using the comments in it as a guide. Editors with TOML schema support (VS Code's Even Better TOML, taplo in Neovim) pick up the `#:schema` directive at the top of the file and provide completion and inline validation.
 
 3. Template out the kubernetes and talos configuration files, if any issues come up be sure to read the error and adjust your config files accordingly.
 
+    📍 _Run `mise doctor project` to check that every file the template needs is in place._
+
     ```sh
-    just configure
+    mise run configure
     ```
 
 4. Push your changes to git:
@@ -155,13 +157,13 @@ These guidelines are a baseline, not a guarantee: **test and benchmark** your ha
 1. Install Talos:
 
     ```sh
-    just bootstrap talos
+    mise run //bootstrap:talos
     ```
 
 2. Install cilium, coredns, spegel (multi-node clusters), cert-manager, flux and sync the cluster to the repository state:
 
     ```sh
-    just bootstrap apps
+    mise run //bootstrap:apps
     ```
 
 3. Watch the rollout of your cluster happen:
@@ -182,7 +184,7 @@ These guidelines are a baseline, not a guarantee: **test and benchmark** your ha
 
 2. Check the status of Flux and if the Flux resources are up-to-date and in a ready state:
 
-    📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
+    📍 _Run `mise run //kubernetes:reconcile` to force Flux to sync your Git repository state_
 
     ```sh
     flux check
@@ -267,12 +269,12 @@ The base Renovate configuration in your repository can be viewed at [.renovaterc
 
 ### 🧹 Tidy up
 
-Once your cluster is fully configured and you no longer need to run `just configure`, it's a good idea to clean up the repository by archiving the [template](./template) directory and any files related to the templating process under `.private/` (gitignored). This will help eliminate unnecessary clutter from the upstream template repository and resolve any "duplicate registry" warnings from Renovate.
+Once your cluster is fully configured and you no longer need to run `mise run configure`, it's a good idea to clean up the repository by archiving the [template](./template) directory and any files related to the templating process under `.private/` (gitignored). This will help eliminate unnecessary clutter from the upstream template repository and resolve any "duplicate registry" warnings from Renovate.
 
 1. Tidy up your repository:
 
     ```sh
-    just template tidy
+    mise run //template:tidy
     ```
 
 2. Push your changes to git:
@@ -285,6 +287,8 @@ Once your cluster is fully configured and you no longer need to run `just config
 
 ## 🛠️ Talos and Kubernetes Maintenance
 
+📍 _Run `mise tasks --all` to list every task, including the `//bootstrap`, `//kubernetes` and `//talos` ones._
+
 ### ⚙️ Updating Talos node configuration
 
 > [!TIP]
@@ -292,10 +296,10 @@ Once your cluster is fully configured and you no longer need to run `just config
 
 ```sh
 # Preview the rendered machine configs (optional)
-just talos render
+mise run //talos:render
 # Apply the config to the node
-just talos apply-node <node>
-# e.g. just talos apply-node k8s-0
+mise run //talos:apply-node <node>
+# e.g. mise run //talos:apply-node k8s-0
 ```
 
 ### ⬆️ Updating Talos and Kubernetes versions
@@ -305,13 +309,13 @@ just talos apply-node <node>
 
 ```sh
 # Upgrade talos on a node
-just talos upgrade-node <node>
-# e.g. just talos upgrade-node k8s-0
+mise run //talos:upgrade-node <node>
+# e.g. mise run //talos:upgrade-node k8s-0
 ```
 
 ```sh
 # Upgrade cluster to a newer Kubernetes version
-just talos upgrade-k8s
+mise run //talos:upgrade-k8s
 ```
 
 ### ➕ Adding a node to your cluster
@@ -335,11 +339,11 @@ You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
 
     ```sh
     # Preview the rendered machine configs (optional)
-    just talos render
+    mise run //talos:render
 
     # Apply the configuration to the node
-    just talos apply-node <node>
-    # e.g. just talos apply-node k8s-3
+    mise run //talos:apply-node <node>
+    # e.g. mise run //talos:apply-node k8s-3
     ```
 
 The node should join the cluster automatically and workloads will be scheduled once they report as ready.
@@ -352,7 +356,7 @@ The node should join the cluster automatically and workloads will be scheduled o
 There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode.
 
 ```sh
-just talos reset
+mise run //talos:reset
 ```
 
 ## 🐛 Debugging
@@ -361,7 +365,7 @@ Below is a general guide on trying to debug an issue with a resource or applicat
 
 1. Check if the Flux resources are up-to-date and in a ready state:
 
-    📍 _Run `just kube reconcile` to force Flux to sync your Git repository state_
+    📍 _Run `mise run //kubernetes:reconcile` to force Flux to sync your Git repository state_
 
     ```sh
     flux get sources git -A

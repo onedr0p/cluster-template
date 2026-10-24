@@ -1,0 +1,3 @@
+[tasks.reconcile]
+description = "Force Flux to pull in changes from your Git repository"
+run = "flux --namespace flux-system reconcile kustomization flux-system --with-source"
