@@ -26,7 +26,7 @@ TALOSCTL="$(command -v talosctl)"
 SCHEMATIC="376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
 # Keep in sync with the git service in template-e2e-cluster.yaml.
 # renovate: datasource=docker depName=ghcr.io/charmbracelet/soft-serve
-SOFT_SERVE_VERSION="v0.12.2"
+SOFT_SERVE_VERSION="v0.12.4"
 
 if [ -n "${E2E_CONTROLPLANE_IPS:-}" ]; then
     PROVISIONED=true
