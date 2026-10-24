@@ -1,5 +1,5 @@
 # Negative fixture: malformed MAC address (uppercase + missing colons).
-# Expected to be rejected by the #Node.mac_addr regex constraint.
+# Expected to be rejected by the Node.mac_addr pattern.
 [network]
 node_cidr = "10.10.10.0/24"
 

@@ -1,6 +1,6 @@
 # Negative fixture: node_cidr written with host bits set instead of the
 # network address.
-# Expected to be rejected by _cidr_canonical_check.
+# Expected to be rejected by the Cidr validator (_network).
 [network]
 node_cidr = "10.10.10.5/24"
 

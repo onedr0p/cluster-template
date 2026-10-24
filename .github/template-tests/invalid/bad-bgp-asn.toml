@@ -1,5 +1,5 @@
 # Negative fixture: BGP router ASN above the 32-bit ASN range.
-# Expected to be rejected by _router_asn_in_range.
+# Expected to be rejected by the Asn validator (_asn).
 [network]
 node_cidr = "10.10.10.0/24"
 
