@@ -32,29 +32,29 @@ url_api = "https://api.github.com/repos/FiloSottile/age/releases/assets/53554188
 provenance = "github-attestations"
 
 [[tools.cloudflared]]
-version = "2026.10.2"
+version = "2026.10.3"
 backend = "aqua:cloudflare/cloudflared"
-specifiers = ["2026.10.2"]
+specifiers = ["2026.10.3"]
 
 [tools.cloudflared."platforms.linux-arm64"]
-checksum = "sha256:b7e55b4d9702c2ab5f8348f780bb1db044527fc555367714c78e0595750a4665"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.2/cloudflared-linux-arm64"
-url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/658836994"
+checksum = "sha256:89297ebfb9e8c99c0dc013a1140601453cf3798d8306c5591651f4a3f5210be8"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-linux-arm64"
+url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/662571615"
 
 [tools.cloudflared."platforms.linux-x64"]
-checksum = "sha256:35fbdd2beb378436c7da377d7358cea8e33f9c94a6705d1d8036bf9b0d6d8005"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.2/cloudflared-linux-amd64"
-url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/658836528"
+checksum = "sha256:053b80b0a23031a038fdbf3c073f59f82b8f1f152aa67971d7383ffafc0dbab0"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-linux-amd64"
+url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/662570969"
 
 [tools.cloudflared."platforms.macos-arm64"]
-checksum = "sha256:529a07089ac2d46762578389230fa148e5cb6ce2689200fc006956864042d17a"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.2/cloudflared-darwin-arm64.tgz"
-url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/658837930"
+checksum = "sha256:1165d14b6f6360a3b8c283d7d1100024d6ec7cd9bc9e32519e96150645f3ec55"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-darwin-arm64.tgz"
+url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/662573250"
 
 [tools.cloudflared."platforms.macos-x64"]
-checksum = "sha256:b64efd5a2772fc124b855f60eb3d33ba1a4f2ba67b19ddc58d32b705d42b82c9"
-url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.2/cloudflared-darwin-amd64.tgz"
-url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/658837724"
+checksum = "sha256:81b7b85f2376815c4f59b1aa323887b62e16ce8b67555c2e1577dc23f2a82000"
+url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.3/cloudflared-darwin-amd64.tgz"
+url_api = "https://api.github.com/repos/cloudflare/cloudflared/releases/assets/662572905"
 
 [[tools.flux2]]
 version = "2.9.6"
@@ -82,58 +82,58 @@ url = "https://github.com/fluxcd/flux2/releases/download/v2.9.6/flux_2.9.6_darwi
 url_api = "https://api.github.com/repos/fluxcd/flux2/releases/assets/602941249"
 
 [[tools.gh]]
-version = "2.102.1"
+version = "2.103.2"
 backend = "aqua:cli/cli"
-specifiers = ["2.102.1"]
+specifiers = ["2.103.2"]
 
 [tools.gh."platforms.linux-arm64"]
-checksum = "sha256:5019b3cc6e8a03bb4d88600f8dbda2add8e6407705c159b0c63151036e77a1af"
-url = "https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/660284837"
+checksum = "sha256:4c3e99a50bd8b181a3fe9d69b25dd978bac768148d88f01507c6b4d1ef61a443"
+url = "https://github.com/cli/cli/releases/download/v2.103.2/gh_2.103.2_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/cli/cli/releases/assets/670305069"
 provenance = "github-attestations"
 
 [tools.gh."platforms.linux-x64"]
-checksum = "sha256:77b9e297e94c50336823d0f84de7ef1be60cba704601fa0d98f129f47a94987b"
-url = "https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/660284822"
+checksum = "sha256:62ccf747115ddc61237efffdde66a3c8f70ba249433dc64f70801089b59c59c8"
+url = "https://github.com/cli/cli/releases/download/v2.103.2/gh_2.103.2_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/cli/cli/releases/assets/670305062"
 provenance = "github-attestations"
 
 [tools.gh."platforms.macos-arm64"]
-checksum = "sha256:08bfef98b50c553df122bb34ee8dcf415cae7d3b108891488964a0df07aa2aeb"
-url = "https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_macOS_arm64.zip"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/660284918"
+checksum = "sha256:5416000f5d17580a187339e0c4068a01ca5c87f7d4fe6ca64933696f967bc418"
+url = "https://github.com/cli/cli/releases/download/v2.103.2/gh_2.103.2_macOS_arm64.zip"
+url_api = "https://api.github.com/repos/cli/cli/releases/assets/670305145"
 provenance = "github-attestations"
 
 [tools.gh."platforms.macos-x64"]
-checksum = "sha256:91c5fbd493274b545b03ef32a89c2a21238393c0c0b1108210967199b3230d9d"
-url = "https://github.com/cli/cli/releases/download/v2.102.1/gh_2.102.1_macOS_amd64.zip"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/660284911"
+checksum = "sha256:2dc7f1fc4761f96732995f6e4f4c6b4d705f2635da4126620c8b30eaa67b9c98"
+url = "https://github.com/cli/cli/releases/download/v2.103.2/gh_2.103.2_macOS_amd64.zip"
+url_api = "https://api.github.com/repos/cli/cli/releases/assets/670305131"
 provenance = "github-attestations"
 
 [[tools."github:postfinance/topf"]]
-version = "0.6.1"
+version = "0.6.2"
 backend = "github:postfinance/topf"
-specifiers = ["v0.6.1"]
+specifiers = ["v0.6.2"]
 
 [tools."github:postfinance/topf"."platforms.linux-arm64"]
-checksum = "sha256:5e7098153ca06ad5577b4f5d5cd380b1de7d7b65505bd8aa160c9181a2b101c5"
-url = "https://github.com/postfinance/topf/releases/download/v0.6.1/topf_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/597558298"
+checksum = "sha256:8f528bd90fc3d173a0a10609dbc1a5001ae002f44fd75c214b5e760aff3f0514"
+url = "https://github.com/postfinance/topf/releases/download/v0.6.2/topf_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/668624296"
 
 [tools."github:postfinance/topf"."platforms.linux-x64"]
-checksum = "sha256:6f399e527cb8588b02d7d28eae9a61c49680f4cd5e82d98be7a5c5001c80d341"
-url = "https://github.com/postfinance/topf/releases/download/v0.6.1/topf_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/597558300"
+checksum = "sha256:793dc87c97a6545fd73db82c3558306644d9e6914010f2636d1470cf55272405"
+url = "https://github.com/postfinance/topf/releases/download/v0.6.2/topf_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/668624308"
 
 [tools."github:postfinance/topf"."platforms.macos-arm64"]
-checksum = "sha256:e7d894ad2b1303ee4e00ebcd5d3a057690497a31694d03c1f533ceaae348fc9d"
-url = "https://github.com/postfinance/topf/releases/download/v0.6.1/topf_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/597558301"
+checksum = "sha256:c263c13976eb88b37a2ae3a95b7b76493abf1630b819509b20d6b481acd9f8b7"
+url = "https://github.com/postfinance/topf/releases/download/v0.6.2/topf_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/668624305"
 
 [tools."github:postfinance/topf"."platforms.macos-x64"]
-checksum = "sha256:cc15ef60d1d6ec852285fac64f3cac4fed18e6ffd59c996dd403d38ac8872233"
-url = "https://github.com/postfinance/topf/releases/download/v0.6.1/topf_darwin_amd64.tar.gz"
-url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/597558295"
+checksum = "sha256:19370b0e94518d54d42d988be7831fd6f5d10067e3484042a742abe4402a88a9"
+url = "https://github.com/postfinance/topf/releases/download/v0.6.2/topf_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/postfinance/topf/releases/assets/668624311"
 
 [[tools.gum]]
 version = "2.0.2"
@@ -504,32 +504,32 @@ url = "https://github.com/tamasfe/taplo/releases/download/0.10.0/taplo-darwin-x8
 url_api = "https://api.github.com/repos/tamasfe/taplo/releases/assets/257323116"
 
 [[tools.uv]]
-version = "0.13.4"
+version = "0.13.5"
 backend = "aqua:astral-sh/uv"
-specifiers = ["0.13.4"]
+specifiers = ["0.13.5"]
 
 [tools.uv."platforms.linux-arm64"]
-checksum = "sha256:1ae72b4718729e2ccc4f1ae2c6d1e531ca8467800e0546e9130b3886023a60ab"
-url = "https://github.com/astral-sh/uv/releases/download/0.13.4/uv-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/659693320"
+checksum = "sha256:4bb69cf95ed13f23713bb7bc09f241896ea0c75b7c557e615a20604b82f9c403"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.5/uv-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/664335837"
 provenance = "github-attestations"
 
 [tools.uv."platforms.linux-x64"]
-checksum = "sha256:2b428396f12572d4429cf210ca234dd599a33b3af0958a4d5ed569d63e3f344f"
-url = "https://github.com/astral-sh/uv/releases/download/0.13.4/uv-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/659693663"
+checksum = "sha256:f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.5/uv-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/664336023"
 provenance = "github-attestations"
 
 [tools.uv."platforms.macos-arm64"]
-checksum = "sha256:e0b1d4743ce64c55d9f0f4a444afa6b81125680070ee04e853fcd0f6c1ebf8f1"
-url = "https://github.com/astral-sh/uv/releases/download/0.13.4/uv-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/659693291"
+checksum = "sha256:743f85035a1996ecb350659e01cd9faea9709829be09b1b4b03c73eaf3c9cd73"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.5/uv-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/664335803"
 provenance = "github-attestations"
 
 [tools.uv."platforms.macos-x64"]
-checksum = "sha256:7be2dcd316122f4b3e5a0a7889f6248266c14425374e105ff7dc9779184603a6"
-url = "https://github.com/astral-sh/uv/releases/download/0.13.4/uv-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/659693620"
+checksum = "sha256:b0f52b0e3945b4107d89024ea38e625683011fbfc05a0d98f9fa2d6dcee28c66"
+url = "https://github.com/astral-sh/uv/releases/download/0.13.5/uv-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/astral-sh/uv/releases/assets/664335993"
 provenance = "github-attestations"
 
 [[tools.yq]]
