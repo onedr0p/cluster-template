@@ -21,6 +21,31 @@ REPO_ROOT = Path(__file__).parents[2]
 VALID = sorted((REPO_ROOT / ".github/template-tests/valid").glob("*.toml"))
 INVALID = sorted((REPO_ROOT / ".github/template-tests/invalid").glob("*.toml"))
 
+# The error each invalid fixture must be rejected with; a fixture rejected for
+# any other reason is not testing what its header says it tests.
+INVALID_REASONS = {
+    "bad-bgp-asn": r"router_asn: '4294967296' must be in the range 1-4294967295",
+    "bad-mac-address": r"nodes\.0\.mac_addr: String should match pattern",
+    "bad-repo-url": r"repository\.url: String should match pattern",
+    "bad-vlan-tag": r"vlan_tag 5000 must be in the range 1-4094",
+    "duplicate-gateway-addrs": r"used by both gateways\.internal and gateways\.dns",
+    "duplicate-node-names": r"duplicate node name 'k8s-0' on nodes\[0\] and nodes\[1\]",
+    "gateway-node-collision": r"used by both gateways\.internal and nodes\[0\]\.address",
+    "missing-dns-token": r"token is required when dns\.provider is 'cloudflare'",
+    "missing-external-gateway": r"gateways\.external is required when ingress\.mode is 'cloudflare-tunnel'",
+    "missing-known-hosts": r"known_hosts is required for ssh:// URLs to 'git\.example\.com'",
+    "missing-schematic": r"nodes\[0\]\.schematic_id is required",
+    "nested-cidr-overlap": r"node_cidr 10\.42\.128\.0/17 overlaps kubernetes\.pod_cidr 10\.42\.0\.0/16",
+    "node-addr-outside-cidr": r"nodes\[0\]\.address 192\.168\.1\.100 is not inside node_cidr",
+    "node-uses-gateway-addr": r"used by both network\.default_gateway and nodes\[0\]\.address",
+    "non-canonical-cidr": r"has host bits set; did you mean 10\.10\.10\.0/24",
+    "overlapping-cidrs": r"node_cidr 10\.42\.0\.0/16 overlaps kubernetes\.pod_cidr 10\.42\.0\.0/16",
+    "partial-bgp": r"partially configured: set router_addr, router_asn and node_asn together \(missing: node_asn\)",
+    "reserved-node-name": r"node name 'controller' is reserved",
+    "tiny-svc-cidr": r"coredns_addr 10\.43\.0\.10 is not inside svc_cidr 10\.43\.0\.0/29",
+    "tunnel-without-dns": r"ingress\.mode 'cloudflare-tunnel' requires dns\.provider 'cloudflare'",
+}
+
 
 def config_from(fixture: str, **overrides) -> dict:
     raw = tomllib.loads((REPO_ROOT / ".github/template-tests/valid" / fixture).read_text())
@@ -41,9 +66,13 @@ def test_valid_fixture_accepted(fixture: Path):
     load(str(fixture))
 
 
+def test_every_invalid_fixture_has_an_expected_reason():
+    assert sorted(INVALID_REASONS) == [p.stem for p in INVALID]
+
+
 @pytest.mark.parametrize("fixture", INVALID, ids=lambda p: p.stem)
 def test_invalid_fixture_rejected(fixture: Path):
-    with pytest.raises(ConfigError):
+    with pytest.raises(ConfigError, match=INVALID_REASONS[fixture.stem]):
         load(str(fixture))
 
 
@@ -52,19 +81,6 @@ def _load_raw(raw: dict) -> Config:
         return Config.model_validate(raw)
     except ValidationError as e:
         raise ConfigError(format_errors(e)) from None
-
-
-def test_host_bits_error_suggests_network_address():
-    raw = config_from("public.toml", **{"network.node_cidr": "10.10.10.5/24"})
-    with pytest.raises(ConfigError, match=r"did you mean 10\.10\.10\.0/24"):
-        _load_raw(raw)
-
-
-def test_duplicate_address_names_both_owners():
-    raw = config_from("public.toml")
-    raw["nodes"][0]["address"] = raw["gateways"]["internal"]
-    with pytest.raises(ConfigError, match=r"gateways\.internal and nodes\[0\]\.address"):
-        _load_raw(raw)
 
 
 def test_default_gateway_derived_from_node_cidr():
@@ -161,12 +177,6 @@ def test_schematic_id_inherits_from_talos_section():
     cfg = _load_raw(raw)
     assert cfg.nodes[0].schematic_id == cfg.talos.schematic_id
     assert cfg.nodes[1].schematic_id is not None
-
-
-def test_partial_bgp_rejected():
-    raw = config_from("private.toml", **{"cilium.bgp.router_addr": "10.10.1.1", "cilium.bgp.router_asn": "64513"})
-    with pytest.raises(ConfigError, match="partially configured"):
-        _load_raw(raw)
 
 
 def test_node_defaults_exported():

@@ -18,58 +18,6 @@ concurrency:
 permissions: {}
 
 jobs:
-  validate-invalid:
-    if: ${{ github.repository == 'onedr0p/cluster-template' }}
-    name: reject-invalid (${{ matrix.fixture }})
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        fixture:
-          - overlapping-cidrs
-          - nested-cidr-overlap
-          - non-canonical-cidr
-          - tiny-svc-cidr
-          - duplicate-gateway-addrs
-          - duplicate-node-names
-          - reserved-node-name
-          - bad-mac-address
-          - bad-repo-url
-          - missing-known-hosts
-          - node-addr-outside-cidr
-          - node-uses-gateway-addr
-          - gateway-node-collision
-          - bad-vlan-tag
-          - bad-bgp-asn
-          - missing-dns-token
-          - tunnel-without-dns
-          - missing-external-gateway
-          - missing-schematic
-          - partial-bgp
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Setup mise
-        uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Assert schema rejects ${{ matrix.fixture }}.toml
-        run: |
-          fixture=./.github/template-tests/invalid/${{ matrix.fixture }}.toml
-          if uv run --quiet --locked --no-dev ./template/scripts/validate.py "$fixture" >/dev/null 2>&1; then
-            echo "::error::schema accepted invalid fixture ${{ matrix.fixture }} (expected rejection)"
-            exit 1
-          fi
-          echo "schema correctly rejected ${{ matrix.fixture }}"
-          # Also surface the actual error message in the log for debuggability.
-          uv run --quiet --locked --no-dev ./template/scripts/validate.py "$fixture" || true
-
   validator-tests:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
     name: validator-tests
@@ -84,8 +32,8 @@ jobs:
 
       - name: Setup mise
         uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          install_args: uv
 
       - name: Run validator tests
         run: uv run --quiet --locked pytest ./template/scripts/test_validate.py
@@ -118,7 +66,6 @@ jobs:
         uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
         with:
           experimental: true
-          install_args: --locked
 
       - name: Run init recipe
         run: just init
