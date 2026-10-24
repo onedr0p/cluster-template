@@ -146,7 +146,7 @@ jobs:
           base: ""
 
       - name: Run flate test
-        run: flate test all -p ./kubernetes/flux/cluster
+        run: flate test all -p ./kubernetes/apps
 
       - name: Render bootstrap helmfile charts
         run: just template test-helmfile
