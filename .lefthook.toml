@@ -21,12 +21,6 @@ stage_fixed = true
 name = "lock-mise"
 run = 'mise lock && git add -A -- .mise ":(exclude).mise/*.toml"'
 
-# mise fmt only formats the configs in the directory it runs in.
-[pre-commit.commands.format-mise-tasks]
-glob = ["template/mise.toml", "template/config/*/mise.toml"]
-run = 'for f in {staged_files}; do mise -C "$(dirname "$f")" fmt; done'
-stage_fixed = true
-
 [pre-commit.commands.format-oxfmt]
 glob = ["*.json", "*.json5", "*.jsonc", "*.md", "*.markdown", "*.mdx", "*.yaml", "*.yml"]
 # mise lock sidecars are digest-pinned in mise.lock; reformatting them makes

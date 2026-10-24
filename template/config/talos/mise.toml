@@ -1,6 +1,6 @@
 # Day-2 apply/upgrade tasks rely on topf's built-in diff-and-confirm prompt,
 # so they are interactive; only the destructive reset tasks disable it in
-# favour of mise's own confirmation.
+# favour of mise's own confirmation. Node names complete from topf.yaml.
 
 [tasks.apply]
 description = "Apply Talos config to all nodes (shows a diff and asks first)"

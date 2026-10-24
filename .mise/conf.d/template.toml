@@ -40,7 +40,7 @@ hint = "Run `mise run init`."
 
 [doctor.checks.template-files]
 description = "template/, makejinja.toml and the validator are present"
-run = "test -f makejinja.toml && test -f template/scripts/validate.py"
+run = "test -d template && test -f makejinja.toml && test -f template/scripts/validate.py"
 hint = "Restore them with `git checkout -- template makejinja.toml`."
 
 # The first uv run creates the virtualenv, which can outlast the default 10s.
@@ -60,3 +60,4 @@ mode="$(uv run --quiet --locked --no-dev template/scripts/validate.py cluster.to
 [ "$mode" != cloudflare-tunnel ] || test -f cloudflare-tunnel.json
 '''
 hint = "Create the tunnel as described in the README, or set another ingress.mode in cluster.toml."
+timeout = "2m"
