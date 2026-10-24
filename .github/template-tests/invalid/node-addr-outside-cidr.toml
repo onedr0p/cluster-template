@@ -1,5 +1,5 @@
 # Negative fixture: node address is not inside network.node_cidr.
-# Expected to be rejected by _node_addrs_in_node_cidr.
+# Expected to be rejected by the node_cidr membership check in Config.check.
 [network]
 node_cidr = "10.10.10.0/24"
 

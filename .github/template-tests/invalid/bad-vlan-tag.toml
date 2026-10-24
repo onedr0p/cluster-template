@@ -1,5 +1,5 @@
 # Negative fixture: vlan_tag outside the valid 1-4094 range.
-# Expected to be rejected by _vlan_tag_in_range.
+# Expected to be rejected by Network.check.
 [network]
 node_cidr = "10.10.10.0/24"
 vlan_tag  = "5000"

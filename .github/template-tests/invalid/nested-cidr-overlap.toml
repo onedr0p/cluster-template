@@ -1,6 +1,6 @@
 # Negative fixture: node_cidr is nested inside the default pod_cidr
 # (10.42.0.0/16) without being string-equal to it.
-# Expected to be rejected by _cidr_overlap_check.
+# Expected to be rejected by the CIDR overlap check in Config.check.
 [network]
 node_cidr = "10.42.128.0/17"
 

@@ -1,5 +1,5 @@
 # Negative fixture: gateways.internal == gateways.dns.
-# Expected to be rejected by `_addrs_check` (list.UniqueItems).
+# Expected to be rejected by the address uniqueness check in Config.check.
 [network]
 node_cidr = "10.10.10.0/24"
 

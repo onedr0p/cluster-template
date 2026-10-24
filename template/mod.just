@@ -151,13 +151,11 @@ tidy-preconditions:
     test -f "{{ justfile_dir() }}/justfile"
     test -f "{{ mise_fragment }}"
     test -f "{{ schema_file }}"
-    test -f "{{ justfile_dir() }}/.renovaterc.json5"
     compgen -G "{{ justfile_dir() }}/.github/workflows/template-*.yaml" > /dev/null
 
 [private]
 tidy-strip:
-    sd '\..\.j2'                          '' "{{ justfile_dir() }}/.renovaterc.json5"
-    sd -A '(?ms)^# === template ===$.*'   '' "{{ justfile_dir() }}/justfile"
+    sd -A '(?ms)^# === template ===$.*' '' "{{ justfile_dir() }}/justfile"
 
 # Renders every bootstrap chart with the rendered values, catching chart or
 # values drift that dry runs cannot; needs network access to pull charts.

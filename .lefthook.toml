@@ -26,24 +26,20 @@ stage_fixed = true
 name = "lock-mise"
 run = 'mise lock && git add -A -- .mise ":(exclude).mise/*.toml"'
 
-[pre-commit.commands.format-json]
-glob = ["*.json", "*.json5", "*.jsonc"]
+[pre-commit.commands.format-oxfmt]
+glob = ["*.json", "*.json5", "*.jsonc", "*.md", "*.markdown", "*.mdx", "*.yaml", "*.yml"]
 # mise lock sidecars are digest-pinned in mise.lock; reformatting them makes
 # `mise install --locked` fail with a digest mismatch.
 exclude = [".mise/locks/**"]
-run = "oxfmt {staged_files}"
+# oxfmt exits non-zero when every path it was given is on its own ignore list
+# (e.g. a commit touching only .vscode/settings.json); told not to, it formats
+# nothing and exits zero.
+run = "oxfmt --no-error-on-unmatched-pattern {staged_files}"
 stage_fixed = true
 
-[pre-commit.commands.format-markdown]
-glob = ["*.md", "*.markdown", "*.mdx"]
-run = "oxfmt {staged_files}"
-stage_fixed = true
-
-[pre-commit.commands.format-yaml]
-glob = ["*.yaml", "*.yml"]
-exclude = [".mise/locks/**"]
-run = "oxfmt {staged_files}"
-stage_fixed = true
+[pre-commit.commands.shellcheck]
+glob = ["*.sh"]
+run = "shellcheck {staged_files}"
 
 [pre-commit.commands.zizmor]
 glob = [".github/workflows/*.yaml", ".github/actions/**/action.yaml"]

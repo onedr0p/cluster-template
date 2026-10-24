@@ -1,5 +1,5 @@
 # Negative fixture: two nodes with the same name.
-# Expected to be rejected by `_node_name_check` (list.UniqueItems).
+# Expected to be rejected by the duplicate node name check in Config.check.
 [network]
 node_cidr = "10.10.10.0/24"
 

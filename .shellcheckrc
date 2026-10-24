@@ -1,0 +1,2 @@
+# envsubst takes its variable list as a single-quoted '${VAR} ...' string on purpose.
+disable=SC2016

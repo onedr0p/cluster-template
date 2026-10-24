@@ -1,5 +1,5 @@
 # Negative fixture: a node name uses the reserved word "controller".
-# Expected to be rejected by the #Node.name regex constraint.
+# Expected to be rejected by Node.check.
 [network]
 node_cidr = "10.10.10.0/24"
 
