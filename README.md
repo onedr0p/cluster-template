@@ -15,7 +15,7 @@ With this approach, you'll gain a solid foundation to build and manage your Kube
 A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/talos) and an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) syncing from the Git provider of your choice (GitHub, GitLab, Gitea, Forgejo, Codeberg or self-hosted), [sops](https://github.com/getsops/sops) to manage secrets and [cloudflared](https://github.com/cloudflare/cloudflared) to access applications external to your local network.
 
 - **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://noyaml.com/), [Git](https://git-scm.com/), and a **domain**. Exposing apps to the public internet requires a **Cloudflare account**; internal-only clusters don't.
-- **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [envoy-gateway](https://github.com/envoyproxy/gateway), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
+- **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [coredns](https://github.com/coredns/coredns), [metrics-server](https://github.com/kubernetes-sigs/metrics-server), [k8s_gateway](https://github.com/k8s-gateway/k8s_gateway), [envoy-gateway](https://github.com/envoyproxy/gateway), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
 
 **Other features include:**
 
@@ -152,7 +152,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     ```
 
 > [!TIP]
-> Using a **private repository** (an `ssh://` URL in `cluster.toml`)? Make sure to paste the public key from `deploy.key.pub` into the deploy keys section of your repository settings (GitHub: `Settings/Deploy keys`, GitLab: `Settings/Repository/Deploy keys`, Gitea/Forgejo: `Settings/Deploy keys`). This will make sure Flux has read/write access to your repository.
+> Using a **private repository** (an `ssh://` URL in `cluster.toml`)? Make sure to paste the public key from `deploy.key.pub` into the deploy keys section of your repository settings (GitHub: `Settings/Deploy keys`, GitLab: `Settings/Repository/Deploy keys`, Gitea/Forgejo: `Settings/Deploy keys`). This gives Flux read access to your repository.
 
 ### Stage 6: Bootstrap Talos, Kubernetes, and Flux
 
@@ -165,7 +165,7 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     just bootstrap talos
     ```
 
-2. Install cilium, coredns, spegel, flux and sync the cluster to the repository state:
+2. Install cilium, coredns, spegel (multi-node clusters), cert-manager, flux and sync the cluster to the repository state:
 
     ```sh
     just bootstrap apps
@@ -206,12 +206,12 @@ These guidelines provide a strong baseline, but there are always exceptions and 
     nmap -Pn -n -p 443 ${gateways_internal} ${gateways_external} -vv
     ```
 
-4. Check you can resolve DNS for `echo`, this should resolve to `${gateways_external}`:
+4. Check you can resolve DNS for `echo`, this should resolve to `${gateways_external}` (or `${gateways_internal}` when `ingress.mode` is `"none"`):
 
     📍 _The variables are only placeholders, replace them with your actual values_
 
     ```sh
-    dig @${gateways_dns} echo.${cloudflare_domain}
+    dig @${gateways_dns} echo.${domain_name}
     ```
 
 5. Check the status of your wildcard `Certificate`:
@@ -232,7 +232,7 @@ The `external-dns` application created in the `network` namespace will handle cr
 > [!TIP]
 > Use the `envoy-internal` gateway on `HTTPRoutes` to make applications private to your network. If you're having trouble with internal DNS resolution check out [this](https://github.com/onedr0p/cluster-template/discussions/719) GitHub discussion.
 
-`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${cloudflare_domain}` to `${gateways_dns}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
+`k8s_gateway` will provide DNS resolution to external Kubernetes resources (i.e. points of entry to the cluster) from any device that uses your home DNS server. For this to work, your home DNS server must be configured to forward DNS queries for `${domain_name}` to `${gateways_dns}` instead of the upstream DNS server(s) it normally uses. This is a form of **split DNS** (aka split-horizon DNS / conditional forwarding).
 
 _... Nothing working? That is expected, this is DNS after all!_
 
@@ -253,7 +253,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 2. Piece together the full URL with the webhook path appended:
 
     ```text
-    https://flux-webhook.${cloudflare_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    https://flux-webhook.${domain_name}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
 3. Navigate to your repository settings and add a webhook with that URL and the secret token from `flux-webhook-token.txt`:
@@ -384,7 +384,7 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 ## 🧹 Tidy up
 
-Once your cluster is fully configured and you no longer need to run `just configure`, it's a good idea to clean up the repository by removing the [template](./template) directory and any files related to the templating process. This will help eliminate unnecessary clutter from the upstream template repository and resolve any "duplicate registry" warnings from Renovate.
+Once your cluster is fully configured and you no longer need to run `just configure`, it's a good idea to clean up the repository by archiving the [template](./template) directory and any files related to the templating process under `.private/` (gitignored). This will help eliminate unnecessary clutter from the upstream template repository and resolve any "duplicate registry" warnings from Renovate.
 
 1. Tidy up your repository:
 

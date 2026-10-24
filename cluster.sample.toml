@@ -217,7 +217,7 @@ token = ""
 # How Cilium's load balancer handles return traffic. `dsr` (Direct Server
 # Return) preserves the client IP and is faster, but requires a switch
 # fabric that won't drop asymmetric flows. `snat` masquerades the client
-# and is the safe default for unknown topologies.
+# and is the safe choice for unknown topologies.
 # REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
 # OPTIONAL. Default: "dsr". Allowed: "dsr" | "snat"
 
