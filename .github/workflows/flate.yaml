@@ -11,27 +11,30 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   filter:
     name: Flate - Filter
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read # no checkout, so changed files come from the pull request API
     outputs:
-      changed-files: ${{ steps.changed-files.outputs.changed_files }}
+      any-changed: ${{ steps.changed-files.outputs.any_changed }}
     steps:
       - name: Get Changed Files
         id: changed-files
-        uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
-          patterns: kubernetes/**/*
+          files: kubernetes/**
 
   flate:
-    if: ${{ needs.filter.outputs.changed-files != '[]' }}
+    if: ${{ needs.filter.outputs.any-changed == 'true' }}
     needs: filter
     name: Flate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -43,7 +46,6 @@ jobs:
         uses: home-operations/flate/action@631b76b69c4e58c6f4d1cb01e23616fa61aebafa # v0.6.5
 
       - name: Run Flate
-        id: flate
         run: flate test all -p ./kubernetes/apps
 
   success:
@@ -58,4 +60,6 @@ jobs:
 
       - name: All jobs passed or skipped?
         if: ${{ !(contains(needs.*.result, 'failure')) }}
-        run: echo "All jobs passed or skipped" && echo "${{ toJSON(needs.*.result) }}"
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: echo "All jobs passed or skipped" && echo "$RESULTS"
