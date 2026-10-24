@@ -24,6 +24,9 @@ PREFIX="${PREFIX%.*}"
 TALOSCTL="$(command -v talosctl)"
 # The Image Factory vanilla schematic, matching the ISO the nodes boot from.
 SCHEMATIC="376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+# Keep in sync with the git service in template-e2e-cluster.yaml.
+# renovate: datasource=docker depName=ghcr.io/charmbracelet/soft-serve
+SOFT_SERVE_VERSION="v0.12.2"
 
 if [ -n "${E2E_CONTROLPLANE_IPS:-}" ]; then
     PROVISIONED=true
@@ -89,7 +92,7 @@ start_local_git_server() {
         --env SOFT_SERVE_SSH_LISTEN_ADDR=127.0.0.1:23231 \
         --env SOFT_SERVE_STATS_ENABLED=false \
         --entrypoint /bin/sh \
-        ghcr.io/charmbracelet/soft-serve:v0.11.6 \
+        "ghcr.io/charmbracelet/soft-serve:$SOFT_SERVE_VERSION" \
         -c 'set -eu; ssh-keygen -q -t ed25519 -N "" -f /tmp/admin; export SOFT_SERVE_INITIAL_ADMIN_KEYS="$(cat /tmp/admin.pub)"; /usr/local/bin/soft serve & pid=$!; until ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost settings anon-access read-write; do sleep 1; done; ssh -q -i /tmp/admin -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -p 23231 localhost repo create repo; wait "$pid"' \
         >/dev/null
     deadline=$((SECONDS + 60))
@@ -232,7 +235,7 @@ export E2E_WORKER_NODE="$(kubectl get nodes \
     --output jsonpath='{.items[0].metadata.name}')"
 NETWORK_CONFIG="$STATE/network.yaml"
 envsubst '${E2E_CONTROLPLANE_NODE} ${E2E_WORKER_NODE}' \
-    < "$E2E_DIR/network.yaml.tmpl" > "$NETWORK_CONFIG"
+    < "$E2E_DIR/network.yaml" > "$NETWORK_CONFIG"
 kubectl apply --filename "$NETWORK_CONFIG"
 kubectl wait pods/e2e-network-server pods/e2e-network-client \
     --namespace default --for=condition=Ready --timeout=5m

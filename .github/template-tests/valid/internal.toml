@@ -7,12 +7,16 @@ addr = "10.10.10.254"
 [gateways]
 internal = "10.10.10.252"
 dns      = "10.10.10.253"
+external = ""
 
 [domain]
 name = "example.com"
 
 [dns]
 provider = "none"
+
+[talos]
+schematic_id = ""
 
 [repository]
 url = "https://github.com/onedr0p/cluster-template.git"

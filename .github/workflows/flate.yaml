@@ -48,7 +48,7 @@ jobs:
 
   success:
     if: ${{ !cancelled() }}
-    needs: flate
+    needs: [filter, flate]
     name: Flate - Success
     runs-on: ubuntu-latest
     steps:

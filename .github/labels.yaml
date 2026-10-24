@@ -7,3 +7,11 @@
   color: ff9800
 - name: type/major
   color: f6412d
+- name: renovate/container
+  color: 027fa0
+- name: renovate/github-action
+  color: 027fa0
+- name: renovate/github-release
+  color: 027fa0
+- name: renovate/helm
+  color: 027fa0
