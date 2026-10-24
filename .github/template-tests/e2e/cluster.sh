@@ -227,12 +227,13 @@ test "$(kubectl get secret e2e-sops --namespace default \
 
 networking() {
 echo "==> asserting pod networking and DNS"
-export E2E_CONTROLPLANE_NODE="$(kubectl get nodes \
+E2E_CONTROLPLANE_NODE="$(kubectl get nodes \
     --selector=node-role.kubernetes.io/control-plane \
     --output jsonpath='{.items[0].metadata.name}')"
-export E2E_WORKER_NODE="$(kubectl get nodes \
+E2E_WORKER_NODE="$(kubectl get nodes \
     --selector='!node-role.kubernetes.io/control-plane' \
     --output jsonpath='{.items[0].metadata.name}')"
+export E2E_CONTROLPLANE_NODE E2E_WORKER_NODE
 NETWORK_CONFIG="$STATE/network.yaml"
 envsubst '${E2E_CONTROLPLANE_NODE} ${E2E_WORKER_NODE}' \
     < "$E2E_DIR/network.yaml" > "$NETWORK_CONFIG"
