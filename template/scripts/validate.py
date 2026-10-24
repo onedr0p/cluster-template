@@ -1,7 +1,7 @@
 """Validate cluster.toml, apply defaults, and emit the config as JSON.
 
 Standalone usage (doctor, CI): uv run --locked --no-dev template/scripts/validate.py [cluster.toml]
-Schema export (just template schema): uv run --locked --no-dev template/scripts/validate.py --schema
+Schema export (mise run //template:schema): uv run --locked --no-dev template/scripts/validate.py --schema
 In-process usage (makejinja plugin): from validate import load
 
 Exits non-zero with one human-readable error per line on stderr when the

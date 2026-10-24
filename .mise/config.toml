@@ -1,4 +1,5 @@
-min_version = "2026.10.2"
+min_version = "2026.10.18"
+monorepo_root = true
 
 [env]
 KUBECONFIG = "{{config_root}}/kubeconfig"
@@ -15,7 +16,6 @@ gum = "2.0.2"
 helm = "4.3.1"
 helmfile = "1.8.2"
 jq = "1.8.2"
-just = "1.59.0"
 kubeconform = "0.8.0"
 kubectl = "1.37.1"
 kustomize = "5.8.3"
@@ -29,8 +29,23 @@ talosctl = "1.14.4"
 yq = "4.54.1"
 zizmor = "1.31.1"
 
+[tasks.log]
+hide = true
+run = "gum log -t rfc3339 -s -l"
+
+[task_config]
+cascade = true
+shell = "bash -euo pipefail -c"
+
+[monorepo]
+# A glob skips directories without a mise.toml: bootstrap/, kubernetes/ and
+# talos/ only exist once rendered, and template/ is archived by tidy. Any other
+# top-level directory with a mise.toml becomes a project too.
+config_roots = ["*"]
+
 [settings]
 lockfile_platforms = ["linux-x64", "linux-arm64", "macos-arm64", "macos-x64"]
+task.quiet = true
 
 [hooks]
 postinstall = "lefthook install"

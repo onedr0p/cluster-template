@@ -1,0 +1,68 @@
+# Day-2 apply/upgrade tasks rely on topf's built-in diff-and-confirm prompt,
+# so they are interactive; only the destructive reset tasks disable it in
+# favour of mise's own confirmation. Node names complete from topf.yaml.
+
+[tasks.apply]
+description = "Apply Talos config to all nodes (shows a diff and asks first)"
+interactive = true
+run = "topf apply"
+
+[tasks.apply-node]
+description = "Apply Talos config to a node (shows a diff and asks first)"
+interactive = true
+usage = '''
+arg "<node>" help="Node name from topf.yaml"
+arg "[mode]" help="How topf applies the config" default="auto" {
+  choices "auto" "reboot" "no-reboot" "staged" "try"
+}
+complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos/topf.yaml\""
+'''
+run = 'topf apply --nodes-filter "^${usage_node}$" --mode "${usage_mode}"'
+
+[tasks.diff]
+description = "Show pending config changes without applying them"
+run = "topf apply --dry-run"
+
+[tasks.nodes]
+description = "List all nodes and their current state"
+run = "topf nodes"
+
+[tasks.render]
+description = "Render Talos machine configs to ./rendered"
+run = "topf render --output ./rendered"
+
+[tasks.reset]
+description = "Reset all nodes back to maintenance mode (DESTRUCTIVE)"
+confirm = { message = "This will destroy your cluster and reset all nodes to maintenance mode, continue?", default = "no" }
+run = "topf reset --confirm=false"
+
+[tasks.reset-node]
+description = "Reset a single node back to maintenance mode (DESTRUCTIVE)"
+usage = '''
+arg "<node>" help="Node name from topf.yaml"
+complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos/topf.yaml\""
+'''
+confirm = { message = "This will reset node {{ usage.node }} to maintenance mode, continue?", default = "no" }
+run = 'topf reset --nodes-filter "^${usage_node}$" --confirm=false'
+
+# topf intentionally does not manage Kubernetes upgrades
+[tasks.upgrade-k8s]
+description = "Upgrade Kubernetes"
+run = '''
+talosctl --nodes "$(yq '[.nodes[] | select(.role == "control-plane")][0].ip' topf.yaml)" \
+    upgrade-k8s --to "$(yq '.kubernetesVersion' topf.yaml)"
+'''
+
+[tasks.upgrade]
+description = "Upgrade Talos on all nodes, one at a time (asks first)"
+interactive = true
+run = "topf upgrade"
+
+[tasks.upgrade-node]
+description = "Upgrade Talos on a single node (asks first)"
+interactive = true
+usage = '''
+arg "<node>" help="Node name from topf.yaml"
+complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos/topf.yaml\""
+'''
+run = 'topf upgrade --nodes-filter "^${usage_node}$"'

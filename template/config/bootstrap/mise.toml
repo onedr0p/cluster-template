@@ -1,0 +1,125 @@
+[tasks.talos]
+description = "Bootstrap the Talos cluster"
+run = [
+  { task = ":talos-secret" },
+  { task = ":talos-apply" },
+  { task = ":talos-talosconfig" },
+  { task = ":talos-kubeconfig" },
+]
+
+[tasks.apps]
+description = "Bootstrap apps into the Talos cluster"
+run = [
+  { task = ":apps-ready" },
+  { task = ":apps-namespaces" },
+  { task = ":apps-secrets" },
+  { task = ":apps-crds" },
+  { task = ":apps-helm" },
+  'mise run //:log info "Cluster is bootstrapped — Flux will start syncing the Git repository"',
+]
+
+# No sops call or existence guard is needed: the bundle is stored already
+# encrypted with the repo's age recipient, and existing bundles are left
+# untouched.
+[tasks.talos-secret]
+hide = true
+dir = "{{ config_root }}/../talos"
+run = '''
+mise run //:log info "Generating secrets" stage "$MISE_TASK_NAME"
+topf secrets --confirm=false > /dev/null
+'''
+
+[tasks.talos-apply]
+hide = true
+dir = "{{ config_root }}/../talos"
+run = '''
+mise run //:log info "Applying talos config and bootstrapping" stage "$MISE_TASK_NAME"
+topf apply --auto-bootstrap --confirm=false
+'''
+
+[tasks.talos-talosconfig]
+hide = true
+dir = "{{ config_root }}/../talos"
+run = '''
+mise run //:log info "Generating talosconfig" stage "$MISE_TASK_NAME"
+topf talosconfig > talosconfig
+'''
+
+# topf issues short-lived admin certs by default; 8760h keeps the
+# kubeconfig usable long-term.
+[tasks.talos-kubeconfig]
+hide = true
+dir = "{{ config_root }}/../talos"
+run = '''
+mise run //:log info "Fetching kubeconfig" stage "$MISE_TASK_NAME"
+topf kubeconfig --validity 8760h > "$MISE_MONOREPO_ROOT/kubeconfig"
+'''
+
+[tasks.apps-crds]
+hide = true
+run = '''
+mise run //:log info "Applying CRDs" stage "$MISE_TASK_NAME"
+if ! helmfile --file helmfile/crds.yaml template --quiet | yq eval-all --exit-status 'select(.kind == "CustomResourceDefinition")' | kubectl apply --server-side --force-conflicts --filename -; then
+    mise run //:log fatal "Failed to apply crds"
+fi
+'''
+
+[tasks.apps-helm]
+hide = true
+run = '''
+mise run //:log info "Syncing helmfile" stage "$MISE_TASK_NAME"
+if ! helmfile --file helmfile/apps.yaml sync --hide-notes; then
+    mise run //:log fatal "Failed to sync helmfile"
+fi
+'''
+
+[tasks.apps-namespaces]
+hide = true
+run = '''
+mise run //:log info "Applying namespaces for apps" stage "$MISE_TASK_NAME"
+for app in ../kubernetes/apps/*/; do
+    ns="$(basename "$app")"
+    if kubectl create namespace "$ns" --dry-run=client -o yaml \
+            | kubectl apply --server-side --filename - &>/dev/null; then
+        mise run //:log info "Namespace applied" namespace "$ns"
+    else
+        mise run //:log fatal "Failed to apply namespace" namespace "$ns"
+    fi
+done
+'''
+
+[tasks.apps-secrets]
+hide = true
+run = '''
+mise run //:log info "Applying secrets for apps" stage "$MISE_TASK_NAME"
+for secret in \
+    deploy-key.sops.yaml \
+    sops-age.sops.yaml \
+    ../kubernetes/components/sops/cluster-secrets.sops.yaml
+do
+    name="$(basename "$secret" .sops.yaml)"
+    if sops decrypt "$secret" \
+            | kubectl --namespace flux-system apply --server-side --filename - &>/dev/null; then
+        mise run //:log info "Secret applied" resource "$name"
+    else
+        mise run //:log fatal "Failed to apply secret" resource "$name"
+    fi
+done
+'''
+
+# Wait until nodes register as Ready=False. They only become Ready=True once the CNI is healthy.
+[tasks.apps-ready]
+hide = true
+run = '''
+mise run //:log info "Waiting for nodes to register as Ready=False" stage "$MISE_TASK_NAME"
+if ! kubectl wait nodes --for=condition=Ready=True --all --timeout=10s &>/dev/null; then
+    deadline=$((SECONDS + 600))
+    until kubectl wait nodes --for=condition=Ready=False --all --timeout=10s &>/dev/null; do
+        if (( SECONDS >= deadline )); then
+            mise run //:log fatal "Timed out waiting for nodes to register"
+        fi
+        mise run //:log info "Nodes not available, waiting for nodes to be available. Retrying in 5 seconds..."
+        sleep 5
+    done
+fi
+'''

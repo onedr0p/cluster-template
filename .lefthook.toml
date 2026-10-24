@@ -2,11 +2,6 @@
 parallel = true
 skip = ["merge", "rebase"]
 
-[pre-commit.commands.format-just]
-glob = ["justfile", "*.just", ".justfile"]
-run = 'for f in {staged_files}; do just --justfile "$f" --fmt; done'
-stage_fixed = true
-
 # mise fmt rewrites the config in place on every run, and a mise lock that
 # reads it mid-rewrite prunes every tool from the lockfile, so the two run
 # piped while the rest of pre-commit stays parallel.

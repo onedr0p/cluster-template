@@ -235,7 +235,7 @@ def test_gateways_may_leave_node_cidr_only_with_bgp():
 
 def test_schema_file_matches_model():
     committed = json.loads((REPO_ROOT / "cluster.schema.json").read_text())
-    assert committed == schema(), "cluster.schema.json is stale: run `just template schema`"
+    assert committed == schema(), "cluster.schema.json is stale: run `mise run //template:schema`"
 
 
 def test_schema_omits_computed_fields():

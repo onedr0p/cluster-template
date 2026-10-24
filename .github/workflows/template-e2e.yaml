@@ -67,8 +67,8 @@ jobs:
         with:
           experimental: true
 
-      - name: Run init recipe
-        run: just init
+      - name: Run init task
+        run: mise run init
 
       - name: Prepare files
         env:
@@ -81,11 +81,19 @@ jobs:
       - name: Assert cluster.toml passes the JSON Schema
         run: taplo check --schema "file://$PWD/cluster.schema.json" ./cluster.toml
 
-      - name: Run configure recipe
-        run: just configure
+      - name: Run configure task
+        run: mise run configure
+
+      # tasks validate only sees the current project and the root, so it runs
+      # once per monorepo project.
+      - name: Validate mise tasks
+        run: |
+          for project in bootstrap kubernetes talos template; do
+            (cd "$project" && mise tasks validate)
+          done
 
       # Rendered output must already match the format-yaml pre-commit hook,
-      # otherwise every `just configure` shows up as formatting churn.
+      # otherwise every `mise run configure` shows up as formatting churn.
       - name: Assert rendered output is formatted
         run: oxfmt --check ./.sops.yaml ./bootstrap ./kubernetes ./talos
 
@@ -98,16 +106,16 @@ jobs:
         run: flate test all -p ./kubernetes/apps
 
       - name: Render bootstrap helmfile charts
-        run: just template test-helmfile
+        run: mise run //template:test-helmfile
 
-      - name: Dry run bootstrap talos recipe
-        run: just --dry-run bootstrap talos
+      - name: Dry run bootstrap talos task
+        run: mise run --dry-run //bootstrap:talos
 
       - name: Create talos secret
-        run: just bootstrap talos-secret
+        run: mise run //bootstrap:talos-secret
 
       - name: Render talos configs
-        run: just talos render
+        run: mise run //talos:render
 
       - name: Validate talos configs
         run: |
@@ -115,11 +123,11 @@ jobs:
             talosctl validate --config "$config" --mode metal
           done
 
-      - name: Dry run bootstrap apps recipe
-        run: just --dry-run bootstrap apps
+      - name: Dry run bootstrap apps task
+        run: mise run --dry-run //bootstrap:apps
 
-      - name: Run reset recipe
-        run: yes | just template reset
+      - name: Run reset task
+        run: mise --yes run //template:reset
 
-      - name: Run tidy recipe
-        run: yes | just template tidy
+      - name: Run tidy task
+        run: mise --yes run //template:tidy
