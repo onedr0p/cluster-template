@@ -11,8 +11,6 @@ spec:
   values:
     args:
       - --kubelet-insecure-tls
-      - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
-      - --kubelet-use-node-status-port
       - --metric-resolution=10s
       - --kubelet-request-timeout=2s
     metrics:

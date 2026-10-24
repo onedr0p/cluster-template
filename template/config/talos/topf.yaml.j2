@@ -26,7 +26,7 @@ nodes:
       installDisk: ""
       installDiskSerial: "#{ item.disk }#"
       #% endif %#
-      macAddr: "#{ item.mac_addr | lower }#"
+      macAddr: "#{ item.mac_addr }#"
       mtu: #{ item.mtu }#
       encryptDisk: #{ item.encrypt_disk | string | lower }#
       kernelModules: [#{ item.kernel_modules | join(', ') }#]

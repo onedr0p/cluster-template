@@ -5,9 +5,6 @@ metadata:
   name: envoy-proxy
 spec:
   jobLabel: envoy-proxy
-  namespaceSelector:
-    matchNames:
-      - network
   podMetricsEndpoints:
     - port: metrics
       path: /stats/prometheus
