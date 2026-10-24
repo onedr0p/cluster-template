@@ -26,12 +26,65 @@ spec:
         pullSecret: deploy-key
         #% endif %#
         ref: "refs/heads/#{ repository.branch }#"
-        path: kubernetes/flux/cluster
+        path: kubernetes/apps
       commonMetadata:
         labels:
           app.kubernetes.io/name: flux
       kustomize:
         patches:
+          - # Decrypt SOPS secrets and add defaults for all child Kustomizations
+            patch: |-
+              - op: add
+                path: /spec/decryption
+                value:
+                  provider: sops
+              - op: add
+                path: /spec/deletionPolicy
+                value: WaitForTermination
+              - op: add
+                path: /spec/patches
+                value:
+                  - patch: |-
+                      apiVersion: kustomize.toolkit.fluxcd.io/v1
+                      kind: Kustomization
+                      metadata:
+                        name: _
+                      spec:
+                        decryption:
+                          provider: sops
+                        deletionPolicy: WaitForTermination
+                        patches:
+                          - patch: |-
+                              apiVersion: helm.toolkit.fluxcd.io/v2
+                              kind: HelmRelease
+                              metadata:
+                                name: _
+                              spec:
+                                install:
+                                  crds: CreateReplace
+                                  strategy:
+                                    name: RetryOnFailure
+                                rollback:
+                                  cleanupOnFail: true
+                                  recreate: true
+                                upgrade:
+                                  cleanupOnFail: true
+                                  crds: CreateReplace
+                                  strategy:
+                                    name: RemediateOnFailure
+                                  remediation:
+                                    remediateLastFailure: true
+                                    retries: 2
+                            target:
+                              group: helm.toolkit.fluxcd.io
+                              kind: HelmRelease
+                    target:
+                      group: kustomize.toolkit.fluxcd.io
+                      kind: Kustomization
+            target:
+              group: kustomize.toolkit.fluxcd.io
+              kind: Kustomization
+              name: flux-system
           - # Increase the number of workers
             patch: |
               - op: add

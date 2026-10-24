@@ -16,11 +16,7 @@ kubeconform_args=(
     "-verbose"
 )
 
-echo "=== Validating standalone manifests in ${KUBERNETES_DIR}/flux ==="
-find "${KUBERNETES_DIR}/flux" -type f -name '*.yaml' ! -name kustomization.yaml -print0 \
-    | xargs -0 -r kubeconform "${kubeconform_args[@]}"
-
-find "${KUBERNETES_DIR}/flux" "${KUBERNETES_DIR}/apps" -type f -name kustomization.yaml -print0 \
+find "${KUBERNETES_DIR}/apps" -type f -name kustomization.yaml -print0 \
     | while IFS= read -r -d '' file; do
         dir="$(dirname "${file}")"
         echo "=== Validating kustomization in ${dir} ==="

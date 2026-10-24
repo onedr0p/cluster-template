@@ -220,7 +220,7 @@ git -C "$STATE/gitwork" add --all
 git -C "$STATE/gitwork" -c user.name=e2e -c user.email=e2e@cluster.local \
     commit --quiet --message "test Flux SOPS decryption"
 git -C "$STATE/gitwork" push --quiet "$GIT_PUSH_URL" main
-flux reconcile kustomization cluster-apps --with-source --timeout=10m
+flux reconcile kustomization flux-system --with-source --timeout=10m
 test "$(kubectl get secret e2e-sops --namespace default \
     --output jsonpath='{.data.value}' | base64 --decode)" = "flux-decrypted"
 }
