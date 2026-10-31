@@ -1,7 +1,7 @@
 # Tools and tasks only the template step needs; `mise run //template:tidy`
 # archives this file.
 [tools]
-uv = "0.13.5"
+uv = "0.13.6"
 taplo = "0.10.0"
 
 [tasks.configure]
