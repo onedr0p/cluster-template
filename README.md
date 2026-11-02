@@ -403,6 +403,10 @@ Resolving problems that you have could take some tweaking of your YAML manifests
 
 There's a lot to absorb here, especially if you're new to these tools, so take time to learn how the components fit together and read their documentation. This shouldn't be a production environment yet: experiment, break things intentionally, and challenge yourself to fix them. Below are some optional considerations you may want to explore.
 
+### Applications
+
+When you add an application, copy an existing `ks.yaml` such as `kubernetes/apps/default/echo/ks.yaml`. Each Flux `Kustomization` must set `spec.patches`, even as `patches: []`, because Flux adds the `HelmRelease` defaults to this list. If one `Kustomization` omits it, the `flux-system` Kustomization fails to build and Flux does not apply changes under `kubernetes/apps`. The error is `add operation does not apply: doc is missing path: "/spec/patches/0": missing value`.
+
 ### DNS
 
 The template uses [k8s_gateway](https://github.com/k8s-gateway/k8s_gateway) to serve DNS for your applications from inside the cluster. To offload that to your router or another device, consider [external-dns](https://github.com/kubernetes-sigs/external-dns) (which the template already uses for Cloudflare) with a home DNS provider such as:

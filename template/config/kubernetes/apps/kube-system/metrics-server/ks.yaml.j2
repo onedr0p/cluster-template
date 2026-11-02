@@ -5,6 +5,7 @@ metadata:
   name: metrics-server
 spec:
   interval: 1h
+  patches: []
   path: ./kubernetes/apps/kube-system/metrics-server/app
   postBuild:
     substituteFrom:

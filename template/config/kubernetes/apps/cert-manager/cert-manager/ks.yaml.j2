@@ -17,6 +17,7 @@ spec:
       kind: ClusterIssuer
       current: status.conditions.exists(e, e.type == 'Ready' && e.status == 'True')
   interval: 1h
+  patches: []
   path: ./kubernetes/apps/cert-manager/cert-manager/app
   postBuild:
     substituteFrom:
