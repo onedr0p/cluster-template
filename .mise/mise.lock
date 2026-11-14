@@ -31,6 +31,35 @@ url = "https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-da
 url_api = "https://api.github.com/repos/FiloSottile/age/releases/assets/535541887"
 provenance = "github-attestations"
 
+[[tools."aqua:home-operations/flate"]]
+version = "0.7.3"
+backend = "aqua:home-operations/flate"
+specifiers = ["0.7.3"]
+
+[tools."aqua:home-operations/flate"."platforms.linux-arm64"]
+checksum = "sha256:345b8b679de439343003097b79aabec7d070c05e70eeca5c413193ba97aa368f"
+url = "https://github.com/home-operations/flate/releases/download/v0.7.3/flate_0.7.3_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/home-operations/flate/releases/assets/727305352"
+provenance = "cosign"
+
+[tools."aqua:home-operations/flate"."platforms.linux-x64"]
+checksum = "sha256:05d3c79447647e95329aa45c7035e7ebac3a120942972e78819deadc3bf0afeb"
+url = "https://github.com/home-operations/flate/releases/download/v0.7.3/flate_0.7.3_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/home-operations/flate/releases/assets/727305354"
+provenance = "cosign"
+
+[tools."aqua:home-operations/flate"."platforms.macos-arm64"]
+checksum = "sha256:fb4aca650b55fb020dac039775975ef3ab753a4582bdd034dc8ad5c73ad47755"
+url = "https://github.com/home-operations/flate/releases/download/v0.7.3/flate_0.7.3_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/home-operations/flate/releases/assets/727305351"
+provenance = "cosign"
+
+[tools."aqua:home-operations/flate"."platforms.macos-x64"]
+checksum = "sha256:fc63ba93d4943f5828e724119613d1ce37b52897387aa958f5d263f291bb5db9"
+url = "https://github.com/home-operations/flate/releases/download/v0.7.3/flate_0.7.3_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/home-operations/flate/releases/assets/727305361"
+provenance = "cosign"
+
 [[tools.cloudflared]]
 version = "2026.10.7"
 backend = "aqua:cloudflare/cloudflared"

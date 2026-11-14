@@ -97,13 +97,8 @@ jobs:
       - name: Assert rendered output is formatted
         run: oxfmt --check ./.sops.yaml ./bootstrap ./kubernetes ./talos
 
-      - name: Install flate
-        uses: home-operations/flate/action@631b76b69c4e58c6f4d1cb01e23616fa61aebafa # v0.6.5
-        with:
-          base: ""
-
       - name: Run flate test
-        run: flate test all -p ./kubernetes/apps
+        run: flate test -p ./kubernetes/apps
 
       - name: Render bootstrap helmfile charts
         run: mise run //template:test-helmfile

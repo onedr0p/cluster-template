@@ -42,11 +42,15 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Install Flate
-        uses: home-operations/flate/action@631b76b69c4e58c6f4d1cb01e23616fa61aebafa # v0.6.5
+      - name: Setup mise
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install_args: aqua:home-operations/flate
 
       - name: Run Flate
-        run: flate test all -p ./kubernetes/apps
+        env:
+          FLATE_BASE: ${{ github.event.repository.default_branch }}
+        run: flate test -p ./kubernetes/apps
 
   success:
     if: ${{ !cancelled() }}
