@@ -40,6 +40,15 @@
       minimumGroupSize: 2,
     },
     {
+      description: "Cloudflared Group",
+      groupName: "cloudflared",
+      matchPackageNames: ["cloudflare/cloudflared", "docker.io/cloudflare/cloudflared"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+      minimumGroupSize: 2,
+    },
+    {
       matchUpdateTypes: ["major"],
       addLabels: ["type/major"],
     },
