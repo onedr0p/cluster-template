@@ -9,7 +9,7 @@ TALOSCONFIG = "{{config_root}}/talos/talosconfig"
 
 [tools]
 age = "1.3.2"
-cloudflared = "2026.10.7"
+cloudflared = "2026.11.0"
 "aqua:home-operations/flate" = "0.7.3"
 flux2 = "2.10.0"
 gh = "2.103.3"
