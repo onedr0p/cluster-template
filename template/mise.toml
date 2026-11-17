@@ -30,10 +30,18 @@ uv run --quiet --locked --no-dev template/scripts/validate.py --schema > cluster
 oxfmt cluster.schema.json > /dev/null
 '''
 
+# talos/secrets.sops.yaml (the cluster PKI) and talos/talosconfig are kept:
+# regenerating them locks you out of nodes that are already bootstrapped.
+# Delete them by hand to start over with a new cluster identity.
 [tasks.reset]
-description = "Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yaml)"
+description = "Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yaml), keeping the Talos secrets bundle and talosconfig"
 confirm = { message = "Remove all templated files and directories?", default = "no" }
-run = "rm -rf bootstrap kubernetes talos .sops.yaml"
+run = '''
+rm -rf bootstrap kubernetes .sops.yaml
+if [ -d talos ]; then
+    find talos -mindepth 1 -maxdepth 1 ! -name secrets.sops.yaml ! -name talosconfig -exec rm -rf {} +
+fi
+'''
 
 # tidy-archive moves template/ (this file's directory) away, so it must be
 # the last step.
@@ -117,7 +125,10 @@ run = "bash template/resources/kubeconform.sh kubernetes"
 hide = true
 dir = "{{ config_root }}/../talos"
 run = '''
-topf render --confirm=false --output "$(mktemp -d)" >/dev/null
+# The rendered machine configs hold the cluster CA keys in plain text.
+out="$(mktemp -d)"
+trap 'rm -rf "$out"' EXIT
+topf render --confirm=false --output "$out" >/dev/null
 if ! sops filestatus secrets.sops.yaml | jq --exit-status '.encrypted == true' >/dev/null; then
     mise run //:log fatal "Talos secrets bundle is not encrypted"
 fi
