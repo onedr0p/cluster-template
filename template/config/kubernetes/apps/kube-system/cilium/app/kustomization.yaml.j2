@@ -4,4 +4,6 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./ocirepository.yaml
+  #% if gateway_addresses or cilium.announce != 'none' %#
   - ./networks.yaml
+  #% endif %#

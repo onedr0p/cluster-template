@@ -79,6 +79,19 @@
           "title": "Loadbalancer Mode",
           "type": "string"
         },
+        "announce": {
+          "anyOf": [
+            {
+              "enum": ["l2", "bgp", "none"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Announce"
+        },
         "bgp": {
           "$ref": "#/$defs/Bgp",
           "default": {
@@ -124,21 +137,61 @@
       "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
       "type": "string"
     },
+    "Gateway": {
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address"
+        },
+        "load_balancer_class": {
+          "anyOf": [
+            {
+              "pattern": "^([a-z0-9]([-a-z0-9.]*[a-z0-9])?/)?[A-Za-z0-9]([-A-Za-z0-9_.]*[A-Za-z0-9])?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Load Balancer Class"
+        }
+      },
+      "title": "Gateway",
+      "type": "object"
+    },
+    "GatewaySpec": {
+      "anyOf": [
+        {
+          "format": "ipv4",
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Gateway"
+        }
+      ]
+    },
     "Gateways": {
       "additionalProperties": false,
       "properties": {
         "internal": {
-          "format": "ipv4",
-          "title": "Internal",
-          "type": "string"
+          "$ref": "#/$defs/GatewaySpec"
         },
         "dns": {
-          "format": "ipv4",
-          "title": "Dns",
-          "type": "string"
+          "$ref": "#/$defs/GatewaySpec"
         },
         "external": {
-          "$ref": "#/$defs/OptionalIPv4Address",
+          "$ref": "#/$defs/OptionalGatewaySpec",
           "default": null
         }
       },
@@ -290,11 +343,14 @@
       "title": "Node",
       "type": "object"
     },
-    "OptionalIPv4Address": {
+    "OptionalGatewaySpec": {
       "anyOf": [
         {
           "format": "ipv4",
           "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Gateway"
         },
         {
           "const": "",
@@ -430,6 +486,7 @@
       "$ref": "#/$defs/Cilium",
       "default": {
         "loadbalancer_mode": "dsr",
+        "announce": null,
         "bgp": {
           "node_asn": "",
           "router_addr": "",

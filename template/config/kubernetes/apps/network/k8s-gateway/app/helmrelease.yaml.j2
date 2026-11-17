@@ -12,8 +12,12 @@ spec:
     fullnameOverride: k8s-gateway
     serviceType: LoadBalancer
     service:
+      #% if gateways.dns.address %#
       annotations:
-        lbipam.cilium.io/ips: "#{ gateways.dns }#"
+        lbipam.cilium.io/ips: "#{ gateways.dns.address }#"
+      #% else %#
+      loadBalancerClass: "#{ gateways.dns.load_balancer_class }#"
+      #% endif %#
       externalTrafficPolicy: Cluster
     servers:
       - zones:

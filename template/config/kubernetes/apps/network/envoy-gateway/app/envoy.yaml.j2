@@ -28,6 +28,23 @@ spec:
       prometheus:
         compression:
           type: Zstd
+#% for name in ['external', 'internal'] %#
+#% set gateway = gateways[name] %#
+#% if gateway and gateway.load_balancer_class and (name == 'internal' or ingress.mode != 'none') %#
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy-#{ name }#
+spec:
+  mergeType: StrategicMerge
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        loadBalancerClass: "#{ gateway.load_balancer_class }#"
+#% endif %#
+#% endfor %#
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -53,7 +70,17 @@ spec:
   infrastructure:
     annotations:
       external-dns.kubernetes.io/hostname: external.${SECRET_DOMAIN}
-      lbipam.cilium.io/ips: "#{ gateways.external }#"
+      #% if gateways.external.address %#
+      lbipam.cilium.io/ips: "#{ gateways.external.address }#"
+      #% endif %#
+    #% if gateways.external.load_balancer_class %#
+    # Merges onto the GatewayClass EnvoyProxy to set the Service's
+    # loadBalancerClass for this gateway only.
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: envoy-external
+    #% endif %#
   listeners:
     - name: http
       protocol: HTTP
@@ -84,7 +111,17 @@ spec:
   infrastructure:
     annotations:
       external-dns.kubernetes.io/hostname: internal.${SECRET_DOMAIN}
-      lbipam.cilium.io/ips: "#{ gateways.internal }#"
+      #% if gateways.internal.address %#
+      lbipam.cilium.io/ips: "#{ gateways.internal.address }#"
+      #% endif %#
+    #% if gateways.internal.load_balancer_class %#
+    # Merges onto the GatewayClass EnvoyProxy to set the Service's
+    # loadBalancerClass for this gateway only.
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: envoy-internal
+    #% endif %#
   listeners:
     - name: http
       protocol: HTTP

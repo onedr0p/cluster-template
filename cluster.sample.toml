@@ -95,9 +95,17 @@ addr = ""
 
 # =============================================================================
 #    LoadBalancer IPs that Cilium hands out to the cluster's edge gateways.
-#    Each must be an unused address inside network.node_cidr (or, with
-#    [cilium.bgp], outside pod_cidr and svc_cidr), distinct from each
-#    other, from every node's address, and from kubernetes.api.addr.
+#    Each must be an unused address inside network.node_cidr (unless
+#    cilium.announce is "bgp" or "none") and outside pod_cidr and
+#    svc_cidr, distinct from each other, from every node's address, and
+#    from kubernetes.api.addr.
+#
+#    Instead of an IP, a gateway can name the loadBalancerClass of another
+#    LoadBalancer implementation, which then assigns its address:
+#      external = { load_balancer_class = "io.cilium/node" }  # the nodes' own IPs
+#      internal = { load_balancer_class = "tailscale" }       # Tailscale operator
+#    The plain IP form is shorthand for { address = "<ip>" }. Classes other
+#    than io.cilium/node need their controller installed separately.
 # =============================================================================
 [gateways]
 
@@ -234,6 +242,17 @@ token = ""
 # OPTIONAL. Default: "dsr". Allowed: "dsr" | "snat"
 
 # loadbalancer_mode = "dsr"
+
+# How gateway addresses (see [gateways]) become reachable. "l2" answers ARP
+# for them on network.node_cidr. "bgp" also advertises them to the router
+# in [cilium.bgp]. "none" announces nothing: use it when your network or
+# provider already routes the addresses to the nodes (e.g. additional IPs
+# on a VPS), or when every gateway uses a load_balancer_class. Don't use
+# "l2" on a subnet shared with other tenants: it would claim their IPs.
+# OPTIONAL. Default: "bgp" when [cilium.bgp] is set, otherwise "l2".
+# Allowed: "l2" | "bgp" | "none"
+
+# announce = "l2"
 
 # Cilium BGP peering — advertises Service IPs to your upstream router so
 # LoadBalancer addresses become reachable from anywhere on your LAN

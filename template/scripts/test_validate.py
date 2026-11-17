@@ -305,8 +305,50 @@ def test_gateways_may_leave_node_cidr_only_with_bgp():
     with_bgp = config_from("public.toml", **{"gateways.external": "192.168.50.1"})
     _load_raw(with_bgp)  # public.toml enables BGP
     without_bgp = config_from("private.toml", **{"gateways.external": "192.168.50.1"})
-    with pytest.raises(ConfigError, match="required unless BGP is enabled"):
+    with pytest.raises(ConfigError, match="required when cilium.announce is 'l2'"):
         _load_raw(without_bgp)
+    unannounced = config_from("private.toml", **{"gateways.external": "192.168.50.1", "cilium.announce": "none"})
+    _load_raw(unannounced)
+
+
+def test_announce_mode_defaults_and_consistency():
+    assert _load_raw(config_from("public.toml")).cilium.announce == "bgp"
+    assert _load_raw(config_from("private.toml")).cilium.announce == "l2"
+    raw = config_from("private.toml", **{"cilium.announce": "bgp"})
+    with pytest.raises(ConfigError, match="cilium.announce 'bgp' requires cilium.bgp"):
+        _load_raw(raw)
+    raw = config_from("public.toml", **{"cilium.announce": "l2"})
+    with pytest.raises(ConfigError, match="cilium.bgp is configured but cilium.announce is 'l2'"):
+        _load_raw(raw)
+
+
+def test_gateway_accepts_load_balancer_class():
+    raw = config_from("private.toml", **{
+        "gateways.internal": {"load_balancer_class": "tailscale"},
+        "gateways.external": {"load_balancer_class": "io.cilium/node"},
+    })
+    cfg = _load_raw(raw)
+    assert cfg.gateways.internal.address is None
+    assert cfg.gateways.addresses == {"gateways.dns": cfg.gateways.dns.address}
+    assert cfg.cilium_node_ipam_enabled is True
+    assert cfg.gateway_addresses == ["10.10.10.253"]
+    data = cfg.model_dump(mode="json")
+    assert data["gateways"]["external"] == {"address": None, "load_balancer_class": "io.cilium/node"}
+    assert data["gateways"]["dns"] == {"address": "10.10.10.253", "load_balancer_class": None}
+    assert _load_raw(config_from("private.toml")).cilium_node_ipam_enabled is False
+
+
+@pytest.mark.parametrize("gateway", [{}, {"address": "10.10.10.252", "load_balancer_class": "tailscale"}])
+def test_gateway_needs_exactly_one_of_address_or_class(gateway):
+    raw = config_from("private.toml", **{"gateways.internal": gateway})
+    with pytest.raises(ConfigError, match="set exactly one of address or load_balancer_class"):
+        _load_raw(raw)
+
+
+def test_gateway_class_must_be_qualified_name():
+    raw = config_from("private.toml", **{"gateways.internal": {"load_balancer_class": "not a class"}})
+    with pytest.raises(ConfigError, match=r"gateways\.internal\.load_balancer_class: String should match pattern"):
+        _load_raw(raw)
 
 
 def test_schema_file_matches_model():
