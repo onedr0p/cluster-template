@@ -57,7 +57,7 @@ REJECTIONS = {
     "token-without-dns-provider": ("internal.toml", "dns.token", "fake", r"token must be empty when dns\.provider is 'none'"),
     "non-decimal-asn": ("public.toml", "cilium.bgp.node_asn", "AS64514", r"'AS64514' must be a decimal ASN"),
     "bad-domain-name": ("private.toml", "domain.name", "Example.com", r"domain\.name: String should match pattern"),
-    "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: String should match pattern"),
+    "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: 'not a hostname' is not a hostname or IPv4 address"),
     "bad-node-name": ("private.toml", "nodes.0.name", "k8s-0-", r"nodes\.0\.name: String should match pattern"),
     "mtu-too-small": ("private.toml", "nodes.0.mtu", 1449, r"nodes\.0\.mtu: Input should be greater than or equal to 1450"),
     "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
@@ -71,6 +71,8 @@ REJECTIONS = {
     "bare-disk-name-nvme": ("private.toml", "nodes.0.disk", "nvme0n1", r"did you mean '/dev/nvme0n1'\?"),
     "bare-disk-name-mmcblk": ("private.toml", "nodes.0.disk", "mmcblk0", r"did you mean '/dev/mmcblk0'\?"),
     "bare-disk-name-partition": ("private.toml", "nodes.0.disk", "nvme0n1p1", r"did you mean '/dev/nvme0n1p1'\?"),
+    "api-addr-on-worker": ("private.toml", "kubernetes.api.addr", "10.10.10.101", r"kubernetes\.api\.addr 10\.10\.10\.101 is nodes\[1\]\.address: only the controller of a single-controller cluster"),
+    "api-addr-on-one-of-several-controllers": ("multi-controller.toml", "kubernetes.api.addr", "10.10.10.100", r"kubernetes\.api\.addr 10\.10\.10\.100 is nodes\[0\]\.address: only the controller of a single-controller cluster"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
 }
 
@@ -220,6 +222,20 @@ def test_webhook_provider_follows_ingress_mode():
     assert _load_raw(config_from("internal.toml")).repository.webhook_provider == "none"
     lan_git = config_from("internal.toml", **{"repository.webhook_provider": "generic-hmac"})
     assert _load_raw(lan_git).repository.webhook_provider == "generic-hmac"
+
+
+def test_single_controller_may_serve_api_on_own_address():
+    with_vip = _load_raw(config_from("private.toml"))
+    assert with_vip.api_vip_enabled is True
+    raw = config_from("private.toml", **{"kubernetes.api.addr": "10.10.10.100"})
+    cfg = _load_raw(raw)
+    assert cfg.api_vip_enabled is False
+    assert cfg.cert_sans == ["127.0.0.1", "10.10.10.100"]
+
+
+def test_tls_sans_accept_ip_addresses():
+    raw = config_from("private.toml", **{"kubernetes.api.tls_sans": ["k8s.example.com", "100.64.0.10"]})
+    assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "k8s.example.com", "100.64.0.10"]
 
 
 def test_direct_mode_requires_cloudflare_dns():

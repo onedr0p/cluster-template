@@ -24,6 +24,7 @@ from pydantic import (
     ConfigDict,
     Field,
     ValidationError,
+    WithJsonSchema,
     computed_field,
     field_validator,
     model_validator,
@@ -65,6 +66,16 @@ def _asn(value: str) -> str:
     return str(int(value))
 
 
+def _san(value: str) -> str:
+    try:
+        return str(IPv4Address(value))
+    except ValueError:
+        pass
+    if not re.fullmatch(FQDN_PATTERN, value):
+        raise ValueError(f"{value!r} is not a hostname or IPv4 address")
+    return value
+
+
 def _empty_to_none(value: Any) -> Any:
     return None if value == "" else value
 
@@ -72,6 +83,11 @@ def _empty_to_none(value: Any) -> Any:
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
 type Asn = Annotated[str, AfterValidator(_asn)]
 type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN)]
+type San = Annotated[
+    str,
+    AfterValidator(_san),
+    WithJsonSchema({"anyOf": [{"type": "string", "format": "ipv4"}, {"type": "string", "pattern": FQDN_PATTERN}]}),
+]
 type SchematicId = Annotated[str, Field(pattern=r"^[a-z0-9]{64}$")]
 
 # An empty string means unset, so placeholders left in cluster.toml validate
@@ -120,7 +136,7 @@ class Network(Model):
 
 class Api(Model):
     addr: IPv4Address
-    tls_sans: list[Fqdn] | None = None
+    tls_sans: list[San] | None = None
 
 
 class Kubernetes(Model):
@@ -307,7 +323,15 @@ class Config(Model):
     @computed_field
     @property
     def cert_sans(self) -> list[str]:
-        return ["127.0.0.1", str(self.kubernetes.api.addr), *(self.kubernetes.api.tls_sans or [])]
+        return ["127.0.0.1", str(self.kubernetes.api.addr), *(str(s) for s in self.kubernetes.api.tls_sans or [])]
+
+    # A single-controller cluster may point kubernetes.api.addr at the
+    # controller itself (e.g. a VPS with one IP); no Layer 2 VIP is
+    # announced then.
+    @computed_field
+    @property
+    def api_vip_enabled(self) -> bool:
+        return all(node.address != self.kubernetes.api.addr for node in self.nodes)
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -345,12 +369,21 @@ class Config(Model):
                 if cidrs[a].overlaps(cidrs[b]):
                     raise ValueError(f"{a} {cidrs[a]} overlaps {b} {cidrs[b]}")
 
+        api_addr = self.kubernetes.api.addr
+        api_node = next((i for i, n in enumerate(self.nodes) if n.address == api_addr), None)
+        if api_node is not None and not (self.controller_count == 1 and self.nodes[api_node].controller):
+            raise ValueError(
+                f"kubernetes.api.addr {api_addr} is nodes[{api_node}].address: only the "
+                "controller of a single-controller cluster may serve the API on its own "
+                "address; otherwise use an unused IP for the API VIP"
+            )
         addresses = {
-            "kubernetes.api.addr": self.kubernetes.api.addr,
             "gateways.internal": self.gateways.internal,
             "gateways.dns": self.gateways.dns,
             "network.default_gateway": self.network.default_gateway,
         } | {f"nodes[{i}].address": n.address for i, n in enumerate(self.nodes)}
+        if api_node is None:
+            addresses["kubernetes.api.addr"] = api_addr
         if self.gateways.external is not None:
             addresses["gateways.external"] = self.gateways.external
         seen: dict[IPv4Address, str] = {}

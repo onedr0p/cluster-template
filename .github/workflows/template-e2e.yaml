@@ -55,6 +55,7 @@ jobs:
           - internal
           - direct
           - single-node
+          - single-node-no-vip
           - multi-controller
     steps:
       - name: Checkout
