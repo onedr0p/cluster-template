@@ -142,7 +142,9 @@ url = ""
 # HMAC; see https://fluxcd.io/flux/components/notification/receivers/
 # Use "none" to skip the webhook entirely (e.g. your Git host cannot reach
 # the cluster); Flux then only polls on an interval.
-# OPTIONAL. Default: "github".
+# With ingress.mode = "none" the webhook is only reachable on your LAN, so
+# the default flips to "none"; set it explicitly for a Git host on your LAN.
+# OPTIONAL. Default: "github", or "none" when ingress.mode is "none".
 # Allowed: "github" | "gitlab" | "generic-hmac" | "none"
 
 # webhook_provider = "github"

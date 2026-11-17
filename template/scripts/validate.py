@@ -141,7 +141,9 @@ class Gateways(Model):
 class Repository(Model):
     url: str = Field(pattern=REPO_URL_PATTERN)
     branch: str = Field(default="main", min_length=1)
-    webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] = "github"
+    # Defaults to "github", or "none" when ingress.mode is "none" (a hosted
+    # Git provider cannot reach the internal-only webhook route).
+    webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = None
     known_hosts: str = ""
 
     @model_validator(mode="after")
@@ -280,6 +282,8 @@ class Config(Model):
     def check(self) -> Self:
         if self.spegel.enabled is None:
             self.spegel.enabled = len(self.nodes) > 1
+        if self.repository.webhook_provider is None:
+            self.repository.webhook_provider = "none" if self.ingress.mode == "none" else "github"
         for i, node in enumerate(self.nodes):
             if node.schematic_id is None:
                 node.schematic_id = self.talos.schematic_id
