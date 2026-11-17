@@ -158,6 +158,18 @@ class Kubernetes(Model):
             raise ValueError(
                 f"coredns_addr {self.coredns_addr} is not inside svc_cidr {self.svc_cidr}"
             )
+        # The apiserver always takes the first service IP for the kubernetes
+        # Service; the network and broadcast addresses are not allocatable.
+        reserved = {
+            self.svc_cidr.network_address,
+            self.svc_cidr.network_address + 1,
+            self.svc_cidr.broadcast_address,
+        }
+        if self.coredns_addr in reserved:
+            raise ValueError(
+                f"coredns_addr {self.coredns_addr} is reserved in svc_cidr {self.svc_cidr} "
+                "(network, broadcast or kubernetes API service address)"
+            )
         return self
 
 
@@ -390,6 +402,8 @@ class Config(Model):
             addresses["kubernetes.api.addr"] = api.addr
         if self.gateways.external is not None:
             addresses["gateways.external"] = self.gateways.external
+        if self.cilium_bgp_enabled:
+            addresses["cilium.bgp.router_addr"] = self.cilium.bgp.router_addr
         seen: dict[IPv4Address, str] = {}
         for owner, addr in addresses.items():
             if addr in seen:
@@ -397,6 +411,26 @@ class Config(Model):
             seen[addr] = owner
 
         node_cidr = self.network.node_cidr
+        # /31 and /32 have no network or broadcast address (RFC 3021).
+        if node_cidr.prefixlen < 31:
+            unusable = {node_cidr.network_address, node_cidr.broadcast_address}
+            for owner, addr in addresses.items():
+                if addr in unusable:
+                    raise ValueError(
+                        f"{owner} {addr} is the network or broadcast address of node_cidr {node_cidr}"
+                    )
+
+        # With BGP the gateway VIPs may leave node_cidr, but never into the
+        # in-cluster ranges, where they would shadow pod or Service IPs.
+        for name in ("internal", "dns", "external"):
+            addr = getattr(self.gateways, name)
+            for cidr_name in ("pod_cidr", "svc_cidr"):
+                cidr = getattr(self.kubernetes, cidr_name)
+                if addr is not None and addr in cidr:
+                    raise ValueError(
+                        f"gateways.{name} {addr} is inside kubernetes.{cidr_name} {cidr}"
+                    )
+
         for i, node in enumerate(self.nodes):
             if node.address not in node_cidr:
                 raise ValueError(
