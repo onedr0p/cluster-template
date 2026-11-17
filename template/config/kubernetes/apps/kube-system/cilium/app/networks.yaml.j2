@@ -4,9 +4,15 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: pool
 spec:
-  allowFirstLastIPs: "No"
+  # Only the gateway VIPs: handing out arbitrary node_cidr addresses would
+  # let a new LoadBalancer Service claim (and announce) the router, a node
+  # or a DHCP client's IP. Add a free range here for your own Services.
   blocks:
-    - cidr: "#{ network.node_cidr }#"
+    - cidr: "#{ gateways.internal }#/32"
+    - cidr: "#{ gateways.dns }#/32"
+    #% if gateways.external %#
+    - cidr: "#{ gateways.external }#/32"
+    #% endif %#
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy
