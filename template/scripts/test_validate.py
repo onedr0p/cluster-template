@@ -37,6 +37,7 @@ INVALID_REASONS = {
     "missing-schematic": r"nodes\[0\]\.schematic_id is required",
     "nested-cidr-overlap": r"node_cidr 10\.42\.128\.0/17 overlaps kubernetes\.pod_cidr 10\.42\.0\.0/16",
     "node-addr-outside-cidr": r"nodes\[0\]\.address 192\.168\.1\.100 is not inside node_cidr",
+    "no-controller": r"at least one node must have controller = true",
     "node-uses-gateway-addr": r"used by both network\.default_gateway and nodes\[0\]\.address",
     "non-canonical-cidr": r"has host bits set; did you mean 10\.10\.10\.0/24",
     "overlapping-cidrs": r"node_cidr 10\.42\.0\.0/16 overlaps kubernetes\.pod_cidr 10\.42\.0\.0/16",
@@ -156,6 +157,24 @@ def test_controller_count_ignores_workers():
     assert _load_raw(raw).controller_count == 1
     raw["nodes"][1]["controller"] = True
     assert _load_raw(raw).controller_count == 2
+
+
+def test_at_least_one_controller_required():
+    raw = config_from("private.toml")
+    raw["nodes"] = []
+    with pytest.raises(ConfigError, match="at least one node must have controller = true"):
+        _load_raw(raw)
+
+
+def test_leading_zeros_stripped_from_yaml_integers():
+    # These render unquoted into YAML, where a leading zero means octal.
+    raw = config_from("public.toml", **{"network.vlan_tag": "0100", "cilium.bgp.node_asn": "064514"})
+    data = _load_raw(raw).model_dump(mode="json")
+    assert data["network"]["vlan_tag"] == "100"
+    assert data["cilium"]["bgp"]["node_asn"] == "64514"
+    raw = config_from("public.toml", **{"network.vlan_tag": "0000"})
+    with pytest.raises(ConfigError, match="vlan_tag 0 must be in the range 1-4094"):
+        _load_raw(raw)
 
 
 def test_derived_fields_are_not_settable():
