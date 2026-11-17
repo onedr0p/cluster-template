@@ -30,17 +30,25 @@ uv run --quiet --locked --no-dev template/scripts/validate.py --schema > cluster
 oxfmt cluster.schema.json > /dev/null
 '''
 
-# talos/secrets.sops.yaml (the cluster PKI) and talos/talosconfig are kept:
-# regenerating them locks you out of nodes that are already bootstrapped.
-# Delete them by hand to start over with a new cluster identity.
+# Only files the template renders are removed (template/config/<path>[.j2]
+# maps to <path>), then any directories left empty. Everything else is kept:
+# talos/secrets.sops.yaml (the cluster PKI) and talos/talosconfig, which
+# would lock you out of already bootstrapped nodes if regenerated, and any
+# files you added yourself, such as extra Talos patches. Delete those by hand
+# to start over completely.
 [tasks.reset]
-description = "Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yaml), keeping the Talos secrets bundle and talosconfig"
-confirm = { message = "Remove all templated files and directories?", default = "no" }
+description = "Remove rendered files (keeps the Talos secrets bundle, talosconfig and files you added)"
+confirm = { message = "Remove all templated files?", default = "no" }
 run = '''
-rm -rf bootstrap kubernetes .sops.yaml
-if [ -d talos ]; then
-    find talos -mindepth 1 -maxdepth 1 ! -name secrets.sops.yaml ! -name talosconfig -exec rm -rf {} +
-fi
+(cd template/config && find . -type f -print0) \
+    | while IFS= read -r -d '' f; do
+        rm -f -- "${f%.j2}"
+    done
+for d in bootstrap kubernetes talos; do
+    if [ -d "$d" ]; then
+        find "$d" -depth -type d -empty -delete
+    fi
+done
 '''
 
 # tidy-archive moves template/ (this file's directory) away, so it must be
