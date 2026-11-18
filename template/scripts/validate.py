@@ -62,6 +62,14 @@ def _network(value: Any) -> Any:
         ) from None
 
 
+# TOML integers are accepted as well as decimal strings and normalised to a
+# string. bool is rejected explicitly because it is a subclass of int.
+def _int_to_str(value: Any) -> Any:
+    if isinstance(value, bool):
+        raise ValueError(f"expected a number, got {str(value).lower()}")
+    return str(value) if isinstance(value, int) else value
+
+
 def _asn(value: str) -> str:
     if value == "":
         return value
@@ -110,7 +118,11 @@ def _empty_to_default(value: Any) -> Any:
 
 
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
-type Asn = Annotated[str, AfterValidator(_asn)]
+type Asn = Annotated[
+    str,
+    BeforeValidator(_int_to_str, json_schema_input_type=str | int),
+    AfterValidator(_asn),
+]
 type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN)]
 type San = Annotated[
     str,
@@ -118,7 +130,11 @@ type San = Annotated[
     WithJsonSchema({"anyOf": [{"type": "string", "format": "ipv4"}, {"type": "string", "pattern": FQDN_PATTERN}]}),
 ]
 type SchematicId = Annotated[str, Field(pattern=r"^[a-z0-9]{64}$")]
-type VlanTag = Annotated[str, Field(pattern=r"^[0-9]+$")]
+type DecimalString = Annotated[str, Field(pattern=r"^[0-9]+$")]
+type VlanTag = Annotated[
+    DecimalString,
+    BeforeValidator(_int_to_str, json_schema_input_type=DecimalString | int),
+]
 
 # An empty string means unset, so placeholders left in cluster.toml validate
 # the same as an omitted key.

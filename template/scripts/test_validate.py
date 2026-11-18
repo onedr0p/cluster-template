@@ -57,6 +57,8 @@ REJECTIONS = {
     "pod-svc-cidr-overlap": ("private.toml", "kubernetes.svc_cidr", "10.42.0.0/16", r"kubernetes\.pod_cidr 10\.42\.0\.0/16 overlaps kubernetes\.svc_cidr 10\.42\.0\.0/16"),
     "token-without-dns-provider": ("internal.toml", "dns.token", "fake", r"token must be empty when dns\.provider is 'none'"),
     "non-decimal-asn": ("public.toml", "cilium.bgp.node_asn", "AS64514", r"'AS64514' must be a decimal ASN"),
+    "bool-vlan-tag": ("public.toml", "network.vlan_tag", True, r"network\.vlan_tag: expected a number, got true"),
+    "bool-asn": ("public.toml", "cilium.bgp.router_asn", True, r"cilium\.bgp\.router_asn: expected a number, got true"),
     "bad-domain-name": ("private.toml", "domain.name", "Example.com", r"domain\.name: String should match pattern"),
     "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: 'not a hostname' is not a hostname or IPv4 address"),
     "bad-node-name": ("private.toml", "nodes.0.name", "k8s-0-", r"nodes\.0\.name: String should match pattern"),
@@ -222,6 +224,23 @@ def test_leading_zeros_stripped_from_yaml_integers():
     assert data["cilium"]["bgp"]["node_asn"] == "64514"
     raw = config_from("public.toml", **{"network.vlan_tag": "0000"})
     with pytest.raises(ConfigError, match="vlan_tag 0 must be in the range 1-4094"):
+        _load_raw(raw)
+
+
+def test_vlan_and_asn_accept_toml_integers():
+    raw = config_from(
+        "public.toml",
+        **{"network.vlan_tag": 100, "cilium.bgp.router_asn": 64513, "cilium.bgp.node_asn": 64514},
+    )
+    data = _load_raw(raw).model_dump(mode="json")
+    assert data["network"]["vlan_tag"] == "100"
+    assert data["cilium"]["bgp"]["router_asn"] == "64513"
+    assert data["cilium"]["bgp"]["node_asn"] == "64514"
+    raw = config_from("public.toml", **{"network.vlan_tag": 0})
+    with pytest.raises(ConfigError, match="vlan_tag 0 must be in the range 1-4094"):
+        _load_raw(raw)
+    raw = config_from("public.toml", **{"cilium.bgp.node_asn": 4294967296})
+    with pytest.raises(ConfigError, match="'4294967296' must be in the range 1-4294967295"):
         _load_raw(raw)
 
 

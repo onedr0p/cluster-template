@@ -35,7 +35,14 @@
       "type": "object"
     },
     "Asn": {
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
+      ]
     },
     "Bgp": {
       "additionalProperties": false,
@@ -103,6 +110,10 @@
       },
       "title": "Cilium",
       "type": "object"
+    },
+    "DecimalString": {
+      "pattern": "^[0-9]+$",
+      "type": "string"
     },
     "DefaultedIPv4Address": {
       "anyOf": [
@@ -481,8 +492,14 @@
       "type": "object"
     },
     "VlanTag": {
-      "pattern": "^[0-9]+$",
-      "type": "string"
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DecimalString"
+        },
+        {
+          "type": "integer"
+        }
+      ]
     }
   },
   "additionalProperties": false,

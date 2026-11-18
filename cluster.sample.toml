@@ -36,7 +36,8 @@ node_cidr = ""
 
 # 802.1Q VLAN tag to apply to the Talos node interface. Only set this if
 # your switch ports are configured as trunks (passing tagged traffic to the
-# nodes); access ports already untag VLAN traffic. Must be 1-4094.
+# nodes); access ports already untag VLAN traffic. Must be 1-4094, given as
+# a number (100) or a string ("100").
 # REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
 # OPTIONAL. Leave empty ("") for no VLAN.
 
@@ -287,14 +288,15 @@ token = ""
 # router_addr = ""
 
 # ASN your router uses for BGP. Anything in the private range (64512-65534)
-# is fine if you're not peering with the public internet.
-# OPTIONAL. Example: "64513"
+# is fine if you're not peering with the public internet. A number (64513)
+# or a string ("64513") both work.
+# OPTIONAL. Example: 64513
 
 # router_asn = ""
 
 # ASN the cluster's nodes use for BGP. Pick a different value than
-# router_asn so peering is eBGP rather than iBGP.
-# OPTIONAL. Example: "64514"
+# router_asn so peering is eBGP rather than iBGP. A number or a string.
+# OPTIONAL. Example: 64514
 
 # node_asn = ""
 
