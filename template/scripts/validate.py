@@ -158,14 +158,25 @@ class Api(Model):
     tls_sans: list[San] | None = None
 
 
+# Talos points kubelet's clusterDNS at the 10th IP of the service subnet.
+def _talos_cluster_dns(svc_cidr: IPv4Network) -> IPv4Address:
+    return svc_cidr.network_address + 10
+
+
 class Kubernetes(Model):
     pod_cidr: Cidr = IPv4Network("10.42.0.0/16")
     svc_cidr: Cidr = IPv4Network("10.43.0.0/16")
-    # The 10th IP in svc_cidr unless set explicitly.
+    # Talos's default unless set explicitly.
     coredns_addr: IPv4Address = Field(
-        default_factory=lambda data: data["svc_cidr"].network_address + 10
+        default_factory=lambda data: _talos_cluster_dns(data["svc_cidr"])
     )
     api: Api
+
+    # Gates clusterDNS in talos/all/30-kubelet.yaml.
+    @computed_field
+    @property
+    def coredns_addr_overridden(self) -> bool:
+        return self.coredns_addr != _talos_cluster_dns(self.svc_cidr)
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -236,9 +247,10 @@ class Gateways(Model):
 class Repository(Model):
     url: str = Field(pattern=REPO_URL_PATTERN)
     branch: str = Field(default="main", min_length=1)
-    # Defaults to "github", or "none" when ingress.mode is "none" (a hosted
-    # Git provider cannot reach the internal-only webhook route).
-    webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = None
+    webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = Field(
+        default=None,
+        description='Defaults to "github", or "none" when ingress.mode is "none".',
+    )
     known_hosts: str = ""
 
     @model_validator(mode="after")
@@ -460,6 +472,8 @@ class Config(Model):
             )
         if self.spegel.enabled is None:
             self.spegel.enabled = len(self.nodes) > 1
+        # None means unset; the string "none" disables the webhook. A hosted
+        # Git provider cannot reach an internal-only route, so those opt in.
         if self.repository.webhook_provider is None:
             self.repository.webhook_provider = "none" if self.ingress.mode == "none" else "github"
         for i, node in enumerate(self.nodes):

@@ -53,6 +53,7 @@ jobs:
           - selfhosted
           - no-webhook
           - internal
+          - internal-webhook
           - direct
           - lb-class
           - single-node

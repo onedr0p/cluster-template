@@ -168,10 +168,20 @@ def test_default_gateway_derived_from_node_cidr():
 
 
 def test_coredns_addr_default_and_override():
-    raw = config_from("private.toml")
-    assert _load_raw(raw).model_dump(mode="json")["kubernetes"]["coredns_addr"] == "10.43.0.10"
-    raw = config_from("private.toml", **{"kubernetes.coredns_addr": "10.43.0.53"})
-    assert _load_raw(raw).model_dump(mode="json")["kubernetes"]["coredns_addr"] == "10.43.0.53"
+    kubernetes = _load_raw(config_from("private.toml")).kubernetes
+    assert str(kubernetes.coredns_addr) == "10.43.0.10"
+    assert kubernetes.coredns_addr_overridden is False
+    raw = config_from("private.toml", **{"kubernetes.svc_cidr": "10.96.0.0/12"})
+    assert _load_raw(raw).kubernetes.coredns_addr_overridden is False
+    # Pinning the default explicitly must not count as an override.
+    raw = config_from(
+        "private.toml",
+        **{"kubernetes.svc_cidr": "10.96.0.0/12", "kubernetes.coredns_addr": "10.96.0.10"},
+    )
+    assert _load_raw(raw).kubernetes.coredns_addr_overridden is False
+    data = _load_raw(config_from("public.toml")).model_dump(mode="json")["kubernetes"]
+    assert data["coredns_addr"] == "10.43.0.53"
+    assert data["coredns_addr_overridden"] is True
     raw = config_from("private.toml", **{"kubernetes.coredns_addr": "192.168.9.9"})
     with pytest.raises(ConfigError, match="not inside svc_cidr"):
         _load_raw(raw)
@@ -245,6 +255,11 @@ def test_webhook_provider_follows_ingress_mode():
     assert _load_raw(config_from("internal.toml")).repository.webhook_provider == "none"
     lan_git = config_from("internal.toml", **{"repository.webhook_provider": "generic-hmac"})
     assert _load_raw(lan_git).repository.webhook_provider == "generic-hmac"
+    assert _load_raw(config_from("internal-webhook.toml")).repository.webhook_provider == "github"
+    # Follows ingress.mode, not dns.provider.
+    no_ingress = _load_raw(config_from("public.toml", **{"ingress.mode": "none"}))
+    assert no_ingress.dns.provider == "cloudflare"
+    assert no_ingress.repository.webhook_provider == "none"
 
 
 def test_single_controller_may_serve_api_on_own_address():
