@@ -17,6 +17,10 @@ provider = "none"
 
 [repository]
 url = "http://${E2E_GIT_HOST}:${E2E_GIT_PORT}/repo.git"
+# Internal-only clusters default to "none"; set it so the Receiver, HTTPRoute
+# and token Secret still deploy. Soft Serve sends no webhooks, so the
+# provider only selects the default Receiver type.
+webhook_provider = "github"
 
 [talos]
 schematic_id = "${E2E_SCHEMATIC}"

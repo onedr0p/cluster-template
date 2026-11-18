@@ -53,6 +53,7 @@ jobs:
           - selfhosted
           - no-webhook
           - internal
+          - internal-webhook
           - direct
           - lb-class
           - single-node
@@ -130,6 +131,24 @@ jobs:
             echo "::error::kubernetes.api.vip is $vip but Layer2VIPConfig rendered: $rendered"
             exit 1
           fi
+
+      # Talos already points kubelet at the 10th service IP, so clusterDNS is
+      # only rendered when CoreDNS uses another address. That default is
+      # derived here independently of validate.py on purpose.
+      - name: Assert kubelet clusterDNS matches the CoreDNS Service
+        run: |
+          coredns=$(yq '.spec.values.service.clusterIP' ./kubernetes/apps/kube-system/coredns/app/helmrelease.yaml)
+          for config in ./talos/rendered/*.yaml; do
+            subnet=$(yq 'select(.kind == "KubeNetworkConfig") | .serviceSubnets[0]' "$config")
+            default=$(python3 -c 'import ipaddress, sys; print(ipaddress.ip_network(sys.argv[1])[10])' "$subnet")
+            actual=$(yq 'select(.kind == "KubeletConfig") | .clusterDNS // [] | join(",")' "$config")
+            expected="$coredns"
+            [ "$coredns" != "$default" ] || expected=""
+            if [ "$actual" != "$expected" ]; then
+              echo "::error::$config: clusterDNS '$actual', expected '$expected' (CoreDNS $coredns)"
+              exit 1
+            fi
+          done
 
       - name: Dry run bootstrap apps task
         run: mise run --dry-run //bootstrap:apps

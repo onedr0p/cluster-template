@@ -408,6 +408,7 @@
             }
           ],
           "default": null,
+          "description": "Defaults to \"github\", or \"none\" when ingress.mode is \"none\".",
           "title": "Webhook Provider"
         },
         "known_hosts": {

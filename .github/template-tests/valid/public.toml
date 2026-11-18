@@ -6,8 +6,9 @@ dns_servers     = ["1.1.1.1"]
 ntp_servers     = ["162.159.200.123"]
 
 [kubernetes]
-pod_cidr = "10.42.0.0/16"
-svc_cidr = "10.43.0.0/16"
+pod_cidr     = "10.42.0.0/16"
+svc_cidr     = "10.43.0.0/16"
+coredns_addr = "10.43.0.53"
 
 [kubernetes.api]
 addr     = "10.10.10.254"
