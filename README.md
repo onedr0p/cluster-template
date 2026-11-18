@@ -116,7 +116,7 @@ These guidelines are a baseline, not a guarantee: **test and benchmark** your ha
     cloudflared tunnel create --credentials-file cloudflare-tunnel.json kubernetes
     ```
 
-    📍 _**Prefer port-forwarding over a tunnel?** Set `mode = "direct"` under `[ingress]` in `cluster.toml` and skip this step: no `cloudflare-tunnel.json` is needed. Instead, forward TCP 443 (and optionally 80) on your router to the `gateways.external` IP, and create an `external.<domain>` DNS record yourself pointing at your WAN address (an A record, or a CNAME to a DDNS hostname). Per-app records are still published automatically._
+    📍 _**Prefer port-forwarding over a tunnel?** Set `mode = "direct"` under `[ingress]` in `cluster.toml` and skip this step: no `cloudflare-tunnel.json` is needed. Instead, forward TCP 443 (and optionally 80) on your router to the external gateway's address (the `gateways.external` IP, or a node IP when it uses `load_balancer_class = "io.cilium/node"`; with `cilium.announce` set to `"bgp"` or `"none"` your router must route that address to the nodes), and create an `external.<domain>` DNS record yourself pointing at your WAN address (an A record, or a CNAME to a DDNS hostname). Per-app records are still published automatically._
 
 ### Stage 5: Cluster configuration
 

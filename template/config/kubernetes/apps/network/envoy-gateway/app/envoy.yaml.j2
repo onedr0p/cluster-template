@@ -28,23 +28,6 @@ spec:
       prometheus:
         compression:
           type: Zstd
-#% for name in ['external', 'internal'] %#
-#% set gateway = gateways[name] %#
-#% if gateway and gateway.load_balancer_class and (name == 'internal' or ingress.mode != 'none') %#
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: EnvoyProxy
-metadata:
-  name: envoy-#{ name }#
-spec:
-  mergeType: StrategicMerge
-  provider:
-    type: Kubernetes
-    kubernetes:
-      envoyService:
-        loadBalancerClass: "#{ gateway.load_balancer_class }#"
-#% endif %#
-#% endfor %#
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -57,70 +40,44 @@ spec:
     kind: EnvoyProxy
     name: envoy
     namespace: network
-#% if ingress.mode != 'none' %#
+#% for name in (['external'] if ingress.mode != 'none' else []) + ['internal'] %#
+#% set gateway = gateways[name] %#
+#% if gateway.load_balancer_class %#
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
+# Merged onto the GatewayClass EnvoyProxy to set the Service's
+# loadBalancerClass for this gateway only.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
 metadata:
-  name: envoy-external
-  annotations:
-    external-dns.kubernetes.io/target: external.${SECRET_DOMAIN}
+  name: envoy-#{ name }#
 spec:
-  gatewayClassName: envoy
-  infrastructure:
-    annotations:
-      external-dns.kubernetes.io/hostname: external.${SECRET_DOMAIN}
-      #% if gateways.external.address %#
-      lbipam.cilium.io/ips: "#{ gateways.external.address }#"
-      #% endif %#
-    #% if gateways.external.load_balancer_class %#
-    # Merges onto the GatewayClass EnvoyProxy to set the Service's
-    # loadBalancerClass for this gateway only.
-    parametersRef:
-      group: gateway.envoyproxy.io
-      kind: EnvoyProxy
-      name: envoy-external
-    #% endif %#
-  listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        namespaces:
-          from: Same
-    - name: https
-      protocol: HTTPS
-      port: 443
-      allowedRoutes:
-        namespaces:
-          from: All
-      tls:
-        certificateRefs:
-          - kind: Secret
-            name: ${SECRET_DOMAIN/./-}-production-tls
+  mergeType: StrategicMerge
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        loadBalancerClass: "#{ gateway.load_balancer_class }#"
 #% endif %#
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: envoy-internal
+  name: envoy-#{ name }#
   annotations:
-    external-dns.kubernetes.io/target: internal.${SECRET_DOMAIN}
+    external-dns.kubernetes.io/target: #{ name }#.${SECRET_DOMAIN}
 spec:
   gatewayClassName: envoy
   infrastructure:
     annotations:
-      external-dns.kubernetes.io/hostname: internal.${SECRET_DOMAIN}
-      #% if gateways.internal.address %#
-      lbipam.cilium.io/ips: "#{ gateways.internal.address }#"
+      external-dns.kubernetes.io/hostname: #{ name }#.${SECRET_DOMAIN}
+      #% if gateway.address %#
+      lbipam.cilium.io/ips: "#{ gateway.address }#"
       #% endif %#
-    #% if gateways.internal.load_balancer_class %#
-    # Merges onto the GatewayClass EnvoyProxy to set the Service's
-    # loadBalancerClass for this gateway only.
+    #% if gateway.load_balancer_class %#
     parametersRef:
       group: gateway.envoyproxy.io
       kind: EnvoyProxy
-      name: envoy-internal
+      name: envoy-#{ name }#
     #% endif %#
   listeners:
     - name: http
@@ -139,6 +96,7 @@ spec:
         certificateRefs:
           - kind: Secret
             name: ${SECRET_DOMAIN/./-}-production-tls
+#% endfor %#
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy

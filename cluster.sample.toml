@@ -6,9 +6,10 @@
 # =============================================================================
 [network]
 
-# The CIDR block your nodes' IPs come from. Every node's `address`, the Kube
-# API address, and the gateway VIPs (internal/dns/external) must all sit
-# inside this range.
+# The CIDR block your nodes' IPs come from. Every node's `address` and the
+# Kube API address must sit inside this range, and so must the gateway
+# addresses (internal/dns/external) when cilium.announce is "l2" (the
+# default without BGP).
 # REQUIRED. Example: "192.168.1.0/24"
 node_cidr = ""
 
@@ -105,7 +106,14 @@ addr = ""
 #      external = { load_balancer_class = "io.cilium/node" }  # the nodes' own IPs
 #      internal = { load_balancer_class = "tailscale" }       # Tailscale operator
 #    The plain IP form is shorthand for { address = "<ip>" }. Classes other
-#    than io.cilium/node need their controller installed separately.
+#    than io.cilium/node need their controller installed separately, and
+#    only one of internal and external can use io.cilium/node (both would
+#    listen on ports 80 and 443 of the same node IPs).
+#
+#    A Service's loadBalancerClass cannot be changed once it exists: to
+#    switch a running gateway between an address and a class (or between
+#    classes), delete its Service after the change and let it be recreated
+#    (envoy-<name> in the network namespace, or k8s-gateway for dns).
 # =============================================================================
 [gateways]
 
@@ -214,7 +222,9 @@ token = ""
 #    "cloudflare-tunnel", cloudflared connects outbound so no ports are
 #    forwarded (requires dns.provider = "cloudflare" and
 #    cloudflare-tunnel.json). With "direct", you forward TCP 443 (and
-#    optionally 80) on your router to gateways.external and point an
+#    optionally 80) on your router to the external gateway's address (its
+#    IP, or a node IP with load_balancer_class "io.cilium/node"; with
+#    cilium.announce "bgp" or "none" the router must route to it) and point an
 #    `external.<domain>` DNS record at your WAN address (A record or DDNS
 #    CNAME) yourself; per-app records are still published automatically.
 #    With "none", nothing is exposed and apps are only reachable on your
@@ -249,6 +259,9 @@ token = ""
 # provider already routes the addresses to the nodes (e.g. additional IPs
 # on a VPS), or when every gateway uses a load_balancer_class. Don't use
 # "l2" on a subnet shared with other tenants: it would claim their IPs.
+# Note that this only covers the gateways: Talos still announces the
+# Kubernetes API VIP (kubernetes.api.addr) over L2 on node_cidr unless
+# kubernetes.api.vip = false (single-controller clusters only).
 # OPTIONAL. Default: "bgp" when [cilium.bgp] is set, otherwise "l2".
 # Allowed: "l2" | "bgp" | "none"
 
