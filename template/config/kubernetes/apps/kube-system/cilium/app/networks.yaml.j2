@@ -4,13 +4,20 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: pool
 spec:
-  # Only the gateway VIPs: handing out arbitrary node_cidr addresses would
-  # let a new LoadBalancer Service claim (and announce) the router, a node
-  # or a DHCP client's IP. Add a free range here for your own Services.
+  allowFirstLastIPs: "No"
+  # Only the gateway VIPs, and only for the gateway Services: handing out
+  # node_cidr addresses would let a new LoadBalancer Service claim (and
+  # announce) the router, a node or a DHCP client's IP, and an open pool
+  # would let it take a gateway VIP first. For your own LoadBalancer
+  # Services, add a second pool with a free range and no serviceSelector.
+  serviceSelector:
+    matchExpressions:
+      - { key: io.kubernetes.service.namespace, operator: In, values: ["network"] }
+      - { key: app.kubernetes.io/name, operator: In, values: ["envoy", "k8s-gateway"] }
   blocks:
     - cidr: "#{ gateways.internal }#/32"
     - cidr: "#{ gateways.dns }#/32"
-    #% if gateways.external %#
+    #% if ingress.mode != 'none' %#
     - cidr: "#{ gateways.external }#/32"
     #% endif %#
 ---
