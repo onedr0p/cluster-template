@@ -66,13 +66,14 @@ def _asn(value: str) -> str:
     return str(int(value))
 
 
+# IPv4Address | Fqdn would report two errors with an unreadable union path;
+# one message naming both accepted forms is clearer.
 def _san(value: str) -> str:
     try:
-        return str(IPv4Address(value))
+        IPv4Address(value)
     except ValueError:
-        pass
-    if not re.fullmatch(FQDN_PATTERN, value):
-        raise ValueError(f"{value!r} is not a hostname or IPv4 address")
+        if not re.fullmatch(FQDN_PATTERN, value):
+            raise ValueError(f"{value!r} is not a hostname or IPv4 address") from None
     return value
 
 
@@ -323,7 +324,7 @@ class Config(Model):
     @computed_field
     @property
     def cert_sans(self) -> list[str]:
-        return ["127.0.0.1", str(self.kubernetes.api.addr), *(str(s) for s in self.kubernetes.api.tls_sans or [])]
+        return ["127.0.0.1", str(self.kubernetes.api.addr), *(self.kubernetes.api.tls_sans or [])]
 
     # A single-controller cluster may point kubernetes.api.addr at the
     # controller itself (e.g. a VPS with one IP); no Layer 2 VIP is
