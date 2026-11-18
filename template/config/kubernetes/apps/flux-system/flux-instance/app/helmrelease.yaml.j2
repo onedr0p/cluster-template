@@ -17,7 +17,7 @@ spec:
       sync:
         kind: GitRepository
         url: "#{ repository.url }#"
-        #% if repository.url.startswith('ssh://') %#
+        #% if repository.uses_deploy_key %#
         pullSecret: deploy-key
         #% endif %#
         ref: "refs/heads/#{ repository.branch }#"

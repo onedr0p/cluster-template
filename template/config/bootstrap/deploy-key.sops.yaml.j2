@@ -1,7 +1,7 @@
 #| Only ssh:// repositories authenticate with the deploy key; https:// ones
    are cloned anonymously, so no Secret is rendered and the flux-instance
    HelmRelease sets no pullSecret. #|
-#% if repository.url.startswith('ssh://') %#
+#% if repository.uses_deploy_key %#
 ---
 apiVersion: v1
 kind: Secret

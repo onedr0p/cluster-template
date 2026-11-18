@@ -288,9 +288,16 @@ class Repository(Model):
     )
     known_hosts: Stripped = ""
 
+    # Single source for the deploy key Secret, its apply in bootstrap and the
+    # flux-instance pullSecret: https:// repositories are cloned anonymously.
+    @computed_field
+    @property
+    def uses_deploy_key(self) -> bool:
+        return self.url.startswith("ssh://")
+
     @model_validator(mode="after")
     def check(self) -> Self:
-        if self.url.startswith("ssh://"):
+        if self.uses_deploy_key:
             host = self.url.removeprefix("ssh://git@").split("/", 1)[0].split(":", 1)[0]
             if host not in KNOWN_SSH_HOSTS and not self.known_hosts:
                 raise ValueError(
@@ -365,21 +372,31 @@ class Cilium(Model):
     bgp: Bgp = Bgp()
 
 
-# Kernel block device names (optionally with a partition suffix). A disk value
-# without a leading "/" is matched against the disk serial, so a bare device
-# name would select no disk and the install would never start.
+# Kernel block device names, with an optional partition suffix. A bare disk
+# value is matched against the disk serial, so one of these would select no
+# disk and the install would never start.
 KERNEL_DISK_NAME = re.compile(
-    r"^(?:(?:s|v|h|xv)d[a-z]+\d*|nvme\d+n\d+(?:p\d+)?|mmcblk\d+(?:p\d+)?)$"
+    r"(?:(?:s|v|h|xv)d[a-z]+|nvme\d+(?:c\d+)?n\d+|mmcblk\d+(?:boot\d+|rpmb)?"
+    r"|(?:md|loop|nbd|rbd|sr|zram)\d+|pmem\d+s?|dm-\d+)(?:p?\d+)?"
 )
 
 
 def _disk(value: str) -> str:
-    if not value:
-        raise ValueError("disk must be a device path, a /dev/disk/by-id/ path or a disk serial")
-    if KERNEL_DISK_NAME.match(value):
+    """Accept a /dev path or symlink, or a disk serial (any value without a leading "/")."""
+    # Rendered into a double-quoted YAML string and a CEL string in a plain YAML
+    # scalar; YAML folds or rejects C1 controls and U+2028/U+2029.
+    if value != value.strip() or re.search(r'[\x00-\x1f\x7f-\x9f\u2028\u2029"\\]|: | #', value):
         raise ValueError(
-            f"{value!r} looks like a kernel device name, not a disk serial; "
-            f"did you mean '/dev/{value}'?"
+            f"{value!r} must not contain control characters, double quotes, backslashes, "
+            "': ' or ' #', or start or end with whitespace"
+        )
+    path = value.removeprefix("./")
+    if path.startswith(("dev/", "disk/")):
+        raise ValueError(f"{value!r} is a relative path; did you mean {'/dev/' + path.removeprefix('dev/')!r}?")
+    if KERNEL_DISK_NAME.fullmatch(value):
+        raise ValueError(
+            f"{value!r} looks like a kernel device name; use '/dev/{value}', "
+            "or a /dev/disk/by-id/ path if it is a disk serial"
         )
     return value
 
@@ -388,9 +405,7 @@ class Node(Model):
     name: str = Field(pattern=r"^[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]$|^[a-z0-9]$")
     address: IPv4Address
     controller: bool
-    # A value starting with "/" is a device path or symlink; anything else is
-    # matched against the disk serial.
-    disk: Annotated[str, AfterValidator(_disk)]
+    disk: Annotated[str, Field(min_length=1), AfterValidator(_disk)]
     mac_addr: str = Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
     # Falls back to talos.schematic_id when unset.
     schematic_id: _unsettable(SchematicId | None) = None

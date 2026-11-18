@@ -79,14 +79,10 @@ REJECTIONS = {
     "empty-dns-servers": ("private.toml", "network.dns_servers", [], r"network\.dns_servers: List should have at least 1 item"),
     "empty-ntp-servers": ("private.toml", "network.ntp_servers", [], r"network\.ntp_servers: List should have at least 1 item"),
     "duplicate-mac-address": ("private.toml", "nodes.1.mac_addr", "00:00:00:00:00:00", r"duplicate node MAC address '00:00:00:00:00:00' on nodes\[0\] and nodes\[1\]"),
-    "empty-disk": ("private.toml", "nodes.0.disk", "", r"nodes\.0\.disk: disk must be a device path"),
-    "bare-disk-name-sd": ("private.toml", "nodes.0.disk", "sda", r"'sda' looks like a kernel device name, not a disk serial; did you mean '/dev/sda'\?"),
-    "bare-disk-name-vd": ("private.toml", "nodes.0.disk", "vda", r"did you mean '/dev/vda'\?"),
-    "bare-disk-name-hd": ("private.toml", "nodes.0.disk", "hdb", r"did you mean '/dev/hdb'\?"),
-    "bare-disk-name-xvd": ("private.toml", "nodes.0.disk", "xvda", r"did you mean '/dev/xvda'\?"),
-    "bare-disk-name-nvme": ("private.toml", "nodes.0.disk", "nvme0n1", r"did you mean '/dev/nvme0n1'\?"),
-    "bare-disk-name-mmcblk": ("private.toml", "nodes.0.disk", "mmcblk0", r"did you mean '/dev/mmcblk0'\?"),
-    "bare-disk-name-partition": ("private.toml", "nodes.0.disk", "nvme0n1p1", r"did you mean '/dev/nvme0n1p1'\?"),
+    "empty-disk": ("private.toml", "nodes.0.disk", "", r"nodes\.0\.disk: String should have at least 1 character"),
+    "disk-relative-dev-path": ("private.toml", "nodes.0.disk", "dev/nvme0n1", r"'dev/nvme0n1' is a relative path; did you mean '/dev/nvme0n1'\?"),
+    "disk-relative-by-id": ("private.toml", "nodes.0.disk", "disk/by-id/nvme-x", r"did you mean '/dev/disk/by-id/nvme-x'\?"),
+    "disk-relative-dot-path": ("private.toml", "nodes.0.disk", "./dev/nvme0n1", r"did you mean '/dev/nvme0n1'\?"),
     "api-addr-on-controller-without-opt-out": ("single-node.toml", "kubernetes.api.addr", "10.10.10.100", r"kubernetes\.api\.addr 10\.10\.10\.100 is a node address: .* set kubernetes\.api\.vip = false"),
     "api-addr-on-worker": ("private.toml", "kubernetes.api.addr", "10.10.10.101", r"kubernetes\.api\.addr 10\.10\.10\.101 is a node address"),
     "no-vip-with-unused-addr": ("single-node.toml", "kubernetes.api.vip", False, r"kubernetes\.api\.vip = false requires exactly one controller with kubernetes\.api\.addr set to its address \(controllers: 10\.10\.10\.100\)"),
@@ -153,7 +149,39 @@ def test_ssh_port_on_bundled_host_needs_no_known_hosts():
     assert _load_raw(raw).repository.known_hosts == ""
 
 
-@pytest.mark.parametrize("disk", ["/dev/nvme0n1", "/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456", "S64DNX0R123456", "sdfake-serial-01"])
+KERNEL_DISK_NAMES = [
+    "sda", "sdb2", "vda", "hdb", "xvda", "nvme0n1", "nvme0n1p1", "nvme0c0n1", "mmcblk0", "mmcblk0p2",
+    "mmcblk0boot0", "md0", "md127p1", "loop0", "nbd0", "rbd0", "sr0", "zram0", "pmem0", "pmem0s", "dm-0",
+]
+
+
+@pytest.mark.parametrize("name", KERNEL_DISK_NAMES)
+def test_bare_kernel_disk_name_rejected(name: str):
+    with pytest.raises(ConfigError, match=rf"'{name}' looks like a kernel device name; use '/dev/{name}', or a /dev/disk/by-id/ path"):
+        _load_raw(config_from("private.toml", **{"nodes.0.disk": name}))
+
+
+@pytest.mark.parametrize("disk", [" /dev/sda", "S64DNX0R123456 ", "ab\nc", "a\x85b", "a\u2028b", 'ab"c', "ab\\c", "ab: c", "ab #c"])
+def test_disk_with_unsafe_characters_rejected(disk: str):
+    with pytest.raises(ConfigError, match="must not contain control characters, double quotes, backslashes"):
+        _load_raw(config_from("private.toml", **{"nodes.0.disk": disk}))
+
+
+@pytest.mark.parametrize(
+    "disk",
+    [
+        "/dev/nvme0n1",
+        "/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456",
+        "/dev/disk/by-path/pci-0000:00:1f.2-ata-1",
+        "S64DNX0R123456",
+        "sdfake-serial-01",
+        # Serials are kept verbatim.
+        "serial:DATA",
+        "RACK/01",
+        "WD Blue 1TB",
+        "O'Brien-01",
+    ],
+)
 def test_disk_paths_and_serials_accepted(disk: str):
     assert _load_raw(config_from("private.toml", **{"nodes.0.disk": disk})).nodes[0].disk == disk
 
@@ -295,6 +323,13 @@ def test_cert_sans_single_source():
     assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "example.com"]
     raw = config_from("private.toml")
     assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254"]
+
+
+def test_uses_deploy_key_follows_url_scheme():
+    assert _load_raw(config_from("public.toml")).repository.uses_deploy_key is False
+    assert _load_raw(config_from("selfhosted.toml")).repository.uses_deploy_key is True
+    with pytest.raises(ConfigError, match="uses_deploy_key"):
+        _load_raw(config_from("public.toml", **{"repository.uses_deploy_key": True}))
 
 
 def test_ingress_mode_follows_dns_provider():

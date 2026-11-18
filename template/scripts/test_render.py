@@ -11,6 +11,7 @@ from ipaddress import ip_network
 from pathlib import Path
 
 import sys
+import tomllib
 
 import pytest
 import yaml
@@ -77,3 +78,16 @@ def test_flux_webhook_route_attaches_to_the_reachable_gateway():
     expected = "envoy-internal" if config()["ingress"]["mode"] == "none" else "envoy-external"
     assert [ref["name"] for ref in route["spec"]["parentRefs"]] == [expected]
     assert expected in [gateway["metadata"]["name"] for gateway in gateways]
+
+
+# Only ssh:// repositories authenticate with the deploy key: the Secret is
+# rendered, apps-secrets applies it and flux-instance pulls with it. The
+# scheme is read from the URL here independently of validate.py on purpose.
+def test_deploy_key_follows_the_repository_scheme():
+    ssh = config()["repository"]["url"].startswith("ssh://")
+    tasks = tomllib.loads((REPO_ROOT / "bootstrap/mise.toml").read_text())["tasks"]
+    applied = [line.strip(" \\") for line in tasks["apps-secrets"]["run"].splitlines()]
+    (release,) = documents("kubernetes/apps/flux-system/flux-instance/app/helmrelease.yaml", "HelmRelease")
+    assert (REPO_ROOT / "bootstrap/deploy-key.sops.yaml").exists() == ssh
+    assert ("deploy-key.sops.yaml" in applied) == ssh
+    assert release["spec"]["values"]["instance"]["sync"].get("pullSecret") == ("deploy-key" if ssh else None)
