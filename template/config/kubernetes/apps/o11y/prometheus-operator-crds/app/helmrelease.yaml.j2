@@ -1,0 +1,16 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: prometheus-operator-crds
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: prometheus-operator-crds
+  interval: 1h
+  values:
+    crds:
+      # The chart renders its CRDs as templates, so without this an uninstall
+      # deletes them along with every ServiceMonitor and PodMonitor.
+      annotations:
+        helm.sh/resource-policy: keep

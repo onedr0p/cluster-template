@@ -32,6 +32,6 @@ releases:
       - template: default
 
   - name: prometheus-operator-crds
-    namespace: observability
-    chart: oci://ghcr.io/prometheus-community/charts/prometheus-operator-crds
-    version: 29.0.0
+    namespace: o11y
+    inherit:
+      - template: default

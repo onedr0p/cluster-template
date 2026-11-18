@@ -2,9 +2,6 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>home-operations/renovate-presets#12.0.0"],
   schedule: ["every weekend"],
-  helmfile: {
-    managerFilePatterns: ["/(^|/)helmfile/[^/]+\\.ya?ml(?:\\.j2)?$/"],
-  },
   mise: {
     managerFilePatterns: ["/^\\.mise/conf\\.d/[^/]+\\.toml$/"],
   },
