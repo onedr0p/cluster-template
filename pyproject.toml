@@ -10,6 +10,7 @@ dependencies = [
 [dependency-groups]
 dev = [
   "pytest>=8",
+  "pyyaml>=6",
 ]
 
 [tool.uv]
