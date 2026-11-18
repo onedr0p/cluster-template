@@ -26,7 +26,7 @@ done
 # flate renders every Flux Kustomization and HelmRelease with Flux's postBuild
 # behaviour. SOPS leaves key names in plaintext, so supply each encrypted
 # Secret with placeholder values for the substitution.
-supply="$(yq 'select(.kind == "Secret" and has("sops")) | .stringData[] = "example.com" | del(.sops)' <<<"${namespaces}")"
-apps="$(flate build all --no-progress --strict-substitutions --supply <(printf '%s\n' "${supply}"))"
+supply="$(yq 'select(.kind == "Secret" and has("sops")) | .stringData = ((.data // {}) * (.stringData // {}) | map_values("example.com")) | del(.data, .sops)' <<<"${namespaces}")"
+apps="$(flate build all --no-progress --path "${KUBERNETES_DIR}/apps" --strict-substitutions --supply <(printf '%s\n' "${supply}"))"
 
 kubeconform "${kubeconform_args[@]}" <<<"${namespaces}${apps}"

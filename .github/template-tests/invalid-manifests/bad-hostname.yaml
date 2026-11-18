@@ -1,5 +1,6 @@
 ---
 # Fails only while HTTPRoutes are validated against their schema.
+# expect: HTTPRoute bad-hostname is invalid
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

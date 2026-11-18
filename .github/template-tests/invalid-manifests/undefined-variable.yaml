@@ -1,9 +1,9 @@
 ---
 # Fails only while postBuild substitution runs in strict mode.
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+# expect: variable not set (strict mode): "SECRET_DOMIAN"
+apiVersion: v1
+kind: ConfigMap
 metadata:
   name: undefined-variable
-spec:
-  hostnames:
-    - "echo.${SECRET_DOMIAN}"
+data:
+  hostname: "echo.${SECRET_DOMIAN}"
