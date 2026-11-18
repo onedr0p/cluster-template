@@ -117,7 +117,10 @@ run = "bash template/resources/kubeconform.sh kubernetes"
 hide = true
 dir = "{{ config_root }}/../talos"
 run = '''
-topf render --confirm=false --output "$(mktemp -d)" >/dev/null
+# The rendered machine configs hold the cluster CA keys in plain text.
+out="$(mktemp -d)"
+trap 'rm -rf "$out"' EXIT
+topf render --confirm=false --output "$out" >/dev/null
 if ! sops filestatus secrets.sops.yaml | jq --exit-status '.encrypted == true' >/dev/null; then
     mise run //:log fatal "Talos secrets bundle is not encrypted"
 fi

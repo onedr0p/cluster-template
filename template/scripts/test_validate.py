@@ -75,6 +75,15 @@ REJECTIONS = {
     "api-addr-on-worker": ("private.toml", "kubernetes.api.addr", "10.10.10.101", r"kubernetes\.api\.addr 10\.10\.10\.101 is a node address"),
     "no-vip-with-unused-addr": ("single-node.toml", "kubernetes.api.vip", False, r"kubernetes\.api\.vip = false requires exactly one controller with kubernetes\.api\.addr set to its address \(controllers: 10\.10\.10\.100\)"),
     "no-vip-with-several-controllers": ("multi-controller.toml", "kubernetes.api.vip", False, r"kubernetes\.api\.vip = false requires exactly one controller"),
+    "node-network-address": ("private.toml", "nodes.0.address", "10.10.10.0", r"nodes\[0\]\.address 10\.10\.10\.0 is the network or broadcast address of node_cidr 10\.10\.10\.0/24"),
+    "api-broadcast-address": ("private.toml", "kubernetes.api.addr", "10.10.10.255", r"kubernetes\.api\.addr 10\.10\.10\.255 is the network or broadcast address of node_cidr"),
+    "coredns-on-api-service-ip": ("private.toml", "kubernetes.coredns_addr", "10.43.0.1", r"coredns_addr 10\.43\.0\.1 is reserved in svc_cidr 10\.43\.0\.0/16"),
+    "coredns-on-svc-broadcast": ("private.toml", "kubernetes.coredns_addr", "10.43.255.255", r"coredns_addr 10\.43\.255\.255 is reserved in svc_cidr"),
+    "bgp-gateway-in-pod-cidr": ("public.toml", "gateways.external", "10.42.0.5", r"gateways\.external 10\.42\.0\.5 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
+    "bgp-gateway-in-svc-cidr": ("public.toml", "gateways.external", "10.43.0.10", r"gateways\.external 10\.43\.0\.10 is inside kubernetes\.svc_cidr 10\.43\.0\.0/16"),
+    "bgp-router-addr-collision": ("public.toml", "cilium.bgp.router_addr", "10.10.10.254", r"address 10\.10\.10\.254 is used by both kubernetes\.api\.addr and cilium\.bgp\.router_addr"),
+    "bgp-router-addr-node-collision": ("public.toml", "cilium.bgp.router_addr", "10.10.10.100", r"address 10\.10\.10\.100 is used by both nodes\[0\]\.address and cilium\.bgp\.router_addr"),
+    "bgp-router-addr-in-pod-cidr": ("public.toml", "cilium.bgp.router_addr", "10.42.0.1", r"cilium\.bgp\.router_addr 10\.42\.0\.1 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
 }
 
@@ -130,6 +139,17 @@ def test_ssh_port_on_bundled_host_needs_no_known_hosts():
 @pytest.mark.parametrize("disk", ["/dev/nvme0n1", "/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456", "S64DNX0R123456", "sdfake-serial-01"])
 def test_disk_paths_and_serials_accepted(disk: str):
     assert _load_raw(config_from("private.toml", **{"nodes.0.disk": disk})).nodes[0].disk == disk
+
+
+def test_bgp_router_may_be_the_default_gateway():
+    raw = config_from("public.toml", **{"cilium.bgp.router_addr": "10.10.10.1"})
+    config = _load_raw(raw)
+    assert config.cilium.bgp.router_addr == config.network.default_gateway
+
+
+def test_unused_external_gateway_is_not_checked():
+    # Without ingress no envoy-external Gateway uses the address.
+    _load_raw(config_from("internal.toml", **{"gateways.external": "10.10.10.100"}))
 
 
 def test_cluster_issuer_follows_dns_provider():
