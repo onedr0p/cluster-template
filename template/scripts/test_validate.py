@@ -65,7 +65,7 @@ REJECTIONS = {
     "huge-digit-string-vlan-tag": ("public.toml", "network.vlan_tag", "9" * 5000, r"network\.vlan_tag: '9+' must be in the range 1-4094"),
     "bool-asn": ("public.toml", "cilium.bgp.router_asn", True, r"cilium\.bgp\.router_asn: expected a whole number, got true"),
     "huge-digit-string-asn": ("public.toml", "cilium.bgp.node_asn", "0" * 5000 + "1" * 11, r"cilium\.bgp\.node_asn: '0+1+' must be in the range 1-4294967295"),
-    "ibgp-asns": ("public.toml", "cilium.bgp.node_asn", "064513", r"cilium\.bgp: node_asn must differ from router_asn \(64513\) so peering is eBGP"),
+    "huge-zero-padded-zero-vlan-tag": ("public.toml", "network.vlan_tag", "0" * 5000, r"network\.vlan_tag: '0+' must be in the range 1-4094"),
     "bad-domain-name": ("private.toml", "domain.name", "Example.com", r"domain\.name: String should match pattern"),
     "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: 'not a hostname' is not a hostname or IPv4 address"),
     "bad-node-name": ("private.toml", "nodes.0.name", "k8s-0-", r"nodes\.0\.name: String should match pattern"),
@@ -73,8 +73,7 @@ REJECTIONS = {
     "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
     "bad-schematic-id": ("private.toml", "nodes.0.schematic_id", "376567", r"nodes\.0\.schematic_id: String should match pattern"),
     "non-hex-schematic-id": ("private.toml", "talos.schematic_id", "z" * 64, r"talos\.schematic_id: String should match pattern '\^\[0-9a-f\]\{64\}\$'"),
-    "domain-name-too-long": ("private.toml", "domain.name", ("a" * 63 + ".") * 3 + "a" * 45 + ".com", r"domain\.name: must be at most 240 characters, got 241"),
-    "domain-name-over-dns-limit": ("private.toml", "domain.name", ("a" * 63 + ".") * 4 + "com", r"domain\.name: String should have at most 253 characters"),
+    "domain-name-too-long": ("private.toml", "domain.name", ("a" * 63 + ".") * 3 + "a" * 35 + ".com", r"domain\.name: String should have at most 230 characters"),
     "whitespace-dns-token": ("public.toml", "dns.token", " ", r"token is required when dns\.provider is 'cloudflare'"),
     "whitespace-token-without-dns-provider": ("internal.toml", "dns.token", " x ", r"token must be empty when dns\.provider is 'none'"),
     "empty-dns-servers": ("private.toml", "network.dns_servers", [], r"network\.dns_servers: List should have at least 1 item"),
@@ -237,7 +236,7 @@ def test_at_least_one_controller_required():
 # ints: these render unquoted into YAML, where a leading zero means octal.
 @pytest.mark.parametrize(
     ("vlan_tag", "router_asn", "node_asn"),
-    [(100, 64513, 64514), ("100", "64513", "64514"), ("0100", "064513", "064514")],
+    [(100, 64513, 64514), ("100", "64513", "64514"), ("0100", "064513", "064514"), ("0" * 5000 + "100", 64513, 64514)],
 )
 def test_vlan_and_asn_normalised_to_int(vlan_tag, router_asn, node_asn):
     raw = config_from(
@@ -257,6 +256,11 @@ def test_vlan_and_asn_integer_range_errors():
     raw = config_from("public.toml", **{"cilium.bgp.node_asn": 4294967296})
     with pytest.raises(ConfigError, match="node_asn: 4294967296 must be in the range 1-4294967295"):
         _load_raw(raw)
+
+
+def test_ibgp_asns_accepted():
+    raw = config_from("public.toml", **{"cilium.bgp.node_asn": "064513"})
+    assert _load_raw(raw).cilium.bgp.node_asn == 64513
 
 
 def test_dns_token_whitespace_stripped():

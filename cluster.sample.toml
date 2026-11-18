@@ -201,7 +201,7 @@ url = ""
 # =============================================================================
 [domain]
 
-# At most 240 characters, leaving room for prefixes such as "flux-webhook.".
+# At most 230 characters, leaving room for derived names such as "flux-webhook.".
 # REQUIRED. Example: "example.com"
 name = ""
 
@@ -295,7 +295,7 @@ token = ""
 
 # router_asn = ""
 
-# ASN the cluster's nodes use for BGP. Must differ from
+# ASN the cluster's nodes use for BGP. Pick a different value than
 # router_asn so peering is eBGP rather than iBGP. A number or a string.
 # OPTIONAL. Example: 64514
 

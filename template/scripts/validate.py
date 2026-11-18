@@ -44,8 +44,9 @@ LB_CLASS_PATTERN = rf"^({DNS_LABEL}(\.{DNS_LABEL})*/)?[A-Za-z0-9]([-A-Za-z0-9_.]
 # Cilium's own LB IPAM classes; gateways get LB IPAM through an address.
 CILIUM_LB_IPAM_CLASSES = ["io.cilium/l2-announcer", "io.cilium/bgp-control-plane"]
 FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
-# Leaves room for the longest prefix the templates add ('flux-webhook.').
-DOMAIN_MAX_LENGTH = 240
+# Leaves room within the 253-character DNS limit for the longest name derived
+# from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
+DOMAIN_MAX_LENGTH = 230
 
 
 def _network(value: Any) -> Any:
@@ -80,13 +81,16 @@ def _bounded_int(lo: int, hi: int) -> Any:
         if isinstance(value, bool) or not isinstance(value, int | str):
             shown = str(value).lower() if isinstance(value, bool) else repr(value)
             raise ValueError(f"expected a whole number, got {shown}")
-        if isinstance(value, str) and not (value.isascii() and value.isdigit()):
-            raise ValueError(f"{value!r} is not a decimal number")
-        # Count digits before int() so a huge string can't hit Python's
-        # int-conversion limit; anything longer is out of range anyway.
-        if isinstance(value, int) or len(value.lstrip("0")) <= max_digits:
-            if lo <= int(value) <= hi:
-                return int(value)
+        number = value
+        if isinstance(value, str):
+            if not (value.isascii() and value.isdigit()):
+                raise ValueError(f"{value!r} is not a decimal number")
+            # Convert only the significant digits, and only when short enough
+            # to be in range, so huge strings can't hit Python's int() limit.
+            digits = value.lstrip("0") or "0"
+            number = int(digits) if len(digits) <= max_digits else None
+        if number is not None and lo <= number <= hi:
+            return number
         raise ValueError(f"{value!r} must be in the range {lo}-{hi}")
 
     # parse() does all the checking, so its messages quote the raw value;
@@ -136,16 +140,6 @@ def _unsettable(tp: Any) -> Any:
     return Annotated[tp, BeforeValidator(_empty_to_default, json_schema_input_type=tp | Literal[""])]
 
 
-def _domain_name(value: str) -> str:
-    if len(value) > DOMAIN_MAX_LENGTH:
-        raise ValueError(
-            f"must be at most {DOMAIN_MAX_LENGTH} characters, got {len(value)} "
-            "(templates prefix it with names such as 'flux-webhook.', which "
-            "must still fit the 253-character DNS limit)"
-        )
-    return value
-
-
 # Surrounding whitespace is never meaningful, and a whitespace-only value is
 # not a value. A plain alias rather than `type` so the schema inlines it
 # instead of emitting one mangled $defs entry per use.
@@ -153,7 +147,6 @@ Stripped = Annotated[str, StringConstraints(strip_whitespace=True)]
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
 type VlanTag = _bounded_int(1, 4094)
 type Asn = _bounded_int(1, 4294967295)
-type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN, max_length=253)]
 type San = Annotated[
     str,
     AfterValidator(_san),
@@ -162,11 +155,7 @@ type San = Annotated[
     ),
 ]
 type SchematicId = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
-type DomainName = Annotated[
-    Fqdn,
-    AfterValidator(_domain_name),
-    Field(json_schema_extra={"maxLength": DOMAIN_MAX_LENGTH}),
-]
+type DomainName = Annotated[str, Field(pattern=FQDN_PATTERN, max_length=DOMAIN_MAX_LENGTH)]
 
 
 class Model(BaseModel):
@@ -352,10 +341,6 @@ class Bgp(Model):
             raise ValueError(
                 "bgp is partially configured: set router_addr, router_asn and "
                 f"node_asn together (missing: {', '.join(unset)})"
-            )
-        if not unset and self.router_asn == self.node_asn:
-            raise ValueError(
-                f"node_asn must differ from router_asn ({self.router_asn}) so peering is eBGP"
             )
         return self
 
