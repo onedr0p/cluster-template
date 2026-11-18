@@ -107,6 +107,11 @@ helmfile --file bootstrap/helmfile/apps.yaml template --quiet > /dev/null
 mise run //:log info "bootstrap charts rendered cleanly"
 '''
 
+# Reads the rendered tree, so it needs configure and //talos:render first.
+[tasks.test-render]
+description = "Test the rendered output against cluster.toml"
+run = "uv run --quiet --locked pytest template/scripts/test_render.py"
+
 [tasks.validate-kubernetes]
 hide = true
 run = "bash template/resources/kubeconform.sh kubernetes"
