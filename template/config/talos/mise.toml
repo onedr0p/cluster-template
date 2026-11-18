@@ -45,9 +45,8 @@ complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos
 confirm = { message = "This will reset node {{ usage.node }} to maintenance mode, continue?", default = "no" }
 run = 'topf reset --nodes-filter "^${usage_node}$" --confirm=false'
 
-# The snapshot holds the whole cluster state, Secrets included (encrypted with
-# the key in secrets.sops.yaml), so the default lands in the gitignored
-# .private/. A relative path is taken from where mise was run.
+# Defaults to the gitignored .private/; a relative path is taken from where
+# mise was run.
 [tasks.etcd-snapshot]
 description = "Save an etcd snapshot from a control-plane node"
 usage = '''

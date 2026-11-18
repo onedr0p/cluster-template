@@ -379,7 +379,7 @@ The node should join the cluster automatically and workloads will be scheduled o
 
 ### 💾 Backing up etcd
 
-A single control-plane node holds the only copy of the cluster state. Take a snapshot before risky changes, or on a schedule:
+etcd holds the whole cluster state, and with a single control-plane node there is no other copy. Take a snapshot before risky changes:
 
 ```sh
 mise run //talos:etcd-snapshot
