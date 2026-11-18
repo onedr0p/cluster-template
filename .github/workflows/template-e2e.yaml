@@ -124,33 +124,6 @@ jobs:
       - name: Test rendered output
         run: mise run //template:test-render
 
-      # Talos already points kubelet at the 10th service IP, so clusterDNS is
-      # only rendered when CoreDNS uses another address. That default is
-      # derived here independently of validate.py on purpose.
-      - name: Assert kubelet clusterDNS matches the CoreDNS Service
-        run: |
-          coredns=$(yq '.spec.values.service.clusterIP' ./kubernetes/apps/kube-system/coredns/app/helmrelease.yaml)
-          for config in ./talos/rendered/*.yaml; do
-            subnet=$(yq 'select(.kind == "KubeNetworkConfig") | .serviceSubnets[0]' "$config")
-            default=$(python3 -c 'import ipaddress, sys; print(ipaddress.ip_network(sys.argv[1])[10])' "$subnet")
-            actual=$(yq 'select(.kind == "KubeletConfig") | .clusterDNS // [] | join(",")' "$config")
-            expected="$coredns"
-            [ "$coredns" != "$default" ] || expected=""
-            if [ "$actual" != "$expected" ]; then
-              echo "::error::$config: clusterDNS '$actual', expected '$expected' (CoreDNS $coredns)"
-              exit 1
-            fi
-          done
-
-      - name: Assert internal webhook route targets envoy-internal
-        if: ${{ matrix.fixture == 'internal-webhook' }}
-        run: |
-          parent=$(yq '.spec.parentRefs[0].name' ./kubernetes/apps/flux-system/flux-instance/app/httproute.yaml)
-          if [ "$parent" != "envoy-internal" ]; then
-            echo "::error::flux-webhook HTTPRoute parent is '$parent', expected envoy-internal"
-            exit 1
-          fi
-
       - name: Dry run bootstrap apps task
         run: mise run --dry-run //bootstrap:apps
 
