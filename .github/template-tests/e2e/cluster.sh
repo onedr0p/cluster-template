@@ -266,6 +266,23 @@ until kubectl exec --namespace default e2e-network-client -- \
     fi
     sleep 2
 done
+
+# Cilium serves the gateway on its LoadBalancer IP alone, so the runner must
+# reach it there while its Service holds no NodePort.
+echo "==> asserting the internal gateway"
+kubectl wait gateway/envoy-internal --namespace network \
+    --for=condition=Programmed --timeout=5m
+deadline=$((SECONDS + 60))
+until timeout 2 bash -c ">/dev/tcp/$PREFIX.101/80" 2>/dev/null; do
+    if (( SECONDS >= deadline )); then
+        mise run //:log fatal "Internal gateway does not answer on its LoadBalancer IP"
+    fi
+    sleep 2
+done
+kubectl get services --namespace network --output json \
+    --selector gateway.envoyproxy.io/owning-gateway-name=envoy-internal \
+    | jq --exit-status '(.items | length > 0) and all(.items[].spec.ports[]; has("nodePort") | not)' >/dev/null \
+    || mise run //:log fatal "Internal gateway Service allocates NodePorts"
 }
 
 summary() {
