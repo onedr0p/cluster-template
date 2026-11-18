@@ -1,3 +1,4 @@
+#% if gateway_addresses %#
 ---
 apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
@@ -18,11 +19,11 @@ spec:
         operator: In
         values: ["envoy-external", "envoy-internal", "k8s-gateway"]
   blocks:
-    - cidr: "#{ gateways.internal }#/32"
-    - cidr: "#{ gateways.dns }#/32"
-    #% if ingress.mode != 'none' %#
-    - cidr: "#{ gateways.external }#/32"
-    #% endif %#
+    #% for address in gateway_addresses %#
+    - cidr: "#{ address }#/32"
+    #% endfor %#
+#% endif %#
+#% if cilium.announce != 'none' %#
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy
@@ -38,6 +39,7 @@ spec:
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
+#% endif %#
 #% if cilium_bgp_enabled %#
 ---
 apiVersion: cilium.io/v2

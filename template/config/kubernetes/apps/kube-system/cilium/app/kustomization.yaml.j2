@@ -4,4 +4,6 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./ocirepository.yaml
+  #% if cilium_networks_needed %#
   - ./networks.yaml
+  #% endif %#

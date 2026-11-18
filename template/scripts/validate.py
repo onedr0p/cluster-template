@@ -35,6 +35,13 @@ from pydantic import (
 KNOWN_SSH_HOSTS = ["github.com", "gitlab.com", "codeberg.org"]
 
 REPO_URL_PATTERN = r"^(https?://|ssh://git@)[^/]+/.+$"
+# A Kubernetes qualified name, as used by Service.spec.loadBalancerClass:
+# an optional DNS subdomain prefix (at most 253 characters, checked in
+# _lb_class) and a name of at most 63 characters.
+DNS_LABEL = r"[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?"
+LB_CLASS_PATTERN = rf"^({DNS_LABEL}(\.{DNS_LABEL})*/)?[A-Za-z0-9]([-A-Za-z0-9_.]{{0,61}}[A-Za-z0-9])?$"
+# Cilium's own LB IPAM classes; gateways get LB IPAM through an address.
+CILIUM_LB_IPAM_CLASSES = ["io.cilium/l2-announcer", "io.cilium/bgp-control-plane"]
 FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
 
 
@@ -81,6 +88,18 @@ def _empty_to_none(value: Any) -> Any:
     return None if value == "" else value
 
 
+def _lb_class(value: str) -> str:
+    prefix, _, _ = value.rpartition("/")
+    if len(prefix) > 253:
+        raise ValueError(f"{value!r}: the prefix must be at most 253 characters")
+    if value in CILIUM_LB_IPAM_CLASSES:
+        raise ValueError(
+            f"{value!r} is Cilium's own LB IPAM: set an address instead "
+            "(cilium.announce selects L2 or BGP)"
+        )
+    return value
+
+
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
 type Asn = Annotated[str, AfterValidator(_asn)]
 type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN)]
@@ -93,10 +112,6 @@ type SchematicId = Annotated[str, Field(pattern=r"^[a-z0-9]{64}$")]
 
 # An empty string means unset, so placeholders left in cluster.toml validate
 # the same as an omitted key.
-type OptionalIPv4Address = Annotated[
-    IPv4Address | None,
-    BeforeValidator(_empty_to_none, json_schema_input_type=IPv4Address | Literal[""] | None),
-]
 type OptionalSchematicId = Annotated[
     SchematicId | None,
     BeforeValidator(_empty_to_none, json_schema_input_type=SchematicId | Literal[""] | None),
@@ -173,20 +188,49 @@ class Kubernetes(Model):
         return self
 
 
-class Gateways(Model):
-    internal: IPv4Address
-    dns: IPv4Address
-    # Required when ingress.mode is not "none".
-    external: OptionalIPv4Address = None
+class Gateway(Model):
+    model_config = ConfigDict(
+        json_schema_extra={"oneOf": [{"required": ["address"]}, {"required": ["load_balancer_class"]}]}
+    )
 
-    # The configured VIPs keyed by their cluster.toml path.
-    @property
-    def addresses(self) -> dict[str, IPv4Address]:
-        return {
-            f"gateways.{name}": addr
-            for name in ("internal", "dns", "external")
-            if (addr := getattr(self, name)) is not None
-        }
+    # Either a LoadBalancer IP that Cilium LB IPAM assigns (and announces
+    # per cilium.announce), or the loadBalancerClass of another
+    # implementation, e.g. "io.cilium/node" to serve on the nodes' own IPs
+    # or "tailscale" for the Tailscale Kubernetes operator.
+    address: IPv4Address | None = None
+    load_balancer_class: Annotated[str, Field(pattern=LB_CLASS_PATTERN), AfterValidator(_lb_class)] | None = None
+
+    @model_validator(mode="after")
+    def check(self) -> Self:
+        if (self.address is None) == (self.load_balancer_class is None):
+            raise ValueError("set exactly one of address or load_balancer_class")
+        return self
+
+
+def _gateway(value: Any) -> Any:
+    """A bare string is shorthand for {address = "<ip>"}."""
+    return {"address": value} if isinstance(value, str) else value
+
+
+def _optional_gateway(value: Any) -> Any:
+    return _gateway(_empty_to_none(value))
+
+
+type GatewaySpec = Annotated[
+    Gateway,
+    BeforeValidator(_gateway, json_schema_input_type=IPv4Address | Gateway),
+]
+type OptionalGatewaySpec = Annotated[
+    Gateway | None,
+    BeforeValidator(_optional_gateway, json_schema_input_type=IPv4Address | Gateway | Literal[""] | None),
+]
+
+
+class Gateways(Model):
+    internal: GatewaySpec
+    dns: GatewaySpec
+    # Required when ingress.mode is not "none".
+    external: OptionalGatewaySpec = None
 
 
 class Repository(Model):
@@ -235,9 +279,17 @@ class Bgp(Model):
     router_asn: Asn = ""
     node_asn: Asn = ""
 
+    @property
+    def unset(self) -> list[str]:
+        return [name for name in ("router_addr", "router_asn", "node_asn") if getattr(self, name) == ""]
+
+    @property
+    def configured(self) -> bool:
+        return not self.unset
+
     @model_validator(mode="after")
     def check(self) -> Self:
-        unset = [name for name in ("router_addr", "router_asn", "node_asn") if getattr(self, name) == ""]
+        unset = self.unset
         if unset and len(unset) < 3:
             raise ValueError(
                 "bgp is partially configured: set router_addr, router_asn and "
@@ -258,6 +310,11 @@ class Spegel(Model):
 
 class Cilium(Model):
     loadbalancer_mode: Literal["dsr", "snat"] = "dsr"
+    # How gateway addresses become reachable: "l2" answers ARP for them on
+    # node_cidr, "bgp" additionally advertises them to cilium.bgp's router,
+    # "none" announces nothing (the network must route them to the nodes).
+    # Defaults to "bgp" when cilium.bgp is configured, otherwise "l2".
+    announce: Literal["l2", "bgp", "none"] | None = None
     bgp: Bgp = Bgp()
 
 
@@ -326,8 +383,45 @@ class Config(Model):
     @computed_field
     @property
     def cilium_bgp_enabled(self) -> bool:
-        bgp = self.cilium.bgp
-        return bgp.router_addr != "" and bgp.router_asn != "" and bgp.node_asn != ""
+        return self.cilium.announce == "bgp"
+
+    # The gateways that are deployed, by name: envoy-external only exists
+    # when ingress.mode is not "none".
+    @property
+    def deployed_gateways(self) -> dict[str, Gateway]:
+        gateways = {"internal": self.gateways.internal, "dns": self.gateways.dns}
+        if self.ingress.mode != "none" and self.gateways.external is not None:
+            gateways["external"] = self.gateways.external
+        return gateways
+
+    # Their LB IPAM addresses keyed by cluster.toml path; gateways using a
+    # load_balancer_class get theirs from that implementation instead.
+    @property
+    def gateway_ips(self) -> dict[str, IPv4Address]:
+        return {
+            f"gateways.{name}": gateway.address
+            for name, gateway in self.deployed_gateways.items()
+            if gateway.address is not None
+        }
+
+    @computed_field
+    @property
+    def gateway_addresses(self) -> list[str]:
+        return [str(addr) for addr in self.gateway_ips.values()]
+
+    @computed_field
+    @property
+    def cilium_node_ipam_enabled(self) -> bool:
+        return any(
+            gateway.load_balancer_class == "io.cilium/node"
+            for gateway in self.deployed_gateways.values()
+        )
+
+    # networks.yaml holds the LB IPAM pool and the L2 or BGP announcements.
+    @computed_field
+    @property
+    def cilium_networks_needed(self) -> bool:
+        return bool(self.gateway_ips) or self.cilium.announce != "none"
 
     # Replica counts for control-plane-only workloads key off this rather
     # than len(nodes); a cluster can have many workers but one controller.
@@ -353,6 +447,17 @@ class Config(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
+        bgp_configured = self.cilium.bgp.configured
+        if self.cilium.announce is None:
+            self.cilium.announce = "bgp" if bgp_configured else "l2"
+        elif self.cilium.announce == "bgp" and not bgp_configured:
+            raise ValueError(
+                "cilium.announce 'bgp' requires cilium.bgp router_addr, router_asn and node_asn"
+            )
+        elif self.cilium.announce != "bgp" and bgp_configured:
+            raise ValueError(
+                f"cilium.bgp is configured but cilium.announce is {self.cilium.announce!r}"
+            )
         if self.spegel.enabled is None:
             self.spegel.enabled = len(self.nodes) > 1
         if self.repository.webhook_provider is None:
@@ -402,10 +507,19 @@ class Config(Model):
                 "the API VIP, or set kubernetes.api.vip = false to serve the API on the "
                 "controller of a single-controller cluster"
             )
-        gateways = self.gateways.addresses
-        # Without ingress there is no envoy-external Gateway to check.
-        if self.ingress.mode == "none":
-            gateways.pop("gateways.external", None)
+        # Both Envoy Services would bind :80 and :443 on the same node IPs.
+        node_ipam = [
+            f"gateways.{name}"
+            for name, gateway in self.deployed_gateways.items()
+            if name != "dns" and gateway.load_balancer_class == "io.cilium/node"
+        ]
+        if len(node_ipam) > 1:
+            raise ValueError(
+                f"{' and '.join(node_ipam)} both use load_balancer_class 'io.cilium/node' "
+                "and would listen on the same node ports; use it for one of them only"
+            )
+
+        gateways = self.gateway_ips
         addresses = (
             gateways
             | {"network.default_gateway": self.network.default_gateway}
@@ -439,10 +553,22 @@ class Config(Model):
                         f"{owner} {addr} is the network or broadcast address of node_cidr {node_cidr}"
                     )
 
-        # With BGP the gateway VIPs and the peer may leave node_cidr, but
-        # never into the in-cluster ranges, where they would shadow pod or
-        # Service IPs.
+        # Gateway addresses (unless announced over L2) and the BGP peer may
+        # leave node_cidr, but never into the in-cluster ranges, where they
+        # would shadow pod or Service IPs, nor into addresses no network
+        # routes.
         for owner, addr in routed.items():
+            if (
+                addr.is_unspecified
+                or addr.is_loopback
+                or addr.is_link_local
+                or addr.is_multicast
+                or addr.is_reserved
+            ):
+                raise ValueError(
+                    f"{owner} {addr} is not routable "
+                    "(unspecified, loopback, link-local, multicast or reserved)"
+                )
             for cidr_name in ("pod_cidr", "svc_cidr"):
                 cidr = getattr(self.kubernetes, cidr_name)
                 if addr in cidr:
@@ -457,14 +583,13 @@ class Config(Model):
             raise ValueError(
                 f"kubernetes.api.addr {self.kubernetes.api.addr} is not inside node_cidr {node_cidr}"
             )
-        # Without BGP the gateway VIPs are announced over L2 and must live in
-        # the node network.
-        if not self.cilium_bgp_enabled:
+        # Over L2 only addresses in the node network can be announced.
+        if self.cilium.announce == "l2":
             for owner, addr in gateways.items():
                 if addr not in node_cidr:
                     raise ValueError(
                         f"{owner} {addr} is not inside node_cidr {node_cidr} "
-                        "(required unless BGP is enabled)"
+                        "(required when cilium.announce is 'l2')"
                     )
 
         for field, label in (("name", "name"), ("mac_addr", "MAC address")):

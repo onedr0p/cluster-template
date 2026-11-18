@@ -11,6 +11,12 @@ kind: KubeNodeConfig
 taints:
   node-role.kubernetes.io/control-plane:
     $patch: delete
+#% if cilium_node_ipam_enabled %#
+# Cilium node IPAM skips nodes with this label, which Talos sets on controllers
+labels:
+  node.kubernetes.io/exclude-from-external-load-balancers:
+    $patch: delete
+#% endif %#
 ---
 apiVersion: v1alpha1
 kind: KubeAdmissionControlConfig

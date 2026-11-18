@@ -7,6 +7,7 @@ Run from the repo root:
 from pathlib import Path
 
 import json
+import re
 import sys
 import tomllib
 
@@ -305,8 +306,100 @@ def test_gateways_may_leave_node_cidr_only_with_bgp():
     with_bgp = config_from("public.toml", **{"gateways.external": "192.168.50.1"})
     _load_raw(with_bgp)  # public.toml enables BGP
     without_bgp = config_from("private.toml", **{"gateways.external": "192.168.50.1"})
-    with pytest.raises(ConfigError, match="required unless BGP is enabled"):
+    with pytest.raises(ConfigError, match="required when cilium.announce is 'l2'"):
         _load_raw(without_bgp)
+    unannounced = config_from("private.toml", **{"gateways.external": "192.168.50.1", "cilium.announce": "none"})
+    _load_raw(unannounced)
+
+
+def test_announce_mode_defaults_and_consistency():
+    assert _load_raw(config_from("public.toml")).cilium.announce == "bgp"
+    assert _load_raw(config_from("private.toml")).cilium.announce == "l2"
+    raw = config_from("private.toml", **{"cilium.announce": "bgp"})
+    with pytest.raises(ConfigError, match="cilium.announce 'bgp' requires cilium.bgp"):
+        _load_raw(raw)
+    raw = config_from("public.toml", **{"cilium.announce": "l2"})
+    with pytest.raises(ConfigError, match="cilium.bgp is configured but cilium.announce is 'l2'"):
+        _load_raw(raw)
+
+
+def test_gateway_accepts_load_balancer_class():
+    raw = config_from("private.toml", **{
+        "gateways.internal": {"load_balancer_class": "tailscale"},
+        "gateways.external": {"load_balancer_class": "io.cilium/node"},
+    })
+    cfg = _load_raw(raw)
+    assert cfg.gateways.internal.address is None
+    assert cfg.gateway_ips == {"gateways.dns": cfg.gateways.dns.address}
+    assert cfg.cilium_node_ipam_enabled is True
+    assert cfg.gateway_addresses == ["10.10.10.253"]
+    data = cfg.model_dump(mode="json")
+    assert data["gateways"]["external"] == {"address": None, "load_balancer_class": "io.cilium/node"}
+    assert data["gateways"]["dns"] == {"address": "10.10.10.253", "load_balancer_class": None}
+    assert _load_raw(config_from("private.toml")).cilium_node_ipam_enabled is False
+
+
+@pytest.mark.parametrize("gateway", [{}, {"address": "10.10.10.252", "load_balancer_class": "tailscale"}])
+def test_gateway_needs_exactly_one_of_address_or_class(gateway):
+    raw = config_from("private.toml", **{"gateways.internal": gateway})
+    with pytest.raises(ConfigError, match="set exactly one of address or load_balancer_class"):
+        _load_raw(raw)
+
+
+@pytest.mark.parametrize("lb_class", ["not a class", "a" * 64, "example..com/x", "example.com/", "/x"])
+def test_gateway_class_must_be_qualified_name(lb_class: str):
+    raw = config_from("private.toml", **{"gateways.internal": {"load_balancer_class": lb_class}})
+    with pytest.raises(ConfigError, match=r"gateways\.internal\.load_balancer_class: String should match pattern"):
+        _load_raw(raw)
+
+
+def test_gateway_class_prefix_length():
+    ok = ".".join(["a" * 63] * 4)[:253]
+    _load_raw(config_from("private.toml", **{"gateways.internal": {"load_balancer_class": f"{ok}/x"}}))
+    raw = config_from("private.toml", **{"gateways.internal": {"load_balancer_class": f"{ok}a/x"}})
+    with pytest.raises(ConfigError, match="the prefix must be at most 253 characters"):
+        _load_raw(raw)
+
+
+@pytest.mark.parametrize("lb_class", ["io.cilium/l2-announcer", "io.cilium/bgp-control-plane"])
+def test_gateway_class_rejects_cilium_lb_ipam(lb_class: str):
+    raw = config_from("private.toml", **{"gateways.internal": {"load_balancer_class": lb_class}})
+    with pytest.raises(ConfigError, match="is Cilium's own LB IPAM: set an address instead"):
+        _load_raw(raw)
+
+
+def test_one_envoy_gateway_on_node_ipam():
+    node = {"load_balancer_class": "io.cilium/node"}
+    raw = config_from("private.toml", **{"gateways.internal": node, "gateways.external": node})
+    with pytest.raises(ConfigError, match=r"gateways\.internal and gateways\.external both use load_balancer_class 'io\.cilium/node'"):
+        _load_raw(raw)
+    # k8s-gateway listens on :53 only, and without ingress there is no
+    # envoy-external.
+    _load_raw(config_from("private.toml", **{"gateways.internal": node, "gateways.dns": node}))
+    _load_raw(config_from("internal.toml", **{"gateways.internal": node, "gateways.external": node}))
+
+
+def test_external_gateway_unused_without_ingress():
+    raw = config_from("internal.toml", **{"gateways.external": {"load_balancer_class": "io.cilium/node"}})
+    cfg = _load_raw(raw)
+    assert "external" not in cfg.deployed_gateways
+    assert cfg.cilium_node_ipam_enabled is False
+    raw = config_from("internal.toml", **{"gateways.external": "10.10.10.251"})
+    assert "10.10.10.251" not in _load_raw(raw).gateway_addresses
+
+
+@pytest.mark.parametrize("addr", ["0.0.0.0", "127.0.0.1", "169.254.1.1", "224.0.0.1", "255.255.255.255"])
+def test_unannounced_gateway_must_be_routable(addr: str):
+    raw = config_from("private.toml", **{"gateways.external": addr, "cilium.announce": "none"})
+    with pytest.raises(ConfigError, match=rf"gateways\.external {re.escape(addr)} is not routable"):
+        _load_raw(raw)
+
+
+def test_cilium_networks_needed():
+    assert _load_raw(config_from("private.toml")).cilium_networks_needed is True
+    raw = config_from("private.toml", **{"cilium.announce": "none"})
+    assert _load_raw(raw).cilium_networks_needed is True  # the pool
+    assert _load_raw(config_from("lb-class.toml")).cilium_networks_needed is False
 
 
 def test_schema_file_matches_model():

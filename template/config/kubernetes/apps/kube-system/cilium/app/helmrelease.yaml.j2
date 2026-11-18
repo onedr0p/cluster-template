@@ -43,13 +43,19 @@ spec:
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
     l2announcements:
-      enabled: true
+      enabled: #{ (cilium.announce != 'none') | string | lower }#
     loadBalancer:
       algorithm: maglev
       mode: "#{ cilium.loadbalancer_mode }#"
       serviceTopology: true # spegel-registry relies on trafficDistribution: PreferSameNode
     localRedirectPolicies:
       enabled: true
+    #% if cilium_node_ipam_enabled %#
+    # Serves LoadBalancer Services with loadBalancerClass io.cilium/node on
+    # the nodes' own IPs.
+    nodeIPAM:
+      enabled: true
+    #% endif %#
     operator:
       dashboards:
         enabled: true

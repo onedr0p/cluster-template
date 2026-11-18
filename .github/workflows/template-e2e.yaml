@@ -54,6 +54,7 @@ jobs:
           - no-webhook
           - internal
           - direct
+          - lb-class
           - single-node
           - single-node-no-vip
           - multi-controller
