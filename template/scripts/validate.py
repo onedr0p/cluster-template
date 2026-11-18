@@ -47,6 +47,7 @@ FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
 # Leaves room within the 253-character DNS limit for the longest name derived
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
+KERNEL_MODULE_PATTERN = r"^[a-z0-9_-]+$"
 
 
 def _network(value: Any) -> Any:
@@ -297,6 +298,11 @@ class Repository(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
+        if self.url.startswith("http") and "@" in self.url.split("/", 3)[2]:
+            raise ValueError(
+                "url must not embed credentials (they would be committed in plain text); "
+                "use an ssh://git@ URL with the generated deploy key for private repositories"
+            )
         if self.uses_deploy_key:
             host = self.url.removeprefix("ssh://git@").split("/", 1)[0].split(":", 1)[0]
             if host not in KNOWN_SSH_HOSTS and not self.known_hosts:
@@ -412,12 +418,14 @@ class Node(Model):
     mtu: int = Field(default=1500, ge=1450, le=9000)
     secureboot: bool = False
     encrypt_disk: bool = False
-    kernel_modules: list[str] = []
+    kernel_modules: list[Annotated[str, Field(pattern=KERNEL_MODULE_PATTERN)]] = []
 
     @model_validator(mode="after")
     def check(self) -> Self:
         if self.name in ("global", "controller", "worker"):
             raise ValueError(f"node name {self.name!r} is reserved")
+        if len(set(self.kernel_modules)) != len(self.kernel_modules):
+            raise ValueError("kernel_modules must not contain duplicates")
         return self
 
 

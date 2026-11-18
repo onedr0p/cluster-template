@@ -98,6 +98,10 @@ REJECTIONS = {
     "bgp-router-addr-in-pod-cidr": ("public.toml", "cilium.bgp.router_addr", "10.42.0.1", r"cilium\.bgp\.router_addr 10\.42\.0\.1 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
     "whitespace-branch": ("private.toml", "repository.branch", "  ", r"repository\.branch: String should have at least 1 character"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
+    "repo-url-with-credentials": ("public.toml", "repository.url", "https://user:token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
+    "repo-url-with-token": ("public.toml", "repository.url", "https://token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
+    "bad-kernel-module": ("private.toml", "nodes.0.kernel_modules", ["nvidia]"], r"nodes\.0\.kernel_modules\.0: String should match pattern"),
+    "duplicate-kernel-module": ("private.toml", "nodes.0.kernel_modules", ["nvidia", "nvidia"], r"kernel_modules must not contain duplicates"),
 }
 
 
@@ -147,6 +151,11 @@ def test_override_rejected(fixture: str, key: str, value, reason: str):
 def test_ssh_port_on_bundled_host_needs_no_known_hosts():
     raw = config_from("private.toml", **{"repository.url": "ssh://git@github.com:22/onedr0p/cluster-template.git"})
     assert _load_raw(raw).repository.known_hosts == ""
+
+
+def test_kernel_module_names_with_dashes_accepted():
+    raw = config_from("private.toml", **{"nodes.0.kernel_modules": ["nvidia-drm", "i2c_dev"]})
+    assert _load_raw(raw).nodes[0].kernel_modules == ["nvidia-drm", "i2c_dev"]
 
 
 KERNEL_DISK_NAMES = [

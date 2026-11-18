@@ -409,6 +409,7 @@
         "kernel_modules": {
           "default": [],
           "items": {
+            "pattern": "^[a-z0-9_-]+$",
             "type": "string"
           },
           "title": "Kernel Modules",
