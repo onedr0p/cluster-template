@@ -97,6 +97,8 @@ REJECTIONS = {
     "bgp-router-addr-node-collision": ("public.toml", "cilium.bgp.router_addr", "10.10.10.100", r"address 10\.10\.10\.100 is used by both nodes\[0\]\.address and cilium\.bgp\.router_addr"),
     "bgp-router-addr-in-pod-cidr": ("public.toml", "cilium.bgp.router_addr", "10.42.0.1", r"cilium\.bgp\.router_addr 10\.42\.0\.1 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
     "whitespace-branch": ("private.toml", "repository.branch", "  ", r"repository\.branch: String should have at least 1 character"),
+    "bad-cluster-issuer": ("direct-custom-issuer.toml", "certs.cluster_issuer", "Acme_Production", r"certs\.cluster_issuer: String should match pattern"),
+    "tunnel-without-cloudflare": ("direct-custom-issuer.toml", "ingress.mode", "cloudflare-tunnel", r"ingress\.mode 'cloudflare-tunnel' requires dns\.provider 'cloudflare'"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
     "repo-url-with-credentials": ("public.toml", "repository.url", "https://user:token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
     "repo-url-with-token": ("public.toml", "repository.url", "https://token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
@@ -212,6 +214,12 @@ def test_cluster_issuer_follows_dns_provider():
     assert public["cluster_issuer"] == "letsencrypt-production"
     internal = _load_raw(config_from("internal.toml")).model_dump(mode="json")
     assert internal["cluster_issuer"] == "internal-ca"
+    direct = _load_raw(config_from("direct-custom-issuer.toml", **{"certs.cluster_issuer": ""}))
+    assert direct.model_dump(mode="json")["cluster_issuer"] == "internal-ca"
+    custom = _load_raw(config_from("direct-custom-issuer.toml")).model_dump(mode="json")
+    assert custom["cluster_issuer"] == "acme-production"
+    cloudflare_custom = _load_raw(config_from("public.toml", **{"certs.cluster_issuer": "my-issuer"}))
+    assert cloudflare_custom.model_dump(mode="json")["cluster_issuer"] == "my-issuer"
 
 
 def test_default_gateway_derived_from_node_cidr():
@@ -376,10 +384,11 @@ def test_tls_sans_accept_ip_addresses_without_duplicates():
     assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "k8s.example.com", "100.64.0.10"]
 
 
-def test_direct_mode_requires_cloudflare_dns():
-    raw = config_from("internal.toml", **{"ingress.mode": "direct"})
-    with pytest.raises(ConfigError, match="requires dns.provider 'cloudflare'"):
-        _load_raw(raw)
+def test_direct_mode_works_without_cloudflare_dns():
+    raw = config_from("direct-custom-issuer.toml", certs=None)
+    cfg = _load_raw(raw)
+    assert (cfg.dns.provider, cfg.ingress.mode) == ("none", "direct")
+    assert cfg.repository.webhook_provider == "github"
 
 
 def test_empty_string_means_unset():

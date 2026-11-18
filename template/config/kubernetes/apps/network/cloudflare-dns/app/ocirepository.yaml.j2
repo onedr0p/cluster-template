@@ -1,4 +1,4 @@
-#% if ingress.mode != 'none' %#
+#% if dns.provider == 'cloudflare' and ingress.mode != 'none' %#
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository

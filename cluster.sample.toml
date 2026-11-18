@@ -210,8 +210,9 @@ name = ""
 #    Public DNS authority and certificate issuance. With "cloudflare",
 #    external-dns publishes records automatically and cert-manager issues a
 #    Let's Encrypt wildcard via ACME DNS-01. With "none", nothing is
-#    published and the wildcard certificate is issued by an in-cluster
-#    self-signed CA instead (internal-only cluster).
+#    published (you manage public records at your DNS host yourself) and
+#    the wildcard certificate is issued by an in-cluster self-signed CA,
+#    unless you set certs.cluster_issuer.
 # =============================================================================
 [dns]
 
@@ -235,7 +236,9 @@ token = ""
 #    IP, or a node IP with load_balancer_class "io.cilium/node"; with
 #    cilium.announce "bgp" or "none" the router must route to it) and point an
 #    `external.<domain>` DNS record at your WAN address (A record or DDNS
-#    CNAME) yourself; per-app records are still published automatically.
+#    CNAME) yourself; per-app records are published automatically with
+#    dns.provider = "cloudflare", otherwise create them yourself (e.g. a
+#    `*.<domain>` CNAME to `external.<domain>`).
 #    With "none", nothing is exposed and apps are only reachable on your
 #    LAN via the internal gateway.
 # =============================================================================
@@ -245,6 +248,24 @@ token = ""
 # otherwise "none". Allowed: "cloudflare-tunnel" | "direct" | "none"
 
 # mode = "cloudflare-tunnel"
+
+
+# =============================================================================
+#    Certificate issuance. By default the wildcard certificate comes from
+#    Let's Encrypt (dns.provider = "cloudflare") or an in-cluster
+#    self-signed CA (dns.provider = "none"), which public clients will not
+#    trust. To use any other DNS host, name a ClusterIssuer you provide,
+#    e.g. an ACME issuer with any cert-manager-supported DNS-01 solver (the
+#    certificate is a wildcard, so HTTP-01 cannot issue it). Add it (and any
+#    solver webhook) to your repository yourself; the template then renders
+#    no Let's Encrypt issuer and needs no DNS token for it. The internal
+#    CA issuer still renders as a fallback.
+# =============================================================================
+[certs]
+
+# OPTIONAL. Default: unset. A Kubernetes resource name.
+
+# cluster_issuer = "letsencrypt-dns01"
 
 
 # =============================================================================

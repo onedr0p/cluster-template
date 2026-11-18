@@ -1,4 +1,4 @@
-#% if dns.provider == 'cloudflare' %#
+#% if dns.provider == 'cloudflare' and not certs.cluster_issuer %#
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer

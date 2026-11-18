@@ -101,6 +101,17 @@
       "title": "Bgp",
       "type": "object"
     },
+    "Certs": {
+      "additionalProperties": false,
+      "properties": {
+        "cluster_issuer": {
+          "$ref": "#/$defs/OptionalK8sName",
+          "default": null
+        }
+      },
+      "title": "Certs",
+      "type": "object"
+    },
     "Cidr": {
       "format": "ipv4network",
       "type": "string"
@@ -255,6 +266,11 @@
       },
       "title": "Ingress",
       "type": "object"
+    },
+    "K8sName": {
+      "maxLength": 253,
+      "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$",
+      "type": "string"
     },
     "Kubernetes": {
       "additionalProperties": false,
@@ -438,6 +454,20 @@
         }
       ]
     },
+    "OptionalK8sName": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/K8sName"
+        },
+        {
+          "const": "",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "Repository": {
       "additionalProperties": false,
       "properties": {
@@ -570,6 +600,12 @@
     },
     "ingress": {
       "$ref": "#/$defs/Ingress"
+    },
+    "certs": {
+      "$ref": "#/$defs/Certs",
+      "default": {
+        "cluster_issuer": null
+      }
     },
     "cilium": {
       "$ref": "#/$defs/Cilium",

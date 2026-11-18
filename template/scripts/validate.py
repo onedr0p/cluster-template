@@ -48,6 +48,8 @@ FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
 KERNEL_MODULE_PATTERN = r"^[A-Za-z0-9_-]+$"
+# A Kubernetes object name (RFC 1123 subdomain).
+K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
 
 
 def _network(value: Any) -> Any:
@@ -157,6 +159,11 @@ type San = Annotated[
 ]
 type SchematicId = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 type DomainName = Annotated[str, Field(pattern=FQDN_PATTERN, max_length=DOMAIN_MAX_LENGTH)]
+type K8sName = Annotated[str, Field(pattern=K8S_NAME_PATTERN, max_length=253)]
+type OptionalK8sName = Annotated[
+    K8sName | None,
+    BeforeValidator(_empty_to_none, json_schema_input_type=K8sName | Literal[""] | None),
+]
 
 
 class Model(BaseModel):
@@ -334,6 +341,12 @@ class Ingress(Model):
     mode: Literal["cloudflare-tunnel", "direct", "none"] = "cloudflare-tunnel"
 
 
+class Certs(Model):
+    # A ClusterIssuer you provide (e.g. ACME with your DNS host's solver).
+    # Replaces the template's Let's Encrypt issuer for the wildcard certificate.
+    cluster_issuer: OptionalK8sName = None
+
+
 class Bgp(Model):
     router_addr: _unsettable(IPv4Address | None) = None
     router_asn: _unsettable(Asn | None) = None
@@ -445,6 +458,7 @@ class Config(Model):
             mode="cloudflare-tunnel" if data["dns"].provider == "cloudflare" else "none"
         )
     )
+    certs: Certs = Certs()
     cilium: Cilium = Cilium()
     talos: Talos = Talos()
     spegel: Spegel = Spegel()
@@ -503,6 +517,8 @@ class Config(Model):
     @computed_field
     @property
     def cluster_issuer(self) -> str:
+        if self.certs.cluster_issuer:
+            return self.certs.cluster_issuer
         if self.dns.provider == "cloudflare":
             return "letsencrypt-production"
         return "internal-ca"
@@ -544,7 +560,7 @@ class Config(Model):
                 )
         if self.controller_count == 0:
             raise ValueError("at least one node must have controller = true")
-        if self.ingress.mode != "none" and self.dns.provider != "cloudflare":
+        if self.ingress.mode == "cloudflare-tunnel" and self.dns.provider != "cloudflare":
             raise ValueError(
                 f"ingress.mode {self.ingress.mode!r} requires dns.provider 'cloudflare'"
             )

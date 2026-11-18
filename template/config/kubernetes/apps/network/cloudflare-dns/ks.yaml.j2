@@ -1,4 +1,4 @@
-#% if ingress.mode != 'none' %#
+#% if dns.provider == 'cloudflare' and ingress.mode != 'none' %#
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
