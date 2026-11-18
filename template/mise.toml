@@ -30,37 +30,6 @@ uv run --quiet --locked --no-dev template/scripts/validate.py --schema > cluster
 oxfmt cluster.schema.json > /dev/null
 '''
 
-# Only files the template renders are removed (<input>/<path>[.j2] maps to
-# <path> for each makejinja input), plus the Talos machine configs written
-# by //talos:render, which hold the cluster CA keys in plain text; then any
-# directories left empty. Everything else is kept: talos/secrets.sops.yaml
-# (the cluster PKI) and talos/talosconfig, which would lock you out of
-# already bootstrapped nodes if regenerated, and any files you added
-# yourself, such as extra Talos patches. Delete those by hand to start over
-# completely.
-[tasks.reset]
-description = "Remove rendered files (keeps the Talos secrets bundle, talosconfig and files you added)"
-confirm = { message = "Remove all templated files?", default = "no" }
-run = '''
-excludes=()
-while IFS= read -r pattern; do
-    excludes+=(! -name "$pattern")
-done < <(yq -oy '.makejinja.exclude_patterns[]' makejinja.toml)
-yq -oy '.makejinja.inputs[]' makejinja.toml \
-    | while IFS= read -r input; do
-        if [ -d "$input" ]; then
-            (cd "$input" && find . -type f "${excludes[@]}" -print0)
-        fi
-    done \
-    | xargs -0 bash -c 'files=(); for f; do files+=("${f%.j2}"); done; rm -f -- "${files[@]}"' _
-rm -rf talos/rendered talos/output
-for d in bootstrap kubernetes talos; do
-    if [ -d "$d" ]; then
-        find "$d" -depth -type d -empty -delete
-    fi
-done
-'''
-
 # tidy-archive moves template/ (this file's directory) away, so it must be
 # the last step.
 [tasks.tidy]
