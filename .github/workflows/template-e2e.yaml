@@ -94,15 +94,10 @@ jobs:
           yq -i '.resources += ["./invalid.yaml"]' "$app/kustomization.yaml"
           for fixture in ./.github/template-tests/invalid-manifests/*.yaml; do
             cp "$fixture" "$app/invalid.yaml"
-            if out=$(mise run //template:validate-kubernetes 2>&1); then
-              echo "$out"
-              echo "::error file=$fixture::invalid manifest passed validation"
-              exit 1
-            fi
             expect=$(sed -n 's/^# expect: //p' "$fixture")
-            if [ -z "$expect" ] || ! grep -qF "$expect" <<<"$out"; then
+            if out=$(mise run //template:validate-kubernetes 2>&1) || ! grep -qF "${expect:?}" <<<"$out"; then
               echo "$out"
-              echo "::error file=$fixture::validation failed without '$expect'"
+              echo "::error file=$fixture::validation did not fail with: $expect"
               exit 1
             fi
           done
