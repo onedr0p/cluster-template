@@ -59,10 +59,9 @@ LB_CLASS_PATTERN = rf"^({DNS_LABEL}(\.{DNS_LABEL})*/)?[A-Za-z0-9]([-A-Za-z0-9_.]
 # Cilium's own LB IPAM classes; gateways get LB IPAM through an address.
 CILIUM_LB_IPAM_CLASSES = ["io.cilium/l2-announcer", "io.cilium/bgp-control-plane"]
 # At least two labels; the TLD is alphabetic or an IDN in punycode (xn--).
-FQDN_PATTERN = rf"^({DNS_LABEL}\.)+([a-z]{{2,63}}|xn--[a-z0-9-]{{1,59}})$"
-# A certificate SAN may also be a single label (a short hostname); an
-# all-numeric last label would read as a mistyped IPv4 address.
-HOSTNAME_PATTERN = rf"^({DNS_LABEL}\.)*(?![0-9]+$){DNS_LABEL}$"
+FQDN_PATTERN = rf"^({DNS_LABEL}\.)+([a-z]{{2,63}}|xn--[a-z0-9]([-a-z0-9]{{0,57}}[a-z0-9])?)$"
+# A certificate SAN may also be a single label (a short hostname).
+HOSTNAME_PATTERN = rf"^({DNS_LABEL}\.)*{DNS_LABEL}$"
 # Leaves room within the 253-character DNS limit for the longest name derived
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
@@ -129,7 +128,8 @@ def _san(value: str) -> str:
     try:
         IPv4Address(value)
     except ValueError:
-        if len(value) > 253 or not re.fullmatch(HOSTNAME_PATTERN, value):
+        # An all-numeric last label is a mistyped IPv4 address, not a name.
+        if len(value) > 253 or not re.fullmatch(HOSTNAME_PATTERN, value) or value.rpartition(".")[2].isdigit():
             raise ValueError(f"{value!r} is not a hostname or IPv4 address") from None
     return value
 

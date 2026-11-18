@@ -65,6 +65,7 @@ REJECTIONS = {
     "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: 'not a hostname' is not a hostname or IPv4 address"),
     "numeric-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["10.10.10.256"], r"kubernetes\.api\.tls_sans\.0: '10\.10\.10\.256' is not a hostname or IPv4 address"),
     "single-label-domain": ("private.toml", "domain.name", "example", r"domain\.name: String should match pattern"),
+    "bad-idn-tld": ("private.toml", "domain.name", "example.xn--abc-", r"domain\.name: String should match pattern"),
     "bad-node-name": ("private.toml", "nodes.0.name", "k8s-0-", r"nodes\.0\.name: String should match pattern"),
     "mtu-too-small": ("private.toml", "nodes.0.mtu", 1449, r"nodes\.0\.mtu: Input should be greater than or equal to 1450"),
     "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
