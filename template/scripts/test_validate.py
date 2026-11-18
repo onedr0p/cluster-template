@@ -153,9 +153,10 @@ def test_ssh_port_on_bundled_host_needs_no_known_hosts():
     assert _load_raw(raw).repository.known_hosts == ""
 
 
-def test_kernel_module_names_with_dashes_accepted():
-    raw = config_from("private.toml", **{"nodes.0.kernel_modules": ["nvidia-drm", "i2c_dev"]})
-    assert _load_raw(raw).nodes[0].kernel_modules == ["nvidia-drm", "i2c_dev"]
+@pytest.mark.parametrize("module", ["nvidia-drm", "i2c_dev", "xt_TPROXY"])
+def test_kernel_module_names_accepted(module: str):
+    raw = config_from("private.toml", **{"nodes.0.kernel_modules": [module]})
+    assert _load_raw(raw).nodes[0].kernel_modules == [module]
 
 
 KERNEL_DISK_NAMES = [

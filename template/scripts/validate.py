@@ -47,7 +47,7 @@ FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
 # Leaves room within the 253-character DNS limit for the longest name derived
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
-KERNEL_MODULE_PATTERN = r"^[a-z0-9_-]+$"
+KERNEL_MODULE_PATTERN = r"^[A-Za-z0-9_-]+$"
 
 
 def _network(value: Any) -> Any:
