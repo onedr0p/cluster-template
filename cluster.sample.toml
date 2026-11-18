@@ -174,11 +174,12 @@ url = ""
 # HMAC; see https://fluxcd.io/flux/components/notification/receivers/
 # Use "none" to skip the webhook entirely (e.g. your Git host cannot reach
 # the cluster); Flux then only polls on an interval.
-# With ingress.mode = "none" the webhook is only reachable on your LAN, so
-# the default flips to "none"; set it explicitly for a Git host on your LAN,
-# which must resolve flux-webhook.<domain> through split DNS (see
+# Defaults to "none" when the webhook is only reachable on your LAN
+# (ingress.mode = "none") or served with the in-cluster CA's certificate,
+# which hosted Git providers reject. Set it explicitly for a Git host on
+# your LAN, which must resolve flux-webhook.<domain> through split DNS (see
 # gateways.dns) and, with dns.provider = "none", trust the internal CA.
-# OPTIONAL. Default: "github", or "none" when ingress.mode is "none".
+# OPTIONAL. Default: "github", or "none" as above.
 # Allowed: "github" | "gitlab" | "generic-hmac" | "none"
 
 # webhook_provider = "github"
@@ -211,8 +212,8 @@ name = ""
 #    external-dns publishes records automatically and cert-manager issues a
 #    Let's Encrypt wildcard via ACME DNS-01. With "none", nothing is
 #    published (you manage public records at your DNS host yourself) and
-#    the wildcard certificate is issued by an in-cluster self-signed CA,
-#    unless you set certs.cluster_issuer.
+#    the wildcard certificate is issued by an in-cluster self-signed CA.
+#    Either way, certs.cluster_issuer overrides the issuer.
 # =============================================================================
 [dns]
 
@@ -258,8 +259,12 @@ token = ""
 #    e.g. an ACME issuer with any cert-manager-supported DNS-01 solver (the
 #    certificate is a wildcard, so HTTP-01 cannot issue it). Add it (and any
 #    solver webhook) to your repository yourself; the template then renders
-#    no Let's Encrypt issuer and needs no DNS token for it. The internal
-#    CA issuer still renders as a fallback.
+#    no Let's Encrypt issuer. The internal CA issuer still renders as a
+#    fallback, and with dns.provider = "cloudflare" the token stays available
+#    to your issuer as Secret cert-manager/cert-manager-secret (key
+#    api-token). Bootstrap does not wait for your issuer, so a missing or
+#    failing one only shows as a not-ready certificate: check
+#    `kubectl get clusterissuer` and `kubectl get certificate -A`.
 # =============================================================================
 [certs]
 

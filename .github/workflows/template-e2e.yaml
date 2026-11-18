@@ -57,6 +57,7 @@ jobs:
           - direct
           - lb-class
           - direct-custom-issuer
+          - cloudflare-custom-issuer
           - single-node
           - single-node-no-vip
           - multi-controller

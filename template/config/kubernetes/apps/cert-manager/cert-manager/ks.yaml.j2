@@ -1,6 +1,4 @@
-#| A custom certs.cluster_issuer may live in a Kustomization that depends on
-   this one, so health-check the template's own internal-ca issuer instead to
-   avoid a dependency deadlock. #|
+#| Not cluster_issuer: a custom issuer in a dependent Kustomization would deadlock. #|
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -14,7 +12,7 @@ spec:
       namespace: cert-manager
     - apiVersion: cert-manager.io/v1
       kind: ClusterIssuer
-      name: #{ 'internal-ca' if certs.cluster_issuer else cluster_issuer }#
+      name: #{ builtin_issuer }#
   healthCheckExprs:
     - apiVersion: cert-manager.io/v1
       kind: ClusterIssuer

@@ -292,7 +292,10 @@ class Repository(Model):
     branch: Stripped = Field(default="main", min_length=1)
     webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = Field(
         default=None,
-        description='Defaults to "github", or "none" when ingress.mode is "none".',
+        description=(
+            'Defaults to "github", or "none" when ingress.mode is "none" or the '
+            "wildcard certificate comes from the in-cluster CA."
+        ),
     )
     known_hosts: Stripped = ""
 
@@ -343,8 +346,16 @@ class Ingress(Model):
 
 class Certs(Model):
     # A ClusterIssuer you provide (e.g. ACME with your DNS host's solver).
-    # Replaces the template's Let's Encrypt issuer for the wildcard certificate.
+    # Issues the wildcard certificate instead of the template's own issuer.
     cluster_issuer: OptionalK8sName = None
+
+    @model_validator(mode="after")
+    def check(self) -> Self:
+        if self.cluster_issuer in ("letsencrypt-production", "internal-ca", "selfsigned"):
+            raise ValueError(
+                f"cluster_issuer {self.cluster_issuer!r} is reserved for the template's own issuers"
+            )
+        return self
 
 
 class Bgp(Model):
@@ -514,14 +525,28 @@ class Config(Model):
     def controller_count(self) -> int:
         return sum(1 for node in self.nodes if node.controller)
 
+    # cloudflare-dns (external-dns) publishes the public records.
+    @computed_field
+    @property
+    def external_dns_enabled(self) -> bool:
+        return self.dns.provider == "cloudflare" and self.ingress.mode != "none"
+
+    # The template's Let's Encrypt issuer; otherwise its internal CA renders.
+    @computed_field
+    @property
+    def builtin_acme_issuer(self) -> bool:
+        return self.dns.provider == "cloudflare" and not self.certs.cluster_issuer
+
+    # The template-owned issuer cert-manager's Kustomization health-checks.
+    @computed_field
+    @property
+    def builtin_issuer(self) -> str:
+        return "letsencrypt-production" if self.builtin_acme_issuer else "internal-ca"
+
     @computed_field
     @property
     def cluster_issuer(self) -> str:
-        if self.certs.cluster_issuer:
-            return self.certs.cluster_issuer
-        if self.dns.provider == "cloudflare":
-            return "letsencrypt-production"
-        return "internal-ca"
+        return self.certs.cluster_issuer or self.builtin_issuer
 
     # Single source for the machine and apiServer certificate SAN lists,
     # which live in separate patch files.
@@ -549,7 +574,11 @@ class Config(Model):
         # None means unset; the string "none" disables the webhook. A hosted
         # Git provider cannot reach an internal-only route, so those opt in.
         if self.repository.webhook_provider is None:
-            self.repository.webhook_provider = "none" if self.ingress.mode == "none" else "github"
+            # Git hosts reject the internal CA's certificate.
+            trusted = self.builtin_acme_issuer or self.certs.cluster_issuer
+            self.repository.webhook_provider = (
+                "github" if self.ingress.mode != "none" and trusted else "none"
+            )
         for i, node in enumerate(self.nodes):
             if node.schematic_id is None:
                 node.schematic_id = self.talos.schematic_id

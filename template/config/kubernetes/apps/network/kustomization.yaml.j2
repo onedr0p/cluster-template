@@ -8,7 +8,7 @@ components:
 
 resources:
   - ./namespace.yaml
-  #% if dns.provider == 'cloudflare' and ingress.mode != 'none' %#
+  #% if external_dns_enabled %#
   - ./cloudflare-dns/ks.yaml
   #% endif %#
   #% if ingress.mode == 'cloudflare-tunnel' %#
