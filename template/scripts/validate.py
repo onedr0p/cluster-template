@@ -179,6 +179,15 @@ class Gateways(Model):
     # Required when ingress.mode is not "none".
     external: OptionalIPv4Address = None
 
+    # The configured VIPs keyed by their cluster.toml path.
+    @property
+    def addresses(self) -> dict[str, IPv4Address]:
+        return {
+            f"gateways.{name}": addr
+            for name in ("internal", "dns", "external")
+            if (addr := getattr(self, name)) is not None
+        }
+
 
 class Repository(Model):
     url: str = Field(pattern=REPO_URL_PATTERN)
@@ -393,22 +402,29 @@ class Config(Model):
                 "the API VIP, or set kubernetes.api.vip = false to serve the API on the "
                 "controller of a single-controller cluster"
             )
-        addresses = {
-            "gateways.internal": self.gateways.internal,
-            "gateways.dns": self.gateways.dns,
-            "network.default_gateway": self.network.default_gateway,
-        } | {f"nodes[{i}].address": n.address for i, n in enumerate(self.nodes)}
+        gateways = self.gateways.addresses
+        addresses = (
+            gateways
+            | {"network.default_gateway": self.network.default_gateway}
+            | {f"nodes[{i}].address": n.address for i, n in enumerate(self.nodes)}
+        )
         if api.vip:
             addresses["kubernetes.api.addr"] = api.addr
-        if self.gateways.external is not None:
-            addresses["gateways.external"] = self.gateways.external
-        if self.cilium_bgp_enabled:
-            addresses["cilium.bgp.router_addr"] = self.cilium.bgp.router_addr
         seen: dict[IPv4Address, str] = {}
         for owner, addr in addresses.items():
             if addr in seen:
                 raise ValueError(f"address {addr} is used by both {seen[addr]} and {owner}")
             seen[addr] = owner
+        # The BGP peer is commonly the LAN router, i.e. the default gateway.
+        routed = dict(gateways)
+        if self.cilium_bgp_enabled:
+            router = self.cilium.bgp.router_addr
+            if seen.get(router, "network.default_gateway") != "network.default_gateway":
+                raise ValueError(
+                    f"address {router} is used by both {seen[router]} and cilium.bgp.router_addr"
+                )
+            addresses["cilium.bgp.router_addr"] = router
+            routed["cilium.bgp.router_addr"] = router
 
         node_cidr = self.network.node_cidr
         # /31 and /32 have no network or broadcast address (RFC 3021).
@@ -420,16 +436,14 @@ class Config(Model):
                         f"{owner} {addr} is the network or broadcast address of node_cidr {node_cidr}"
                     )
 
-        # With BGP the gateway VIPs may leave node_cidr, but never into the
-        # in-cluster ranges, where they would shadow pod or Service IPs.
-        for name in ("internal", "dns", "external"):
-            addr = getattr(self.gateways, name)
+        # With BGP the gateway VIPs and the peer may leave node_cidr, but
+        # never into the in-cluster ranges, where they would shadow pod or
+        # Service IPs.
+        for owner, addr in routed.items():
             for cidr_name in ("pod_cidr", "svc_cidr"):
                 cidr = getattr(self.kubernetes, cidr_name)
-                if addr is not None and addr in cidr:
-                    raise ValueError(
-                        f"gateways.{name} {addr} is inside kubernetes.{cidr_name} {cidr}"
-                    )
+                if addr in cidr:
+                    raise ValueError(f"{owner} {addr} is inside kubernetes.{cidr_name} {cidr}")
 
         for i, node in enumerate(self.nodes):
             if node.address not in node_cidr:
@@ -443,11 +457,10 @@ class Config(Model):
         # Without BGP the gateway VIPs are announced over L2 and must live in
         # the node network.
         if not self.cilium_bgp_enabled:
-            for name in ("internal", "dns", "external"):
-                addr = getattr(self.gateways, name)
-                if addr is not None and addr not in node_cidr:
+            for owner, addr in gateways.items():
+                if addr not in node_cidr:
                     raise ValueError(
-                        f"gateways.{name} {addr} is not inside node_cidr {node_cidr} "
+                        f"{owner} {addr} is not inside node_cidr {node_cidr} "
                         "(required unless BGP is enabled)"
                     )
 
