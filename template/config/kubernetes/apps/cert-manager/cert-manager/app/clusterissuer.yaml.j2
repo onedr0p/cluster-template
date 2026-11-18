@@ -35,9 +35,13 @@ spec:
   isCA: true
   commonName: internal-ca
   secretName: internal-ca
+  # Clients import this CA, so it must outlive the default 90 days and keep
+  # its key when it does renew.
+  duration: 87600h
   privateKey:
     algorithm: ECDSA
     size: 256
+    rotationPolicy: Never
   issuerRef:
     name: selfsigned
     kind: ClusterIssuer
