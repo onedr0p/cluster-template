@@ -327,34 +327,29 @@ class Cilium(Model):
 
 # Kernel block device names, with an optional partition suffix. A bare disk
 # value is matched against the disk serial, so one of these would select no
-# disk and the install would never start. A serial that happens to look like
-# a device name can be forced with the "serial:" prefix.
+# disk and the install would never start.
 KERNEL_DISK_NAME = re.compile(
     r"(?:(?:s|v|h|xv)d[a-z]+|nvme\d+(?:c\d+)?n\d+|mmcblk\d+(?:boot\d+|rpmb)?"
     r"|(?:md|loop|nbd|rbd|sr|zram)\d+|pmem\d+s?|dm-\d+)(?:p?\d+)?"
 )
-SERIAL_PREFIX = "serial:"
 
 
 def _disk(value: str) -> str:
-    """Return a /dev path or symlink as is, or the disk serial from a bare or "serial:" value."""
-    # The value is rendered into double-quoted YAML and CEL strings.
-    if re.search(r"[\s\"'\\]", value):
-        raise ValueError(f"{value!r} must not contain whitespace, quotes or backslashes")
-    if value.startswith(SERIAL_PREFIX):
-        serial = value.removeprefix(SERIAL_PREFIX)
-        if not serial or "/" in serial:
-            raise ValueError(f"{value!r} must be 'serial:' followed by a disk serial without '/'")
-        return serial
-    if value.startswith("/"):
-        return value
-    if "/" in value:
-        fixed = "/" + value if value.startswith("dev/") else "/dev/" + value
+    """Accept a /dev path or symlink, or a disk serial (any value without a leading "/")."""
+    # The value is rendered into a double-quoted CEL string in a plain YAML scalar.
+    if value != value.strip() or re.search(r'[\x00-\x1f\x7f"\\]|: | #', value):
+        raise ValueError(
+            f"{value!r} must not contain control characters, double quotes, backslashes, "
+            "': ' or ' #', or start or end with whitespace"
+        )
+    path = re.sub(r"^(?:\./)+", "", value)
+    if path.startswith(("dev/", "disk/")):
+        fixed = "/" + path if path.startswith("dev/") else "/dev/" + path
         raise ValueError(f"{value!r} is a relative path; did you mean {fixed!r}?")
     if KERNEL_DISK_NAME.fullmatch(value):
         raise ValueError(
             f"{value!r} looks like a kernel device name; use '/dev/{value}', "
-            f"or '{SERIAL_PREFIX}{value}' if it is a disk serial"
+            "or a /dev/disk/by-id/ path if it is a disk serial"
         )
     return value
 

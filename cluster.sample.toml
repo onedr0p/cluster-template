@@ -325,8 +325,7 @@ schematic_id = ""
 # controller   = true           # true = control-plane (etcd + API server), false = worker.
 # disk         = "/dev/nvme0n1" # Install disk: a /dev/... block device, a /dev/disk/by-id/... symlink,
 #                               # or a disk serial (no leading "/", e.g. "S64DNX0R123456"; see the
-#                               # SERIAL column of `talosctl get disks`). Bare names like "nvme0n1" are
-#                               # rejected; prefix a serial that looks like one with "serial:" ("serial:vdisk1").
+#                               # SERIAL column of `talosctl get disks`). Bare names like "nvme0n1" are rejected.
 # mac_addr     = "aa:bb:cc:dd:ee:ff"  # Primary NIC MAC: the HW ADDR column of `talosctl get links`, or the
 #                                     # permanent (burned-in) address shown as permanentAddr with `-o yaml`.
 #

@@ -67,8 +67,7 @@ REJECTIONS = {
     "empty-disk": ("private.toml", "nodes.0.disk", "", r"nodes\.0\.disk: String should have at least 1 character"),
     "disk-relative-dev-path": ("private.toml", "nodes.0.disk", "dev/nvme0n1", r"'dev/nvme0n1' is a relative path; did you mean '/dev/nvme0n1'\?"),
     "disk-relative-by-id": ("private.toml", "nodes.0.disk", "disk/by-id/nvme-x", r"did you mean '/dev/disk/by-id/nvme-x'\?"),
-    "disk-empty-serial": ("private.toml", "nodes.0.disk", "serial:", r"must be 'serial:' followed by a disk serial"),
-    "disk-serial-with-slash": ("private.toml", "nodes.0.disk", "serial:a/b", r"must be 'serial:' followed by a disk serial"),
+    "disk-relative-dot-path": ("private.toml", "nodes.0.disk", "./dev/nvme0n1", r"did you mean '/dev/nvme0n1'\?"),
     "api-addr-on-controller-without-opt-out": ("single-node.toml", "kubernetes.api.addr", "10.10.10.100", r"kubernetes\.api\.addr 10\.10\.10\.100 is a node address: .* set kubernetes\.api\.vip = false"),
     "api-addr-on-worker": ("private.toml", "kubernetes.api.addr", "10.10.10.101", r"kubernetes\.api\.addr 10\.10\.10\.101 is a node address"),
     "no-vip-with-unused-addr": ("single-node.toml", "kubernetes.api.vip", False, r"kubernetes\.api\.vip = false requires exactly one controller with kubernetes\.api\.addr set to its address \(controllers: 10\.10\.10\.100\)"),
@@ -142,14 +141,14 @@ KERNEL_DISK_NAMES = [
 
 @pytest.mark.parametrize("name", KERNEL_DISK_NAMES)
 def test_bare_kernel_disk_name_rejected(name: str):
-    with pytest.raises(ConfigError, match=rf"'{name}' looks like a kernel device name; use '/dev/{name}', or 'serial:{name}'"):
+    with pytest.raises(ConfigError, match=rf"'{name}' looks like a kernel device name; use '/dev/{name}', or a /dev/disk/by-id/ path"):
         _load_raw(config_from("private.toml", **{"nodes.0.disk": name}))
 
 
-@pytest.mark.parametrize("disk", [" /dev/sda", "S64DNX0R123456 ", 'ab"c', "ab'c", "ab\\c"])
+@pytest.mark.parametrize("disk", [" /dev/sda", "S64DNX0R123456 ", "ab\nc", 'ab"c', "ab\\c", "ab: c", "ab #c"])
 def test_disk_with_unsafe_characters_rejected(disk: str):
-    # The value is rendered into double-quoted YAML and CEL strings.
-    with pytest.raises(ConfigError, match="must not contain whitespace, quotes or backslashes"):
+    # The value is rendered into a double-quoted CEL string in a plain YAML scalar.
+    with pytest.raises(ConfigError, match="must not contain control characters, double quotes, backslashes"):
         _load_raw(config_from("private.toml", **{"nodes.0.disk": disk}))
 
 
@@ -161,13 +160,15 @@ def test_disk_with_unsafe_characters_rejected(disk: str):
         "/dev/disk/by-path/pci-0000:00:1f.2-ata-1",
         "S64DNX0R123456",
         "sdfake-serial-01",
-        # Serials that look like kernel device names need the explicit prefix.
-        "serial:vdisk1",
-        "serial:hdd0",
+        # Serials are kept verbatim.
+        "serial:DATA",
+        "RACK/01",
+        "WD Blue 1TB",
+        "O'Brien-01",
     ],
 )
 def test_disk_paths_and_serials_accepted(disk: str):
-    assert _load_raw(config_from("private.toml", **{"nodes.0.disk": disk})).nodes[0].disk == disk.removeprefix("serial:")
+    assert _load_raw(config_from("private.toml", **{"nodes.0.disk": disk})).nodes[0].disk == disk
 
 
 def test_bgp_router_may_be_the_default_gateway():
