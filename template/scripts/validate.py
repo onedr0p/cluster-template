@@ -25,6 +25,7 @@ from pydantic import (
     Field,
     ValidationError,
     computed_field,
+    field_validator,
     model_validator,
 )
 
@@ -59,7 +60,9 @@ def _asn(value: str) -> str:
         raise ValueError(f"{value!r} must be a decimal ASN")
     if not 1 <= int(value) <= 4294967295:
         raise ValueError(f"{value!r} must be in the range 1-4294967295")
-    return value
+    # Strip leading zeros: the value is rendered unquoted into YAML, where
+    # "064514" would be read as octal.
+    return str(int(value))
 
 
 def _empty_to_none(value: Any) -> Any:
@@ -96,6 +99,13 @@ class Network(Model):
         default_factory=lambda data: data["node_cidr"].network_address + 1
     )
     vlan_tag: str | None = Field(default=None, pattern=r"^[0-9]+$")
+
+    # Strip leading zeros: the tag is rendered unquoted into YAML, where
+    # "0100" would be read as octal (VLAN 64).
+    @field_validator("vlan_tag")
+    @classmethod
+    def _decimal_vlan_tag(cls, value: str | None) -> str | None:
+        return None if value is None else str(int(value))
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -288,6 +298,8 @@ class Config(Model):
                     f"nodes[{i}].schematic_id is required: set it on the node "
                     "or set a cluster-wide default in [talos]"
                 )
+        if self.controller_count == 0:
+            raise ValueError("at least one node must have controller = true")
         if self.ingress.mode != "none" and self.dns.provider != "cloudflare":
             raise ValueError(
                 f"ingress.mode {self.ingress.mode!r} requires dns.provider 'cloudflare'"
