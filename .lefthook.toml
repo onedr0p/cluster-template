@@ -23,6 +23,9 @@ run = 'mise lock && git add -A -- .mise ":(exclude).mise/*.toml"'
 
 [pre-commit.commands.format-oxfmt]
 glob = ["*.json", "*.json5", "*.jsonc", "*.md", "*.markdown", "*.mdx", "*.yaml", "*.yml"]
+# mise lock sidecars are digest-pinned in mise.lock; reformatting them makes
+# `mise install --locked` fail with a digest mismatch.
+exclude = [".mise/locks/**"]
 # oxfmt exits non-zero when every path it was given is on its own ignore list
 # (e.g. a commit touching only .vscode/settings.json); told not to, it formats
 # nothing and exits zero.
