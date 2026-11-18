@@ -33,7 +33,7 @@ token = "fake"
 loadbalancer_mode = "dsr"
 
 [cilium.bgp]
-router_addr = "10.10.1.1"
+router_addr = "10.10.10.2"
 router_asn = "64513"
 node_asn = "64514"
 

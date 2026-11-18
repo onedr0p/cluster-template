@@ -51,6 +51,9 @@ KNOWN_HOSTS = {
 }
 
 REPO_URL_PATTERN = r"^(https?://|ssh://git@)[^/]+/.+$"
+# The URL authority once the scheme and any user are removed: Flux (Go's
+# url.Parse) only accepts a numeric port after the host.
+REPO_HOST_PORT_PATTERN = r"[^:@]+(:[0-9]+)?"
 # A Kubernetes qualified name, as used by Service.spec.loadBalancerClass:
 # an optional DNS subdomain prefix (at most 253 characters, checked in
 # _lb_class) and a name of at most 63 characters.
@@ -325,6 +328,16 @@ class Repository(Model):
                 "url must not embed credentials (they would be committed in plain text); "
                 "use an ssh://git@ URL with the generated deploy key for private repositories"
             )
+        host_port = self.url.split("/", 3)[2].removeprefix("git@")
+        if not re.fullmatch(REPO_HOST_PORT_PATTERN, host_port):
+            host, _, port = host_port.partition(":")
+            hint = ""
+            if port and not port.isdigit() and "@" not in host_port:
+                fixed = self.url.replace(f"{host}:", f"{host}/", 1)
+                hint = f"; scp-style host:path is not a URL, did you mean {fixed!r}?"
+            raise ValueError(
+                f"url {self.url!r} must have a hostname with an optional numeric port{hint}"
+            )
         if self.uses_deploy_key:
             host = self.url.removeprefix("ssh://git@").split("/", 1)[0].split(":", 1)[0]
             if host not in KNOWN_HOSTS and not self.known_hosts:
@@ -353,7 +366,10 @@ class Dns(Model):
 
 
 class Ingress(Model):
-    mode: Literal["cloudflare-tunnel", "direct", "none"] = "cloudflare-tunnel"
+    mode: Literal["cloudflare-tunnel", "direct", "none"] | None = Field(
+        default=None,
+        description='Defaults to "cloudflare-tunnel" when dns.provider is "cloudflare", otherwise "none".',
+    )
 
 
 class Certs(Model):
@@ -474,13 +490,7 @@ class Config(Model):
     repository: Repository
     domain: Domain
     dns: Dns
-    # Defaults to "cloudflare-tunnel" when dns.provider is "cloudflare",
-    # otherwise "none".
-    ingress: Ingress = Field(
-        default_factory=lambda data: Ingress(
-            mode="cloudflare-tunnel" if data["dns"].provider == "cloudflare" else "none"
-        )
-    )
+    ingress: Ingress = Ingress()
     certs: Certs = Certs()
     cilium: Cilium = Cilium()
     talos: Talos = Talos()
@@ -570,6 +580,8 @@ class Config(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
+        if self.ingress.mode is None:
+            self.ingress.mode = "cloudflare-tunnel" if self.dns.provider == "cloudflare" else "none"
         bgp_configured = self.cilium.bgp.configured
         if self.cilium.announce is None:
             self.cilium.announce = "bgp" if bgp_configured else "l2"
@@ -608,6 +620,17 @@ class Config(Model):
         if self.ingress.mode != "none" and self.gateways.external is None:
             raise ValueError(
                 f"gateways.external is required when ingress.mode is {self.ingress.mode!r}"
+            )
+
+        # kube-controller-manager gives every node a /24 out of pod_cidr
+        # (Talos's default node CIDR mask size), which Cilium's kubernetes
+        # IPAM mode allocates pod IPs from.
+        pod_cidr = self.kubernetes.pod_cidr
+        if pod_cidr.prefixlen > 24 or 2 ** (24 - pod_cidr.prefixlen) < len(self.nodes):
+            raise ValueError(
+                f"kubernetes.pod_cidr {pod_cidr} is too small: each node gets a /24 from it, "
+                f"so {len(self.nodes)} node(s) need at least a "
+                f"/{24 - (len(self.nodes) - 1).bit_length()}"
             )
 
         cidrs = {
@@ -711,6 +734,16 @@ class Config(Model):
         if self.kubernetes.api.addr not in node_cidr:
             raise ValueError(
                 f"kubernetes.api.addr {self.kubernetes.api.addr} is not inside node_cidr {node_cidr}"
+            )
+        # The rendered CiliumBGPPeerConfig sets no ebgpMultihop, so eBGP
+        # packets leave with TTL 1 and only reach a peer on node_cidr. iBGP
+        # is not limited to one hop.
+        bgp = self.cilium.bgp
+        if self.cilium_bgp_enabled and bgp.router_asn != bgp.node_asn and bgp.router_addr not in node_cidr:
+            raise ValueError(
+                f"cilium.bgp.router_addr {bgp.router_addr} is not inside node_cidr {node_cidr}: "
+                "an eBGP peer (router_asn != node_asn) must be directly connected; "
+                "use the router's address on node_cidr"
             )
         # Over L2 only addresses in the node network can be announced.
         if self.cilium.announce == "l2":

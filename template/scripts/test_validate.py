@@ -97,6 +97,13 @@ REJECTIONS = {
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
     "repo-url-with-credentials": ("public.toml", "repository.url", "https://user:token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
     "repo-url-with-token": ("public.toml", "repository.url", "https://token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
+    "repo-url-scp-style-ssh": ("public.toml", "repository.url", "ssh://git@github.com:onedr0p/home-ops.git", r"scp-style host:path is not a URL, did you mean 'ssh://git@github\.com/onedr0p/home-ops\.git'\?"),
+    "repo-url-scp-style-https": ("public.toml", "repository.url", "https://github.com:onedr0p/home-ops.git", r"did you mean 'https://github\.com/onedr0p/home-ops\.git'\?"),
+    "repo-url-empty-port": ("public.toml", "repository.url", "https://github.com:/onedr0p/home-ops.git", r"must have a hostname with an optional numeric port$"),
+    "repo-url-extra-user": ("public.toml", "repository.url", "ssh://git@user@github.com/onedr0p/home-ops.git", r"must have a hostname with an optional numeric port$"),
+    "ebgp-router-outside-node-cidr": ("public.toml", "cilium.bgp.router_addr", "10.10.1.1", r"cilium\.bgp\.router_addr 10\.10\.1\.1 is not inside node_cidr 10\.10\.10\.0/24: an eBGP peer"),
+    "pod-cidr-smaller-than-node-block": ("private.toml", "kubernetes.pod_cidr", "10.42.0.0/25", r"kubernetes\.pod_cidr 10\.42\.0\.0/25 is too small: each node gets a /24 from it, so 2 node\(s\) need at least a /23"),
+    "pod-cidr-fewer-blocks-than-nodes": ("private.toml", "kubernetes.pod_cidr", "10.42.0.0/24", r"kubernetes\.pod_cidr 10\.42\.0\.0/24 is too small"),
     "bad-kernel-module": ("private.toml", "nodes.0.kernel_modules", ["nvidia]"], r"nodes\.0\.kernel_modules\.0: String should match pattern"),
     "duplicate-kernel-module": ("private.toml", "nodes.0.kernel_modules", ["nvidia", "nvidia"], r"kernel_modules must not contain duplicates"),
 }
@@ -148,6 +155,25 @@ def test_override_rejected(fixture: str, key: str, value, reason: str):
 def test_ssh_port_on_bundled_host_needs_no_known_hosts():
     raw = config_from("private.toml", **{"repository.url": "ssh://git@github.com:22/onedr0p/cluster-template.git"})
     assert _load_raw(raw).repository.known_hosts == ""
+
+
+def test_repo_url_numeric_port_accepted():
+    raw = config_from("public.toml", **{"repository.url": "https://git.example.com:3000/k8s/home-ops.git"})
+    assert _load_raw(raw).repository.url == "https://git.example.com:3000/k8s/home-ops.git"
+
+
+def test_ibgp_router_may_leave_node_cidr():
+    raw = config_from("public.toml", **{"cilium.bgp.router_addr": "10.10.1.1", "cilium.bgp.node_asn": 64513})
+    assert _load_raw(raw).cilium_bgp_enabled is True
+
+
+def test_pod_cidr_fits_one_block_per_node():
+    raw = config_from("private.toml", **{"kubernetes.pod_cidr": "10.42.0.0/23"})
+    assert len(raw["nodes"]) == 2
+    _load_raw(raw)
+    raw["nodes"] = raw["nodes"][:1]
+    raw["kubernetes"]["pod_cidr"] = "10.42.0.0/24"
+    _load_raw(raw)
 
 
 @pytest.mark.parametrize("module", ["nvidia-drm", "i2c_dev", "xt_TPROXY"])
@@ -365,6 +391,11 @@ def test_ingress_mode_follows_dns_provider():
     assert (REPO_ROOT / ".github/template-tests/valid/internal.toml").exists()
     assert "ingress" not in internal
     assert _load_raw(internal).ingress.mode == "none"
+    # The sample ships an [ingress] table with mode commented out.
+    assert _load_raw(config_from("public.toml", ingress={})).ingress.mode == "cloudflare-tunnel"
+    data = _load_raw(config_from("internal.toml", ingress={})).model_dump(mode="json")
+    assert data["ingress"]["mode"] == "none"
+    assert data["repository"]["webhook_provider"] == "none"
 
 
 def test_webhook_provider_follows_ingress_mode():

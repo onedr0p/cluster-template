@@ -52,7 +52,8 @@ node_cidr = ""
 [kubernetes]
 
 # CIDR Cilium hands out to pods. /16 gives ~64K pod IPs, which is well beyond
-# what a homelab needs but matches the upstream default. Must NOT overlap
+# what a homelab needs but matches the upstream default. Each node gets a /24
+# from it, so it must hold at least one /24 per node. Must NOT overlap
 # with node_cidr or svc_cidr.
 # OPTIONAL. Default: "10.42.0.0/16"
 
@@ -156,10 +157,12 @@ external = ""
 # LAN-local git server). Use `ssh://git@` if it is
 # private: the template then wires up a deploy key (`deploy.key.pub`) so
 # Flux can clone over SSH; see the README for the extra setup step.
+# A port after the host must be numeric: scp-style `git@host:owner/repo`
+# paths are not URLs, write them as `ssh://git@host/owner/repo`.
 # REQUIRED. Examples:
 #   "https://github.com/onedr0p/home-ops.git"
 #   "ssh://git@gitlab.com/onedr0p/home-ops.git"
-#   "ssh://git@git.example.com/k8s/home-ops.git"
+#   "ssh://git@git.example.com:2222/k8s/home-ops.git"
 url = ""
 
 # Branch Flux watches. Changes pushed to this branch get reconciled into the
@@ -307,12 +310,13 @@ token = ""
 
 # Cilium BGP peering — advertises Service IPs to your upstream router so
 # LoadBalancer addresses become reachable from anywhere on your LAN
-# (rather than only via L2 ARP). Set ALL THREE fields below to enable;
-# leaving any blank disables BGP entirely.
+# (rather than only via L2 ARP). Set all three fields below to enable BGP,
+# or leave all three blank; a partial configuration is rejected.
 # REF: https://docs.cilium.io/en/latest/network/bgp-control-plane/bgp-control-plane/
 [cilium.bgp]
 
 # IP of your BGP-speaking router. The cluster peers with it from each node.
+# With eBGP (router_asn != node_asn) it must be inside network.node_cidr.
 # OPTIONAL. Example: "192.168.1.1"
 
 # router_addr = ""
