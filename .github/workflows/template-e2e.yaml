@@ -85,6 +85,23 @@ jobs:
       - name: Run configure task
         run: mise run configure
 
+      # configure just passed, so each failure below comes from the fixture;
+      # a manifest that validates means a -skip, schema or strict regression.
+      - name: Assert invalid manifests fail validation
+        run: |
+          app=./kubernetes/apps/default/echo/app
+          cp "$app/kustomization.yaml" "$RUNNER_TEMP/kustomization.yaml"
+          yq -i '.resources += ["./invalid.yaml"]' "$app/kustomization.yaml"
+          for fixture in ./.github/template-tests/invalid-manifests/*.yaml; do
+            cp "$fixture" "$app/invalid.yaml"
+            if mise run //template:validate-kubernetes; then
+              echo "::error file=$fixture::invalid manifest passed validation"
+              exit 1
+            fi
+          done
+          rm "$app/invalid.yaml"
+          cp "$RUNNER_TEMP/kustomization.yaml" "$app/kustomization.yaml"
+
       # tasks validate only sees the current project and the root, so it runs
       # once per monorepo project.
       - name: Validate mise tasks

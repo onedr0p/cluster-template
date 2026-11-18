@@ -4,8 +4,6 @@ set -euo pipefail
 
 KUBERNETES_DIR="${1:?Kubernetes location not specified}"
 
-SECRET_DOMAIN="${SECRET_DOMAIN:-example.com}"
-
 kubeconform_args=(
     "-strict"
     "-ignore-missing-schemas"
@@ -18,11 +16,17 @@ kubeconform_args=(
     "-verbose"
 )
 
-find "${KUBERNETES_DIR}/apps" -type f -name kustomization.yaml -print0 \
-    | while IFS= read -r -d '' file; do
-        dir="$(dirname "${file}")"
-        echo "=== Validating kustomization in ${dir} ==="
-        kustomize build "${dir}" --load-restrictor=LoadRestrictionsNone \
-            | SECRET_DOMAIN="${SECRET_DOMAIN}" flux envsubst --strict \
-            | kubeconform "${kubeconform_args[@]}"
-    done
+# The root flux-system Kustomization applies the namespace kustomizations
+# without postBuild substitution, so build them as-is.
+namespaces=""
+for dir in "${KUBERNETES_DIR}"/apps/*/; do
+    namespaces+="$(kustomize build "${dir}" --load-restrictor=LoadRestrictionsNone)"$'\n---\n'
+done
+
+# flate renders every Flux Kustomization and HelmRelease with Flux's postBuild
+# behaviour. SOPS leaves key names in plaintext, so supply each encrypted
+# Secret with placeholder values for the substitution.
+supply="$(yq 'select(.kind == "Secret" and has("sops")) | .stringData[] = "example.com" | del(.sops)' <<<"${namespaces}")"
+apps="$(flate build all --no-progress --strict-substitutions --supply <(printf '%s\n' "${supply}"))"
+
+kubeconform "${kubeconform_args[@]}" <<<"${namespaces}${apps}"
