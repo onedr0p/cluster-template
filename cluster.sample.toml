@@ -30,7 +30,7 @@ node_cidr = ""
 # Defaults to the first usable host in node_cidr (e.g. 192.168.1.1 for
 # 192.168.1.0/24), which is correct for most home routers. Override if your
 # router lives at a non-standard address inside the subnet.
-# OPTIONAL. Default: first IP in node_cidr
+# OPTIONAL. Default: first IP in node_cidr (also used when left as "")
 
 # default_gateway = ""
 
@@ -38,7 +38,7 @@ node_cidr = ""
 # your switch ports are configured as trunks (passing tagged traffic to the
 # nodes); access ports already untag VLAN traffic. Must be 1-4094.
 # REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
-# OPTIONAL.
+# OPTIONAL. Leave empty ("") for no VLAN.
 
 # vlan_tag = ""
 
@@ -70,7 +70,7 @@ node_cidr = ""
 # Changing it on a running cluster requires recreating the kube-dns Service
 # (its ClusterIP is immutable) and existing pods (resolv.conf is set at
 # creation).
-# OPTIONAL. Default: the 10th IP in svc_cidr
+# OPTIONAL. Default: the 10th IP in svc_cidr (also used when left as "")
 
 # coredns_addr = ""
 

@@ -17,6 +17,7 @@ import re
 import sys
 import tomllib
 
+from pydantic_core import PydanticUseDefault
 from pydantic import (
     AfterValidator,
     BaseModel,
@@ -100,6 +101,14 @@ def _lb_class(value: str) -> str:
     return value
 
 
+# For fields whose default is derived from other fields: "" falls back to that
+# default (including a default_factory) instead of failing validation.
+def _empty_to_default(value: Any) -> Any:
+    if value == "":
+        raise PydanticUseDefault()
+    return value
+
+
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
 type Asn = Annotated[str, AfterValidator(_asn)]
 type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN)]
@@ -109,12 +118,21 @@ type San = Annotated[
     WithJsonSchema({"anyOf": [{"type": "string", "format": "ipv4"}, {"type": "string", "pattern": FQDN_PATTERN}]}),
 ]
 type SchematicId = Annotated[str, Field(pattern=r"^[a-z0-9]{64}$")]
+type VlanTag = Annotated[str, Field(pattern=r"^[0-9]+$")]
 
 # An empty string means unset, so placeholders left in cluster.toml validate
 # the same as an omitted key.
 type OptionalSchematicId = Annotated[
     SchematicId | None,
     BeforeValidator(_empty_to_none, json_schema_input_type=SchematicId | Literal[""] | None),
+]
+type OptionalVlanTag = Annotated[
+    VlanTag | None,
+    BeforeValidator(_empty_to_none, json_schema_input_type=VlanTag | Literal[""] | None),
+]
+type DefaultedIPv4Address = Annotated[
+    IPv4Address,
+    BeforeValidator(_empty_to_default, json_schema_input_type=IPv4Address | Literal[""]),
 ]
 
 
@@ -127,10 +145,10 @@ class Network(Model):
     dns_servers: list[IPv4Address] = [IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")]
     ntp_servers: list[IPv4Address] = [IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")]
     # The first IP in node_cidr unless set explicitly.
-    default_gateway: IPv4Address = Field(
+    default_gateway: DefaultedIPv4Address = Field(
         default_factory=lambda data: data["node_cidr"].network_address + 1
     )
-    vlan_tag: str | None = Field(default=None, pattern=r"^[0-9]+$")
+    vlan_tag: OptionalVlanTag = None
 
     # Strip leading zeros: the tag is rendered unquoted into YAML, where
     # "0100" would be read as octal (VLAN 64).
@@ -167,7 +185,7 @@ class Kubernetes(Model):
     pod_cidr: Cidr = IPv4Network("10.42.0.0/16")
     svc_cidr: Cidr = IPv4Network("10.43.0.0/16")
     # Talos's default unless set explicitly.
-    coredns_addr: IPv4Address = Field(
+    coredns_addr: DefaultedIPv4Address = Field(
         default_factory=lambda data: _talos_cluster_dns(data["svc_cidr"])
     )
     api: Api

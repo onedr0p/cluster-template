@@ -104,6 +104,18 @@
       "title": "Cilium",
       "type": "object"
     },
+    "DefaultedIPv4Address": {
+      "anyOf": [
+        {
+          "format": "ipv4",
+          "type": "string"
+        },
+        {
+          "const": "",
+          "type": "string"
+        }
+      ]
+    },
     "Dns": {
       "additionalProperties": false,
       "properties": {
@@ -232,9 +244,7 @@
           "default": "10.43.0.0/16"
         },
         "coredns_addr": {
-          "format": "ipv4",
-          "title": "Coredns Addr",
-          "type": "string"
+          "$ref": "#/$defs/DefaultedIPv4Address"
         },
         "api": {
           "$ref": "#/$defs/Api"
@@ -269,22 +279,11 @@
           "type": "array"
         },
         "default_gateway": {
-          "format": "ipv4",
-          "title": "Default Gateway",
-          "type": "string"
+          "$ref": "#/$defs/DefaultedIPv4Address"
         },
         "vlan_tag": {
-          "anyOf": [
-            {
-              "pattern": "^[0-9]+$",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Vlan Tag"
+          "$ref": "#/$defs/OptionalVlanTag",
+          "default": null
         }
       },
       "required": ["node_cidr"],
@@ -383,6 +382,20 @@
         }
       ]
     },
+    "OptionalVlanTag": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VlanTag"
+        },
+        {
+          "const": "",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "Repository": {
       "additionalProperties": false,
       "properties": {
@@ -466,6 +479,10 @@
       },
       "title": "Talos",
       "type": "object"
+    },
+    "VlanTag": {
+      "pattern": "^[0-9]+$",
+      "type": "string"
     }
   },
   "additionalProperties": false,

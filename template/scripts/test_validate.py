@@ -295,6 +295,22 @@ def test_empty_string_means_unset():
         _load_raw(raw)
 
 
+def test_empty_placeholders_fall_back_to_defaults():
+    # The sample's `default_gateway = ""`, `vlan_tag = ""` and
+    # `coredns_addr = ""` must validate like omitted keys, derived defaults
+    # included.
+    raw = config_from(
+        "private.toml",
+        **{"network.default_gateway": "", "network.vlan_tag": "", "kubernetes.coredns_addr": ""},
+    )
+    data = _load_raw(raw).model_dump(mode="json")
+    assert data["network"]["default_gateway"] == "10.10.10.1"
+    assert data["network"]["vlan_tag"] is None
+    assert data["kubernetes"]["coredns_addr"] == "10.43.0.10"
+    raw = config_from("private.toml", **{"kubernetes.svc_cidr": "10.96.0.0/16", "kubernetes.coredns_addr": ""})
+    assert _load_raw(raw).model_dump(mode="json")["kubernetes"]["coredns_addr"] == "10.96.0.10"
+
+
 def test_errors_omit_default_factory_noise():
     raw = config_from("public.toml", **{"network.vlan_tag": "5000"})
     with pytest.raises(ConfigError) as excinfo:
