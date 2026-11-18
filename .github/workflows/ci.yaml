@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-name: "Flate"
+name: "CI"
 
 on:
   pull_request:
@@ -52,18 +52,36 @@ jobs:
           FLATE_BASE: ${{ github.event.repository.default_branch }}
         run: flate test -p ./kubernetes/apps
 
-  success:
-    if: ${{ !cancelled() }}
-    needs: [filter, flate]
-    name: Flate - Success
+  zizmor:
+    name: Zizmor
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1
+        with:
+          advanced-security: false
+          annotations: true
+
+  status:
+    if: ${{ !cancelled() }}
+    needs: [filter, flate, zizmor]
+    name: Build Success
+    runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Any jobs failed?
-        if: ${{ contains(needs.*.result, 'failure') }}
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: exit 1
 
       - name: All jobs passed or skipped?
-        if: ${{ !(contains(needs.*.result, 'failure')) }}
+        if: ${{ !(contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
         env:
           RESULTS: ${{ toJSON(needs.*.result) }}
         run: echo "All jobs passed or skipped" && echo "$RESULTS"
