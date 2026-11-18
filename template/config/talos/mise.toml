@@ -1,9 +1,6 @@
 # Day-2 apply/upgrade tasks rely on topf's built-in diff-and-confirm prompt,
 # so they are interactive; only the destructive reset tasks disable it in
 # favour of mise's own confirmation. Node names complete from topf.yaml.
-#
-# Resets only wipe STATE and EPHEMERAL (--full=false) so the installed Talos
-# boots straight back into maintenance mode.
 
 [tasks.apply]
 description = "Apply Talos config to all nodes (shows a diff and asks first)"
@@ -34,15 +31,15 @@ run = "topf nodes"
 description = "Render Talos machine configs to ./rendered"
 run = "topf render --output ./rendered"
 
-# Not graceful: the whole cluster goes away, and leaving etcd fails on the
-# last member or after an interrupted bootstrap.
+# Resets wipe only STATE and EPHEMERAL (--full=false), so nodes boot back
+# into maintenance mode. Not graceful: leaving etcd fails on the last member
+# or after an interrupted bootstrap.
 [tasks.reset]
 description = "Reset all nodes back to maintenance mode (DESTRUCTIVE)"
 confirm = { message = "This will destroy your cluster and reset all nodes to maintenance mode, continue?", default = "no" }
 run = "topf reset --graceful=false --full=false --confirm=false"
 
-# Graceful by default so the node is drained and leaves etcd cleanly; --force
-# skips that for the last control-plane node or a broken cluster.
+# Graceful unless --force, so the node is drained and leaves etcd cleanly.
 [tasks.reset-node]
 description = "Reset a single node back to maintenance mode (DESTRUCTIVE)"
 usage = '''
