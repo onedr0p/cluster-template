@@ -377,6 +377,17 @@ You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
 
 The node should join the cluster automatically and workloads will be scheduled once they report as ready.
 
+### 💾 Backing up etcd
+
+A single control-plane node holds the only copy of the cluster state. Take a snapshot before risky changes, or on a schedule:
+
+```sh
+mise run //talos:etcd-snapshot
+# or write it elsewhere: mise run //talos:etcd-snapshot /path/to/etcd.snapshot
+```
+
+Snapshots go to `.private/etcd/` by default, which is not committed. They contain every Kubernetes Secret, encrypted with the key in `talos/secrets.sops.yaml`, so restoring needs that same file. To restore, follow Talos' [disaster recovery guide](https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/cluster-operations-and-maintenance/disaster-recovery) (`talosctl bootstrap --recover-from`). Persistent volume data is not included.
+
 ### 💥 Reset
 
 > [!CAUTION]
