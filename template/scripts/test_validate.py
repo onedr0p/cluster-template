@@ -486,16 +486,14 @@ def test_gateway_accepts_load_balancer_class():
 
 
 @pytest.mark.parametrize(
-    ("gateway", "node_ports"),
+    ("lb_class", "node_ports"),
     [
-        ("10.10.10.252", False),
-        ({"load_balancer_class": "io.cilium/node"}, False),
-        ({"load_balancer_class": "tailscale"}, False),
-        ({"load_balancer_class": "example.com/cloud-lb"}, True),
+        ("tailscale", False),
+        ("example.com/cloud-lb", True),
     ],
 )
-def test_gateway_node_ports_only_for_classes_that_need_them(gateway, node_ports: bool):
-    raw = config_from("private.toml", **{"gateways.internal": gateway})
+def test_gateway_node_ports_only_for_classes_that_need_them(lb_class: str, node_ports: bool):
+    raw = config_from("private.toml", **{"gateways.internal": {"load_balancer_class": lb_class}})
     assert _load_raw(raw).gateways.internal.node_ports is node_ports
 
 

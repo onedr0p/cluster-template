@@ -58,9 +58,6 @@ DNS_LABEL = r"[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?"
 LB_CLASS_PATTERN = rf"^({DNS_LABEL}(\.{DNS_LABEL})*/)?[A-Za-z0-9]([-A-Za-z0-9_.]{{0,61}}[A-Za-z0-9])?$"
 # Cilium's own LB IPAM classes; gateways get LB IPAM through an address.
 CILIUM_LB_IPAM_CLASSES = ["io.cilium/l2-announcer", "io.cilium/bgp-control-plane"]
-# Classes whose controller does not send traffic to NodePorts: Cilium's own
-# (io.cilium/*) and the Tailscale operator, which proxies to the ClusterIP.
-NO_NODE_PORT_LB_CLASSES = ["tailscale"]
 FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
 # Leaves room within the 253-character DNS limit for the longest name derived
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
@@ -269,16 +266,14 @@ class Gateway(Model):
     address: IPv4Address | None = None
     load_balancer_class: Annotated[str, Field(pattern=LB_CLASS_PATTERN), AfterValidator(_lb_class)] | None = None
 
-    # Whether the gateway's Service keeps its NodePorts. Unknown classes keep
-    # them, as many load balancers (cloud controllers, instance-mode target
-    # groups) forward to NodePorts.
+    # Whether the gateway's Service keeps its NodePorts. Cilium (an address
+    # or io.cilium/*) and the Tailscale operator, which proxies to the
+    # ClusterIP, do not use them; other load balancers often forward to them.
     @computed_field
     @property
     def node_ports(self) -> bool:
         lb_class = self.load_balancer_class
-        return not (
-            lb_class is None or lb_class.startswith("io.cilium/") or lb_class in NO_NODE_PORT_LB_CLASSES
-        )
+        return lb_class not in (None, "tailscale") and not lb_class.startswith("io.cilium/")
 
     @model_validator(mode="after")
     def check(self) -> Self:
