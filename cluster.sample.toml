@@ -16,13 +16,13 @@ node_cidr = ""
 # Upstream DNS servers Talos nodes use for name resolution. Defaults to
 # Cloudflare (1.1.1.1 / 1.0.0.1). Override if you run an internal resolver
 # (Pi-hole, Unbound, AdGuard) or want a different public provider.
-# OPTIONAL. Default: ["1.1.1.1", "1.0.0.1"]
+# OPTIONAL. Default: ["1.1.1.1", "1.0.0.1"]. If set, list at least one.
 
 # dns_servers = ["1.1.1.1", "1.0.0.1"]
 
 # Upstream NTP servers. Defaults to Cloudflare's anycast NTP. Most homelabs
 # don't need to change this.
-# OPTIONAL. Default: ["162.159.200.1", "162.159.200.123"]
+# OPTIONAL. Default: ["162.159.200.1", "162.159.200.123"]. If set, list at least one.
 
 # ntp_servers = ["162.159.200.1", "162.159.200.123"]
 
@@ -30,15 +30,16 @@ node_cidr = ""
 # Defaults to the first usable host in node_cidr (e.g. 192.168.1.1 for
 # 192.168.1.0/24), which is correct for most home routers. Override if your
 # router lives at a non-standard address inside the subnet.
-# OPTIONAL. Default: first IP in node_cidr
+# OPTIONAL. Default: first IP in node_cidr (also used when left as "")
 
 # default_gateway = ""
 
 # 802.1Q VLAN tag to apply to the Talos node interface. Only set this if
 # your switch ports are configured as trunks (passing tagged traffic to the
-# nodes); access ports already untag VLAN traffic. Must be 1-4094.
+# nodes); access ports already untag VLAN traffic. Must be 1-4094, given as
+# a number (100) or a string ("100").
 # REF: https://www.talos.dev/latest/advanced/advanced-networking/#vlans
-# OPTIONAL.
+# OPTIONAL. Leave empty ("") for no VLAN.
 
 # vlan_tag = ""
 
@@ -70,7 +71,7 @@ node_cidr = ""
 # Changing it on a running cluster requires recreating the kube-dns Service
 # (its ClusterIP is immutable) and existing pods (resolv.conf is set at
 # creation).
-# OPTIONAL. Default: the 10th IP in svc_cidr
+# OPTIONAL. Default: the 10th IP in svc_cidr (also used when left as "")
 
 # coredns_addr = ""
 
@@ -200,6 +201,7 @@ url = ""
 # =============================================================================
 [domain]
 
+# At most 230 characters, leaving room for derived names such as "flux-webhook.".
 # REQUIRED. Example: "example.com"
 name = ""
 
@@ -287,14 +289,15 @@ token = ""
 # router_addr = ""
 
 # ASN your router uses for BGP. Anything in the private range (64512-65534)
-# is fine if you're not peering with the public internet.
-# OPTIONAL. Example: "64513"
+# is fine if you're not peering with the public internet. A number (64513)
+# or a string ("64513") both work.
+# OPTIONAL. Example: 64513
 
 # router_asn = ""
 
 # ASN the cluster's nodes use for BGP. Pick a different value than
-# router_asn so peering is eBGP rather than iBGP.
-# OPTIONAL. Example: "64514"
+# router_asn so peering is eBGP rather than iBGP. A number or a string.
+# OPTIONAL. Example: 64514
 
 # node_asn = ""
 

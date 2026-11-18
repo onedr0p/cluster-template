@@ -35,7 +35,17 @@
       "type": "object"
     },
     "Asn": {
-      "type": "string"
+      "anyOf": [
+        {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "pattern": "^[0-9]+$",
+          "type": "string"
+        }
+      ]
     },
     "Bgp": {
       "additionalProperties": false,
@@ -49,18 +59,43 @@
             {
               "const": "",
               "type": "string"
+            },
+            {
+              "type": "null"
             }
           ],
-          "default": "",
+          "default": null,
           "title": "Router Addr"
         },
         "router_asn": {
-          "$ref": "#/$defs/Asn",
-          "default": ""
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Asn"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "node_asn": {
-          "$ref": "#/$defs/Asn",
-          "default": ""
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Asn"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "Bgp",
@@ -95,9 +130,9 @@
         "bgp": {
           "$ref": "#/$defs/Bgp",
           "default": {
-            "router_addr": "",
-            "router_asn": "",
-            "node_asn": ""
+            "router_addr": null,
+            "router_asn": null,
+            "node_asn": null
           }
         }
       },
@@ -126,14 +161,15 @@
       "additionalProperties": false,
       "properties": {
         "name": {
-          "$ref": "#/$defs/Fqdn"
+          "$ref": "#/$defs/DomainName"
         }
       },
       "required": ["name"],
       "title": "Domain",
       "type": "object"
     },
-    "Fqdn": {
+    "DomainName": {
+      "maxLength": 230,
       "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
       "type": "string"
     },
@@ -232,9 +268,17 @@
           "default": "10.43.0.0/16"
         },
         "coredns_addr": {
-          "format": "ipv4",
-          "title": "Coredns Addr",
-          "type": "string"
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "const": "",
+              "type": "string"
+            }
+          ],
+          "title": "Coredns Addr"
         },
         "api": {
           "$ref": "#/$defs/Api"
@@ -256,6 +300,7 @@
             "format": "ipv4",
             "type": "string"
           },
+          "minItems": 1,
           "title": "Dns Servers",
           "type": "array"
         },
@@ -265,26 +310,37 @@
             "format": "ipv4",
             "type": "string"
           },
+          "minItems": 1,
           "title": "Ntp Servers",
           "type": "array"
         },
         "default_gateway": {
-          "format": "ipv4",
-          "title": "Default Gateway",
-          "type": "string"
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "const": "",
+              "type": "string"
+            }
+          ],
+          "title": "Default Gateway"
         },
         "vlan_tag": {
           "anyOf": [
             {
-              "pattern": "^[0-9]+$",
+              "$ref": "#/$defs/VlanTag"
+            },
+            {
+              "const": "",
               "type": "string"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Vlan Tag"
+          "default": null
         }
       },
       "required": ["node_cidr"],
@@ -318,7 +374,18 @@
           "type": "string"
         },
         "schematic_id": {
-          "$ref": "#/$defs/OptionalSchematicId",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SchematicId"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null
         },
         "mtu": {
@@ -359,20 +426,6 @@
         },
         {
           "$ref": "#/$defs/Gateway"
-        },
-        {
-          "const": "",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "OptionalSchematicId": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/SchematicId"
         },
         {
           "const": "",
@@ -428,13 +481,14 @@
           "type": "string"
         },
         {
+          "maxLength": 253,
           "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
           "type": "string"
         }
       ]
     },
     "SchematicId": {
-      "pattern": "^[a-z0-9]{64}$",
+      "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },
     "Spegel": {
@@ -460,12 +514,36 @@
       "additionalProperties": false,
       "properties": {
         "schematic_id": {
-          "$ref": "#/$defs/OptionalSchematicId",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SchematicId"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null
         }
       },
       "title": "Talos",
       "type": "object"
+    },
+    "VlanTag": {
+      "anyOf": [
+        {
+          "maximum": 4094,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "pattern": "^[0-9]+$",
+          "type": "string"
+        }
+      ]
     }
   },
   "additionalProperties": false,
@@ -497,9 +575,9 @@
         "loadbalancer_mode": "dsr",
         "announce": null,
         "bgp": {
-          "node_asn": "",
-          "router_addr": "",
-          "router_asn": ""
+          "node_asn": null,
+          "router_addr": null,
+          "router_asn": null
         }
       }
     },
@@ -519,6 +597,7 @@
       "items": {
         "$ref": "#/$defs/Node"
       },
+      "minItems": 1,
       "title": "Nodes",
       "type": "array"
     }
