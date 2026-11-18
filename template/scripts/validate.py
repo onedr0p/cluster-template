@@ -160,10 +160,6 @@ type San = Annotated[
 type SchematicId = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 type DomainName = Annotated[str, Field(pattern=FQDN_PATTERN, max_length=DOMAIN_MAX_LENGTH)]
 type K8sName = Annotated[str, Field(pattern=K8S_NAME_PATTERN, max_length=253)]
-type OptionalK8sName = Annotated[
-    K8sName | None,
-    BeforeValidator(_empty_to_none, json_schema_input_type=K8sName | Literal[""] | None),
-]
 
 
 class Model(BaseModel):
@@ -347,7 +343,7 @@ class Ingress(Model):
 class Certs(Model):
     # A ClusterIssuer you provide (e.g. ACME with your DNS host's solver).
     # Issues the wildcard certificate instead of the template's own issuer.
-    cluster_issuer: OptionalK8sName = None
+    cluster_issuer: _unsettable(K8sName | None) = None
 
     @model_validator(mode="after")
     def check(self) -> Self:

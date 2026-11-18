@@ -105,7 +105,18 @@
       "additionalProperties": false,
       "properties": {
         "cluster_issuer": {
-          "$ref": "#/$defs/OptionalK8sName",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/K8sName"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null
         }
       },
@@ -444,20 +455,6 @@
         },
         {
           "$ref": "#/$defs/Gateway"
-        },
-        {
-          "const": "",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "OptionalK8sName": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/K8sName"
         },
         {
           "const": "",
