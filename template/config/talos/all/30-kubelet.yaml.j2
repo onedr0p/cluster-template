@@ -1,5 +1,8 @@
 apiVersion: v1alpha1
 kind: KubeletConfig
+# Talos defaults to the 10th IP of the service subnet; keep pods pointed at
+# the CoreDNS service when coredns_addr is overridden.
+clusterDNS: ["#{ kubernetes.coredns_addr }#"]
 config:
   crashLoopBackOff:
     maxContainerRestartPeriod: 60s
