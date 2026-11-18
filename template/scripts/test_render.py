@@ -1,9 +1,9 @@
 """Tests for the output rendered from the cluster.toml in the repo root.
 
-Render the tree first, then run from the repo root:
+Render the tree first:
     mise run configure
     mise run //talos:render
-    uv run --locked pytest template/scripts/test_render.py -q
+    mise run //template:test-render
 """
 
 from pathlib import Path
