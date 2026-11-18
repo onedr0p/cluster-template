@@ -397,6 +397,19 @@
         "schematic_id": {
           "$ref": "#/$defs/OptionalSchematicId",
           "default": null
+        },
+        "firewall": {
+          "default": false,
+          "title": "Firewall",
+          "type": "boolean"
+        },
+        "admin_cidrs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Cidr"
+          },
+          "title": "Admin Cidrs",
+          "type": "array"
         }
       },
       "title": "Talos",
@@ -440,7 +453,9 @@
     "talos": {
       "$ref": "#/$defs/Talos",
       "default": {
-        "schematic_id": null
+        "schematic_id": null,
+        "firewall": false,
+        "admin_cidrs": []
       }
     },
     "spegel": {

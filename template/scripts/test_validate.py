@@ -85,6 +85,9 @@ REJECTIONS = {
     "bgp-router-addr-node-collision": ("public.toml", "cilium.bgp.router_addr", "10.10.10.100", r"address 10\.10\.10\.100 is used by both nodes\[0\]\.address and cilium\.bgp\.router_addr"),
     "bgp-router-addr-in-pod-cidr": ("public.toml", "cilium.bgp.router_addr", "10.42.0.1", r"cilium\.bgp\.router_addr 10\.42\.0\.1 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
+    "firewall-without-admin-cidrs": ("private.toml", "talos.firewall", True, r"talos: admin_cidrs is required when firewall = true"),
+    "firewall-admin-cidr-any": ("firewall.toml", "talos.admin_cidrs", ["100.64.0.0/10", "0.0.0.0/0"], r"talos: admin_cidrs must not contain 0\.0\.0\.0/0"),
+    "firewall-admin-cidr-host-bits": ("firewall.toml", "talos.admin_cidrs", ["100.64.0.1/10"], r"talos\.admin_cidrs\.0: '100\.64\.0\.1/10' has host bits set; did you mean 100\.64\.0\.0/10"),
 }
 
 
@@ -316,3 +319,12 @@ def test_schema_file_matches_model():
 
 def test_schema_omits_computed_fields():
     assert "cluster_issuer" not in schema()["properties"]
+
+
+def test_firewall_is_opt_in():
+    talos = _load_raw(config_from("private.toml")).model_dump(mode="json")["talos"]
+    assert talos["firewall"] is False
+    assert talos["admin_cidrs"] == []
+    talos = _load_raw(config_from("firewall-multi.toml")).model_dump(mode="json")["talos"]
+    assert talos["firewall"] is True
+    assert talos["admin_cidrs"] == ["192.168.1.0/24", "100.64.0.0/10"]

@@ -1,0 +1,134 @@
+#% if talos.firewall %#
+#| Ingress firewall, following the Talos recommendations for Kubernetes
+   nodes: https://docs.siderolabs.com/talos/v1.14/networking/ingress-firewall
+   Talos always accepts loopback, established/related connections,
+   rate-limited ICMP and traffic between the pod and service subnets.
+   Service traffic (LoadBalancer IPs, NodePorts) is handled by Cilium's eBPF
+   datapath before it reaches these rules. Cluster members are matched by
+   their own addresses rather than node_cidr, which on a VPS is often a
+   subnet shared with other customers. #|
+#% set node_subnets = (nodes | map(attribute='address') | join('/32 ') ~ '/32').split() %#
+#% set controller_subnets = (nodes | selectattr('controller') | map(attribute='address') | join('/32 ') ~ '/32').split() %#
+#% set in_cluster = node_subnets + [kubernetes.pod_cidr] %#
+apiVersion: v1alpha1
+kind: NetworkDefaultActionConfig
+ingress: block
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: apid-ingress
+portSelector:
+  ports: [50000]
+  protocol: tcp
+ingress:
+  #% for subnet in talos.admin_cidrs + node_subnets %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: kubelet-ingress
+portSelector:
+  ports: [10250]
+  protocol: tcp
+ingress:
+  #% for subnet in in_cluster %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+---
+# Cilium node-to-node health checks; native routing needs no VXLAN port.
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: cilium-health-ingress
+portSelector:
+  ports: [4240]
+  protocol: tcp
+ingress:
+  #% for subnet in node_subnets %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+---
+# Cilium agent and operator metrics, for Prometheus.
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: cilium-metrics-ingress
+portSelector:
+  ports: [9962-9963]
+  protocol: tcp
+ingress:
+  #% for subnet in in_cluster %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+#% if cilium_bgp_enabled %#
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: bgp-ingress
+portSelector:
+  ports: [179]
+  protocol: tcp
+ingress:
+  - subnet: #{ cilium.bgp.router_addr }#/32
+#% endif %#
+#% if ingress.mode == 'direct' %#
+---
+# The external gateway when it is served on a node's own address. Cilium
+# already handles that traffic before these rules; this keeps it working
+# without relying on that.
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: gateway-ingress
+portSelector:
+  ports: [80, 443]
+  protocol: tcp
+ingress:
+  - subnet: 0.0.0.0/0
+#% endif %#
+{{- if eq .Node.Role "control-plane" }}
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: trustd-ingress
+portSelector:
+  ports: [50001]
+  protocol: tcp
+ingress:
+  #% for subnet in node_subnets %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: kubernetes-api-ingress
+portSelector:
+  ports: [6443]
+  protocol: tcp
+ingress:
+  #% for subnet in talos.admin_cidrs + in_cluster %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: etcd-ingress
+portSelector:
+  ports: [2379-2380]
+  protocol: tcp
+ingress:
+  #% for subnet in controller_subnets %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+---
+# etcd, controller-manager and scheduler metrics, for Prometheus.
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: control-plane-metrics-ingress
+portSelector:
+  ports: [2381, 10257, 10259]
+  protocol: tcp
+ingress:
+  #% for subnet in in_cluster %#
+  - subnet: #{ subnet }#
+  #% endfor %#
+{{- end }}
+#% endif %#

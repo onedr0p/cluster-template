@@ -270,6 +270,32 @@ token = ""
 # OPTIONAL if every node sets schematic_id itself.
 schematic_id = ""
 
+# Talos ingress firewall. When enabled, nodes drop every inbound connection
+# the cluster does not need: the Talos API (50000) and Kubernetes API (6443)
+# answer admin_cidrs and the cluster; kubelet, etcd, trustd, Cilium and
+# control-plane metrics answer only the cluster (node addresses, plus
+# pod_cidr where pods need it). BGP (179) is opened to
+# cilium.bgp.router_addr, and with ingress.mode "direct" TCP 80/443 is opened
+# to everyone. Meant for nodes on a public IP (e.g. a VPS).
+# WARNING: a wrong admin_cidrs locks you out of talosctl and kubectl. Keep
+# console access to the nodes, and roll it out to a running cluster with
+# `mise run //talos:apply-node <node> try` first: Talos reverts a `try`
+# config after a timeout, so re-apply it normally once you have checked
+# you still have access. Anything else you run on the host network (e.g.
+# node-exporter on 9100) needs its own NetworkRuleConfig patch. After adding
+# a node, apply the config to every node so the others accept it.
+# REF: https://docs.siderolabs.com/talos/v1.14/networking/ingress-firewall
+# OPTIONAL. Default: false
+
+# firewall = false
+
+# Networks allowed to reach the Talos and Kubernetes APIs besides the cluster
+# itself; must be canonical CIDRs, and 0.0.0.0/0 is rejected. For admin
+# access over Tailscale use its CGNAT range.
+# REQUIRED when firewall = true. Example: ["100.64.0.0/10"]
+
+# admin_cidrs = ["100.64.0.0/10"]
+
 
 # =============================================================================
 #    One [[nodes]] table per physical machine or VM in the cluster. At least

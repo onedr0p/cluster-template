@@ -43,6 +43,8 @@ NODES=("${CONTROLPLANES[@]}" "${WORKERS[@]}")
 GIT_HOST="${E2E_GATEWAY:-$PREFIX.1}"
 GIT_PORT=8418
 GIT_SERVER_CONTAINER=""
+# Renders talos.firewall with only the runner (the gateway) as admin network.
+FIREWALL="${E2E_FIREWALL:-false}"
 
 # The provisioner runs under sudo and writes state relative to its cwd and
 # TALOSCONFIG, so both are pointed at a scratch dir to keep root-owned files
@@ -138,7 +140,8 @@ export E2E_GIT_HOST="$GIT_HOST"
 export E2E_GIT_PORT="$GIT_PORT"
 export E2E_PREFIX="$PREFIX"
 export E2E_SCHEMATIC="$SCHEMATIC"
-envsubst '${E2E_CIDR} ${E2E_GATEWAY} ${E2E_GIT_HOST} ${E2E_GIT_PORT} ${E2E_PREFIX} ${E2E_SCHEMATIC}' \
+export E2E_FIREWALL="$FIREWALL"
+envsubst '${E2E_CIDR} ${E2E_FIREWALL} ${E2E_GATEWAY} ${E2E_GIT_HOST} ${E2E_GIT_PORT} ${E2E_PREFIX} ${E2E_SCHEMATIC}' \
     < "$E2E_DIR/cluster.toml.tmpl" > cluster.toml
 index=0
 for ip in "${NODES[@]}"; do
@@ -268,6 +271,18 @@ until kubectl exec --namespace default e2e-network-client -- \
 done
 }
 
+# The runner is an admin network, not a cluster member: the Talos and
+# Kubernetes APIs answer it (the bootstrap above proved that), but the
+# kubelet must not.
+firewall() {
+echo "==> asserting the ingress firewall blocks non-cluster sources"
+for ip in "${NODES[@]}"; do
+    if timeout 5 bash -c ">/dev/tcp/$ip/10250" 2>/dev/null; then
+        mise run //:log fatal "kubelet is reachable from outside the cluster" node "$ip"
+    fi
+done
+}
+
 summary() {
 kubectl get nodes --output wide
 kubectl get kustomizations,helmreleases --all-namespaces
@@ -279,6 +294,7 @@ case "$MODE" in
     foundation) foundation ;;
     flux-sops)  flux_sops ;;
     networking) networking ;;
+    firewall)   firewall ;;
     summary)    summary ;;
     all)
         start_local_git_server
@@ -286,10 +302,11 @@ case "$MODE" in
         foundation
         flux_sops
         networking
+        [ "$FIREWALL" = true ] && firewall
         summary
         ;;
     *)
-        echo "usage: $0 {prepare|foundation|flux-sops|networking|summary|all}" >&2
+        echo "usage: $0 {prepare|foundation|flux-sops|networking|firewall|summary|all}" >&2
         exit 2
         ;;
 esac

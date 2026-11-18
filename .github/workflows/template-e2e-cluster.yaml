@@ -18,10 +18,14 @@ permissions: {}
 jobs:
   bootstrap:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
-    name: bootstrap (qemu)
+    name: bootstrap (qemu${{ matrix.firewall && ', firewall' || '' }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        firewall: [false, true]
     services:
       git:
         image: ghcr.io/charmbracelet/soft-serve:v0.12.4
@@ -71,12 +75,14 @@ jobs:
           CONTROLPLANE_IPS: "${{ steps.cluster.outputs.controlplane-ips }}"
           GATEWAY: "${{ steps.cluster.outputs.gateway }}"
           WORKER_IPS: "${{ steps.cluster.outputs.worker-ips }}"
+          FIREWALL: "${{ matrix.firewall }}"
         run: |
           echo "E2E_CONTROLPLANE_IPS=$CONTROLPLANE_IPS" >> "$GITHUB_ENV"
           echo "E2E_WORKER_IPS=$WORKER_IPS" >> "$GITHUB_ENV"
           echo "E2E_GATEWAY=$GATEWAY" >> "$GITHUB_ENV"
           echo "E2E_CIDR=10.9.0.0/24" >> "$GITHUB_ENV"
           echo "E2E_STATE=$RUNNER_TEMP/template-e2e" >> "$GITHUB_ENV"
+          echo "E2E_FIREWALL=$FIREWALL" >> "$GITHUB_ENV"
 
       - name: Prepare cluster
         run: bash ./.github/template-tests/e2e/cluster.sh prepare
@@ -96,6 +102,10 @@ jobs:
 
       - name: Wait for E2E tests
         wait: [flux-sops, networking]
+
+      - name: Test ingress firewall
+        if: ${{ matrix.firewall }}
+        run: bash ./.github/template-tests/e2e/cluster.sh firewall
 
       - name: Summarize cluster
         run: bash ./.github/template-tests/e2e/cluster.sh summary
