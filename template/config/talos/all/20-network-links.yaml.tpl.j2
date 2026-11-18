@@ -10,7 +10,11 @@ apiVersion: v1alpha1
 kind: LinkAliasConfig
 name: ethSel0
 selector:
-  match: glob("{{ .Node.Data.macAddr }}", mac(link.hardware_addr))
+  #| Match the permanent (burned-in) MAC: bonding rewrites hardware_addr of
+     every member to the bond's MAC, so a second NIC in bond0 would also
+     match. Fall back to hardware_addr when the driver reports no permanent
+     address (Talos leaves it empty). #|
+  match: 'glob("{{ .Node.Data.macAddr }}", mac(size(link.permanent_addr) > 0 ? link.permanent_addr : link.hardware_addr))'
 ---
 apiVersion: v1alpha1
 kind: BondConfig

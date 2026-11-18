@@ -98,6 +98,11 @@ for secret in \
     ../kubernetes/components/sops/cluster-secrets.sops.yaml
 do
     name="$(basename "$secret" .sops.yaml)"
+    # The deploy key is only rendered for ssh:// repository URLs.
+    if [[ "$name" == "deploy-key" && ! -f "$secret" ]]; then
+        mise run //:log info "Secret skipped, repository is not ssh://" resource "$name"
+        continue
+    fi
     if sops decrypt "$secret" \
             | kubectl --namespace flux-system apply --server-side --filename - &>/dev/null; then
         mise run //:log info "Secret applied" resource "$name"
@@ -107,19 +112,20 @@ do
 done
 '''
 
-# Wait until nodes register as Ready=False. They only become Ready=True once the CNI is healthy.
+# Wait until at least one node has registered with the API server. Nodes
+# stay Ready=False until the CNI is installed, and on a re-run they may be
+# in any mix of Ready=True/False/Unknown, so only their existence is checked;
+# the CNI DaemonSet picks up nodes that register later.
 [tasks.apps-ready]
 hide = true
 run = '''
-mise run //:log info "Waiting for nodes to register as Ready=False" stage "$MISE_TASK_NAME"
-if ! kubectl wait nodes --for=condition=Ready=True --all --timeout=10s &>/dev/null; then
-    deadline=$((SECONDS + 600))
-    until kubectl wait nodes --for=condition=Ready=False --all --timeout=10s &>/dev/null; do
-        if (( SECONDS >= deadline )); then
-            mise run //:log fatal "Timed out waiting for nodes to register"
-        fi
-        mise run //:log info "Nodes not available, waiting for nodes to be available. Retrying in 5 seconds..."
-        sleep 5
-    done
-fi
+mise run //:log info "Waiting for nodes to register" stage "$MISE_TASK_NAME"
+deadline=$((SECONDS + 600))
+until [[ -n "$(kubectl get nodes --output=name --request-timeout=10s 2>/dev/null)" ]]; do
+    if (( SECONDS >= deadline )); then
+        mise run //:log fatal "Timed out waiting for nodes to register"
+    fi
+    mise run //:log info "No nodes registered yet. Retrying in 5 seconds..."
+    sleep 5
+done
 '''

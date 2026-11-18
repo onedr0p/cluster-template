@@ -281,7 +281,9 @@ schematic_id = ""
 # name         = "k8s-0"        # Hostname; must match [a-z0-9-]+ (not "global"/"controller"/"worker").
 # address      = "192.168.1.10" # Static IP; must be inside network.node_cidr.
 # controller   = true           # true = control-plane (etcd + API server), false = worker.
-# disk         = "/dev/nvme0n1" # Block device or /dev/disk/by-id/... symlink to install Talos onto.
+# disk         = "/dev/nvme0n1" # Install disk: a /dev/... block device, a /dev/disk/by-id/... symlink,
+#                               # or a disk serial (no leading "/", e.g. "S64DNX0R123456"; see the
+#                               # SERIAL column of `talosctl get disks`). Bare names like "nvme0n1" are rejected.
 # mac_addr     = "aa:bb:cc:dd:ee:ff"  # Primary NIC MAC.
 #
 # # Optional when [talos] sets a cluster-wide default:

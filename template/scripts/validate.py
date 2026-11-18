@@ -220,11 +220,32 @@ class Cilium(Model):
     bgp: Bgp = Bgp()
 
 
+# Kernel block device names (optionally with a partition suffix). A disk value
+# without a leading "/" is matched against the disk serial, so a bare device
+# name would select no disk and the install would never start.
+KERNEL_DISK_NAME = re.compile(
+    r"^(?:(?:s|v|h|xv)d[a-z]+\d*|nvme\d+n\d+(?:p\d+)?|mmcblk\d+(?:p\d+)?)$"
+)
+
+
+def _disk(value: str) -> str:
+    if not value:
+        raise ValueError("disk must be a device path, a /dev/disk/by-id/ path or a disk serial")
+    if KERNEL_DISK_NAME.match(value):
+        raise ValueError(
+            f"{value!r} looks like a kernel device name, not a disk serial; "
+            f"did you mean '/dev/{value}'?"
+        )
+    return value
+
+
 class Node(Model):
     name: str = Field(pattern=r"^[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]$|^[a-z0-9]$")
     address: IPv4Address
     controller: bool
-    disk: str
+    # A value starting with "/" is a device path or symlink; anything else is
+    # matched against the disk serial.
+    disk: Annotated[str, AfterValidator(_disk)]
     mac_addr: str = Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
     # Falls back to talos.schematic_id when unset.
     schematic_id: OptionalSchematicId = None
