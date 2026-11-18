@@ -225,7 +225,7 @@ These guidelines are a baseline, not a guarantee: **test and benchmark** your ha
 > [!TIP]
 > Use the `envoy-external` gateway on `HTTPRoutes` to make applications public to the internet. These are also accessible on your private network once you set up split DNS.
 
-With `dns.provider = "cloudflare"`, the `cloudflare-dns` application ([external-dns](https://github.com/kubernetes-sigs/external-dns)) in the `network` namespace will handle creating public DNS records; with `"none"` you create them at your DNS host yourself. By default, `echo` and the `flux-webhook` are the only subdomains reachable from the public internet. In order to make additional applications public you must **set the correct gateway** like in the HelmRelease for `echo`.
+With `dns.provider = "cloudflare"`, the `cloudflare-dns` application ([external-dns](https://github.com/kubernetes-sigs/external-dns)) in the `network` namespace will handle creating public DNS records; with `"none"` you create them at your DNS host yourself. By default, `echo` and `flux-webhook` (unless `webhook_provider = "none"`) are the only subdomains reachable from the public internet. In order to make additional applications public you must **set the correct gateway** like in the HelmRelease for `echo`.
 
 ### 🏠 Home DNS
 

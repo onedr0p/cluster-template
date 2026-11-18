@@ -257,13 +257,16 @@ token = ""
 #    self-signed CA (dns.provider = "none"), which public clients will not
 #    trust. To use any other DNS host, name a ClusterIssuer you provide,
 #    e.g. an ACME issuer with any cert-manager-supported DNS-01 solver (the
-#    certificate is a wildcard, so HTTP-01 cannot issue it). Add it (and any
-#    solver webhook) to your repository yourself; the template then renders
-#    no Let's Encrypt issuer. The internal CA issuer still renders as a
-#    fallback, and with dns.provider = "cloudflare" the token stays available
-#    to your issuer as Secret cert-manager/cert-manager-secret (key
-#    api-token). Bootstrap does not wait for your issuer, so a missing or
-#    failing one only shows as a not-ready certificate: check
+#    certificate is a wildcard, so HTTP-01 cannot issue it). Deploy it (and
+#    any solver webhook) through Flux yourself, e.g. in a Kustomization that
+#    depends on cert-manager; the template then renders no Let's Encrypt
+#    issuer. The internal CA issuer still renders for the cert-manager health
+#    check, not as a fallback. With dns.provider = "cloudflare" the token
+#    stays available to your issuer as Secret cert-manager/cert-manager-secret
+#    (key api-token). With ingress.mode = "cloudflare-tunnel", cloudflared
+#    verifies the gateway certificate, so use a publicly trusted issuer.
+#    Bootstrap does not wait for your issuer, so a missing or failing one
+#    only shows as a not-ready certificate: check
 #    `kubectl get clusterissuer` and `kubectl get certificate -A`.
 # =============================================================================
 [certs]
