@@ -21,7 +21,8 @@ spec:
               memory: 1Gi
       envoyService:
         # Cilium serves the LoadBalancer IP itself; NodePorts would only open
-        # the gateways on every node address.
+        # the gateways on every node address. Gateways whose class forwards
+        # to NodePorts turn them back on below.
         allocateLoadBalancerNodePorts: false
         externalTrafficPolicy: Cluster
   shutdown:
@@ -60,6 +61,9 @@ spec:
     kubernetes:
       envoyService:
         loadBalancerClass: "#{ gateway.load_balancer_class }#"
+        #% if gateway.node_ports %#
+        allocateLoadBalancerNodePorts: true
+        #% endif %#
 #% endif %#
 ---
 apiVersion: gateway.networking.k8s.io/v1
