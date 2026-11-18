@@ -9,6 +9,11 @@
           "title": "Addr",
           "type": "string"
         },
+        "vip": {
+          "default": true,
+          "title": "Vip",
+          "type": "boolean"
+        },
         "tls_sans": {
           "anyOf": [
             {

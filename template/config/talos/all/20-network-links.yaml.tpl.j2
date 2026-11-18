@@ -36,7 +36,7 @@ addresses:
   - address: "{{ .Node.IP }}/#{ network.node_cidr.split('/') | last }#"
 routes:
   - gateway: "#{ network.default_gateway }#"
-#% if api_vip_enabled %#
+#% if kubernetes.api.vip %#
 {{- if eq .Node.Role "control-plane" }}
 ---
 apiVersion: v1alpha1

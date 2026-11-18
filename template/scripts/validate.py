@@ -137,6 +137,9 @@ class Network(Model):
 
 class Api(Model):
     addr: IPv4Address
+    # False serves the API on the sole controller's own address (addr)
+    # instead of announcing a Layer 2 VIP.
+    vip: bool = True
     tls_sans: list[San] | None = None
 
 
@@ -324,15 +327,8 @@ class Config(Model):
     @computed_field
     @property
     def cert_sans(self) -> list[str]:
-        return ["127.0.0.1", str(self.kubernetes.api.addr), *(self.kubernetes.api.tls_sans or [])]
-
-    # A single-controller cluster may point kubernetes.api.addr at the
-    # controller itself (e.g. a VPS with one IP); no Layer 2 VIP is
-    # announced then.
-    @computed_field
-    @property
-    def api_vip_enabled(self) -> bool:
-        return all(node.address != self.kubernetes.api.addr for node in self.nodes)
+        api = self.kubernetes.api
+        return list(dict.fromkeys(["127.0.0.1", str(api.addr), *(api.tls_sans or [])]))
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -370,21 +366,28 @@ class Config(Model):
                 if cidrs[a].overlaps(cidrs[b]):
                     raise ValueError(f"{a} {cidrs[a]} overlaps {b} {cidrs[b]}")
 
-        api_addr = self.kubernetes.api.addr
-        api_node = next((i for i, n in enumerate(self.nodes) if n.address == api_addr), None)
-        if api_node is not None and not (self.controller_count == 1 and self.nodes[api_node].controller):
+        api = self.kubernetes.api
+        if not api.vip:
+            controllers = [n.address for n in self.nodes if n.controller]
+            if controllers != [api.addr]:
+                raise ValueError(
+                    "kubernetes.api.vip = false requires exactly one controller with "
+                    "kubernetes.api.addr set to its address (controllers: "
+                    f"{', '.join(map(str, controllers))})"
+                )
+        elif any(n.address == api.addr for n in self.nodes):
             raise ValueError(
-                f"kubernetes.api.addr {api_addr} is nodes[{api_node}].address: only the "
-                "controller of a single-controller cluster may serve the API on its own "
-                "address; otherwise use an unused IP for the API VIP"
+                f"kubernetes.api.addr {api.addr} is a node address: use an unused IP for "
+                "the API VIP, or set kubernetes.api.vip = false to serve the API on the "
+                "controller of a single-controller cluster"
             )
         addresses = {
             "gateways.internal": self.gateways.internal,
             "gateways.dns": self.gateways.dns,
             "network.default_gateway": self.network.default_gateway,
         } | {f"nodes[{i}].address": n.address for i, n in enumerate(self.nodes)}
-        if api_node is None:
-            addresses["kubernetes.api.addr"] = api_addr
+        if api.vip:
+            addresses["kubernetes.api.addr"] = api.addr
         if self.gateways.external is not None:
             addresses["gateways.external"] = self.gateways.external
         seen: dict[IPv4Address, str] = {}

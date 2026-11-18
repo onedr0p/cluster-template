@@ -71,8 +71,10 @@ REJECTIONS = {
     "bare-disk-name-nvme": ("private.toml", "nodes.0.disk", "nvme0n1", r"did you mean '/dev/nvme0n1'\?"),
     "bare-disk-name-mmcblk": ("private.toml", "nodes.0.disk", "mmcblk0", r"did you mean '/dev/mmcblk0'\?"),
     "bare-disk-name-partition": ("private.toml", "nodes.0.disk", "nvme0n1p1", r"did you mean '/dev/nvme0n1p1'\?"),
-    "api-addr-on-worker": ("private.toml", "kubernetes.api.addr", "10.10.10.101", r"kubernetes\.api\.addr 10\.10\.10\.101 is nodes\[1\]\.address: only the controller of a single-controller cluster"),
-    "api-addr-on-one-of-several-controllers": ("multi-controller.toml", "kubernetes.api.addr", "10.10.10.100", r"kubernetes\.api\.addr 10\.10\.10\.100 is nodes\[0\]\.address: only the controller of a single-controller cluster"),
+    "api-addr-on-controller-without-opt-out": ("single-node.toml", "kubernetes.api.addr", "10.10.10.100", r"kubernetes\.api\.addr 10\.10\.10\.100 is a node address: .* set kubernetes\.api\.vip = false"),
+    "api-addr-on-worker": ("private.toml", "kubernetes.api.addr", "10.10.10.101", r"kubernetes\.api\.addr 10\.10\.10\.101 is a node address"),
+    "no-vip-with-unused-addr": ("single-node.toml", "kubernetes.api.vip", False, r"kubernetes\.api\.vip = false requires exactly one controller with kubernetes\.api\.addr set to its address \(controllers: 10\.10\.10\.100\)"),
+    "no-vip-with-several-controllers": ("multi-controller.toml", "kubernetes.api.vip", False, r"kubernetes\.api\.vip = false requires exactly one controller"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
 }
 
@@ -225,16 +227,15 @@ def test_webhook_provider_follows_ingress_mode():
 
 
 def test_single_controller_may_serve_api_on_own_address():
-    with_vip = _load_raw(config_from("private.toml"))
-    assert with_vip.api_vip_enabled is True
-    raw = config_from("private.toml", **{"kubernetes.api.addr": "10.10.10.100"})
-    cfg = _load_raw(raw)
-    assert cfg.api_vip_enabled is False
+    assert _load_raw(config_from("single-node.toml")).kubernetes.api.vip is True
+    cfg = _load_raw(config_from("single-node-no-vip.toml", **{"kubernetes.api.tls_sans": None}))
+    assert cfg.kubernetes.api.vip is False
     assert cfg.cert_sans == ["127.0.0.1", "10.10.10.100"]
 
 
-def test_tls_sans_accept_ip_addresses():
-    raw = config_from("private.toml", **{"kubernetes.api.tls_sans": ["k8s.example.com", "100.64.0.10"]})
+def test_tls_sans_accept_ip_addresses_without_duplicates():
+    sans = ["k8s.example.com", "100.64.0.10", "127.0.0.1", "10.10.10.254", "k8s.example.com"]
+    raw = config_from("private.toml", **{"kubernetes.api.tls_sans": sans})
     assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "k8s.example.com", "100.64.0.10"]
 
 

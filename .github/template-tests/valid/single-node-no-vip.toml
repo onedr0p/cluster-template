@@ -3,6 +3,7 @@ node_cidr = "10.10.10.0/24"
 
 [kubernetes.api]
 addr = "10.10.10.100"
+vip = false
 tls_sans = ["k8s-0.example.ts.net", "100.64.0.10"]
 
 [gateways]
