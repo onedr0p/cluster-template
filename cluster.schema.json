@@ -101,6 +101,28 @@
       "title": "Bgp",
       "type": "object"
     },
+    "Certs": {
+      "additionalProperties": false,
+      "properties": {
+        "cluster_issuer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/K8sName"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Certs",
+      "type": "object"
+    },
     "Cidr": {
       "format": "ipv4network",
       "type": "string"
@@ -255,6 +277,11 @@
       },
       "title": "Ingress",
       "type": "object"
+    },
+    "K8sName": {
+      "maxLength": 253,
+      "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$",
+      "type": "string"
     },
     "Kubernetes": {
       "additionalProperties": false,
@@ -463,7 +490,7 @@
             }
           ],
           "default": null,
-          "description": "Defaults to \"github\", or \"none\" when ingress.mode is \"none\".",
+          "description": "Defaults to \"github\", or \"none\" when ingress.mode is \"none\" or the wildcard certificate comes from the in-cluster CA.",
           "title": "Webhook Provider"
         },
         "known_hosts": {
@@ -570,6 +597,12 @@
     },
     "ingress": {
       "$ref": "#/$defs/Ingress"
+    },
+    "certs": {
+      "$ref": "#/$defs/Certs",
+      "default": {
+        "cluster_issuer": null
+      }
     },
     "cilium": {
       "$ref": "#/$defs/Cilium",

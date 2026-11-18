@@ -97,6 +97,8 @@ REJECTIONS = {
     "bgp-router-addr-node-collision": ("public.toml", "cilium.bgp.router_addr", "10.10.10.100", r"address 10\.10\.10\.100 is used by both nodes\[0\]\.address and cilium\.bgp\.router_addr"),
     "bgp-router-addr-in-pod-cidr": ("public.toml", "cilium.bgp.router_addr", "10.42.0.1", r"cilium\.bgp\.router_addr 10\.42\.0\.1 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
     "whitespace-branch": ("private.toml", "repository.branch", "  ", r"repository\.branch: String should have at least 1 character"),
+    "bad-cluster-issuer": ("direct-custom-issuer.toml", "certs.cluster_issuer", "Acme_Production", r"certs\.cluster_issuer: String should match pattern"),
+    "reserved-cluster-issuer": ("direct-custom-issuer.toml", "certs.cluster_issuer", "internal-ca", r"certs: cluster_issuer 'internal-ca' is reserved"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
     "repo-url-with-credentials": ("public.toml", "repository.url", "https://user:token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
     "repo-url-with-token": ("public.toml", "repository.url", "https://token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
@@ -212,6 +214,25 @@ def test_cluster_issuer_follows_dns_provider():
     assert public["cluster_issuer"] == "letsencrypt-production"
     internal = _load_raw(config_from("internal.toml")).model_dump(mode="json")
     assert internal["cluster_issuer"] == "internal-ca"
+
+
+NO_ISSUER = {"certs.cluster_issuer": None}
+
+
+@pytest.mark.parametrize(
+    ("fixture", "overrides", "expected"),
+    [
+        ("public.toml", {}, (True, True, "letsencrypt-production", "letsencrypt-production")),
+        ("public.toml", {"ingress.mode": "none"}, (False, True, "letsencrypt-production", "letsencrypt-production")),
+        ("cloudflare-custom-issuer.toml", {}, (True, False, "internal-ca", "letsencrypt-dns01")),
+        ("direct-custom-issuer.toml", NO_ISSUER, (False, False, "internal-ca", "internal-ca")),
+        ("direct-custom-issuer.toml", {}, (False, False, "internal-ca", "acme-production")),
+    ],
+)
+def test_dns_and_issuer_fields(fixture: str, overrides: dict, expected: tuple):
+    dumped = _load_raw(config_from(fixture, **overrides)).model_dump(mode="json")
+    fields = ("external_dns_enabled", "builtin_acme_issuer", "builtin_issuer", "cluster_issuer")
+    assert tuple(dumped[f] for f in fields) == expected
 
 
 def test_default_gateway_derived_from_node_cidr():
@@ -354,6 +375,10 @@ def test_ingress_mode_follows_dns_provider():
 def test_webhook_provider_follows_ingress_mode():
     assert _load_raw(config_from("public.toml")).repository.webhook_provider == "github"
     assert _load_raw(config_from("internal.toml")).repository.webhook_provider == "none"
+    # Hosted Git providers reject the internal CA's certificate.
+    assert _load_raw(config_from("direct-custom-issuer.toml")).repository.webhook_provider == "github"
+    untrusted = config_from("direct-custom-issuer.toml", **NO_ISSUER)
+    assert _load_raw(untrusted).repository.webhook_provider == "none"
     lan_git = config_from("internal.toml", **{"repository.webhook_provider": "generic-hmac"})
     assert _load_raw(lan_git).repository.webhook_provider == "generic-hmac"
     assert _load_raw(config_from("internal-webhook.toml")).repository.webhook_provider == "github"
@@ -374,12 +399,6 @@ def test_tls_sans_accept_ip_addresses_without_duplicates():
     sans = ["k8s.example.com", "100.64.0.10", "127.0.0.1", "10.10.10.254", "k8s.example.com"]
     raw = config_from("private.toml", **{"kubernetes.api.tls_sans": sans})
     assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "k8s.example.com", "100.64.0.10"]
-
-
-def test_direct_mode_requires_cloudflare_dns():
-    raw = config_from("internal.toml", **{"ingress.mode": "direct"})
-    with pytest.raises(ConfigError, match="requires dns.provider 'cloudflare'"):
-        _load_raw(raw)
 
 
 def test_empty_string_means_unset():
