@@ -51,9 +51,6 @@ KNOWN_HOSTS = {
 }
 
 REPO_URL_PATTERN = r"^(https?://|ssh://git@)[^/]+/.+$"
-# The URL authority once the scheme and any user are removed: Flux (Go's
-# url.Parse) only accepts a numeric port after the host.
-REPO_HOST_PORT_PATTERN = r"[^:@]+(:[0-9]+)?"
 # A Kubernetes qualified name, as used by Service.spec.loadBalancerClass:
 # an optional DNS subdomain prefix (at most 253 characters, checked in
 # _lb_class) and a name of at most 63 characters.
@@ -323,23 +320,21 @@ class Repository(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
-        if self.url.startswith("http") and "@" in self.url.split("/", 3)[2]:
+        authority = self.url.split("/", 3)[2]
+        if self.url.startswith("http") and "@" in authority:
             raise ValueError(
                 "url must not embed credentials (they would be committed in plain text); "
                 "use an ssh://git@ URL with the generated deploy key for private repositories"
             )
-        host_port = self.url.split("/", 3)[2].removeprefix("git@")
-        if not re.fullmatch(REPO_HOST_PORT_PATTERN, host_port):
-            host, _, port = host_port.partition(":")
-            hint = ""
-            if port and not port.isdigit() and "@" not in host_port:
-                fixed = self.url.replace(f"{host}:", f"{host}/", 1)
-                hint = f"; scp-style host:path is not a URL, did you mean {fixed!r}?"
+        # Flux (Go's url.Parse) only accepts a numeric port after the host.
+        host_port = authority.removeprefix("git@")
+        if not re.fullmatch(r"[^:@]+(:[0-9]+)?", host_port):
             raise ValueError(
-                f"url {self.url!r} must have a hostname with an optional numeric port{hint}"
+                f"url host {host_port!r} must be a hostname with an optional numeric port; "
+                "write scp-style git@host:owner/repo as ssh://git@host/owner/repo"
             )
         if self.uses_deploy_key:
-            host = self.url.removeprefix("ssh://git@").split("/", 1)[0].split(":", 1)[0]
+            host = host_port.split(":")[0]
             if host not in KNOWN_HOSTS and not self.known_hosts:
                 raise ValueError(
                     f"known_hosts is required for ssh:// URLs to {host!r} "
@@ -622,11 +617,10 @@ class Config(Model):
                 f"gateways.external is required when ingress.mode is {self.ingress.mode!r}"
             )
 
-        # kube-controller-manager gives every node a /24 out of pod_cidr
-        # (Talos's default node CIDR mask size), which Cilium's kubernetes
-        # IPAM mode allocates pod IPs from.
+        # Cilium's kubernetes IPAM uses the /24 per node that
+        # kube-controller-manager carves out of pod_cidr.
         pod_cidr = self.kubernetes.pod_cidr
-        if pod_cidr.prefixlen > 24 or 2 ** (24 - pod_cidr.prefixlen) < len(self.nodes):
+        if len(self.nodes) > 2 ** (24 - pod_cidr.prefixlen):
             raise ValueError(
                 f"kubernetes.pod_cidr {pod_cidr} is too small: each node gets a /24 from it, "
                 f"so {len(self.nodes)} node(s) need at least a "
