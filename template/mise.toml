@@ -35,12 +35,34 @@ description = "Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yam
 confirm = { message = "Remove all templated files and directories?", default = "no" }
 run = "rm -rf bootstrap kubernetes talos .sops.yaml"
 
-# tidy-archive moves template/ (this file's directory) away, so it must be
-# the last step.
+# Nothing is moved unless every file is present, so a failed run leaves the
+# tree whole.
 [tasks.tidy]
 description = "Archive all template tooling under .private/<ts>/ (one-way, run after configure works)"
 confirm = { message = "All template related config will be archived, continue?", default = "no" }
-run = [{ task = ":tidy-preconditions" }, { task = ":tidy-archive" }]
+run = '''
+files=(
+    makejinja.toml
+    .mise/conf.d/template.toml
+    cluster.schema.json
+    cluster.toml
+    cluster.sample.toml
+    pyproject.toml
+    uv.lock
+)
+test -d template
+test -d .github/template-tests
+for file in "${files[@]}"; do
+    test -f "$file"
+done
+compgen -G ".github/workflows/template-*.yaml" > /dev/null
+TIDY_FOLDER=".private/$(date +%s)"
+mkdir -p "$TIDY_FOLDER"
+rm -rf .github/template-tests .github/workflows/template-*.yaml
+mv template "${files[@]}" "$TIDY_FOLDER/"
+rmdir .mise/conf.d 2>/dev/null || true
+rm -rf .venv
+'''
 
 [tasks.encrypt-secrets]
 hide = true
@@ -62,41 +84,6 @@ find bootstrap kubernetes talos -type f -name '*.sops.*' -print0 \
 hide = true
 env = { PYTHONDONTWRITEBYTECODE = "1" }
 run = "uv run --locked --no-dev makejinja"
-
-[tasks.tidy-archive]
-hide = true
-run = '''
-TIDY_FOLDER=".private/$(date +%s)"
-mkdir -p "$TIDY_FOLDER"
-rm -rf .github/template-tests .github/workflows/template-*.yaml
-mv \
-    template \
-    makejinja.toml \
-    .mise/conf.d/template.toml \
-    cluster.schema.json \
-    cluster.toml \
-    cluster.sample.toml \
-    pyproject.toml \
-    uv.lock \
-    "$TIDY_FOLDER/"
-rmdir .mise/conf.d 2>/dev/null || true
-rm -rf .venv
-'''
-
-[tasks.tidy-preconditions]
-hide = true
-run = '''
-test -d template
-test -d .github/template-tests
-test -f makejinja.toml
-test -f cluster.toml
-test -f cluster.sample.toml
-test -f pyproject.toml
-test -f uv.lock
-test -f .mise/conf.d/template.toml
-test -f cluster.schema.json
-compgen -G ".github/workflows/template-*.yaml" > /dev/null
-'''
 
 # Renders every bootstrap chart with the rendered values, catching chart or
 # values drift that dry runs cannot; needs network access to pull charts.

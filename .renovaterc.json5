@@ -19,6 +19,11 @@
       minimumReleaseAge: "3 days",
     },
     {
+      description: "Soft Serve runs as the Git server in the cluster E2E",
+      matchPackageNames: ["ghcr.io/charmbracelet/soft-serve"],
+      minimumReleaseAge: "3 days",
+    },
+    {
       description: "Talos Group",
       groupName: "talos",
       matchPackageNames: ["siderolabs/talos"],

@@ -118,35 +118,6 @@ checksum_source = "mise-versions"
 url = "https://github.com/fluxcd/flux2/releases/download/v2.10.0/flux_2.10.0_darwin_amd64.tar.gz"
 url_api = "https://api.github.com/repos/fluxcd/flux2/releases/assets/678609570"
 
-[[tools.gh]]
-version = "2.104.0"
-backend = "aqua:cli/cli"
-specifiers = ["2.104.0"]
-
-[tools.gh."platforms.linux-arm64"]
-checksum = "sha256:cb34cefc6f4e77b90731374a2b737516bb8f3033c6ca46aa949e5344f68069e3"
-url = "https://github.com/cli/cli/releases/download/v2.104.0/gh_2.104.0_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/740718938"
-provenance = "github-attestations"
-
-[tools.gh."platforms.linux-x64"]
-checksum = "sha256:98cb101ad87dbbd3f6b2f2bfcbd43197ccd07643140121d8a9cfaa91eadbc24e"
-url = "https://github.com/cli/cli/releases/download/v2.104.0/gh_2.104.0_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/740718892"
-provenance = "github-attestations"
-
-[tools.gh."platforms.macos-arm64"]
-checksum = "sha256:23b12706219b9892e44236f988444a24adcf29284e16b35e03ba5b863fb6eb8e"
-url = "https://github.com/cli/cli/releases/download/v2.104.0/gh_2.104.0_macOS_arm64.zip"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/740719079"
-provenance = "github-attestations"
-
-[tools.gh."platforms.macos-x64"]
-checksum = "sha256:a8c2a708dbae89dc7c05ba7b0beafc95bd8d09ab4a3505467b77d32ebf364dc6"
-url = "https://github.com/cli/cli/releases/download/v2.104.0/gh_2.104.0_macOS_amd64.zip"
-url_api = "https://api.github.com/repos/cli/cli/releases/assets/740719067"
-provenance = "github-attestations"
-
 [[tools."github:oxc-project/oxc"]]
 version = "0.75.0"
 backend = "github:oxc-project/oxc"

@@ -32,6 +32,10 @@ exclude = [".mise/locks/**"]
 run = "oxfmt --no-error-on-unmatched-pattern {staged_files}"
 stage_fixed = true
 
+[pre-commit.commands.ruff]
+glob = ["template/scripts/*.py"]
+run = "uv run --quiet --locked ruff check {staged_files}"
+
 [pre-commit.commands.shellcheck]
 glob = ["*.sh"]
 run = "shellcheck {staged_files}"

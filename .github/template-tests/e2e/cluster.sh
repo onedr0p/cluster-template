@@ -24,7 +24,6 @@ PREFIX="${PREFIX%.*}"
 TALOSCTL="$(command -v talosctl)"
 # The Image Factory vanilla schematic, matching the ISO the nodes boot from.
 SCHEMATIC="376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
-# Keep in sync with the git service in template-e2e-cluster.yaml.
 # renovate: datasource=docker depName=ghcr.io/charmbracelet/soft-serve
 SOFT_SERVE_VERSION="v0.12.4"
 
@@ -42,7 +41,7 @@ NODES=("${CONTROLPLANES[@]}" "${WORKERS[@]}")
 # served from there over git smart HTTP so Flux can sync it.
 GIT_HOST="${E2E_GATEWAY:-$PREFIX.1}"
 GIT_PORT=8418
-GIT_SERVER_CONTAINER=""
+GIT_SERVER_CONTAINER="$NAME-git"
 
 # The provisioner runs under sudo and writes state relative to its cwd and
 # TALOSCONFIG, so both are pointed at a scratch dir to keep root-owned files
@@ -64,13 +63,13 @@ cleanup() {
         kubectl get pods --all-namespaces 2>/dev/null || true
         kubectl get gitrepositories,kustomizations,helmreleases --all-namespaces 2>/dev/null || true
         kubectl get events --all-namespaces --sort-by=.lastTimestamp 2>/dev/null | tail -30 || true
-        [ -n "$GIT_SERVER_CONTAINER" ] && docker logs --tail 5 "$GIT_SERVER_CONTAINER" 2>/dev/null || true
+        docker logs --tail 5 "$GIT_SERVER_CONTAINER" 2>/dev/null || true
         for ip in "${NODES[@]}"; do
             talosctl -n "$ip" dmesg 2>/dev/null | tail -20 || true
         done
     fi
     if [ "$MODE" = all ]; then
-        [ -n "$GIT_SERVER_CONTAINER" ] && docker stop "$GIT_SERVER_CONTAINER" >/dev/null 2>&1 || true
+        docker stop "$GIT_SERVER_CONTAINER" >/dev/null 2>&1 || true
     fi
     if [ "$MODE" = all ] && [ "$PROVISIONED" = false ]; then
         (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
@@ -83,8 +82,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-start_local_git_server() {
-    GIT_SERVER_CONTAINER="$NAME-git"
+start_git_server() {
     docker run --detach --rm --name "$GIT_SERVER_CONTAINER" \
         --publish "$GIT_PORT:23232" \
         --env SOFT_SERVE_GIT_ENABLED=false \
@@ -275,13 +273,14 @@ echo "==> e2e bootstrap succeeded"
 }
 
 case "$MODE" in
+    git-server) start_git_server ;;
     prepare)    prepare ;;
     foundation) foundation ;;
     flux-sops)  flux_sops ;;
     networking) networking ;;
     summary)    summary ;;
     all)
-        start_local_git_server
+        start_git_server
         prepare
         foundation
         flux_sops
@@ -289,7 +288,7 @@ case "$MODE" in
         summary
         ;;
     *)
-        echo "usage: $0 {prepare|foundation|flux-sops|networking|summary|all}" >&2
+        echo "usage: $0 {git-server|prepare|foundation|flux-sops|networking|summary|all}" >&2
         exit 2
         ;;
 esac

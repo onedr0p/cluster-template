@@ -21,7 +21,7 @@ jobs:
   validator-tests:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
     name: validator-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
@@ -35,32 +35,42 @@ jobs:
         with:
           install_args: uv
 
+      - name: Lint scripts
+        run: uv run --quiet --locked ruff check ./template/scripts
+
       - name: Run validator tests
         run: uv run --quiet --locked pytest ./template/scripts/test_validate.py
 
-  validate-valid:
+  fixtures:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
+    name: fixtures
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    outputs:
+      valid: ${{ steps.list.outputs.valid }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: List valid fixtures
+        id: list
+        run: |
+          valid="$(basename --suffix .toml ./.github/template-tests/valid/*.toml | jq --raw-input --null-input --compact-output '[inputs]')"
+          echo "valid=$valid" >> "$GITHUB_OUTPUT"
+
+  validate-valid:
+    needs: fixtures
     name: accept-valid (${{ matrix.fixture }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        fixture:
-          - public
-          - private
-          - selfhosted
-          - no-webhook
-          - internal
-          - internal-webhook
-          - direct
-          - lb-class
-          - direct-custom-issuer
-          - cloudflare-custom-issuer
-          - single-node
-          - single-node-no-vip
-          - multi-controller
+        fixture: ${{ fromJSON(needs.fixtures.outputs.valid) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -69,8 +79,6 @@ jobs:
 
       - name: Setup mise
         uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
-        with:
-          experimental: true
 
       - name: Run init task
         run: mise run init
