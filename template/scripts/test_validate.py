@@ -173,6 +173,12 @@ def test_coredns_addr_default_and_override():
     assert kubernetes.coredns_addr_overridden is False
     raw = config_from("private.toml", **{"kubernetes.svc_cidr": "10.96.0.0/12"})
     assert _load_raw(raw).kubernetes.coredns_addr_overridden is False
+    # Pinning the default explicitly must not count as an override.
+    raw = config_from(
+        "private.toml",
+        **{"kubernetes.svc_cidr": "10.96.0.0/12", "kubernetes.coredns_addr": "10.96.0.10"},
+    )
+    assert _load_raw(raw).kubernetes.coredns_addr_overridden is False
     data = _load_raw(config_from("public.toml")).model_dump(mode="json")["kubernetes"]
     assert data["coredns_addr"] == "10.43.0.53"
     assert data["coredns_addr_overridden"] is True

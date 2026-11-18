@@ -150,6 +150,15 @@ jobs:
             fi
           done
 
+      - name: Assert internal webhook route targets envoy-internal
+        if: ${{ matrix.fixture == 'internal-webhook' }}
+        run: |
+          parent=$(yq '.spec.parentRefs[0].name' ./kubernetes/apps/flux-system/flux-instance/app/httproute.yaml)
+          if [ "$parent" != "envoy-internal" ]; then
+            echo "::error::flux-webhook HTTPRoute parent is '$parent', expected envoy-internal"
+            exit 1
+          fi
+
       - name: Dry run bootstrap apps task
         run: mise run --dry-run //bootstrap:apps
 

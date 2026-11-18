@@ -67,8 +67,9 @@ node_cidr = ""
 # ClusterIP for the CoreDNS Service. Must be inside svc_cidr. Any other
 # address than the default is also set as kubelet's clusterDNS, and Talos
 # appends rather than replaces it when your own patch sets clusterDNS too.
-# Pods read it into resolv.conf when created, so changing it on a running
-# cluster requires recreating existing pods.
+# Changing it on a running cluster requires recreating the kube-dns Service
+# (its ClusterIP is immutable) and existing pods (resolv.conf is set at
+# creation).
 # OPTIONAL. Default: the 10th IP in svc_cidr
 
 # coredns_addr = ""
@@ -175,7 +176,7 @@ url = ""
 # With ingress.mode = "none" the webhook is only reachable on your LAN, so
 # the default flips to "none"; set it explicitly for a Git host on your LAN,
 # which must resolve flux-webhook.<domain> through split DNS (see
-# gateways.dns) and trust the internal CA or skip TLS verification.
+# gateways.dns) and, with dns.provider = "none", trust the internal CA.
 # OPTIONAL. Default: "github", or "none" when ingress.mode is "none".
 # Allowed: "github" | "gitlab" | "generic-hmac" | "none"
 
