@@ -28,7 +28,7 @@ INVALID_REASONS = {
     "bad-bgp-asn": r"router_asn: '4294967296' must be in the range 1-4294967295",
     "bad-mac-address": r"nodes\.0\.mac_addr: String should match pattern",
     "bad-repo-url": r"repository\.url: String should match pattern",
-    "bad-vlan-tag": r"vlan_tag 5000 must be in the range 1-4094",
+    "bad-vlan-tag": r"network\.vlan_tag: '5000' must be in the range 1-4094",
     "duplicate-gateway-addrs": r"used by both gateways\.internal and gateways\.dns",
     "duplicate-node-names": r"duplicate node name 'k8s-0' on nodes\[0\] and nodes\[1\]",
     "gateway-node-collision": r"used by both gateways\.internal and nodes\[0\]\.address",
@@ -37,8 +37,8 @@ INVALID_REASONS = {
     "missing-known-hosts": r"known_hosts is required for ssh:// URLs to 'git\.example\.com'",
     "missing-schematic": r"nodes\[0\]\.schematic_id is required",
     "nested-cidr-overlap": r"node_cidr 10\.42\.128\.0/17 overlaps kubernetes\.pod_cidr 10\.42\.0\.0/16",
-    "node-addr-outside-cidr": r"nodes\[0\]\.address 192\.168\.1\.100 is not inside node_cidr",
     "no-controller": r"at least one node must have controller = true",
+    "node-addr-outside-cidr": r"nodes\[0\]\.address 192\.168\.1\.100 is not inside node_cidr",
     "node-uses-gateway-addr": r"used by both network\.default_gateway and nodes\[0\]\.address",
     "non-canonical-cidr": r"has host bits set; did you mean 10\.10\.10\.0/24",
     "overlapping-cidrs": r"node_cidr 10\.42\.0\.0/16 overlaps kubernetes\.pod_cidr 10\.42\.0\.0/16",
@@ -56,9 +56,16 @@ REJECTIONS = {
     "api-addr-outside-node-cidr": ("private.toml", "kubernetes.api.addr", "10.10.11.254", r"kubernetes\.api\.addr 10\.10\.11\.254 is not inside node_cidr 10\.10\.10\.0/24"),
     "pod-svc-cidr-overlap": ("private.toml", "kubernetes.svc_cidr", "10.42.0.0/16", r"kubernetes\.pod_cidr 10\.42\.0\.0/16 overlaps kubernetes\.svc_cidr 10\.42\.0\.0/16"),
     "token-without-dns-provider": ("internal.toml", "dns.token", "fake", r"token must be empty when dns\.provider is 'none'"),
-    "non-decimal-asn": ("public.toml", "cilium.bgp.node_asn", "AS64514", r"'AS64514' must be a decimal ASN"),
-    "bool-vlan-tag": ("public.toml", "network.vlan_tag", True, r"network\.vlan_tag: expected a number, got true"),
-    "bool-asn": ("public.toml", "cilium.bgp.router_asn", True, r"cilium\.bgp\.router_asn: expected a number, got true"),
+    "non-decimal-asn": ("public.toml", "cilium.bgp.node_asn", "AS64514", r"cilium\.bgp\.node_asn: 'AS64514' is not a decimal number"),
+    "bool-vlan-tag": ("public.toml", "network.vlan_tag", True, r"network\.vlan_tag: expected a whole number, got true"),
+    "float-vlan-tag": ("public.toml", "network.vlan_tag", 100.0, r"network\.vlan_tag: expected a whole number, got 100\.0"),
+    "negative-vlan-tag": ("public.toml", "network.vlan_tag", -5, r"network\.vlan_tag: -5 must be in the range 1-4094"),
+    "negative-string-vlan-tag": ("public.toml", "network.vlan_tag", "-5", r"network\.vlan_tag: '-5' is not a decimal number"),
+    "zero-padded-zero-vlan-tag": ("public.toml", "network.vlan_tag", "0000", r"network\.vlan_tag: '0000' must be in the range 1-4094"),
+    "huge-digit-string-vlan-tag": ("public.toml", "network.vlan_tag", "9" * 5000, r"network\.vlan_tag: '9+' must be in the range 1-4094"),
+    "bool-asn": ("public.toml", "cilium.bgp.router_asn", True, r"cilium\.bgp\.router_asn: expected a whole number, got true"),
+    "huge-digit-string-asn": ("public.toml", "cilium.bgp.node_asn", "0" * 5000 + "1" * 11, r"cilium\.bgp\.node_asn: '0+1+' must be in the range 1-4294967295"),
+    "ibgp-asns": ("public.toml", "cilium.bgp.node_asn", "064513", r"cilium\.bgp: node_asn must differ from router_asn \(64513\) so peering is eBGP"),
     "bad-domain-name": ("private.toml", "domain.name", "Example.com", r"domain\.name: String should match pattern"),
     "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: 'not a hostname' is not a hostname or IPv4 address"),
     "bad-node-name": ("private.toml", "nodes.0.name", "k8s-0-", r"nodes\.0\.name: String should match pattern"),
@@ -66,7 +73,8 @@ REJECTIONS = {
     "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
     "bad-schematic-id": ("private.toml", "nodes.0.schematic_id", "376567", r"nodes\.0\.schematic_id: String should match pattern"),
     "non-hex-schematic-id": ("private.toml", "talos.schematic_id", "z" * 64, r"talos\.schematic_id: String should match pattern '\^\[0-9a-f\]\{64\}\$'"),
-    "domain-name-too-long": ("private.toml", "domain.name", ("a" * 63 + ".") * 4 + "com", r"domain\.name: String should have at most 253 characters"),
+    "domain-name-too-long": ("private.toml", "domain.name", ("a" * 63 + ".") * 3 + "a" * 45 + ".com", r"domain\.name: must be at most 240 characters, got 241"),
+    "domain-name-over-dns-limit": ("private.toml", "domain.name", ("a" * 63 + ".") * 4 + "com", r"domain\.name: String should have at most 253 characters"),
     "whitespace-dns-token": ("public.toml", "dns.token", " ", r"token is required when dns\.provider is 'cloudflare'"),
     "whitespace-token-without-dns-provider": ("internal.toml", "dns.token", " x ", r"token must be empty when dns\.provider is 'none'"),
     "empty-dns-servers": ("private.toml", "network.dns_servers", [], r"network\.dns_servers: List should have at least 1 item"),
@@ -93,6 +101,7 @@ REJECTIONS = {
     "bgp-router-addr-collision": ("public.toml", "cilium.bgp.router_addr", "10.10.10.254", r"address 10\.10\.10\.254 is used by both kubernetes\.api\.addr and cilium\.bgp\.router_addr"),
     "bgp-router-addr-node-collision": ("public.toml", "cilium.bgp.router_addr", "10.10.10.100", r"address 10\.10\.10\.100 is used by both nodes\[0\]\.address and cilium\.bgp\.router_addr"),
     "bgp-router-addr-in-pod-cidr": ("public.toml", "cilium.bgp.router_addr", "10.42.0.1", r"cilium\.bgp\.router_addr 10\.42\.0\.1 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
+    "whitespace-branch": ("private.toml", "repository.branch", "  ", r"repository\.branch: String should have at least 1 character"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
 }
 
@@ -216,37 +225,37 @@ def test_controller_count_ignores_workers():
 
 
 def test_at_least_one_controller_required():
-    raw = config_from("private.toml")
-    raw["nodes"] = []
+    raw = config_from("private.toml", **{"nodes.0.controller": False})
     with pytest.raises(ConfigError, match="at least one node must have controller = true"):
         _load_raw(raw)
-
-
-def test_leading_zeros_stripped_from_yaml_integers():
-    # These render unquoted into YAML, where a leading zero means octal.
-    raw = config_from("public.toml", **{"network.vlan_tag": "0100", "cilium.bgp.node_asn": "064514"})
-    data = _load_raw(raw).model_dump(mode="json")
-    assert data["network"]["vlan_tag"] == "100"
-    assert data["cilium"]["bgp"]["node_asn"] == "64514"
-    raw = config_from("public.toml", **{"network.vlan_tag": "0000"})
-    with pytest.raises(ConfigError, match="vlan_tag 0 must be in the range 1-4094"):
+    raw["nodes"] = []
+    with pytest.raises(ConfigError, match="nodes: List should have at least 1 item"):
         _load_raw(raw)
 
 
-def test_vlan_and_asn_accept_toml_integers():
+# TOML integers, decimal strings and zero-padded strings all dump as plain
+# ints: these render unquoted into YAML, where a leading zero means octal.
+@pytest.mark.parametrize(
+    ("vlan_tag", "router_asn", "node_asn"),
+    [(100, 64513, 64514), ("100", "64513", "64514"), ("0100", "064513", "064514")],
+)
+def test_vlan_and_asn_normalised_to_int(vlan_tag, router_asn, node_asn):
     raw = config_from(
         "public.toml",
-        **{"network.vlan_tag": 100, "cilium.bgp.router_asn": 64513, "cilium.bgp.node_asn": 64514},
+        **{"network.vlan_tag": vlan_tag, "cilium.bgp.router_asn": router_asn, "cilium.bgp.node_asn": node_asn},
     )
     data = _load_raw(raw).model_dump(mode="json")
-    assert data["network"]["vlan_tag"] == "100"
-    assert data["cilium"]["bgp"]["router_asn"] == "64513"
-    assert data["cilium"]["bgp"]["node_asn"] == "64514"
+    assert data["network"]["vlan_tag"] == 100
+    assert data["cilium"]["bgp"]["router_asn"] == 64513
+    assert data["cilium"]["bgp"]["node_asn"] == 64514
+
+
+def test_vlan_and_asn_integer_range_errors():
     raw = config_from("public.toml", **{"network.vlan_tag": 0})
-    with pytest.raises(ConfigError, match="vlan_tag 0 must be in the range 1-4094"):
+    with pytest.raises(ConfigError, match="network.vlan_tag: 0 must be in the range 1-4094"):
         _load_raw(raw)
     raw = config_from("public.toml", **{"cilium.bgp.node_asn": 4294967296})
-    with pytest.raises(ConfigError, match="'4294967296' must be in the range 1-4294967295"):
+    with pytest.raises(ConfigError, match="node_asn: 4294967296 must be in the range 1-4294967295"):
         _load_raw(raw)
 
 
@@ -255,6 +264,17 @@ def test_dns_token_whitespace_stripped():
     assert _load_raw(raw).dns.token == "fake"
     raw = config_from("internal.toml", **{"dns.token": "  "})
     assert _load_raw(raw).dns.token == ""
+
+
+def test_repository_whitespace_stripped():
+    raw = config_from("private.toml", **{"repository.branch": " main\n"})
+    assert _load_raw(raw).repository.branch == "main"
+    raw = config_from(
+        "private.toml",
+        **{"repository.url": "ssh://git@git.example.com/k8s/home-ops.git", "repository.known_hosts": " \n"},
+    )
+    with pytest.raises(ConfigError, match="known_hosts is required for ssh:// URLs to 'git.example.com'"):
+        _load_raw(raw)
 
 
 def test_derived_fields_are_not_settable():
@@ -347,7 +367,7 @@ def test_errors_omit_default_factory_noise():
     raw = config_from("public.toml", **{"network.vlan_tag": "5000"})
     with pytest.raises(ConfigError) as excinfo:
         _load_raw(raw)
-    assert str(excinfo.value) == "network: vlan_tag 5000 must be in the range 1-4094"
+    assert str(excinfo.value) == "network.vlan_tag: '5000' must be in the range 1-4094"
 
 
 def test_schematic_id_inherits_from_talos_section():

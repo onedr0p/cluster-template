@@ -24,10 +24,10 @@ from pydantic import (
     BeforeValidator,
     ConfigDict,
     Field,
+    StringConstraints,
     ValidationError,
     WithJsonSchema,
     computed_field,
-    field_validator,
     model_validator,
 )
 
@@ -44,6 +44,8 @@ LB_CLASS_PATTERN = rf"^({DNS_LABEL}(\.{DNS_LABEL})*/)?[A-Za-z0-9]([-A-Za-z0-9_.]
 # Cilium's own LB IPAM classes; gateways get LB IPAM through an address.
 CILIUM_LB_IPAM_CLASSES = ["io.cilium/l2-announcer", "io.cilium/bgp-control-plane"]
 FQDN_PATTERN = r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
+# Leaves room for the longest prefix the templates add ('flux-webhook.').
+DOMAIN_MAX_LENGTH = 240
 
 
 def _network(value: Any) -> Any:
@@ -62,24 +64,36 @@ def _network(value: Any) -> Any:
         ) from None
 
 
-# TOML integers are accepted as well as decimal strings and normalised to a
-# string. bool is rejected explicitly because it is a subclass of int.
-def _int_to_str(value: Any) -> Any:
-    if isinstance(value, bool):
-        raise ValueError(f"expected a number, got {str(value).lower()}")
-    return str(value) if isinstance(value, int) else value
+def _bounded_int(lo: int, hi: int) -> Any:
+    """An int in lo-hi, given as a TOML integer or a decimal string.
 
+    Leading zeros are accepted and dropped: the value is rendered unquoted
+    into YAML, where "0100" would be read as octal. Errors quote the value as
+    written rather than its normalised form.
+    """
 
-def _asn(value: str) -> str:
-    if value == "":
-        return value
-    if not re.fullmatch(r"[0-9]+", value):
-        raise ValueError(f"{value!r} must be a decimal ASN")
-    if not 1 <= int(value) <= 4294967295:
-        raise ValueError(f"{value!r} must be in the range 1-4294967295")
-    # Strip leading zeros: the value is rendered unquoted into YAML, where
-    # "064514" would be read as octal.
-    return str(int(value))
+    max_digits = len(str(hi))
+
+    def parse(value: Any) -> int:
+        # bool is a subclass of int, and a float such as 100.0 is not a tag
+        # or ASN even though pydantic's lax mode would truncate it.
+        if isinstance(value, bool) or not isinstance(value, int | str):
+            shown = str(value).lower() if isinstance(value, bool) else repr(value)
+            raise ValueError(f"expected a whole number, got {shown}")
+        if isinstance(value, str) and not (value.isascii() and value.isdigit()):
+            raise ValueError(f"{value!r} is not a decimal number")
+        # Count digits before int() so a huge string can't hit Python's
+        # int-conversion limit; anything longer is out of range anyway.
+        if isinstance(value, int) or len(value.lstrip("0")) <= max_digits:
+            if lo <= int(value) <= hi:
+                return int(value)
+        raise ValueError(f"{value!r} must be in the range {lo}-{hi}")
+
+    # parse() does all the checking, so its messages quote the raw value;
+    # these constraints document the accepted input in the JSON schema.
+    bounded = Annotated[int, Field(ge=lo, le=hi)]
+    digits = Annotated[str, Field(pattern=r"^[0-9]+$")]
+    return Annotated[bounded, BeforeValidator(parse, json_schema_input_type=bounded | digits)]
 
 
 # IPv4Address | Fqdn would report two errors with an unreadable union path;
@@ -109,20 +123,36 @@ def _lb_class(value: str) -> str:
     return value
 
 
-# For fields whose default is derived from other fields: "" falls back to that
-# default (including a default_factory) instead of failing validation.
+# An empty string means unset: placeholders left in cluster.toml (such as the
+# sample's `vlan_tag = ""`) validate the same as an omitted key, falling back
+# to the field's default or default_factory.
 def _empty_to_default(value: Any) -> Any:
     if value == "":
         raise PydanticUseDefault()
     return value
 
 
+def _unsettable(tp: Any) -> Any:
+    return Annotated[tp, BeforeValidator(_empty_to_default, json_schema_input_type=tp | Literal[""])]
+
+
+def _domain_name(value: str) -> str:
+    if len(value) > DOMAIN_MAX_LENGTH:
+        raise ValueError(
+            f"must be at most {DOMAIN_MAX_LENGTH} characters, got {len(value)} "
+            "(templates prefix it with names such as 'flux-webhook.', which "
+            "must still fit the 253-character DNS limit)"
+        )
+    return value
+
+
+# Surrounding whitespace is never meaningful, and a whitespace-only value is
+# not a value. A plain alias rather than `type` so the schema inlines it
+# instead of emitting one mangled $defs entry per use.
+Stripped = Annotated[str, StringConstraints(strip_whitespace=True)]
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
-type Asn = Annotated[
-    str,
-    BeforeValidator(_int_to_str, json_schema_input_type=str | int),
-    AfterValidator(_asn),
-]
+type VlanTag = _bounded_int(1, 4094)
+type Asn = _bounded_int(1, 4294967295)
 type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN, max_length=253)]
 type San = Annotated[
     str,
@@ -132,25 +162,10 @@ type San = Annotated[
     ),
 ]
 type SchematicId = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
-type DecimalString = Annotated[str, Field(pattern=r"^[0-9]+$")]
-type VlanTag = Annotated[
-    DecimalString,
-    BeforeValidator(_int_to_str, json_schema_input_type=DecimalString | int),
-]
-
-# An empty string means unset, so placeholders left in cluster.toml validate
-# the same as an omitted key.
-type OptionalSchematicId = Annotated[
-    SchematicId | None,
-    BeforeValidator(_empty_to_none, json_schema_input_type=SchematicId | Literal[""] | None),
-]
-type OptionalVlanTag = Annotated[
-    VlanTag | None,
-    BeforeValidator(_empty_to_none, json_schema_input_type=VlanTag | Literal[""] | None),
-]
-type DefaultedIPv4Address = Annotated[
-    IPv4Address,
-    BeforeValidator(_empty_to_default, json_schema_input_type=IPv4Address | Literal[""]),
+type DomainName = Annotated[
+    Fqdn,
+    AfterValidator(_domain_name),
+    Field(json_schema_extra={"maxLength": DOMAIN_MAX_LENGTH}),
 ]
 
 
@@ -167,17 +182,10 @@ class Network(Model):
         default=[IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")], min_length=1
     )
     # The first IP in node_cidr unless set explicitly.
-    default_gateway: DefaultedIPv4Address = Field(
+    default_gateway: _unsettable(IPv4Address) = Field(
         default_factory=lambda data: data["node_cidr"].network_address + 1
     )
-    vlan_tag: OptionalVlanTag = None
-
-    # Strip leading zeros: the tag is rendered unquoted into YAML, where
-    # "0100" would be read as octal (VLAN 64).
-    @field_validator("vlan_tag")
-    @classmethod
-    def _decimal_vlan_tag(cls, value: str | None) -> str | None:
-        return None if value is None else str(int(value))
+    vlan_tag: _unsettable(VlanTag | None) = None
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -185,8 +193,6 @@ class Network(Model):
             raise ValueError(
                 f"default_gateway {self.default_gateway} is not inside node_cidr {self.node_cidr}"
             )
-        if self.vlan_tag is not None and not 1 <= int(self.vlan_tag) <= 4094:
-            raise ValueError(f"vlan_tag {self.vlan_tag} must be in the range 1-4094")
         return self
 
 
@@ -207,7 +213,7 @@ class Kubernetes(Model):
     pod_cidr: Cidr = IPv4Network("10.42.0.0/16")
     svc_cidr: Cidr = IPv4Network("10.43.0.0/16")
     # Talos's default unless set explicitly.
-    coredns_addr: DefaultedIPv4Address = Field(
+    coredns_addr: _unsettable(IPv4Address) = Field(
         default_factory=lambda data: _talos_cluster_dns(data["svc_cidr"])
     )
     api: Api
@@ -286,12 +292,12 @@ class Gateways(Model):
 
 class Repository(Model):
     url: str = Field(pattern=REPO_URL_PATTERN)
-    branch: str = Field(default="main", min_length=1)
+    branch: Stripped = Field(default="main", min_length=1)
     webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = Field(
         default=None,
         description='Defaults to "github", or "none" when ingress.mode is "none".',
     )
-    known_hosts: str = ""
+    known_hosts: Stripped = ""
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -306,19 +312,12 @@ class Repository(Model):
 
 
 class Domain(Model):
-    name: Fqdn
+    name: DomainName
 
 
 class Dns(Model):
     provider: Literal["cloudflare", "none"] = "cloudflare"
-    token: str = ""
-
-    # Surrounding whitespace is never part of a token (and a whitespace-only
-    # token is not a token), so strip it before the checks below.
-    @field_validator("token")
-    @classmethod
-    def _strip_token(cls, value: str) -> str:
-        return value.strip()
+    token: Stripped = ""
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -334,13 +333,13 @@ class Ingress(Model):
 
 
 class Bgp(Model):
-    router_addr: IPv4Address | Literal[""] = ""
-    router_asn: Asn = ""
-    node_asn: Asn = ""
+    router_addr: _unsettable(IPv4Address | None) = None
+    router_asn: _unsettable(Asn | None) = None
+    node_asn: _unsettable(Asn | None) = None
 
     @property
     def unset(self) -> list[str]:
-        return [name for name in ("router_addr", "router_asn", "node_asn") if getattr(self, name) == ""]
+        return [name for name in ("router_addr", "router_asn", "node_asn") if getattr(self, name) is None]
 
     @property
     def configured(self) -> bool:
@@ -354,12 +353,16 @@ class Bgp(Model):
                 "bgp is partially configured: set router_addr, router_asn and "
                 f"node_asn together (missing: {', '.join(unset)})"
             )
+        if not unset and self.router_asn == self.node_asn:
+            raise ValueError(
+                f"node_asn must differ from router_asn ({self.router_asn}) so peering is eBGP"
+            )
         return self
 
 
 class Talos(Model):
     # Default Image Factory schematic for nodes that don't set their own.
-    schematic_id: OptionalSchematicId = None
+    schematic_id: _unsettable(SchematicId | None) = None
 
 
 class Spegel(Model):
@@ -405,7 +408,7 @@ class Node(Model):
     disk: Annotated[str, AfterValidator(_disk)]
     mac_addr: str = Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
     # Falls back to talos.schematic_id when unset.
-    schematic_id: OptionalSchematicId = None
+    schematic_id: _unsettable(SchematicId | None) = None
     mtu: int = Field(default=1500, ge=1450, le=9000)
     secureboot: bool = False
     encrypt_disk: bool = False
@@ -437,7 +440,7 @@ class Config(Model):
     cilium: Cilium = Cilium()
     talos: Talos = Talos()
     spegel: Spegel = Spegel()
-    nodes: list[Node]
+    nodes: list[Node] = Field(min_length=1)
 
     @computed_field
     @property

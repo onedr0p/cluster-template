@@ -37,10 +37,13 @@
     "Asn": {
       "anyOf": [
         {
-          "type": "string"
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
         },
         {
-          "type": "integer"
+          "pattern": "^[0-9]+$",
+          "type": "string"
         }
       ]
     },
@@ -56,18 +59,43 @@
             {
               "const": "",
               "type": "string"
+            },
+            {
+              "type": "null"
             }
           ],
-          "default": "",
+          "default": null,
           "title": "Router Addr"
         },
         "router_asn": {
-          "$ref": "#/$defs/Asn",
-          "default": ""
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Asn"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "node_asn": {
-          "$ref": "#/$defs/Asn",
-          "default": ""
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Asn"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "Bgp",
@@ -102,30 +130,14 @@
         "bgp": {
           "$ref": "#/$defs/Bgp",
           "default": {
-            "router_addr": "",
-            "router_asn": "",
-            "node_asn": ""
+            "router_addr": null,
+            "router_asn": null,
+            "node_asn": null
           }
         }
       },
       "title": "Cilium",
       "type": "object"
-    },
-    "DecimalString": {
-      "pattern": "^[0-9]+$",
-      "type": "string"
-    },
-    "DefaultedIPv4Address": {
-      "anyOf": [
-        {
-          "format": "ipv4",
-          "type": "string"
-        },
-        {
-          "const": "",
-          "type": "string"
-        }
-      ]
     },
     "Dns": {
       "additionalProperties": false,
@@ -149,12 +161,16 @@
       "additionalProperties": false,
       "properties": {
         "name": {
-          "$ref": "#/$defs/Fqdn"
+          "$ref": "#/$defs/DomainName"
         }
       },
       "required": ["name"],
       "title": "Domain",
       "type": "object"
+    },
+    "DomainName": {
+      "$ref": "#/$defs/Fqdn",
+      "maxLength": 240
     },
     "Fqdn": {
       "maxLength": 253,
@@ -256,7 +272,17 @@
           "default": "10.43.0.0/16"
         },
         "coredns_addr": {
-          "$ref": "#/$defs/DefaultedIPv4Address"
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "const": "",
+              "type": "string"
+            }
+          ],
+          "title": "Coredns Addr"
         },
         "api": {
           "$ref": "#/$defs/Api"
@@ -293,10 +319,31 @@
           "type": "array"
         },
         "default_gateway": {
-          "$ref": "#/$defs/DefaultedIPv4Address"
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "const": "",
+              "type": "string"
+            }
+          ],
+          "title": "Default Gateway"
         },
         "vlan_tag": {
-          "$ref": "#/$defs/OptionalVlanTag",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VlanTag"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null
         }
       },
@@ -331,7 +378,18 @@
           "type": "string"
         },
         "schematic_id": {
-          "$ref": "#/$defs/OptionalSchematicId",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SchematicId"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null
         },
         "mtu": {
@@ -372,34 +430,6 @@
         },
         {
           "$ref": "#/$defs/Gateway"
-        },
-        {
-          "const": "",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "OptionalSchematicId": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/SchematicId"
-        },
-        {
-          "const": "",
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "OptionalVlanTag": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/VlanTag"
         },
         {
           "const": "",
@@ -488,7 +518,18 @@
       "additionalProperties": false,
       "properties": {
         "schematic_id": {
-          "$ref": "#/$defs/OptionalSchematicId",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SchematicId"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null
         }
       },
@@ -498,10 +539,13 @@
     "VlanTag": {
       "anyOf": [
         {
-          "$ref": "#/$defs/DecimalString"
+          "maximum": 4094,
+          "minimum": 1,
+          "type": "integer"
         },
         {
-          "type": "integer"
+          "pattern": "^[0-9]+$",
+          "type": "string"
         }
       ]
     }
@@ -535,9 +579,9 @@
         "loadbalancer_mode": "dsr",
         "announce": null,
         "bgp": {
-          "node_asn": "",
-          "router_addr": "",
-          "router_asn": ""
+          "node_asn": null,
+          "router_addr": null,
+          "router_asn": null
         }
       }
     },
@@ -557,6 +601,7 @@
       "items": {
         "$ref": "#/$defs/Node"
       },
+      "minItems": 1,
       "title": "Nodes",
       "type": "array"
     }
