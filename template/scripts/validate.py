@@ -403,6 +403,9 @@ class Config(Model):
                 "controller of a single-controller cluster"
             )
         gateways = self.gateways.addresses
+        # Without ingress there is no envoy-external Gateway to check.
+        if self.ingress.mode == "none":
+            gateways.pop("gateways.external", None)
         addresses = (
             gateways
             | {"network.default_gateway": self.network.default_gateway}

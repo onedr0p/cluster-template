@@ -95,9 +95,9 @@ addr = ""
 
 # =============================================================================
 #    LoadBalancer IPs that Cilium hands out to the cluster's edge gateways.
-#    Each must be an unused address inside network.node_cidr, distinct
-#    from each other, from every node's address, and from
-#    kubernetes.api.addr.
+#    Each must be an unused address inside network.node_cidr (or, with
+#    [cilium.bgp], outside pod_cidr and svc_cidr), distinct from each
+#    other, from every node's address, and from kubernetes.api.addr.
 # =============================================================================
 [gateways]
 

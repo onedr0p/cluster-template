@@ -147,6 +147,11 @@ def test_bgp_router_may_be_the_default_gateway():
     assert config.cilium.bgp.router_addr == config.network.default_gateway
 
 
+def test_unused_external_gateway_is_not_checked():
+    # Without ingress no envoy-external Gateway uses the address.
+    _load_raw(config_from("internal.toml", **{"gateways.external": "10.10.10.100"}))
+
+
 def test_cluster_issuer_follows_dns_provider():
     public = _load_raw(config_from("public.toml")).model_dump(mode="json")
     assert public["cluster_issuer"] == "letsencrypt-production"

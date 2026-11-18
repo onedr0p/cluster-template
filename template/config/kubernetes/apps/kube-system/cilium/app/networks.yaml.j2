@@ -9,11 +9,14 @@ spec:
   # node_cidr addresses would let a new LoadBalancer Service claim (and
   # announce) the router, a node or a DHCP client's IP, and an open pool
   # would let it take a gateway VIP first. For your own LoadBalancer
-  # Services, add a second pool with a free range and no serviceSelector.
+  # Services, add a second pool with a free range and no serviceSelector;
+  # existing ones lose their node_cidr address until it covers them.
   serviceSelector:
     matchExpressions:
       - { key: io.kubernetes.service.namespace, operator: In, values: ["network"] }
-      - { key: app.kubernetes.io/name, operator: In, values: ["envoy", "k8s-gateway"] }
+      - key: io.kubernetes.service.name
+        operator: In
+        values: ["envoy-external", "envoy-internal", "k8s-gateway"]
   blocks:
     - cidr: "#{ gateways.internal }#/32"
     - cidr: "#{ gateways.dns }#/32"
