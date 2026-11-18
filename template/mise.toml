@@ -30,6 +30,11 @@ uv run --quiet --locked --no-dev template/scripts/validate.py --schema > cluster
 oxfmt cluster.schema.json > /dev/null
 '''
 
+[tasks.reset]
+description = "Remove rendered files (bootstrap/, kubernetes/, talos/, .sops.yaml)"
+confirm = { message = "Remove all templated files and directories?", default = "no" }
+run = "rm -rf bootstrap kubernetes talos .sops.yaml"
+
 # tidy-archive moves template/ (this file's directory) away, so it must be
 # the last step.
 [tasks.tidy]
