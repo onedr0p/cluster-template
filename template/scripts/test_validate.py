@@ -62,6 +62,14 @@ REJECTIONS = {
     "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
     "bad-schematic-id": ("private.toml", "nodes.0.schematic_id", "376567", r"nodes\.0\.schematic_id: String should match pattern"),
     "duplicate-mac-address": ("private.toml", "nodes.1.mac_addr", "00:00:00:00:00:00", r"duplicate node MAC address '00:00:00:00:00:00' on nodes\[0\] and nodes\[1\]"),
+    "empty-disk": ("private.toml", "nodes.0.disk", "", r"nodes\.0\.disk: disk must be a device path"),
+    "bare-disk-name-sd": ("private.toml", "nodes.0.disk", "sda", r"'sda' looks like a kernel device name, not a disk serial; did you mean '/dev/sda'\?"),
+    "bare-disk-name-vd": ("private.toml", "nodes.0.disk", "vda", r"did you mean '/dev/vda'\?"),
+    "bare-disk-name-hd": ("private.toml", "nodes.0.disk", "hdb", r"did you mean '/dev/hdb'\?"),
+    "bare-disk-name-xvd": ("private.toml", "nodes.0.disk", "xvda", r"did you mean '/dev/xvda'\?"),
+    "bare-disk-name-nvme": ("private.toml", "nodes.0.disk", "nvme0n1", r"did you mean '/dev/nvme0n1'\?"),
+    "bare-disk-name-mmcblk": ("private.toml", "nodes.0.disk", "mmcblk0", r"did you mean '/dev/mmcblk0'\?"),
+    "bare-disk-name-partition": ("private.toml", "nodes.0.disk", "nvme0n1p1", r"did you mean '/dev/nvme0n1p1'\?"),
     "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
 }
 
@@ -112,6 +120,11 @@ def test_override_rejected(fixture: str, key: str, value, reason: str):
 def test_ssh_port_on_bundled_host_needs_no_known_hosts():
     raw = config_from("private.toml", **{"repository.url": "ssh://git@github.com:22/onedr0p/cluster-template.git"})
     assert _load_raw(raw).repository.known_hosts == ""
+
+
+@pytest.mark.parametrize("disk", ["/dev/nvme0n1", "/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456", "S64DNX0R123456", "sdfake-serial-01"])
+def test_disk_paths_and_serials_accepted(disk: str):
+    assert _load_raw(config_from("private.toml", **{"nodes.0.disk": disk})).nodes[0].disk == disk
 
 
 def test_cluster_issuer_follows_dns_provider():
