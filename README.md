@@ -217,7 +217,7 @@ These guidelines are a baseline, not a guarantee: **test and benchmark** your ha
 
 ### 🌐 Public DNS
 
-📍 _Only applies when `ingress.mode` is `"cloudflare-tunnel"` or `"direct"`. With `"none"` there is no `envoy-external` gateway or public DNS: `echo` and `flux-webhook` use `envoy-internal` and resolve only through [Home DNS](#-home-dns)._
+📍 _Only applies when `ingress.mode` is `"cloudflare-tunnel"` or `"direct"`. With `"none"` there is no `envoy-external` gateway or public DNS: `echo` uses `envoy-internal` and resolves only through [Home DNS](#-home-dns), and `flux-webhook` is skipped unless you set `webhook_provider` explicitly (e.g. for a Git host on your LAN)._
 
 > [!TIP]
 > Use the `envoy-external` gateway on `HTTPRoutes` to make applications public to the internet. These are also accessible on your private network once you set up split DNS.

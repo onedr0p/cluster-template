@@ -329,10 +329,17 @@
           "type": "string"
         },
         "webhook_provider": {
-          "default": "github",
-          "enum": ["github", "gitlab", "generic-hmac", "none"],
-          "title": "Webhook Provider",
-          "type": "string"
+          "anyOf": [
+            {
+              "enum": ["github", "gitlab", "generic-hmac", "none"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Webhook Provider"
         },
         "known_hosts": {
           "default": "",

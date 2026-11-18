@@ -202,6 +202,13 @@ def test_ingress_mode_follows_dns_provider():
     assert _load_raw(internal).ingress.mode == "none"
 
 
+def test_webhook_provider_follows_ingress_mode():
+    assert _load_raw(config_from("public.toml")).repository.webhook_provider == "github"
+    assert _load_raw(config_from("internal.toml")).repository.webhook_provider == "none"
+    lan_git = config_from("internal.toml", **{"repository.webhook_provider": "generic-hmac"})
+    assert _load_raw(lan_git).repository.webhook_provider == "generic-hmac"
+
+
 def test_direct_mode_requires_cloudflare_dns():
     raw = config_from("internal.toml", **{"ingress.mode": "direct"})
     with pytest.raises(ConfigError, match="requires dns.provider 'cloudflare'"):
