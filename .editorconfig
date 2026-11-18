@@ -14,5 +14,8 @@ insert_final_newline = true
 indent_size = 4
 trim_trailing_whitespace = false
 
+[*.py]
+indent_size = 4
+
 [*.sh]
 indent_size = 4

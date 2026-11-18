@@ -16,7 +16,7 @@ permissions: {}
 jobs:
   filter:
     name: Flate - Filter
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       pull-requests: read # no checkout, so changed files come from the pull request API
     outputs:
@@ -32,7 +32,7 @@ jobs:
     if: ${{ needs.filter.outputs.any-changed == 'true' }}
     needs: filter
     name: Flate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
@@ -54,7 +54,7 @@ jobs:
 
   zizmor:
     name: Zizmor
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
@@ -73,7 +73,7 @@ jobs:
     if: ${{ !cancelled() }}
     needs: [filter, flate, zizmor]
     name: Build Success
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions: {}
     steps:
       - name: Any jobs failed?

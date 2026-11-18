@@ -8,16 +8,14 @@ Exits non-zero with one human-readable error per line on stderr when the
 config is invalid.
 """
 
-from ipaddress import IPv4Address, IPv4Network
-from pathlib import Path
-from typing import Annotated, Any, Literal, Self
-
 import json
 import re
 import sys
 import tomllib
+from ipaddress import IPv4Address, IPv4Network
+from pathlib import Path
+from typing import Annotated, Any, Literal, Self
 
-from pydantic_core import PydanticUseDefault
 from pydantic import (
     AfterValidator,
     BaseModel,
@@ -30,10 +28,27 @@ from pydantic import (
     computed_field,
     model_validator,
 )
+from pydantic_core import PydanticUseDefault
 
-# Git hosts whose SSH host keys are bundled with the template; ssh:// URLs
-# pointing anywhere else must provide repository.known_hosts.
-KNOWN_SSH_HOSTS = ["github.com", "gitlab.com", "codeberg.org"]
+# SSH host keys as published by each provider, bundled with the template;
+# ssh:// URLs pointing anywhere else must provide repository.known_hosts.
+KNOWN_HOSTS = {
+    "github.com": (
+        "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n"
+        "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=\n"
+        "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
+    ),
+    "gitlab.com": (
+        "gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf\n"
+        "gitlab.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=\n"
+        "gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9"
+    ),
+    "codeberg.org": (
+        "codeberg.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB\n"
+        "codeberg.org ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBL2pDxWr18SoiDJCGZ5LmxPygTlPu+cCKSkpqkvCyQzl5xmIMeKNdfdBpfbCGDPoZQghePzFZkKJNR/v9Win3Sc=\n"
+        "codeberg.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8hZi7K1/2E2uBX8gwPRJAHvRAob+3Sn+y2hxiEhN0buv1igjYFTgFO2qQD8vLfU/HT/P/rqvEeTvaDfY1y/vcvQ8+YuUYyTwE2UaVU5aJv89y6PEZBYycaJCPdGIfZlLMmjilh/Sk8IWSEK6dQr+g686lu5cSWrFW60ixWpHpEVB26eRWin3lKYWSQGMwwKv4LwmW3ouqqs4Z4vsqRFqXJ/eCi3yhpT+nOjljXvZKiYTpYajqUC48IHAxTWugrKe1vXWOPxVXXMQEPsaIRc2hpK+v1LmfB7GnEGvF1UAKnEZbUuiD9PBEeD5a1MZQIzcoPWCrTxipEpuXQ5Tni4mN"
+    ),
+}
 
 REPO_URL_PATTERN = r"^(https?://|ssh://git@)[^/]+/.+$"
 # A Kubernetes qualified name, as used by Service.spec.loadBalancerClass:
@@ -80,10 +95,11 @@ def _bounded_int(lo: int, hi: int) -> Any:
 
     def parse(value: Any) -> int:
         # bool is a subclass of int, and a float such as 100.0 is not a tag
-        # or ASN even though pydantic's lax mode would truncate it.
+        # or ASN even though pydantic's lax mode would truncate it. pydantic
+        # only turns ValueError into a validation error, not TypeError.
         if isinstance(value, bool) or not isinstance(value, int | str):
             shown = str(value).lower() if isinstance(value, bool) else repr(value)
-            raise ValueError(f"expected a whole number, got {shown}")
+            raise ValueError(f"expected a whole number, got {shown}")  # noqa: TRY004
         number = value
         if isinstance(value, str):
             if not (value.isascii() and value.isdigit()):
@@ -311,10 +327,10 @@ class Repository(Model):
             )
         if self.uses_deploy_key:
             host = self.url.removeprefix("ssh://git@").split("/", 1)[0].split(":", 1)[0]
-            if host not in KNOWN_SSH_HOSTS and not self.known_hosts:
+            if host not in KNOWN_HOSTS and not self.known_hosts:
                 raise ValueError(
                     f"known_hosts is required for ssh:// URLs to {host!r} "
-                    f"(host keys are only bundled for {', '.join(KNOWN_SSH_HOSTS)})"
+                    f"(host keys are only bundled for {', '.join(KNOWN_HOSTS)})"
                 )
         return self
 
@@ -450,7 +466,7 @@ class Node(Model):
 
 
 class Config(Model):
-    model_config = ConfigDict(extra="forbid", title="cluster.toml")
+    model_config = ConfigDict(title="cluster.toml")
 
     network: Network
     kubernetes: Kubernetes

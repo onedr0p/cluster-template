@@ -22,15 +22,20 @@ name = "lock-mise"
 run = 'mise lock && git add -A -- .mise ":(exclude).mise/*.toml"'
 
 [pre-commit.commands.format-oxfmt]
-glob = ["*.json", "*.json5", "*.jsonc", "*.md", "*.markdown", "*.mdx", "*.yaml", "*.yml"]
+glob = ["*.json", "*.json5", "*.jsonc", "*.md", "*.markdown", "*.mdx", "*.toml", "*.yaml", "*.yml"]
 # mise lock sidecars are digest-pinned in mise.lock; reformatting them makes
-# `mise install --locked` fail with a digest mismatch.
-exclude = [".mise/locks/**"]
+# `mise install --locked` fail with a digest mismatch. The mise config belongs
+# to the mise job: a second writer could rewrite it while mise lock reads it.
+exclude = [".mise/locks/**", ".mise/config.toml", ".mise/conf.d/*.toml"]
 # oxfmt exits non-zero when every path it was given is on its own ignore list
 # (e.g. a commit touching only .vscode/settings.json); told not to, it formats
 # nothing and exits zero.
 run = "oxfmt --no-error-on-unmatched-pattern {staged_files}"
 stage_fixed = true
+
+[pre-commit.commands.ruff]
+glob = ["template/scripts/*.py"]
+run = "uv run --quiet --locked ruff check {staged_files}"
 
 [pre-commit.commands.shellcheck]
 glob = ["*.sh"]

@@ -6,19 +6,14 @@ Render the tree first:
     mise run //template:test-render
 """
 
+import tomllib
 from functools import cache
 from ipaddress import ip_network
 from pathlib import Path
 
-import sys
-import tomllib
-
 import pytest
 import yaml
-
-sys.path.insert(0, str(Path(__file__).parent))
-
-from validate import load  # noqa: E402
+from validate import load
 
 REPO_ROOT = Path(__file__).parents[2]
 CONFIG_FILE = REPO_ROOT / "cluster.toml"

@@ -3,6 +3,7 @@
     "blueglassblock.better-json5",
     "redhat.vscode-yaml",
     "signageos.signageos-vscode-sops",
+    "tamasfe.even-better-toml",
     "hverlin.mise-vscode"
   ]
 }

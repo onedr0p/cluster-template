@@ -1,5 +1,5 @@
 [makejinja]
-inputs = ["./template/overrides","./template/config"]
+inputs = ["./template/overrides", "./template/config"]
 output = "./"
 exclude_patterns = ["*.partial.yaml.j2"]
 import_paths = ["./template/scripts"]

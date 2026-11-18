@@ -4,19 +4,14 @@ Run from the repo root:
     uv run --locked pytest template/scripts/test_validate.py -q
 """
 
-from pathlib import Path
-
 import json
 import re
-import sys
 import tomllib
+from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).parent))
-
-from pydantic import ValidationError  # noqa: E402
-from validate import Config, ConfigError, format_errors, load, schema  # noqa: E402
+from pydantic import ValidationError
+from validate import Config, ConfigError, format_errors, load, schema
 
 REPO_ROOT = Path(__file__).parents[2]
 VALID = sorted((REPO_ROOT / ".github/template-tests/valid").glob("*.toml"))

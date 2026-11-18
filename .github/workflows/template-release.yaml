@@ -13,47 +13,19 @@ jobs:
   release:
     if: ${{ github.repository == 'onedr0p/cluster-template' }}
     name: Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
     steps:
-      - name: Get Previous Release Tag and Determine Next Tag
-        id: determine-next-tag
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-encoding: string
-          script: |
-            const { data: releases } = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 1,
-            });
-
-            let previousTag = "0.0.0"; // Default if no previous release exists
-            if (releases.length > 0) {
-              previousTag = releases[0].tag_name;
-            }
-
-            const [previousMajor, previousMinor, previousPatch] = previousTag.split('.').map(Number);
-            const currentYear = new Date().getFullYear();
-            const currentMonth = new Date().getMonth() + 1; // Months are 0-indexed in JavaScript
-
-            const nextMajorMinor = `${currentYear}.${currentMonth}`;
-            let nextPatch;
-
-            if (`${previousMajor}.${previousMinor}` === nextMajorMinor) {
-              console.log("Month release already exists for the year. Incrementing patch number by 1.");
-              nextPatch = previousPatch + 1;
-            } else {
-              console.log("Month release does not exist for the year. Starting with patch number 0.");
-              nextPatch = 0;
-            }
-
-            return `${nextMajorMinor}.${nextPatch}`;
-
       - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ steps.determine-next-tag.outputs.result }}
-        run: gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --generate-notes
+        run: |
+          previous="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName --jq '.[0].tagName // "0.0.0"')"
+          month="$(date --utc +%Y.%-m)"
+          if [[ "${previous%.*}" == "$month" ]]; then
+              patch=$((${previous##*.} + 1))
+          else
+              patch=0
+          fi
+          gh release create "$month.$patch" --repo "$GITHUB_REPOSITORY" --generate-notes

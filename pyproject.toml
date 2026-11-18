@@ -2,16 +2,13 @@
 name = "cluster-template"
 version = "0.0.0"
 requires-python = ">=3.14"
-dependencies = [
-  "makejinja==2.9.2",
-  "pydantic==2.14.3",
-]
+dependencies = ["makejinja==2.9.2", "pydantic==2.14.3"]
 
 [dependency-groups]
-dev = [
-  "pytest>=8",
-  "pyyaml>=6",
-]
+dev = ["pytest>=8", "pyyaml>=6", "ruff>=0.17.5"]
+
+[tool.pytest.ini_options]
+pythonpath = ["template/scripts"]
 
 [tool.uv]
 package = false
