@@ -91,3 +91,32 @@ def test_deploy_key_follows_the_repository_scheme():
     assert (REPO_ROOT / "bootstrap/deploy-key.sops.yaml").exists() == ssh
     assert ("deploy-key.sops.yaml" in applied) == ssh
     assert release["spec"]["values"]["instance"]["sync"].get("pullSecret") == ("deploy-key" if ssh else None)
+
+
+# A custom issuer issues the wildcard Certificate, but it usually lives in a
+# Kustomization that depends on cert-manager, so cert-manager's health check
+# must name an issuer the template renders. The built-in issuer is derived
+# here independently of validate.py on purpose.
+def test_wildcard_certificate_issuer():
+    custom = config()["certs"]["cluster_issuer"]
+    acme = config()["dns"]["provider"] == "cloudflare" and not custom
+    builtin = "letsencrypt-production" if acme else "internal-ca"
+    app = "kubernetes/apps/cert-manager/cert-manager/app"
+    rendered = [doc["metadata"]["name"] for doc in documents(f"{app}/clusterissuer.yaml", "ClusterIssuer")]
+    (kustomization,) = documents("kubernetes/apps/cert-manager/cert-manager/ks.yaml", "Kustomization")
+    checked = [check["name"] for check in kustomization["spec"]["healthChecks"] if check["kind"] == "ClusterIssuer"]
+    (certificate,) = documents("kubernetes/apps/network/envoy-gateway/app/certificate.yaml", "Certificate")
+    assert checked == [builtin]
+    assert builtin in rendered
+    assert certificate["spec"]["issuerRef"]["name"] == (custom or builtin)
+
+
+# Only cloudflare-dns (external-dns) publishes public records, so its
+# Kustomization and its CRD release need Cloudflare DNS and an ingress mode.
+def test_external_dns_follows_the_dns_provider():
+    expected = config()["dns"]["provider"] == "cloudflare" and config()["ingress"]["mode"] != "none"
+    (network,) = documents("kubernetes/apps/network/kustomization.yaml", "Kustomization")
+    with (REPO_ROOT / "bootstrap/helmfile/crds.yaml").open() as stream:
+        releases = [release["name"] for release in yaml.safe_load(stream)["releases"]]
+    assert ("./cloudflare-dns/ks.yaml" in network["resources"]) == expected
+    assert ("cloudflare-dns" in releases) == expected

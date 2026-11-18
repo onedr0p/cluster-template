@@ -126,17 +126,6 @@ jobs:
       - name: Test rendered output
         run: mise run //template:test-render
 
-      # A custom issuer must issue the Certificate but never gate cert-manager's
-      # health check (it usually lives in a Kustomization that depends on it).
-      - name: Assert Certificate uses certs.cluster_issuer
-        run: |
-          issuer=$(taplo get -f cluster.toml certs.cluster_issuer 2>/dev/null) || exit 0
-          grep -q "name: \"$issuer\"" ./kubernetes/apps/network/envoy-gateway/app/certificate.yaml
-          if grep -q "name: $issuer$" ./kubernetes/apps/cert-manager/cert-manager/ks.yaml; then
-            echo "::error::cert-manager health-checks custom issuer $issuer"
-            exit 1
-          fi
-
       - name: Dry run bootstrap apps task
         run: mise run --dry-run //bootstrap:apps
 
