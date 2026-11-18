@@ -237,7 +237,9 @@ _... Nothing working? That is expected, this is DNS after all!_
 
 By default Flux will periodically check your git repository for changes. In-order to have Flux reconcile on `git push` you must configure your Git provider to send `push` events to Flux.
 
-📍 _Don't want a webhook, or your Git provider can't reach the cluster? Set `webhook_provider = "none"` in `cluster.toml` and skip this section; Flux will keep polling on an interval._
+📍 _Don't want a webhook, or your Git provider can't reach the cluster? Set `webhook_provider = "none"` in `cluster.toml` and skip this section; Flux will keep polling on an interval. Internal-only clusters (`ingress.mode = "none"`) default to `"none"`._
+
+📍 _For a Git host on your LAN with an internal-only cluster, set `webhook_provider` explicitly. `flux-webhook` is then served on `envoy-internal`: the Git host must resolve it through [Home DNS](#-home-dns), and with `dns.provider = "none"` it must trust the cluster's internal CA. Self-hosted Gitea/Forgejo also need `flux-webhook.<domain>` added to `[webhook] ALLOWED_HOST_LIST`, since private addresses are blocked by default._
 
 1. Obtain the webhook path:
 
@@ -257,7 +259,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 
     - **GitHub**: under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL, paste the token as the secret, Content type: `application/json`, Events: Choose Just the push event, and save.
     - **GitLab**: under "Settings/Webhooks" fill in the webhook URL, paste the token as the secret token, check the push events trigger, and save. Also set `webhook_provider = "gitlab"` in `cluster.toml`.
-    - **Gitea/Forgejo**: under "Settings/Webhooks" add a **Gitea/Forgejo** webhook with the webhook URL, method `POST`, content type `application/json`, paste the token as the secret, trigger on push events, and save. Keep the default `webhook_provider = "github"` since these providers emulate GitHub webhooks.
+    - **Gitea/Forgejo**: under "Settings/Webhooks" add a **Gitea/Forgejo** webhook with the webhook URL, method `POST`, content type `application/json`, paste the token as the secret, trigger on push events, and save. Use `webhook_provider = "github"` since these providers emulate GitHub webhooks; set it explicitly on internal-only clusters, where the default is `"none"`.
 
 ### 🤖 Renovate
 
@@ -301,6 +303,30 @@ mise run //talos:render
 mise run //talos:apply-node <node>
 # e.g. mise run //talos:apply-node k8s-0
 ```
+
+### 🧩 Adding your own Talos patches
+
+[topf](https://postfinance.github.io/topf/main/configuration-model/) merges every patch it finds in these directories under `talos/`, in this order and alphabetically within each, later patches taking precedence:
+
+- `all/`: every node
+- `control-plane/` or `worker/`: nodes with that role
+- `node/<hostname>/`: a single node
+
+Files ending in `.yaml` are strategic merge patches, `.yaml.tpl` files are Go templates that can read `data:` from `topf.yaml` (`.Data.<key>`, `.Node.Data.<key>`), SOPS-encrypted files are decrypted automatically and comment-only files are skipped.
+
+> [!IMPORTANT]
+> `mise run configure` overwrites the files it renders (including `topf.yaml`) but leaves files you add alone, so give your patches names the template doesn't use, such as a `99-` prefix. After `mise run //template:tidy` nothing is re-rendered.
+
+```yaml
+# talos/all/99-local-sysctls.yaml
+---
+apiVersion: v1alpha1
+kind: SysctlConfig
+params:
+    vm.max_map_count: "262144"
+```
+
+`mise run configure` renders every node's config and fails on an invalid patch. Check the result with `mise run //talos:diff`, then apply it as shown [above](#️-updating-talos-node-configuration).
 
 ### ⬆️ Updating Talos and Kubernetes versions
 

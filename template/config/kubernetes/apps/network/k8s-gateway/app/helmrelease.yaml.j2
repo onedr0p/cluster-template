@@ -8,8 +8,9 @@ spec:
     kind: OCIRepository
     name: k8s-gateway
   interval: 1h
-  #% if gateways.dns.load_balancer_class %#
-  # Patched rather than a chart value, so it always renders as a string.
+  # Cilium serves the LoadBalancer IP itself; NodePorts would only open DNS on
+  # every node address. Patched as the chart has no value for it, and so
+  # loadBalancerClass always renders as a string.
   postRenderers:
     - kustomize:
         patches:
@@ -18,9 +19,13 @@ spec:
               name: k8s-gateway
             patch: |
               - op: add
+                path: /spec/allocateLoadBalancerNodePorts
+                value: false
+              #% if gateways.dns.load_balancer_class %#
+              - op: add
                 path: /spec/loadBalancerClass
                 value: "#{ gateways.dns.load_balancer_class }#"
-  #% endif %#
+              #% endif %#
   values:
     fullnameOverride: k8s-gateway
     serviceType: LoadBalancer
