@@ -302,6 +302,30 @@ mise run //talos:apply-node <node>
 # e.g. mise run //talos:apply-node k8s-0
 ```
 
+### 🧩 Adding your own Talos patches
+
+[topf](https://postfinance.github.io/topf/main/configuration-model/) merges every patch it finds in these directories under `talos/`, in this order and alphabetically within each, later patches taking precedence:
+
+- `all/`: every node
+- `control-plane/` or `worker/`: nodes with that role
+- `node/<hostname>/`: a single node
+
+Files ending in `.yaml` are strategic merge patches, `.yaml.tpl` files are Go templates that can read `data:` from `topf.yaml` (`.Data.<key>`, `.Node.Data.<key>`), SOPS-encrypted files are decrypted automatically and comment-only files are skipped.
+
+> [!IMPORTANT]
+> `mise run configure` overwrites the files it renders (including `topf.yaml`) but leaves files you add alone, so give your patches names the template doesn't use, such as a `99-` prefix. After `mise run //template:tidy` nothing is re-rendered.
+
+```yaml
+# talos/all/99-local-sysctls.yaml
+---
+apiVersion: v1alpha1
+kind: SysctlConfig
+params:
+    vm.max_map_count: "262144"
+```
+
+`mise run configure` renders every node's config and fails on an invalid patch. Check the result with `mise run //talos:diff`, then apply it as shown [above](#️-updating-talos-node-configuration).
+
 ### ⬆️ Updating Talos and Kubernetes versions
 
 > [!TIP]
