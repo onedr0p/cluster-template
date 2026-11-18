@@ -7,8 +7,8 @@
 [network]
 
 # The CIDR block your nodes' IPs come from. Every node's `address`, the Kube
-# API VIP, and the gateway VIPs (internal/dns/external) must all sit inside
-# this range.
+# API address, and the gateway VIPs (internal/dns/external) must all sit
+# inside this range.
 # REQUIRED. Example: "192.168.1.0/24"
 node_cidr = ""
 
@@ -72,22 +72,32 @@ node_cidr = ""
 
 # Virtual IP for the Kubernetes API server. kubectl, flux, and every other
 # client connect here on port 6443. Must be an unused IP inside
-# network.node_cidr — kube-vip floats it across controller nodes.
+# network.node_cidr — Talos floats it across controller nodes as a Layer 2
+# VIP. With `vip = false`, set it to the sole controller's own address.
 # REQUIRED.
 addr = ""
 
+# Announce `addr` as a Layer 2 VIP. Set to false only on a cluster with
+# exactly one controller that has no spare IP for a VIP (e.g. a VPS with a
+# single IP); `addr` must then be that controller's address.
+# OPTIONAL. Default: true
+
+# vip = true
+
 # Additional Subject Alternative Names to put on the Kube API cert. Useful
 # if you want to call the API by hostname (e.g. via a CNAME or local
-# /etc/hosts entry) instead of the raw IP.
-# OPTIONAL. Example: ["mycluster.example.com"]
+# /etc/hosts entry) or by another IP (e.g. a Tailscale address) instead of
+# kubernetes.api.addr.
+# OPTIONAL. Example: ["mycluster.example.com", "100.64.0.10"]
 
 # tls_sans = ["mycluster.example.com"]
 
 
 # =============================================================================
 #    LoadBalancer IPs that Cilium hands out to the cluster's edge gateways.
-#    Each must be an unused address inside network.node_cidr, and all four
-#    (these three plus kubernetes.api.addr) must be distinct.
+#    Each must be an unused address inside network.node_cidr, distinct
+#    from each other, from every node's address, and from
+#    kubernetes.api.addr.
 # =============================================================================
 [gateways]
 

@@ -55,6 +55,7 @@ jobs:
           - internal
           - direct
           - single-node
+          - single-node-no-vip
           - multi-controller
     steps:
       - name: Checkout
@@ -117,6 +118,17 @@ jobs:
           for config in ./talos/rendered/*.yaml; do
             talosctl validate --config "$config" --mode metal
           done
+
+      # Controllers announce kubernetes.api.addr as a Layer 2 VIP unless
+      # kubernetes.api.vip = false (default true).
+      - name: Assert API VIP matches kubernetes.api.vip
+        run: |
+          vip=$(taplo get -f cluster.toml kubernetes.api.vip 2>/dev/null || echo true)
+          if grep -q 'kind: Layer2VIPConfig' ./talos/rendered/*.yaml; then rendered=true; else rendered=false; fi
+          if [ "$rendered" != "$vip" ]; then
+            echo "::error::kubernetes.api.vip is $vip but Layer2VIPConfig rendered: $rendered"
+            exit 1
+          fi
 
       - name: Dry run bootstrap apps task
         run: mise run --dry-run //bootstrap:apps

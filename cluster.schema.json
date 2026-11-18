@@ -9,11 +9,16 @@
           "title": "Addr",
           "type": "string"
         },
+        "vip": {
+          "default": true,
+          "title": "Vip",
+          "type": "boolean"
+        },
         "tls_sans": {
           "anyOf": [
             {
               "items": {
-                "$ref": "#/$defs/Fqdn"
+                "$ref": "#/$defs/San"
               },
               "type": "array"
             },
@@ -350,6 +355,18 @@
       "required": ["url"],
       "title": "Repository",
       "type": "object"
+    },
+    "San": {
+      "anyOf": [
+        {
+          "format": "ipv4",
+          "type": "string"
+        },
+        {
+          "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
+          "type": "string"
+        }
+      ]
     },
     "SchematicId": {
       "pattern": "^[a-z0-9]{64}$",
