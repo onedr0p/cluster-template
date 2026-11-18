@@ -147,6 +147,39 @@ url = "https://github.com/cli/cli/releases/download/v2.104.0/gh_2.104.0_macOS_am
 url_api = "https://api.github.com/repos/cli/cli/releases/assets/740719067"
 provenance = "github-attestations"
 
+[[tools."github:oxc-project/oxc"]]
+version = "0.75.0"
+backend = "github:oxc-project/oxc"
+specifiers = ["0.75.0"]
+
+[tools."github:oxc-project/oxc".options]
+matching_regex = "^oxfmt-"
+version_prefix = "oxfmt_v"
+
+[tools."github:oxc-project/oxc"."platforms.linux-arm64"]
+checksum = "sha256:d572f06bfa6367d6cb766a077c2e0c4fd70a13b323879829dda00274b3b2cee6"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610856"
+provenance = "github-attestations"
+
+[tools."github:oxc-project/oxc"."platforms.linux-x64"]
+checksum = "sha256:6a111e38ab6edfe61b87deffbc95e461e3b7326d5d034bdee71ba92cdfd87641"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610917"
+provenance = "github-attestations"
+
+[tools."github:oxc-project/oxc"."platforms.macos-arm64"]
+checksum = "sha256:e7973efba410ee690afdf306c3a561ebd9e6072005d28fe50ef4a4d7d4649bb3"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610854"
+provenance = "github-attestations"
+
+[tools."github:oxc-project/oxc"."platforms.macos-x64"]
+checksum = "sha256:e0242cd799da9e94d0676a003fe2912893a26f419b766614af1ca8b944aacfd9"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610913"
+provenance = "github-attestations"
+
 [[tools."github:postfinance/topf"]]
 version = "0.6.2"
 backend = "github:postfinance/topf"
@@ -379,33 +412,6 @@ checksum = "sha256:016e560b0cc982f45df14c301509e05b5c4265655eea996495093cd0c6320
 url = "https://github.com/evilmartians/lefthook/releases/download/v2.2.2/lefthook_2.2.2_MacOS_x86_64.gz"
 url_api = "https://api.github.com/repos/evilmartians/lefthook/releases/assets/636518821"
 provenance = "github-attestations"
-
-[[tools.node]]
-version = "26.13.1"
-backend = "core:node"
-specifiers = ["26.13.1"]
-
-[tools.node."platforms.linux-arm64"]
-checksum = "sha256:80a330b35415382878df18d41afbd106ea89bfb3be0087d6608e289a14c5cc7d"
-url = "https://nodejs.org/dist/v26.13.1/node-v26.13.1-linux-arm64.tar.gz"
-
-[tools.node."platforms.linux-x64"]
-checksum = "sha256:518674de2b621728a5e4486f5fb3b7d2900bb3cc4aa97969edaa463db99f9778"
-url = "https://nodejs.org/dist/v26.13.1/node-v26.13.1-linux-x64.tar.gz"
-
-[tools.node."platforms.macos-arm64"]
-checksum = "sha256:aec2514ea1ceb2ba52455e9ec65986f6749a06dd759e5db2a72e6889668c9735"
-url = "https://nodejs.org/dist/v26.13.1/node-v26.13.1-darwin-arm64.tar.gz"
-
-[tools.node."platforms.macos-x64"]
-checksum = "sha256:82bb96078a24ca50b9c9a38f2379e6be6d87171fcd400fc14c8934b3bce96e2f"
-url = "https://nodejs.org/dist/v26.13.1/node-v26.13.1-darwin-x64.tar.gz"
-
-[[tools.oxfmt]]
-version = "0.75.0"
-aube = { path = "locks/oxfmt/0.75.0", digest = "sha256:1d4f470a5dbba272218132db6ff9ba1911075d29dcd3253a0e02b4a5037a8a23" }
-backend = "npm:oxfmt"
-specifiers = ["0.75.0"]
 
 [[tools.shellcheck]]
 version = "0.11.0"
