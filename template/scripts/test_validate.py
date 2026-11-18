@@ -145,9 +145,8 @@ def test_bare_kernel_disk_name_rejected(name: str):
         _load_raw(config_from("private.toml", **{"nodes.0.disk": name}))
 
 
-@pytest.mark.parametrize("disk", [" /dev/sda", "S64DNX0R123456 ", "ab\nc", 'ab"c', "ab\\c", "ab: c", "ab #c"])
+@pytest.mark.parametrize("disk", [" /dev/sda", "S64DNX0R123456 ", "ab\nc", "a\x85b", "a\u2028b", 'ab"c', "ab\\c", "ab: c", "ab #c"])
 def test_disk_with_unsafe_characters_rejected(disk: str):
-    # The value is rendered into a double-quoted CEL string in a plain YAML scalar.
     with pytest.raises(ConfigError, match="must not contain control characters, double quotes, backslashes"):
         _load_raw(config_from("private.toml", **{"nodes.0.disk": disk}))
 

@@ -336,16 +336,16 @@ KERNEL_DISK_NAME = re.compile(
 
 def _disk(value: str) -> str:
     """Accept a /dev path or symlink, or a disk serial (any value without a leading "/")."""
-    # The value is rendered into a double-quoted CEL string in a plain YAML scalar.
-    if value != value.strip() or re.search(r'[\x00-\x1f\x7f"\\]|: | #', value):
+    # Rendered into a double-quoted YAML string and a CEL string in a plain YAML
+    # scalar; YAML folds or rejects C1 controls and U+2028/U+2029.
+    if value != value.strip() or re.search(r'[\x00-\x1f\x7f-\x9f\u2028\u2029"\\]|: | #', value):
         raise ValueError(
             f"{value!r} must not contain control characters, double quotes, backslashes, "
             "': ' or ' #', or start or end with whitespace"
         )
-    path = re.sub(r"^(?:\./)+", "", value)
+    path = value.removeprefix("./")
     if path.startswith(("dev/", "disk/")):
-        fixed = "/" + path if path.startswith("dev/") else "/dev/" + path
-        raise ValueError(f"{value!r} is a relative path; did you mean {fixed!r}?")
+        raise ValueError(f"{value!r} is a relative path; did you mean {'/dev/' + path.removeprefix('dev/')!r}?")
     if KERNEL_DISK_NAME.fullmatch(value):
         raise ValueError(
             f"{value!r} looks like a kernel device name; use '/dev/{value}', "
