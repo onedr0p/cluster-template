@@ -309,6 +309,7 @@
           "type": "boolean"
         },
         "disk": {
+          "minLength": 1,
           "title": "Disk",
           "type": "string"
         },

@@ -86,6 +86,18 @@ jobs:
       - name: Run configure task
         run: mise run configure
 
+      # Only ssh:// repositories get a deploy key: rendered, applied by
+      # apps-secrets and referenced as the flux-instance pullSecret.
+      - name: Assert deploy key follows the repository scheme
+        run: |
+          url="$(taplo get --file-path cluster.toml repository.url)"
+          found=()
+          [[ -f bootstrap/deploy-key.sops.yaml ]] && found+=(secret-file)
+          grep -qE '^ +deploy-key\.sops\.yaml ' bootstrap/mise.toml && found+=(apps-secrets)
+          grep -qF 'pullSecret: deploy-key' kubernetes/apps/flux-system/flux-instance/app/helmrelease.yaml && found+=(pullSecret)
+          echo "repository: $url; deploy key in: ${found[*]:-nothing}"
+          if [[ "$url" == ssh://* ]]; then (( ${#found[@]} == 3 )); else (( ${#found[@]} == 0 )); fi
+
       # tasks validate only sees the current project and the root, so it runs
       # once per monorepo project.
       - name: Validate mise tasks

@@ -4,23 +4,23 @@
    bond0, regardless of kernel NIC naming; a second NIC can join the bond
    later without renaming anything. The bond name is also referenced by
    `devices` in the cilium HelmRelease. #|
+#% set nic = 'ethSel0' %#
 #% set link = 'bond0.' ~ network.vlan_tag if network.vlan_tag else 'bond0' %#
 ---
 apiVersion: v1alpha1
 kind: LinkAliasConfig
-name: ethSel0
+name: #{ nic }#
 selector:
-  #| Match the permanent (burned-in) MAC: bonding rewrites hardware_addr of
-     every member to the bond's MAC, so a second NIC in bond0 would also
-     match. Fall back to hardware_addr when the driver reports no permanent
-     address (Talos leaves it empty). #|
-  match: 'glob("{{ .Node.Data.macAddr }}", mac(size(link.permanent_addr) > 0 ? link.permanent_addr : link.hardware_addr))'
+  #| Match the permanent MAC, or the current one unless the link is a bond
+     member other than this alias: bonding rewrites every member's current
+     MAC to the bond's, and Talos aliases a link before enslaving it. #|
+  match: 'mac(link.permanent_addr) == "{{ .Node.Data.macAddr }}" || (mac(link.hardware_addr) == "{{ .Node.Data.macAddr }}" && (link.slave_kind != "bond" || link.alias == "#{ nic }#"))'
 ---
 apiVersion: v1alpha1
 kind: BondConfig
 name: bond0
 links:
-  - ethSel0
+  - #{ nic }#
 bondMode: active-backup
 mtu: {{ .Node.Data.mtu }}
 #% if network.vlan_tag %#
