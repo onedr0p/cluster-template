@@ -189,6 +189,10 @@ class Kubernetes(Model):
 
 
 class Gateway(Model):
+    model_config = ConfigDict(
+        json_schema_extra={"oneOf": [{"required": ["address"]}, {"required": ["load_balancer_class"]}]}
+    )
+
     # Either a LoadBalancer IP that Cilium LB IPAM assigns (and announces
     # per cilium.announce), or the loadBalancerClass of another
     # implementation, e.g. "io.cilium/node" to serve on the nodes' own IPs
@@ -554,9 +558,16 @@ class Config(Model):
         # would shadow pod or Service IPs, nor into addresses no network
         # routes.
         for owner, addr in routed.items():
-            if addr.is_unspecified or addr.is_loopback or addr.is_link_local or addr.is_multicast:
+            if (
+                addr.is_unspecified
+                or addr.is_loopback
+                or addr.is_link_local
+                or addr.is_multicast
+                or addr.is_reserved
+            ):
                 raise ValueError(
-                    f"{owner} {addr} is not routable (unspecified, loopback, link-local or multicast)"
+                    f"{owner} {addr} is not routable "
+                    "(unspecified, loopback, link-local, multicast or reserved)"
                 )
             for cidr_name in ("pod_cidr", "svc_cidr"):
                 cidr = getattr(self.kubernetes, cidr_name)

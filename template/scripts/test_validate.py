@@ -388,7 +388,7 @@ def test_external_gateway_unused_without_ingress():
     assert "10.10.10.251" not in _load_raw(raw).gateway_addresses
 
 
-@pytest.mark.parametrize("addr", ["0.0.0.0", "127.0.0.1", "169.254.1.1", "224.0.0.1"])
+@pytest.mark.parametrize("addr", ["0.0.0.0", "127.0.0.1", "169.254.1.1", "224.0.0.1", "255.255.255.255"])
 def test_unannounced_gateway_must_be_routable(addr: str):
     raw = config_from("private.toml", **{"gateways.external": addr, "cilium.announce": "none"})
     with pytest.raises(ConfigError, match=rf"gateways\.external {re.escape(addr)} is not routable"):

@@ -11,6 +11,12 @@ kind: KubeNodeConfig
 taints:
   node-role.kubernetes.io/control-plane:
     $patch: delete
+#% if cilium_node_ipam_enabled and controller_count == nodes | length %#
+# No workers: let Cilium node IPAM serve LoadBalancers on the controllers
+labels:
+  node.kubernetes.io/exclude-from-external-load-balancers:
+    $patch: delete
+#% endif %#
 ---
 apiVersion: v1alpha1
 kind: KubeAdmissionControlConfig

@@ -16,7 +16,8 @@ spec:
       annotations:
         lbipam.cilium.io/ips: "#{ gateways.dns.address }#"
       #% else %#
-      loadBalancerClass: "#{ gateways.dns.load_balancer_class }#"
+      # The chart renders this unquoted.
+      loadBalancerClass: '"#{ gateways.dns.load_balancer_class }#"'
       #% endif %#
       externalTrafficPolicy: Cluster
     servers:

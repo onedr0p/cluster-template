@@ -139,6 +139,14 @@
     },
     "Gateway": {
       "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["address"]
+        },
+        {
+          "required": ["load_balancer_class"]
+        }
+      ],
       "properties": {
         "address": {
           "anyOf": [
