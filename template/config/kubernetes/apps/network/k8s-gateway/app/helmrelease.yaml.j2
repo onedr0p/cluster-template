@@ -8,6 +8,19 @@ spec:
     kind: OCIRepository
     name: k8s-gateway
   interval: 1h
+  #% if gateways.dns.load_balancer_class %#
+  # Patched rather than a chart value, so it always renders as a string.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Service
+              name: k8s-gateway
+            patch: |
+              - op: add
+                path: /spec/loadBalancerClass
+                value: "#{ gateways.dns.load_balancer_class }#"
+  #% endif %#
   values:
     fullnameOverride: k8s-gateway
     serviceType: LoadBalancer
@@ -15,9 +28,6 @@ spec:
       #% if gateways.dns.address %#
       annotations:
         lbipam.cilium.io/ips: "#{ gateways.dns.address }#"
-      #% else %#
-      # The chart renders this unquoted.
-      loadBalancerClass: '"#{ gateways.dns.load_balancer_class }#"'
       #% endif %#
       externalTrafficPolicy: Cluster
     servers:
