@@ -129,7 +129,7 @@ type San = Annotated[
     AfterValidator(_san),
     WithJsonSchema({"anyOf": [{"type": "string", "format": "ipv4"}, {"type": "string", "pattern": FQDN_PATTERN}]}),
 ]
-type SchematicId = Annotated[str, Field(pattern=r"^[a-z0-9]{64}$")]
+type SchematicId = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 type DecimalString = Annotated[str, Field(pattern=r"^[0-9]+$")]
 type VlanTag = Annotated[
     DecimalString,
