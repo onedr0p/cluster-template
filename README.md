@@ -303,7 +303,7 @@ mise run //talos:apply-node <node>
 ```
 
 > [!WARNING]
-> With `firewall = true` under `[talos]` (see `cluster.sample.toml`), a mistake in the firewall rules can lock you out of `talosctl` and `kubectl`. Keep console access to the nodes and apply firewall changes with `mise run //talos:apply-node <node> try` first: Talos rolls a `try` config back after a timeout, so re-apply it normally once you have checked you still have access.
+> With `firewall = true` under `[talos]` (see `cluster.sample.toml`), a mistake in the firewall rules can lock you out of `talosctl` and `kubectl`. Keep console access to the nodes and apply firewall changes with `mise run //talos:apply-node <node> try` first: check that new `talosctl` and `kubectl` connections still work, wait for Talos to roll the `try` config back, then apply it normally. Re-applying it while the trial is active changes nothing, so the firewall would turn off when the trial ends.
 
 ### ⬆️ Updating Talos and Kubernetes versions
 
@@ -349,7 +349,7 @@ You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
     # e.g. mise run //talos:apply-node k8s-3
     ```
 
-    With the Talos firewall enabled, run `mise run //talos:apply` instead so the existing nodes also get the new firewall sources and accept the new node.
+    With the Talos firewall enabled, first run `mise run //talos:apply-node <node>` for each existing node so it accepts the new one, then apply the new node.
 
 The node should join the cluster automatically and workloads will be scheduled once they report as ready.
 

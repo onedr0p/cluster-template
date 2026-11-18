@@ -292,9 +292,11 @@ schematic_id = ""
 # firewall = false
 
 # IPv4 networks allowed to reach the Talos and Kubernetes APIs besides the
-# nodes; must be canonical CIDRs, and 0.0.0.0/0 is rejected. For admin access
-# over a Tailscale tailnet use its IPv4 range, 100.64.0.0/10 (its IPv6
-# addresses are blocked).
+# nodes, as source addresses the nodes see; must be canonical CIDRs, and
+# 0.0.0.0/0 is rejected. Tailscale clients reaching a node over its own
+# tailnet interface come from 100.64.0.0/10 (their IPv6 addresses are
+# blocked); through a subnet router, which SNATs by default, allow the
+# router's address instead.
 # REQUIRED when firewall = true. Example: ["100.64.0.0/10"]
 
 # admin_cidrs = ["100.64.0.0/10"]

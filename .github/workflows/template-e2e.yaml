@@ -132,6 +132,15 @@ jobs:
             exit 1
           fi
 
+      - name: Assert firewall matches talos.firewall
+        run: |
+          firewall=$(taplo get -f cluster.toml talos.firewall 2>/dev/null || echo false)
+          if grep -q 'kind: NetworkDefaultActionConfig' ./talos/rendered/*.yaml; then rendered=true; else rendered=false; fi
+          if [ "$rendered" != "$firewall" ]; then
+            echo "::error::talos.firewall is $firewall but NetworkDefaultActionConfig rendered: $rendered"
+            exit 1
+          fi
+
       - name: Dry run bootstrap apps task
         run: mise run --dry-run //bootstrap:apps
 

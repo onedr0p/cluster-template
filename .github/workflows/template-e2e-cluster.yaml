@@ -104,7 +104,6 @@ jobs:
         wait: [flux-sops, networking]
 
       - name: Test ingress firewall
-        if: ${{ matrix.firewall }}
         run: bash ./.github/template-tests/e2e/cluster.sh firewall
 
       - name: Summarize cluster

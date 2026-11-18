@@ -285,6 +285,11 @@ expect() {
             node "$ip" port "$port" want "$want" got "$got"
     done
 }
+if [ "$FIREWALL" != true ]; then
+    # Positive control: without the firewall the kubelet answers the runner.
+    for ip in "${NODES[@]}"; do expect open "$ip" 10250; done
+    return
+fi
 for ip in "${NODES[@]}"; do
     expect open "$ip" 50000
     # kubelet, cilium-health, Spegel's registry NodePort
@@ -321,7 +326,7 @@ case "$MODE" in
         foundation
         flux_sops
         networking
-        [ "$FIREWALL" = true ] && firewall
+        firewall
         summary
         ;;
     *)
