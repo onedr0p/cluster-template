@@ -249,25 +249,27 @@ class Bgp(Model):
 class Talos(Model):
     # Default Image Factory schematic for nodes that don't set their own.
     schematic_id: OptionalSchematicId = None
-    # Opt-in ingress firewall: block everything the cluster does not need.
+    # Opt-in ingress firewall: block inbound connections to the nodes except
+    # those the cluster needs (talos/all/80-firewall.yaml.tpl).
     firewall: bool = False
-    # Networks besides the cluster itself allowed to reach the Talos and
+    # IPv4 networks besides the nodes allowed to reach the Talos and
     # Kubernetes APIs when the firewall is on.
     admin_cidrs: list[Cidr] = []
 
     @model_validator(mode="after")
     def check(self) -> Self:
-        if self.firewall and not self.admin_cidrs:
+        if not self.firewall:
+            return self
+        if not self.admin_cidrs:
             raise ValueError(
                 "admin_cidrs is required when firewall = true, or the Talos and "
                 "Kubernetes APIs are unreachable from outside the cluster"
             )
-        for cidr in self.admin_cidrs:
-            if cidr.prefixlen == 0:
-                raise ValueError(
-                    f"admin_cidrs must not contain {cidr}: it exposes the Talos and "
-                    "Kubernetes APIs to the internet; leave firewall = false instead"
-                )
+        if any(cidr.prefixlen == 0 for cidr in self.admin_cidrs):
+            raise ValueError(
+                "admin_cidrs must not contain 0.0.0.0/0: it exposes the Talos and "
+                "Kubernetes APIs to the internet"
+            )
         return self
 
 

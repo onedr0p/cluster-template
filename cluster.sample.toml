@@ -261,7 +261,7 @@ token = ""
 
 
 # =============================================================================
-#    Talos Image Factory settings shared by all nodes.
+#    Talos settings shared by all nodes.
 # =============================================================================
 [talos]
 
@@ -270,28 +270,31 @@ token = ""
 # OPTIONAL if every node sets schematic_id itself.
 schematic_id = ""
 
-# Talos ingress firewall. When enabled, nodes drop every inbound connection
-# the cluster does not need: the Talos API (50000) and Kubernetes API (6443)
-# answer admin_cidrs and the cluster; kubelet, etcd, trustd, Cilium and
-# control-plane metrics answer only the cluster (node addresses, plus
-# pod_cidr where pods need it). BGP (179) is opened to
-# cilium.bgp.router_addr, and with ingress.mode "direct" TCP 80/443 is opened
-# to everyone. Meant for nodes on a public IP (e.g. a VPS).
-# WARNING: a wrong admin_cidrs locks you out of talosctl and kubectl. Keep
-# console access to the nodes, and roll it out to a running cluster with
-# `mise run //talos:apply-node <node> try` first: Talos reverts a `try`
-# config after a timeout, so re-apply it normally once you have checked
-# you still have access. Anything else you run on the host network (e.g.
-# node-exporter on 9100) needs its own NetworkRuleConfig patch. After adding
-# a node, apply the config to every node so the others accept it.
+# Talos ingress firewall for nodes on public or shared networks (e.g. a VPS
+# on a shared provider subnet). It blocks new inbound IPv4 and IPv6
+# connections to the nodes themselves, except the Talos and Kubernetes APIs
+# from admin_cidrs and the nodes, and the ports nodes and pods need from each
+# other (kubelet, etcd, trustd, Cilium health, metrics). "The nodes" means
+# each node's own address, never all of node_cidr. The rules are rendered to
+# talos/all/ and talos/control-plane/80-firewall.yaml.tpl.
+# NOT covered: traffic Cilium serves before the firewall sees it, i.e.
+# LoadBalancer IPs and NodePorts. The template's gateways allocate no
+# NodePorts and Spegel's registry NodePort (30020) only answers the cluster,
+# but any NodePort Service you add is open on every node address. Anything
+# else on the host network (e.g. node-exporter on 9100) is blocked unless you
+# add a NetworkRuleConfig patch for it.
+# WARNING: admin access is IPv4 only, and a wrong admin_cidrs locks you out
+# of talosctl and kubectl; see the README before enabling it on a running
+# cluster.
 # REF: https://docs.siderolabs.com/talos/v1.14/networking/ingress-firewall
 # OPTIONAL. Default: false
 
 # firewall = false
 
-# Networks allowed to reach the Talos and Kubernetes APIs besides the cluster
-# itself; must be canonical CIDRs, and 0.0.0.0/0 is rejected. For admin
-# access over Tailscale use its CGNAT range.
+# IPv4 networks allowed to reach the Talos and Kubernetes APIs besides the
+# nodes; must be canonical CIDRs, and 0.0.0.0/0 is rejected. For admin access
+# over a Tailscale tailnet use its IPv4 range, 100.64.0.0/10 (its IPv6
+# addresses are blocked).
 # REQUIRED when firewall = true. Example: ["100.64.0.0/10"]
 
 # admin_cidrs = ["100.64.0.0/10"]

@@ -336,7 +336,7 @@ You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
     talosctl get links -n <ip> --insecure
     ```
 
-3. **Update the configuration**: Read the documentation for [topf](https://postfinance.github.io/topf/) and extend `topf.yaml` (and any `node/<hostname>/` patches) manually with the new node information (including the disk and MAC address from step 2). With the Talos firewall enabled, also add the node's address to the cluster sources in `talos/all/80-firewall.yaml.tpl` and apply it to the existing nodes first (`mise run //talos:apply`), so they accept the new node.
+3. **Update the configuration**: Read the documentation for [topf](https://postfinance.github.io/topf/) and extend `topf.yaml` (and any `node/<hostname>/` patches) manually with the new node information (including the disk and MAC address from step 2). With the Talos firewall enabled, also add the node's address as a `/32` to `data.firewall.nodes` in `topf.yaml` (and to `data.firewall.controllers` for a controller).
 
 4. **Apply the configuration**:
 
@@ -348,6 +348,8 @@ You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
     mise run //talos:apply-node <node>
     # e.g. mise run //talos:apply-node k8s-3
     ```
+
+    With the Talos firewall enabled, run `mise run //talos:apply` instead so the existing nodes also get the new firewall sources and accept the new node.
 
 The node should join the cluster automatically and workloads will be scheduled once they report as ready.
 

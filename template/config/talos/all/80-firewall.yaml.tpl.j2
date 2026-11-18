@@ -1,15 +1,13 @@
 #% if talos.firewall %#
 #| Ingress firewall, following the Talos recommendations for Kubernetes
    nodes: https://docs.siderolabs.com/talos/v1.14/networking/ingress-firewall
-   Talos always accepts loopback, established/related connections,
-   rate-limited ICMP and traffic between the pod and service subnets.
-   Service traffic (LoadBalancer IPs, NodePorts) is handled by Cilium's eBPF
-   datapath before it reaches these rules. Cluster members are matched by
-   their own addresses rather than node_cidr, which on a VPS is often a
-   subnet shared with other customers. #|
-#% set node_subnets = (nodes | map(attribute='address') | join('/32 ') ~ '/32').split() %#
-#% set controller_subnets = (nodes | selectattr('controller') | map(attribute='address') | join('/32 ') ~ '/32').split() %#
-#% set in_cluster = node_subnets + [kubernetes.pod_cidr] %#
+   It filters connections to the host itself. Service traffic (LoadBalancer
+   IPs, NodePorts) is translated by Cilium's eBPF datapath before it reaches
+   these rules and is forwarded to pods, so it is not covered here.
+   Cluster members are each node's own address from topf.yaml's
+   data.firewall, not node_cidr, which may be shared with other tenants.
+   Controller-only rules are in control-plane/80-firewall.yaml.tpl. #|
+# Talos still accepts loopback, established connections and rate-limited ICMP.
 apiVersion: v1alpha1
 kind: NetworkDefaultActionConfig
 ingress: block
@@ -21,9 +19,12 @@ portSelector:
   ports: [50000]
   protocol: tcp
 ingress:
-  #% for subnet in talos.admin_cidrs + node_subnets %#
-  - subnet: #{ subnet }#
+  #% for cidr in talos.admin_cidrs %#
+  - subnet: #{ cidr }#
   #% endfor %#
+  {{- range .Data.firewall.nodes }}
+  - subnet: {{ . }}
+  {{- end }}
 ---
 apiVersion: v1alpha1
 kind: NetworkRuleConfig
@@ -32,9 +33,10 @@ portSelector:
   ports: [10250]
   protocol: tcp
 ingress:
-  #% for subnet in in_cluster %#
-  - subnet: #{ subnet }#
-  #% endfor %#
+  - subnet: #{ kubernetes.pod_cidr }#
+  {{- range .Data.firewall.nodes }}
+  - subnet: {{ . }}
+  {{- end }}
 ---
 # Cilium node-to-node health checks; native routing needs no VXLAN port.
 apiVersion: v1alpha1
@@ -44,9 +46,9 @@ portSelector:
   ports: [4240]
   protocol: tcp
 ingress:
-  #% for subnet in node_subnets %#
-  - subnet: #{ subnet }#
-  #% endfor %#
+  {{- range .Data.firewall.nodes }}
+  - subnet: {{ . }}
+  {{- end }}
 ---
 # Cilium agent and operator metrics, for Prometheus.
 apiVersion: v1alpha1
@@ -56,79 +58,11 @@ portSelector:
   ports: [9962-9963]
   protocol: tcp
 ingress:
-  #% for subnet in in_cluster %#
-  - subnet: #{ subnet }#
-  #% endfor %#
-#% if cilium_bgp_enabled %#
----
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: bgp-ingress
-portSelector:
-  ports: [179]
-  protocol: tcp
-ingress:
-  - subnet: #{ cilium.bgp.router_addr }#/32
-#% endif %#
-#% if ingress.mode == 'direct' %#
----
-# The external gateway when it is served on a node's own address. Cilium
-# already handles that traffic before these rules; this keeps it working
-# without relying on that.
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: gateway-ingress
-portSelector:
-  ports: [80, 443]
-  protocol: tcp
-ingress:
-  - subnet: 0.0.0.0/0
-#% endif %#
-{{- if eq .Node.Role "control-plane" }}
----
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: trustd-ingress
-portSelector:
-  ports: [50001]
-  protocol: tcp
-ingress:
-  #% for subnet in node_subnets %#
-  - subnet: #{ subnet }#
-  #% endfor %#
----
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: kubernetes-api-ingress
-portSelector:
-  ports: [6443]
-  protocol: tcp
-ingress:
-  #% for subnet in talos.admin_cidrs + in_cluster %#
-  - subnet: #{ subnet }#
-  #% endfor %#
----
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: etcd-ingress
-portSelector:
-  ports: [2379-2380]
-  protocol: tcp
-ingress:
-  #% for subnet in controller_subnets %#
-  - subnet: #{ subnet }#
-  #% endfor %#
----
-# etcd, controller-manager and scheduler metrics, for Prometheus.
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: control-plane-metrics-ingress
-portSelector:
-  ports: [2381, 10257, 10259]
-  protocol: tcp
-ingress:
-  #% for subnet in in_cluster %#
-  - subnet: #{ subnet }#
-  #% endfor %#
-{{- end }}
+  - subnet: #{ kubernetes.pod_cidr }#
+  {{- range .Data.firewall.nodes }}
+  - subnet: {{ . }}
+  {{- end }}
+#% else %#
+# The Talos ingress firewall is off ([talos] firewall in cluster.toml). This
+# comment-only patch replaces the rules a previous render may have left here.
 #% endif %#

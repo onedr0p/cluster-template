@@ -325,6 +325,8 @@ def test_firewall_is_opt_in():
     talos = _load_raw(config_from("private.toml")).model_dump(mode="json")["talos"]
     assert talos["firewall"] is False
     assert talos["admin_cidrs"] == []
-    talos = _load_raw(config_from("firewall-multi.toml")).model_dump(mode="json")["talos"]
-    assert talos["firewall"] is True
-    assert talos["admin_cidrs"] == ["192.168.1.0/24", "100.64.0.0/10"]
+
+
+def test_admin_cidrs_only_checked_with_firewall():
+    raw = config_from("private.toml", **{"talos.admin_cidrs": ["0.0.0.0/0"]})
+    assert _load_raw(raw).talos.firewall is False

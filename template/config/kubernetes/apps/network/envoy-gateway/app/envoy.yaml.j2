@@ -20,6 +20,9 @@ spec:
             limits:
               memory: 1Gi
       envoyService:
+        # Cilium serves the LoadBalancer IP itself; NodePorts would only open
+        # the gateways on every node address.
+        allocateLoadBalancerNodePorts: false
         externalTrafficPolicy: Cluster
   shutdown:
     drainTimeout: 180s

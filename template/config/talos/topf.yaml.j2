@@ -31,3 +31,19 @@ nodes:
       encryptDisk: #{ item.encrypt_disk | string | lower }#
       kernelModules: [#{ item.kernel_modules | join(', ') }#]
   #% endfor %#
+#% if talos.firewall %#
+
+# Sources for the ingress firewall (all/80-firewall.yaml.tpl): every node's
+# address, and again under controllers for a controller, or the other nodes
+# drop its traffic.
+data:
+  firewall:
+    nodes:
+      #% for item in nodes %#
+      - "#{ item.address }#/32"
+      #% endfor %#
+    controllers:
+      #% for item in nodes if item.controller %#
+      - "#{ item.address }#/32"
+      #% endfor %#
+#% endif %#

@@ -272,15 +272,34 @@ done
 }
 
 # The runner is an admin network, not a cluster member: the Talos and
-# Kubernetes APIs answer it (the bootstrap above proved that), but the
-# kubelet must not.
+# Kubernetes APIs must answer it, nothing else on the nodes may. Gateways
+# are reached on their LoadBalancer IP only, without NodePorts.
 firewall() {
-echo "==> asserting the ingress firewall blocks non-cluster sources"
+echo "==> asserting the ingress firewall"
+reachable() { timeout 1 bash -c ">/dev/tcp/$1/$2" 2>/dev/null; }
+expect() {
+    local want="$1" ip="$2" port got
+    for port in "${@:3}"; do
+        if reachable "$ip" "$port"; then got=open; else got=blocked; fi
+        [ "$got" = "$want" ] || mise run //:log fatal "unexpected firewall result" \
+            node "$ip" port "$port" want "$want" got "$got"
+    done
+}
 for ip in "${NODES[@]}"; do
-    if timeout 5 bash -c ">/dev/tcp/$ip/10250" 2>/dev/null; then
-        mise run //:log fatal "kubelet is reachable from outside the cluster" node "$ip"
-    fi
+    expect open "$ip" 50000
+    # kubelet, cilium-health, Spegel's registry NodePort
+    expect blocked "$ip" 10250 4240 30020
 done
+for ip in "${CONTROLPLANES[@]}"; do
+    expect open "$ip" 6443
+    expect blocked "$ip" 2379 50001
+done
+kubectl wait gateway/envoy-internal --namespace network \
+    --for=condition=Programmed --timeout=5m
+expect open "$PREFIX.101" 80
+test -z "$(kubectl get services --namespace network \
+    --output jsonpath='{.items[*].spec.ports[*].nodePort}')" ||
+    mise run //:log fatal "gateway Services allocate NodePorts"
 }
 
 summary() {

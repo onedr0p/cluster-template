@@ -1,0 +1,18 @@
+#% if talos.firewall %#
+---
+# containerd reaches Spegel's registry on the NodePort (30020) of its own
+# node address, which Cilium also serves to anyone who can reach that
+# address, before the Talos firewall sees it. Accept only cluster sources so
+# cached images, private ones included, stay inside the cluster.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: spegel
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: spegel
+  ingress:
+    - fromEntities:
+        - cluster
+#% endif %#

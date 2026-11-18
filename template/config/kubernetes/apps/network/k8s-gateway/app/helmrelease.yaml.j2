@@ -8,6 +8,18 @@ spec:
     kind: OCIRepository
     name: k8s-gateway
   interval: 1h
+  # The chart has no value for it. Cilium serves the LoadBalancer IP itself;
+  # NodePorts would only open DNS on every node address.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Service
+              name: k8s-gateway
+            patch: |
+              - op: add
+                path: /spec/allocateLoadBalancerNodePorts
+                value: false
   values:
     fullnameOverride: k8s-gateway
     serviceType: LoadBalancer
