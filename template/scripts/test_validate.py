@@ -66,6 +66,11 @@ REJECTIONS = {
     "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
     "bad-schematic-id": ("private.toml", "nodes.0.schematic_id", "376567", r"nodes\.0\.schematic_id: String should match pattern"),
     "non-hex-schematic-id": ("private.toml", "talos.schematic_id", "z" * 64, r"talos\.schematic_id: String should match pattern '\^\[0-9a-f\]\{64\}\$'"),
+    "domain-name-too-long": ("private.toml", "domain.name", ("a" * 63 + ".") * 4 + "com", r"domain\.name: String should have at most 253 characters"),
+    "whitespace-dns-token": ("public.toml", "dns.token", " ", r"token is required when dns\.provider is 'cloudflare'"),
+    "whitespace-token-without-dns-provider": ("internal.toml", "dns.token", " x ", r"token must be empty when dns\.provider is 'none'"),
+    "empty-dns-servers": ("private.toml", "network.dns_servers", [], r"network\.dns_servers: List should have at least 1 item"),
+    "empty-ntp-servers": ("private.toml", "network.ntp_servers", [], r"network\.ntp_servers: List should have at least 1 item"),
     "duplicate-mac-address": ("private.toml", "nodes.1.mac_addr", "00:00:00:00:00:00", r"duplicate node MAC address '00:00:00:00:00:00' on nodes\[0\] and nodes\[1\]"),
     "empty-disk": ("private.toml", "nodes.0.disk", "", r"nodes\.0\.disk: disk must be a device path"),
     "bare-disk-name-sd": ("private.toml", "nodes.0.disk", "sda", r"'sda' looks like a kernel device name, not a disk serial; did you mean '/dev/sda'\?"),
@@ -243,6 +248,13 @@ def test_vlan_and_asn_accept_toml_integers():
     raw = config_from("public.toml", **{"cilium.bgp.node_asn": 4294967296})
     with pytest.raises(ConfigError, match="'4294967296' must be in the range 1-4294967295"):
         _load_raw(raw)
+
+
+def test_dns_token_whitespace_stripped():
+    raw = config_from("public.toml", **{"dns.token": "  fake\n"})
+    assert _load_raw(raw).dns.token == "fake"
+    raw = config_from("internal.toml", **{"dns.token": "  "})
+    assert _load_raw(raw).dns.token == ""
 
 
 def test_derived_fields_are_not_settable():

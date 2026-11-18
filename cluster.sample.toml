@@ -16,13 +16,13 @@ node_cidr = ""
 # Upstream DNS servers Talos nodes use for name resolution. Defaults to
 # Cloudflare (1.1.1.1 / 1.0.0.1). Override if you run an internal resolver
 # (Pi-hole, Unbound, AdGuard) or want a different public provider.
-# OPTIONAL. Default: ["1.1.1.1", "1.0.0.1"]
+# OPTIONAL. Default: ["1.1.1.1", "1.0.0.1"]. If set, list at least one.
 
 # dns_servers = ["1.1.1.1", "1.0.0.1"]
 
 # Upstream NTP servers. Defaults to Cloudflare's anycast NTP. Most homelabs
 # don't need to change this.
-# OPTIONAL. Default: ["162.159.200.1", "162.159.200.123"]
+# OPTIONAL. Default: ["162.159.200.1", "162.159.200.123"]. If set, list at least one.
 
 # ntp_servers = ["162.159.200.1", "162.159.200.123"]
 

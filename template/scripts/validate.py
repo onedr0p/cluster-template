@@ -88,7 +88,7 @@ def _san(value: str) -> str:
     try:
         IPv4Address(value)
     except ValueError:
-        if not re.fullmatch(FQDN_PATTERN, value):
+        if len(value) > 253 or not re.fullmatch(FQDN_PATTERN, value):
             raise ValueError(f"{value!r} is not a hostname or IPv4 address") from None
     return value
 
@@ -123,11 +123,13 @@ type Asn = Annotated[
     BeforeValidator(_int_to_str, json_schema_input_type=str | int),
     AfterValidator(_asn),
 ]
-type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN)]
+type Fqdn = Annotated[str, Field(pattern=FQDN_PATTERN, max_length=253)]
 type San = Annotated[
     str,
     AfterValidator(_san),
-    WithJsonSchema({"anyOf": [{"type": "string", "format": "ipv4"}, {"type": "string", "pattern": FQDN_PATTERN}]}),
+    WithJsonSchema(
+        {"anyOf": [{"type": "string", "format": "ipv4"}, {"type": "string", "pattern": FQDN_PATTERN, "maxLength": 253}]}
+    ),
 ]
 type SchematicId = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 type DecimalString = Annotated[str, Field(pattern=r"^[0-9]+$")]
@@ -158,8 +160,12 @@ class Model(BaseModel):
 
 class Network(Model):
     node_cidr: Cidr
-    dns_servers: list[IPv4Address] = [IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")]
-    ntp_servers: list[IPv4Address] = [IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")]
+    dns_servers: list[IPv4Address] = Field(
+        default=[IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")], min_length=1
+    )
+    ntp_servers: list[IPv4Address] = Field(
+        default=[IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")], min_length=1
+    )
     # The first IP in node_cidr unless set explicitly.
     default_gateway: DefaultedIPv4Address = Field(
         default_factory=lambda data: data["node_cidr"].network_address + 1
@@ -306,6 +312,13 @@ class Domain(Model):
 class Dns(Model):
     provider: Literal["cloudflare", "none"] = "cloudflare"
     token: str = ""
+
+    # Surrounding whitespace is never part of a token (and a whitespace-only
+    # token is not a token), so strip it before the checks below.
+    @field_validator("token")
+    @classmethod
+    def _strip_token(cls, value: str) -> str:
+        return value.strip()
 
     @model_validator(mode="after")
     def check(self) -> Self:

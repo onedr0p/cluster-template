@@ -157,6 +157,7 @@
       "type": "object"
     },
     "Fqdn": {
+      "maxLength": 253,
       "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
       "type": "string"
     },
@@ -277,6 +278,7 @@
             "format": "ipv4",
             "type": "string"
           },
+          "minItems": 1,
           "title": "Dns Servers",
           "type": "array"
         },
@@ -286,6 +288,7 @@
             "format": "ipv4",
             "type": "string"
           },
+          "minItems": 1,
           "title": "Ntp Servers",
           "type": "array"
         },
@@ -452,6 +455,7 @@
           "type": "string"
         },
         {
+          "maxLength": 253,
           "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
           "type": "string"
         }
