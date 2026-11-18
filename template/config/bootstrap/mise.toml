@@ -98,6 +98,11 @@ for secret in \
     ../kubernetes/components/sops/cluster-secrets.sops.yaml
 do
     name="$(basename "$secret" .sops.yaml)"
+    # The deploy key is only rendered for ssh:// repository URLs.
+    if [[ "$name" == "deploy-key" && ! -f "$secret" ]]; then
+        mise run //:log info "Secret skipped, repository is not ssh://" resource "$name"
+        continue
+    fi
     if sops decrypt "$secret" \
             | kubectl --namespace flux-system apply --server-side --filename - &>/dev/null; then
         mise run //:log info "Secret applied" resource "$name"
