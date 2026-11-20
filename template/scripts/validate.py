@@ -266,6 +266,15 @@ class Gateway(Model):
     address: IPv4Address | None = None
     load_balancer_class: Annotated[str, Field(pattern=LB_CLASS_PATTERN), AfterValidator(_lb_class)] | None = None
 
+    # Whether the gateway's Service keeps its NodePorts. Cilium (an address
+    # or io.cilium/*) and the Tailscale operator, which proxies to the
+    # ClusterIP, do not use them; other load balancers often forward to them.
+    @computed_field
+    @property
+    def node_ports(self) -> bool:
+        lb_class = self.load_balancer_class
+        return lb_class not in (None, "tailscale") and not lb_class.startswith("io.cilium/")
+
     @model_validator(mode="after")
     def check(self) -> Self:
         if (self.address is None) == (self.load_balancer_class is None):

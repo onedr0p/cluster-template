@@ -114,7 +114,9 @@ addr = ""
 #    The plain IP form is shorthand for { address = "<ip>" }. Classes other
 #    than io.cilium/node need their controller installed separately, and
 #    only one of internal and external can use io.cilium/node (both would
-#    listen on ports 80 and 443 of the same node IPs).
+#    listen on ports 80 and 443 of the same node IPs). Services keep their
+#    NodePorts for classes other than io.cilium/* and tailscale, since many
+#    load balancers forward to them.
 #
 #    A Service's loadBalancerClass cannot be changed once it exists: to
 #    switch a running gateway between an address and a class (or between

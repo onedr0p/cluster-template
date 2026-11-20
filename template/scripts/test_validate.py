@@ -480,9 +480,21 @@ def test_gateway_accepts_load_balancer_class():
     assert cfg.cilium_node_ipam_enabled is True
     assert cfg.gateway_addresses == ["10.10.10.253"]
     data = cfg.model_dump(mode="json")
-    assert data["gateways"]["external"] == {"address": None, "load_balancer_class": "io.cilium/node"}
-    assert data["gateways"]["dns"] == {"address": "10.10.10.253", "load_balancer_class": None}
+    assert data["gateways"]["external"] == {"address": None, "load_balancer_class": "io.cilium/node", "node_ports": False}
+    assert data["gateways"]["dns"] == {"address": "10.10.10.253", "load_balancer_class": None, "node_ports": False}
     assert _load_raw(config_from("private.toml")).cilium_node_ipam_enabled is False
+
+
+@pytest.mark.parametrize(
+    ("lb_class", "node_ports"),
+    [
+        ("tailscale", False),
+        ("example.com/cloud-lb", True),
+    ],
+)
+def test_gateway_node_ports_only_for_classes_that_need_them(lb_class: str, node_ports: bool):
+    raw = config_from("private.toml", **{"gateways.internal": {"load_balancer_class": lb_class}})
+    assert _load_raw(raw).gateways.internal.node_ports is node_ports
 
 
 @pytest.mark.parametrize("gateway", [{}, {"address": "10.10.10.252", "load_balancer_class": "tailscale"}])

@@ -9,7 +9,8 @@ spec:
     name: k8s-gateway
   interval: 1h
   # Cilium serves the LoadBalancer IP itself; NodePorts would only open DNS on
-  # every node address. Patched as the chart has no value for it, and so
+  # every node address, so they are dropped unless the class forwards to
+  # them. Patched as the chart has no value for it, and so
   # loadBalancerClass always renders as a string.
   postRenderers:
     - kustomize:
@@ -18,9 +19,11 @@ spec:
               kind: Service
               name: k8s-gateway
             patch: |
+              #% if not gateways.dns.node_ports %#
               - op: add
                 path: /spec/allocateLoadBalancerNodePorts
                 value: false
+              #% endif %#
               #% if gateways.dns.load_balancer_class %#
               - op: add
                 path: /spec/loadBalancerClass
