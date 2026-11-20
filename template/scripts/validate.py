@@ -72,8 +72,20 @@ K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9
 
 def _network(value: Any) -> Any:
     """Parse a CIDR, requiring network-address form (no host bits set)."""
+    # pydantic would read a TOML integer as a /32 address. pydantic only turns
+    # ValueError into a validation error, not TypeError.
+    if isinstance(value, int):
+        raise ValueError(f"expected a CIDR string such as \"10.10.10.0/24\", got {str(value).lower()}")  # noqa: TRY004
     if not isinstance(value, str):
         return value
+    # IPv4Network reads a bare address as a /32.
+    if "/" not in value:
+        try:
+            IPv4Address(value)
+        except ValueError:
+            pass
+        else:
+            raise ValueError(f"{value!r} has no prefix length, e.g. {value}/24")
     try:
         return IPv4Network(value)
     except ValueError:
@@ -447,6 +459,15 @@ KERNEL_DISK_NAME = re.compile(
 )
 
 
+# Partitions of the block devices above, and their by-id/by-path symlinks.
+# Talos Disk resources (which the install disk selector matches) only cover
+# whole disks, so these would also select no disk.
+PARTITION_PATH = re.compile(
+    r"(?P<disk>/dev/(?:s|v|h|xv)d[a-z]+|/dev/(?:nvme\d+(?:c\d+)?n\d+|mmcblk\d+|md\d+|loop\d+|nbd\d+)(?=p)"
+    r"|/dev/disk/by-(?:id|path)/.+(?=-part))(?:p|-part)?\d+"
+)
+
+
 def _disk(value: str) -> str:
     """Accept a /dev path or symlink, or a disk serial (any value without a leading "/")."""
     # Rendered into a double-quoted YAML string and a CEL string in a plain YAML
@@ -464,7 +485,19 @@ def _disk(value: str) -> str:
             f"{value!r} looks like a kernel device name; use '/dev/{value}', "
             "or a /dev/disk/by-id/ path if it is a disk serial"
         )
+    if match := PARTITION_PATH.fullmatch(value):
+        raise ValueError(f"{value!r} is a partition; Talos installs to a whole disk, e.g. {match['disk']!r}")
+    if value.startswith(("/dev/disk/by-partuuid/", "/dev/disk/by-partlabel/")):
+        raise ValueError(f"{value!r} is a partition; Talos installs to a whole disk")
     return value
+
+
+MAC_PATTERN = r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$"
+
+
+# Talos's CEL mac() renders lowercase and colon-separated.
+def _mac(value: Any) -> Any:
+    return value.strip().lower().replace("-", ":") if isinstance(value, str) else value
 
 
 class Node(Model):
@@ -472,7 +505,13 @@ class Node(Model):
     address: IPv4Address
     controller: bool
     disk: Annotated[str, Field(min_length=1), AfterValidator(_disk)]
-    mac_addr: str = Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
+    mac_addr: Annotated[
+        str,
+        Field(pattern=MAC_PATTERN),
+        BeforeValidator(
+            _mac, json_schema_input_type=Annotated[str, Field(pattern=r"^\s*([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\s*$")]
+        ),
+    ]
     # Falls back to talos.schematic_id when unset.
     schematic_id: _unsettable(SchematicId | None) = None
     mtu: int = Field(default=1500, ge=1450, le=9000)
@@ -482,8 +521,6 @@ class Node(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
-        if self.name in ("global", "controller", "worker"):
-            raise ValueError(f"node name {self.name!r} is reserved")
         if len(set(self.kernel_modules)) != len(self.kernel_modules):
             raise ValueError("kernel_modules must not contain duplicates")
         return self
@@ -732,6 +769,26 @@ class Config(Model):
                 cidr = getattr(self.kubernetes, cidr_name)
                 if addr in cidr:
                     raise ValueError(f"{owner} {addr} is inside kubernetes.{cidr_name} {cidr}")
+
+        # Nodes resolve names and sync time before the cluster runs, and
+        # k8s-gateway forwards to the nodes' own resolvers.
+        in_cluster = {addr: owner for owner, addr in gateways.items()}
+        if api.vip:
+            in_cluster[api.addr] = "kubernetes.api.addr"
+        for field in ("dns_servers", "ntp_servers"):
+            for i, addr in enumerate(getattr(self.network, field)):
+                owner = f"network.{field}[{i}]"
+                if addr.is_unspecified or addr.is_loopback or addr.is_multicast:
+                    raise ValueError(f"{owner} {addr} is not usable (unspecified, loopback or multicast)")
+                if addr in in_cluster:
+                    raise ValueError(
+                        f"{owner} {addr} is {in_cluster[addr]}, which nodes cannot use: "
+                        "it only answers once the cluster is running"
+                    )
+                for cidr_name in ("pod_cidr", "svc_cidr"):
+                    cidr = getattr(self.kubernetes, cidr_name)
+                    if addr in cidr:
+                        raise ValueError(f"{owner} {addr} is inside kubernetes.{cidr_name} {cidr}")
 
         for i, node in enumerate(self.nodes):
             if node.address not in node_cidr:
