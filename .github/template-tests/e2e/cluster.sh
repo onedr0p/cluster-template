@@ -46,7 +46,7 @@ GIT_PORT=8418
 GIT_SERVER_CONTAINER="$NAME-git"
 
 if [ "$MODE" = all ] || [ "$MODE" = prepare ]; then
-    if [ -z "${CI:-}${GITHUB_ACTIONS:-}" ] && [ "${E2E_FORCE:-}" != 1 ]; then
+    if [ -z "${CI:-}" ] && [ "${E2E_FORCE:-}" != 1 ]; then
         existing=()
         for f in cluster.toml kubeconfig talos/talosconfig talos/secrets.sops.yaml age.key; do
             [ -e "$f" ] && existing+=("$f")
@@ -123,7 +123,7 @@ start_git_server() {
 # returning, so the poll here covers only the local path, where cluster
 # create returns as soon as the VMs launch.
 boot_nodes() {
-if [ "$PROVISIONED" = false ] && [ "${BOOTED:-false}" = false ]; then
+if [ "$PROVISIONED" = false ]; then
     echo "==> booting maintenance-mode nodes"
     (cd "$STATE" && sudo env HOME="$STATE" TALOSCONFIG="$STATE/talosconfig" \
         "$TALOSCTL" cluster create qemu --name "$NAME" --presets iso,maintenance \
@@ -134,13 +134,10 @@ if [ "$PROVISIONED" = false ] && [ "${BOOTED:-false}" = false ]; then
     for ip in "${NODES[@]}"; do
         until talosctl -n "$ip" get links --insecure >/dev/null 2>&1; do sleep 5; done
     done
-    BOOTED=true
 fi
 }
 
 prepare() {
-boot_nodes
-
 echo "==> discovering node hardware"
 declare -A MACS DISKS
 for ip in "${NODES[@]}"; do
@@ -300,7 +297,7 @@ echo "==> e2e bootstrap succeeded"
 
 case "$MODE" in
     git-server) start_git_server ;;
-    prepare)    prepare ;;
+    prepare)    boot_nodes; prepare ;;
     foundation) foundation ;;
     flux-sops)  flux_sops ;;
     networking) networking ;;
