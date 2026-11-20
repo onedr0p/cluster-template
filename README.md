@@ -388,6 +388,15 @@ mise run //talos:etcd-snapshot
 
 Snapshots go to `.private/etcd/` by default, which is not committed. They contain every Kubernetes Secret, encrypted with the key in `talos/secrets.sops.yaml`, so restoring needs that same file. To restore, follow Talos' [disaster recovery guide](https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/cluster-operations-and-maintenance/disaster-recovery) (`talosctl bootstrap --recover-from`). Persistent volume data is not included.
 
+### 🔑 Renewing admin credentials
+
+The admin certificates in `talos/talosconfig` and `kubeconfig` expire after a year. Both are signed locally from `talos/secrets.sops.yaml`, so they can be renewed at any time, even after they have expired:
+
+```sh
+mise run //talos:talosconfig
+mise run //talos:kubeconfig
+```
+
 ### 💥 Reset
 
 > [!CAUTION]
