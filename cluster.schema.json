@@ -269,10 +269,18 @@
       "additionalProperties": false,
       "properties": {
         "mode": {
-          "default": "cloudflare-tunnel",
-          "enum": ["cloudflare-tunnel", "direct", "none"],
-          "title": "Mode",
-          "type": "string"
+          "anyOf": [
+            {
+              "enum": ["cloudflare-tunnel", "direct", "none"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Defaults to \"cloudflare-tunnel\" when dns.provider is \"cloudflare\", otherwise \"none\".",
+          "title": "Mode"
         }
       },
       "title": "Ingress",
@@ -596,7 +604,10 @@
       "$ref": "#/$defs/Dns"
     },
     "ingress": {
-      "$ref": "#/$defs/Ingress"
+      "$ref": "#/$defs/Ingress",
+      "default": {
+        "mode": null
+      }
     },
     "certs": {
       "$ref": "#/$defs/Certs",
