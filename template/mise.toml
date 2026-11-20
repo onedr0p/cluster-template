@@ -81,14 +81,7 @@ hide = true
 run = '''
 find bootstrap kubernetes talos -type f -name '*.sops.*' -print0 \
     | while IFS= read -r -d '' f; do
-        if ! status="$(sops filestatus "$f" | jq -r '.encrypted')"; then
-            mise run //:log fatal "could not read encryption status" file "$f"
-        fi
-        case "$status" in
-            false) sops encrypt --in-place "$f" ;;
-            true)  : ;;
-            *)     mise run //:log fatal "could not determine encryption status" file "$f" ;;
-        esac
+        sops filestatus "$f" | jq --exit-status '.encrypted' >/dev/null || sops encrypt --in-place "$f"
     done
 find bootstrap kubernetes talos -type f -name '*.sops.*' -exec mise run //:check-sops {} +
 '''

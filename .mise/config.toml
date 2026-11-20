@@ -32,10 +32,8 @@ zizmor = "1.32.0"
 hide = true
 run = "gum log -t rfc3339 -s -l"
 
-# sops metadata alone does not mean the values are encrypted: keys outside
-# encrypted_regex stay in plain text, so a file without data/stringData gets
-# metadata and a MAC yet no other ENC[] value. Run by configure and the
-# pre-commit hook.
+# sops metadata alone does not mean the values are encrypted: a file without
+# data/stringData gets metadata and a MAC but no other ENC[] value.
 [tasks.check-sops]
 hide = true
 usage = 'arg "<file>" var=#true help="SOPS files to check"'
