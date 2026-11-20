@@ -329,7 +329,7 @@ params:
     vm.max_map_count: "262144"
 ```
 
-`mise run configure` renders every node's config and fails on an invalid patch. Check the result with `mise run //talos:diff`, then apply it as shown [above](#️-updating-talos-node-configuration).
+`mise run configure` renders every node's config and fails on an invalid patch or machine config. Check the result with `mise run //talos:diff`, then apply it as shown [above](#️-updating-talos-node-configuration).
 
 ### ⬆️ Updating Talos and Kubernetes versions
 
@@ -347,6 +347,9 @@ mise run //talos:upgrade-node <node>
 mise run //talos:upgrade-k8s
 ```
 
+> [!IMPORTANT]
+> After a `kubernetesVersion` bump in `topf.yaml` (e.g. from a Renovate PR), run `mise run //talos:upgrade-k8s` **before** any `//talos:apply` or `//talos:apply-node`. An apply pushes the new version straight into the machine configs without `upgrade-k8s`'s version skew and readiness checks.
+
 ### ➕ Adding a node to your cluster
 
 At some point you might want to expand your cluster to run more workloads and/or improve the reliability of your cluster. Keep in mind it is recommended to have an **odd number** of control plane nodes for quorum reasons.
@@ -362,7 +365,13 @@ You don't need to re-bootstrap the cluster to add new nodes. Follow these steps:
     talosctl get links -n <ip> --insecure
     ```
 
-3. **Update the configuration**: Read the documentation for [topf](https://postfinance.github.io/topf/) and extend `topf.yaml` (and any `node/<hostname>/` patches) manually with the new node information (including the disk and MAC address from step 2).
+3. **Update the configuration**: Add a `[[nodes]]` entry for the new node to `cluster.toml` (including the disk and MAC address from step 2) and re-render:
+
+    ```sh
+    mise run configure
+    ```
+
+    After `mise run //template:tidy` there is no `cluster.toml` any more: read the documentation for [topf](https://postfinance.github.io/topf/) and extend `talos/topf.yaml` (and any `node/<hostname>/` patches) manually instead.
 
 4. **Apply the configuration**:
 
@@ -393,13 +402,13 @@ Snapshots go to `.private/etcd/` by default, which is not committed. They contai
 > [!CAUTION]
 > **Resetting** the cluster **multiple times in a short period of time** could lead to being **rate limited by DockerHub or Let's Encrypt**.
 
-There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode.
+There might be a situation where you want to destroy your Kubernetes cluster. The following command will reset your nodes back to maintenance mode, after which `mise run //bootstrap:talos` can set the cluster up again.
 
 ```sh
 mise run //talos:reset
 ```
 
-To take a single node out of a running cluster, `mise run //talos:reset-node <node>` drains it and removes it from etcd first; add `--force` to skip that for the last control plane node or a broken cluster. Both tasks only wipe the `STATE` and `EPHEMERAL` partitions, so the installed Talos boots back into maintenance mode.
+To take a single node out of a running cluster, `mise run //talos:reset-node <node>` drains it and removes it from etcd first; add `--force` to skip that for the last control plane node or a broken cluster. Both tasks only wipe the `STATE` and `EPHEMERAL` partitions, so the installed Talos boots back into maintenance mode. Bring a single node back with `mise run //talos:apply-node <node>`; `//bootstrap:talos` is only for a new cluster and refuses to run when the first control plane node was reset but others were not, as that would start a second etcd cluster.
 
 ## 🐛 Debugging
 

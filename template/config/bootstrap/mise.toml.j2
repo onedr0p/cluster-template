@@ -2,6 +2,7 @@
 description = "Bootstrap the Talos cluster"
 run = [
   { task = ":talos-secret" },
+  { task = ":talos-preflight" },
   { task = ":talos-apply" },
   { task = ":talos-talosconfig" },
   { task = ":talos-kubeconfig" },
@@ -27,6 +28,22 @@ dir = "{{ config_root }}/../talos"
 run = '''
 mise run //:log info "Generating secrets" stage "$MISE_TASK_NAME"
 topf secrets --confirm=false > /dev/null
+'''
+
+# topf bootstraps the first controller. If it was reset while another one
+# still runs etcd, --auto-bootstrap would start a second etcd cluster on it.
+# Unreachable nodes report stage "unknown"; topf apply aborts on them anyway.
+[tasks.talos-preflight]
+hide = true
+dir = "{{ config_root }}/../talos"
+run = '''
+mise run //:log info "Checking controller state" stage "$MISE_TASK_NAME"
+if ! first="$(topf nodes --output yaml | yq '[.[] | select(.node.role == "control-plane")] | select(.[0].machinestatus.stage == "maintenance" and (.[1:] | any_c(.machinestatus.stage != "maintenance" and .machinestatus.stage != "unknown"))) | .[0].node.host')"; then
+    mise run //:log fatal "Failed to query the nodes"
+fi
+if [[ -n "$first" ]]; then
+    mise run //:log fatal "Cluster is already bootstrapped; re-join the node with mise run //talos:apply-node $first" node "$first"
+fi
 '''
 
 # Nodes stay NotReady until the apps step installs the CNI, so topf's
