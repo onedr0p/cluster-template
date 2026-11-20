@@ -69,6 +69,17 @@ mkdir -p "$(dirname "$path")"
 talosctl --nodes "$node" etcd snapshot "$path"
 '''
 
+# Both sign a fresh admin cert locally from secrets.sops.yaml and topf.yaml
+# without contacting the cluster, so they also work when the old ones have
+# expired.
+[tasks.talosconfig]
+description = "Regenerate talos/talosconfig (its admin cert expires after a year)"
+run = [{ task = "//bootstrap:talos-talosconfig" }]
+
+[tasks.kubeconfig]
+description = "Regenerate kubeconfig (its admin cert expires after a year)"
+run = [{ task = "//bootstrap:talos-kubeconfig" }]
+
 # topf intentionally does not manage Kubernetes upgrades
 [tasks.upgrade-k8s]
 description = "Upgrade Kubernetes"
