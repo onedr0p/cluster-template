@@ -117,9 +117,8 @@ def test_external_dns_follows_the_dns_provider():
     assert ("cloudflare-dns" in releases) == expected
 
 
-# Strings from cluster.toml are rendered with tojson, so the parsed YAML holds
-# exactly the configured values; a kernel module named like a number must
-# stay a string.
+# The parsed YAML holds exactly the configured strings; a kernel module named
+# like a number must stay a string.
 def test_cluster_toml_strings_rendered_verbatim():
     repository = config()["repository"]
     (release,) = documents("kubernetes/apps/flux-system/flux-instance/app/helmrelease.yaml", "HelmRelease")

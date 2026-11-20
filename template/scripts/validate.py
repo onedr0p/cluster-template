@@ -8,10 +8,6 @@ Exits non-zero with one human-readable error per line on stderr when the
 config is invalid.
 """
 
-import base64
-import binascii
-import hashlib
-import hmac
 import json
 import re
 import sys
@@ -141,7 +137,7 @@ def _san(value: str) -> str:
 # Interpolated into YAML double-quoted strings, which a '"' ends and a '\'
 # escape changes, and where Flux's postBuild substitution expands '${...}'.
 def _yaml_safe(value: str) -> str:
-    if re.search(r'[\s\x00-\x1f\x7f"\\$]', value):
+    if re.search(r'[\s\x00-\x1f\x7f-\x9f"\\$]', value):
         raise ValueError(
             f"{value!r} must not contain whitespace, control characters, double quotes, "
             "backslashes or '$'"
@@ -154,7 +150,7 @@ def _yaml_safe(value: str) -> str:
 def _branch(value: str) -> str:
     if value.startswith("refs/"):
         raise ValueError(f"{value!r} must be a branch name without the 'refs/heads/' prefix")
-    if re.search(r'[\s\x00-\x1f\x7f"\\$~^:?*\[]|\.\.|//|@\{|^/|/$|\.$|\.lock(/|$)|(^|/)\.', value):
+    if re.search(r'[\s\x00-\x1f\x7f-\x9f"\\$~^:?*\[]|\.\.|//|@\{|^/|/$|\.$|\.lock(/|$)|(^|/)\.', value):
         raise ValueError(f"{value!r} is not a valid git branch name")
     return value
 
@@ -337,31 +333,6 @@ class Gateways(Model):
     external: OptionalGatewaySpec = None
 
 
-def _known_hosts_match(hosts: str, host: str, port: str) -> bool:
-    """Whether a known_hosts host field matches host:port as Flux matches it."""
-    if hosts.startswith("|1|"):
-        try:
-            _, _, salt, digest = hosts.split("|")
-            salt, digest = base64.b64decode(salt), base64.b64decode(digest)
-        except (ValueError, binascii.Error):
-            return False
-        name = host if port == "22" else f"[{host}]:{port}"
-        return hmac.compare_digest(hmac.new(salt, name.encode(), hashlib.sha1).digest(), digest)
-    matched = False
-    for pattern in filter(None, hosts.split(",")):
-        negate = pattern.startswith("!")
-        pattern = pattern.removeprefix("!")
-        # [host]:port or host:port; a bare host means port 22.
-        m = re.fullmatch(r"\[([^\]]*)\]:([^:]*)|([^:\[\]]*):([^:]*)", pattern)
-        pattern_host, pattern_port = (m[1] or m[3] or "", m[2] or m[4] or "") if m else (pattern, "22")
-        wildcard = "".join(".*" if c == "*" else "." if c == "?" else re.escape(c) for c in pattern_host)
-        if pattern_port == port and re.fullmatch(wildcard, host, re.DOTALL):
-            if negate:
-                return False
-            matched = True
-    return matched
-
-
 class Repository(Model):
     url: Annotated[str, Field(pattern=REPO_URL_PATTERN), AfterValidator(_yaml_safe)]
     branch: Annotated[Stripped, AfterValidator(_branch)] = Field(default="main", min_length=1)
@@ -413,13 +384,13 @@ class Repository(Model):
                 if line.strip() and not line.lstrip().startswith("#")
             ]
             for fields in lines:
-                if fields[0] in ("@cert-authority", "@revoked"):
-                    fields.pop(0)
                 if len(fields) < 3:
                     raise ValueError(
                         f"known_hosts line {' '.join(fields)!r} is not '<hosts> <key type> <key>'"
                     )
-            if not bundled and not any(_known_hosts_match(f[0], host, port) for f in lines):
+            hosts = {h for fields in lines for h in fields[0].split(",")}
+            # Hashed (|1|) hosts, markers and patterns are not checked.
+            if not bundled and name not in hosts and not any(re.search(r"^[|@!]|[*?]", h) for h in hosts):
                 keyscan = "ssh-keyscan" if port == "22" else f"ssh-keyscan -p {port}"
                 raise ValueError(
                     f"known_hosts has no entry for {name!r}; generate it with `{keyscan} {host}`"

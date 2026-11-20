@@ -16,11 +16,11 @@ spec:
         networkPolicy: false
       sync:
         kind: GitRepository
-        url: #{ repository.url | tojson }#
+        url: "#{ repository.url }#"
         #% if repository.uses_deploy_key %#
         pullSecret: deploy-key
         #% endif %#
-        ref: #{ ("refs/heads/" ~ repository.branch) | tojson }#
+        ref: "refs/heads/#{ repository.branch }#"
         path: kubernetes/apps
       commonMetadata:
         labels:
