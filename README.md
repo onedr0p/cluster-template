@@ -399,6 +399,8 @@ There might be a situation where you want to destroy your Kubernetes cluster. Th
 mise run //talos:reset
 ```
 
+To take a single node out of a running cluster, `mise run //talos:reset-node <node>` drains it and removes it from etcd first; add `--force` to skip that for the last control plane node or a broken cluster. Both tasks only wipe the `STATE` and `EPHEMERAL` partitions, so the installed Talos boots back into maintenance mode.
+
 ## 🐛 Debugging
 
 Below is a general guide on trying to debug an issue with a resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state. These steps do not include a way to fix the problem as the problem could be one of many different things.

@@ -31,19 +31,28 @@ run = "topf nodes"
 description = "Render Talos machine configs to ./rendered"
 run = "topf render --output ./rendered"
 
+# Resets wipe only STATE and EPHEMERAL (--full=false), so nodes boot back
+# into maintenance mode. Not graceful: leaving etcd fails on the last member
+# or after an interrupted bootstrap.
 [tasks.reset]
 description = "Reset all nodes back to maintenance mode (DESTRUCTIVE)"
 confirm = { message = "This will destroy your cluster and reset all nodes to maintenance mode, continue?", default = "no" }
-run = "topf reset --confirm=false"
+run = "topf reset --graceful=false --full=false --confirm=false"
 
+# Graceful unless --force, so the node is drained and leaves etcd cleanly.
 [tasks.reset-node]
 description = "Reset a single node back to maintenance mode (DESTRUCTIVE)"
 usage = '''
 arg "<node>" help="Node name from topf.yaml"
+flag "--force" help="Skip cordon/drain and leaving etcd (last control-plane node or broken cluster)"
 complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos/topf.yaml\""
 '''
 confirm = { message = "This will reset node {{ usage.node }} to maintenance mode, continue?", default = "no" }
-run = 'topf reset --nodes-filter "^${usage_node}$" --confirm=false'
+run = '''
+graceful=true
+if [[ "${usage_force:-false}" == "true" ]]; then graceful=false; fi
+topf reset --nodes-filter "^${usage_node}$" --graceful="$graceful" --full=false --confirm=false
+'''
 
 # Defaults to the gitignored .private/; a relative path is taken from where
 # mise was run.

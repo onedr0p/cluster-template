@@ -29,12 +29,14 @@ mise run //:log info "Generating secrets" stage "$MISE_TASK_NAME"
 topf secrets --confirm=false > /dev/null
 '''
 
+# Nodes stay NotReady until the apps step installs the CNI, so topf's
+# readiness pre-flight and post-apply checks would fail a re-run.
 [tasks.talos-apply]
 hide = true
 dir = "{{ config_root }}/../talos"
 run = '''
 mise run //:log info "Applying talos config and bootstrapping" stage "$MISE_TASK_NAME"
-topf apply --auto-bootstrap --confirm=false
+topf apply --auto-bootstrap --allow-not-ready --skip-post-apply-checks --confirm=false
 '''
 
 [tasks.talos-talosconfig]

@@ -10,7 +10,7 @@ kubernetesVersion: v1.37.2
 secretsPath: secrets.sops.yaml
 
 nodes:
-  #% for item in nodes %#
+  #% for item in nodes | sort(attribute='controller', reverse=true) %#
   - host: "#{ item.name }#"
     ip: "#{ item.address }#"
     role: #{ 'control-plane' if item.controller else 'worker' }#
