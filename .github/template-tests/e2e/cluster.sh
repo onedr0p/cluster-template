@@ -12,7 +12,8 @@
 #     itself. Requires Docker, /dev/kvm, passwordless sudo, qemu-system-x86,
 #     and the repo's mise toolchain on PATH.
 #
-# Renders into the working tree like any configure run.
+# Renders into the working tree like any configure run, so a local run
+# refuses to start over an existing cluster config unless E2E_FORCE=1.
 set -euo pipefail
 
 NAME="${E2E_NAME:-template-e2e}"
@@ -21,7 +22,6 @@ E2E_DIR=".github/template-tests/e2e"
 CIDR="${E2E_CIDR:-10.9.0.0/24}"
 PREFIX="${CIDR%/*}"
 PREFIX="${PREFIX%.*}"
-TALOSCTL="$(command -v talosctl)"
 # The Image Factory vanilla schematic, matching the ISO the nodes boot from.
 SCHEMATIC="376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
 # renovate: datasource=docker depName=ghcr.io/charmbracelet/soft-serve
@@ -33,6 +33,8 @@ if [ -n "${E2E_CONTROLPLANE_IPS:-}" ]; then
     IFS=',' read -r -a WORKERS <<< "${E2E_WORKER_IPS:-}"
 else
     PROVISIONED=false
+    # Resolved to the real binary rather than a mise shim, since it runs as root.
+    TALOSCTL="$(mise which talosctl)"
     CONTROLPLANES=("$PREFIX.2")
     WORKERS=("$PREFIX.3")
 fi
@@ -43,9 +45,23 @@ GIT_HOST="${E2E_GATEWAY:-$PREFIX.1}"
 GIT_PORT=8418
 GIT_SERVER_CONTAINER="$NAME-git"
 
-# The provisioner runs under sudo and writes state relative to its cwd and
-# TALOSCONFIG, so both are pointed at a scratch dir to keep root-owned files
-# out of the repo.
+if [ "$MODE" = all ] || [ "$MODE" = prepare ]; then
+    if [ -z "${CI:-}${GITHUB_ACTIONS:-}" ] && [ "${E2E_FORCE:-}" != 1 ]; then
+        existing=()
+        for f in cluster.toml kubeconfig talos/talosconfig talos/secrets.sops.yaml age.key; do
+            [ -e "$f" ] && existing+=("$f")
+        done
+        if [ "${#existing[@]}" -gt 0 ]; then
+            echo "error: the e2e overwrites or reuses ${existing[*]}; run it from a clean clone or set E2E_FORCE=1" >&2
+            exit 1
+        fi
+    fi
+fi
+
+# The provisioner runs under sudo and writes state relative to its cwd, HOME
+# and TALOSCONFIG, so all are pointed at a scratch dir to keep root-owned
+# files out of the repo and the user's home. Nothing else from the caller's
+# environment (tokens, key paths) is passed to root.
 if [ -n "${E2E_STATE:-}" ]; then
     STATE="$E2E_STATE"
     STATE_OWNED=false
@@ -72,7 +88,7 @@ cleanup() {
         docker stop "$GIT_SERVER_CONTAINER" >/dev/null 2>&1 || true
     fi
     if [ "$MODE" = all ] && [ "$PROVISIONED" = false ]; then
-        (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
+        (cd "$STATE" && sudo env HOME="$STATE" TALOSCONFIG="$STATE/talosconfig" \
             "$TALOSCTL" cluster destroy --name "$NAME" --provisioner qemu >/dev/null 2>&1) || true
     fi
     if [ "$MODE" = all ] && [ "$STATE_OWNED" = true ]; then
@@ -84,7 +100,8 @@ trap cleanup EXIT
 
 start_git_server() {
     docker run --detach --rm --name "$GIT_SERVER_CONTAINER" \
-        --publish "$GIT_PORT:23232" \
+        --publish "127.0.0.1:$GIT_PORT:23232" \
+        --publish "$GIT_HOST:$GIT_PORT:23232" \
         --env SOFT_SERVE_GIT_ENABLED=false \
         --env SOFT_SERVE_LFS_ENABLED=false \
         --env SOFT_SERVE_SSH_LISTEN_ADDR=127.0.0.1:23231 \
@@ -102,13 +119,13 @@ start_git_server() {
     done
 }
 
-prepare() {
 # In CI the action itself waits for every node's maintenance API before
 # returning, so the poll here covers only the local path, where cluster
 # create returns as soon as the VMs launch.
-if [ "$PROVISIONED" = false ]; then
+boot_nodes() {
+if [ "$PROVISIONED" = false ] && [ "${BOOTED:-false}" = false ]; then
     echo "==> booting maintenance-mode nodes"
-    (cd "$STATE" && sudo -E env TALOSCONFIG="$STATE/talosconfig" \
+    (cd "$STATE" && sudo env HOME="$STATE" TALOSCONFIG="$STATE/talosconfig" \
         "$TALOSCTL" cluster create qemu --name "$NAME" --presets iso,maintenance \
         --controlplanes 1 --workers 1 --cidr "$CIDR" \
         --memory-controlplanes 4GiB --memory-workers 3GiB)
@@ -117,7 +134,12 @@ if [ "$PROVISIONED" = false ]; then
     for ip in "${NODES[@]}"; do
         until talosctl -n "$ip" get links --insecure >/dev/null 2>&1; do sleep 5; done
     done
+    BOOTED=true
 fi
+}
+
+prepare() {
+boot_nodes
 
 echo "==> discovering node hardware"
 declare -A MACS DISKS
@@ -284,6 +306,9 @@ case "$MODE" in
     networking) networking ;;
     summary)    summary ;;
     all)
+        # The git server binds to the VM gateway, which exists only once the
+        # cluster network is up.
+        boot_nodes
         start_git_server
         prepare
         foundation
