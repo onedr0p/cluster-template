@@ -32,6 +32,28 @@ zizmor = "1.32.0"
 hide = true
 run = "gum log -t rfc3339 -s -l"
 
+# sops metadata alone does not mean the values are encrypted: keys outside
+# encrypted_regex stay in plain text, so a file without data/stringData gets
+# metadata and a MAC yet no other ENC[] value. Run by configure and the
+# pre-commit hook.
+[tasks.check-sops]
+hide = true
+usage = 'arg "<file>" var=#true help="SOPS files to check"'
+run = '''
+eval "files=($usage_file)"
+rc=0
+for f in "${files[@]}"; do
+    if ! sops filestatus "$f" 2>/dev/null | jq --exit-status '.encrypted == true' >/dev/null; then
+        mise run //:log error "File is not encrypted" file "$f"
+        rc=1
+    elif ! grep -F 'ENC[' "$f" | grep -qvE '^[[:space:]]*"?(sops_)?mac"?[[:space:]]*[:=]'; then
+        mise run //:log error "File has no encrypted values, only data and stringData are encrypted" file "$f"
+        rc=1
+    fi
+done
+exit "$rc"
+'''
+
 [task_config]
 cascade = true
 shell = "bash -euo pipefail -c"

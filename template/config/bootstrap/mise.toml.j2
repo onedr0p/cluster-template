@@ -39,12 +39,17 @@ mise run //:log info "Applying talos config and bootstrapping" stage "$MISE_TASK
 topf apply --auto-bootstrap --allow-not-ready --skip-post-apply-checks --confirm=false
 '''
 
+# Both configs are admin credentials: mktemp creates them owner-only, and the
+# mv keeps a working file in place when topf fails.
 [tasks.talos-talosconfig]
 hide = true
 dir = "{{ config_root }}/../talos"
 run = '''
 mise run //:log info "Generating talosconfig" stage "$MISE_TASK_NAME"
-topf talosconfig > talosconfig
+tmp="$(mktemp talosconfig.XXXXXX)"
+trap 'rm -f "$tmp"' EXIT
+topf talosconfig > "$tmp"
+mv "$tmp" talosconfig
 '''
 
 # topf issues short-lived admin certs by default; 8760h keeps the
@@ -54,7 +59,10 @@ hide = true
 dir = "{{ config_root }}/../talos"
 run = '''
 mise run //:log info "Fetching kubeconfig" stage "$MISE_TASK_NAME"
-topf kubeconfig --validity 8760h > "$MISE_MONOREPO_ROOT/kubeconfig"
+tmp="$(mktemp "$MISE_MONOREPO_ROOT/kubeconfig.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+topf kubeconfig --validity 8760h > "$tmp"
+mv "$tmp" "$MISE_MONOREPO_ROOT/kubeconfig"
 '''
 
 [tasks.apps-crds]

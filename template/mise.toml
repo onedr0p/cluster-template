@@ -90,6 +90,7 @@ find bootstrap kubernetes talos -type f -name '*.sops.*' -print0 \
             *)     mise run //:log fatal "could not determine encryption status" file "$f" ;;
         esac
     done
+find bootstrap kubernetes talos -type f -name '*.sops.*' -exec mise run //:check-sops {} +
 '''
 
 [tasks.render]
