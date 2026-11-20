@@ -63,6 +63,9 @@ REJECTIONS = {
     "huge-zero-padded-zero-vlan-tag": ("public.toml", "network.vlan_tag", "0" * 5000, r"network\.vlan_tag: '0+' must be in the range 1-4094"),
     "bad-domain-name": ("private.toml", "domain.name", "Example.com", r"domain\.name: String should match pattern"),
     "bad-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["not a hostname"], r"kubernetes\.api\.tls_sans\.0: 'not a hostname' is not a hostname or IPv4 address"),
+    "numeric-tls-san": ("public.toml", "kubernetes.api.tls_sans", ["10.10.10.256"], r"kubernetes\.api\.tls_sans\.0: '10\.10\.10\.256' is not a hostname or IPv4 address"),
+    "single-label-domain": ("private.toml", "domain.name", "example", r"domain\.name: String should match pattern"),
+    "bad-idn-tld": ("private.toml", "domain.name", "example.xn--abc-", r"domain\.name: String should match pattern"),
     "bad-node-name": ("private.toml", "nodes.0.name", "k8s-0-", r"nodes\.0\.name: String should match pattern"),
     "mtu-too-small": ("private.toml", "nodes.0.mtu", 1449, r"nodes\.0\.mtu: Input should be greater than or equal to 1450"),
     "mtu-too-large": ("private.toml", "nodes.0.mtu", 9001, r"nodes\.0\.mtu: Input should be less than or equal to 9000"),
@@ -419,6 +422,13 @@ def test_tls_sans_accept_ip_addresses_without_duplicates():
     sans = ["k8s.example.com", "100.64.0.10", "127.0.0.1", "10.10.10.254", "k8s.example.com"]
     raw = config_from("private.toml", **{"kubernetes.api.tls_sans": sans})
     assert _load_raw(raw).cert_sans == ["127.0.0.1", "10.10.10.254", "k8s.example.com", "100.64.0.10"]
+
+
+def test_short_hostnames_and_idn_tlds_accepted():
+    raw = config_from("private.toml", **{"domain.name": "example.xn--p1ai", "kubernetes.api.tls_sans": ["k8s", "k8s.example.xn--p1ai"]})
+    cfg = _load_raw(raw)
+    assert cfg.domain.name == "example.xn--p1ai"
+    assert cfg.kubernetes.api.tls_sans == ["k8s", "k8s.example.xn--p1ai"]
 
 
 def test_empty_string_means_unset():

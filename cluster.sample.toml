@@ -93,10 +93,10 @@ addr = ""
 # vip = true
 
 # Additional Subject Alternative Names to put on the Kube API cert. Useful
-# if you want to call the API by hostname (e.g. via a CNAME or local
-# /etc/hosts entry) or by another IP (e.g. a Tailscale address) instead of
-# kubernetes.api.addr.
-# OPTIONAL. Example: ["mycluster.example.com", "100.64.0.10"]
+# if you want to call the API by hostname (e.g. via a CNAME, a local
+# /etc/hosts entry or a short hostname) or by another IP (e.g. a Tailscale
+# address) instead of kubernetes.api.addr.
+# OPTIONAL. Example: ["mycluster.example.com", "mycluster", "100.64.0.10"]
 
 # tls_sans = ["mycluster.example.com"]
 
