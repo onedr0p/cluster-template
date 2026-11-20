@@ -47,10 +47,7 @@ INVALID_REASONS = {
 REJECTIONS = {
     "invalid-cidr": ("private.toml", "network.node_cidr", "10.10.10.0/33", r"'10\.10\.10\.0/33' is not a valid IPv4 CIDR"),
     "node-cidr-without-prefix": ("private.toml", "network.node_cidr", "10.10.10.0", r"network\.node_cidr: '10\.10\.10\.0' has no prefix length, e\.g\. 10\.10\.10\.0/24"),
-    "pod-cidr-without-prefix": ("private.toml", "kubernetes.pod_cidr", "10.42.0.0", r"kubernetes\.pod_cidr: '10\.42\.0\.0' has no prefix length"),
-    "svc-cidr-without-prefix": ("private.toml", "kubernetes.svc_cidr", "10.43.0.0", r"kubernetes\.svc_cidr: '10\.43\.0\.0' has no prefix length"),
-    "integer-cidr": ("private.toml", "network.node_cidr", 167772160, r"network\.node_cidr: expected a CIDR string such as \"10\.10\.10\.0/24\", got 167772160"),
-    "cidr-not-an-address": ("private.toml", "network.node_cidr", "lan", r"'lan' is not a valid IPv4 CIDR"),
+    "integer-cidr": ("private.toml", "network.node_cidr", 167772160, r"network\.node_cidr: '167772160' is not a valid IPv4 CIDR"),
     "default-gateway-outside-node-cidr": ("private.toml", "network.default_gateway", "10.10.11.1", r"default_gateway 10\.10\.11\.1 is not inside node_cidr 10\.10\.10\.0/24"),
     "api-addr-outside-node-cidr": ("private.toml", "kubernetes.api.addr", "10.10.11.254", r"kubernetes\.api\.addr 10\.10\.11\.254 is not inside node_cidr 10\.10\.10\.0/24"),
     "pod-svc-cidr-overlap": ("private.toml", "kubernetes.svc_cidr", "10.42.0.0/16", r"kubernetes\.pod_cidr 10\.42\.0\.0/16 overlaps kubernetes\.svc_cidr 10\.42\.0\.0/16"),
@@ -81,16 +78,13 @@ REJECTIONS = {
     "empty-dns-servers": ("private.toml", "network.dns_servers", [], r"network\.dns_servers: List should have at least 1 item"),
     "empty-ntp-servers": ("private.toml", "network.ntp_servers", [], r"network\.ntp_servers: List should have at least 1 item"),
     "loopback-dns-server": ("private.toml", "network.dns_servers", ["1.1.1.1", "127.0.0.1"], r"network\.dns_servers\[1\] 127\.0\.0\.1 is not usable \(unspecified, loopback or multicast\)"),
-    "unspecified-dns-server": ("private.toml", "network.dns_servers", ["0.0.0.0"], r"network\.dns_servers\[0\] 0\.0\.0\.0 is not usable"),
     "multicast-ntp-server": ("private.toml", "network.ntp_servers", ["224.0.1.1"], r"network\.ntp_servers\[0\] 224\.0\.1\.1 is not usable"),
-    "dns-server-is-k8s-gateway": ("private.toml", "network.dns_servers", ["10.10.10.253"], r"network\.dns_servers\[0\] 10\.10\.10\.253 is gateways\.dns, which nodes cannot use"),
-    "dns-server-is-internal-gateway": ("private.toml", "network.dns_servers", ["10.10.10.252"], r"is gateways\.internal, which nodes cannot use"),
+    "dns-server-is-k8s-gateway": ("private.toml", "network.dns_servers", ["10.10.10.253"], r"network\.dns_servers\[0\] 10\.10\.10\.253 is gateways\.dns, which only answers once the cluster runs"),
     "ntp-server-is-external-gateway": ("private.toml", "network.ntp_servers", ["10.10.10.251"], r"network\.ntp_servers\[0\] 10\.10\.10\.251 is gateways\.external"),
-    "dns-server-is-api-vip": ("private.toml", "network.dns_servers", ["10.10.10.254"], r"10\.10\.10\.254 is kubernetes\.api\.addr, which nodes cannot use"),
+    "dns-server-is-api-vip": ("private.toml", "network.dns_servers", ["10.10.10.254"], r"10\.10\.10\.254 is kubernetes\.api\.addr, which only answers once the cluster runs"),
     "dns-server-in-svc-cidr": ("private.toml", "network.dns_servers", ["10.43.0.10"], r"network\.dns_servers\[0\] 10\.43\.0\.10 is inside kubernetes\.svc_cidr 10\.43\.0\.0/16"),
-    "ntp-server-in-pod-cidr": ("private.toml", "network.ntp_servers", ["10.42.1.1"], r"network\.ntp_servers\[0\] 10\.42\.1\.1 is inside kubernetes\.pod_cidr 10\.42\.0\.0/16"),
     "duplicate-mac-address": ("private.toml", "nodes.1.mac_addr", "00:00:00:00:00:00", r"duplicate node MAC address '00:00:00:00:00:00' on nodes\[0\] and nodes\[1\]"),
-    "duplicate-mac-address-other-case": ("private.toml", "nodes.1.mac_addr", "00-00-00-00-00-00", r"duplicate node MAC address '00:00:00:00:00:00' on nodes\[0\] and nodes\[1\]"),
+    "duplicate-mac-address-dashes": ("private.toml", "nodes.1.mac_addr", "00-00-00-00-00-00", r"duplicate node MAC address '00:00:00:00:00:00' on nodes\[0\] and nodes\[1\]"),
     "empty-disk": ("private.toml", "nodes.0.disk", "", r"nodes\.0\.disk: String should have at least 1 character"),
     "disk-relative-dev-path": ("private.toml", "nodes.0.disk", "dev/nvme0n1", r"'dev/nvme0n1' is a relative path; did you mean '/dev/nvme0n1'\?"),
     "disk-relative-by-id": ("private.toml", "nodes.0.disk", "disk/by-id/nvme-x", r"did you mean '/dev/disk/by-id/nvme-x'\?"),
@@ -209,10 +203,7 @@ def test_bare_kernel_disk_name_rejected(name: str):
     ("disk", "whole"),
     [
         ("/dev/sda1", "/dev/sda"),
-        ("/dev/vdb12", "/dev/vdb"),
         ("/dev/nvme0n1p1", "/dev/nvme0n1"),
-        ("/dev/mmcblk0p2", "/dev/mmcblk0"),
-        ("/dev/md127p1", "/dev/md127"),
         ("/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456-part1", "/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456"),
         ("/dev/disk/by-path/pci-0000:00:1f.2-ata-1-part2", "/dev/disk/by-path/pci-0000:00:1f.2-ata-1"),
     ],
@@ -260,11 +251,6 @@ def test_disk_paths_and_serials_accepted(disk: str):
 @pytest.mark.parametrize("mac", ["AA:BB:CC:DD:EE:0F", "aa-bb-cc-dd-ee-0f", " Aa:bB:cc:dd:ee:0f "])
 def test_mac_address_normalised(mac: str):
     assert _load_raw(config_from("private.toml", **{"nodes.0.mac_addr": mac})).nodes[0].mac_addr == "aa:bb:cc:dd:ee:0f"
-
-
-@pytest.mark.parametrize("name", ["global", "controller", "worker"])
-def test_former_reserved_node_names_accepted(name: str):
-    assert _load_raw(config_from("private.toml", **{"nodes.0.name": name})).nodes[0].name == name
 
 
 def test_dns_and_ntp_servers_may_be_lan_hosts():

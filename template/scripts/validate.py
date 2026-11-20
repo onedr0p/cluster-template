@@ -71,23 +71,14 @@ K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9
 
 
 def _network(value: Any) -> Any:
-    """Parse a CIDR, requiring network-address form (no host bits set)."""
-    # pydantic would read a TOML integer as a /32 address. pydantic only turns
-    # ValueError into a validation error, not TypeError.
+    """Parse a CIDR, requiring a prefix length and network-address form (no host bits set)."""
+    # pydantic would read a TOML integer as a /32 address.
     if isinstance(value, int):
-        raise ValueError(f"expected a CIDR string such as \"10.10.10.0/24\", got {str(value).lower()}")  # noqa: TRY004
+        value = str(value)
     if not isinstance(value, str):
         return value
-    # IPv4Network reads a bare address as a /32.
-    if "/" not in value:
-        try:
-            IPv4Address(value)
-        except ValueError:
-            pass
-        else:
-            raise ValueError(f"{value!r} has no prefix length, e.g. {value}/24")
     try:
-        return IPv4Network(value)
+        network = IPv4Network(value)
     except ValueError:
         try:
             fixed = IPv4Network(value, strict=False)
@@ -96,6 +87,10 @@ def _network(value: Any) -> Any:
         raise ValueError(
             f"{value!r} has host bits set; did you mean {fixed}?"
         ) from None
+    # IPv4Network reads a bare address as a /32.
+    if "/" not in value:
+        raise ValueError(f"{value!r} has no prefix length, e.g. {value}/24")
+    return network
 
 
 def _bounded_int(lo: int, hi: int) -> Any:
@@ -492,9 +487,6 @@ def _disk(value: str) -> str:
     return value
 
 
-MAC_PATTERN = r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$"
-
-
 # Talos's CEL mac() renders lowercase and colon-separated.
 def _mac(value: Any) -> Any:
     return value.strip().lower().replace("-", ":") if isinstance(value, str) else value
@@ -507,7 +499,7 @@ class Node(Model):
     disk: Annotated[str, Field(min_length=1), AfterValidator(_disk)]
     mac_addr: Annotated[
         str,
-        Field(pattern=MAC_PATTERN),
+        Field(pattern=r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$"),
         BeforeValidator(
             _mac, json_schema_input_type=Annotated[str, Field(pattern=r"^\s*([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\s*$")]
         ),
@@ -781,10 +773,7 @@ class Config(Model):
                 if addr.is_unspecified or addr.is_loopback or addr.is_multicast:
                     raise ValueError(f"{owner} {addr} is not usable (unspecified, loopback or multicast)")
                 if addr in in_cluster:
-                    raise ValueError(
-                        f"{owner} {addr} is {in_cluster[addr]}, which nodes cannot use: "
-                        "it only answers once the cluster is running"
-                    )
+                    raise ValueError(f"{owner} {addr} is {in_cluster[addr]}, which only answers once the cluster runs")
                 for cidr_name in ("pod_cidr", "svc_cidr"):
                     cidr = getattr(self.kubernetes, cidr_name)
                     if addr in cidr:
