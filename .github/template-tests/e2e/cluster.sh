@@ -203,6 +203,10 @@ mise run configure
 mise run //bootstrap:talos
 mise run //bootstrap:apps
 assert_cluster_health
+
+echo "==> asserting etcd snapshot"
+mise run //talos:etcd-snapshot "$STATE/etcd.snapshot"
+test -s "$STATE/etcd.snapshot"
 }
 
 flux_sops() {

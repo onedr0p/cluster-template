@@ -45,6 +45,21 @@ complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos
 confirm = { message = "This will reset node {{ usage.node }} to maintenance mode, continue?", default = "no" }
 run = 'topf reset --nodes-filter "^${usage_node}$" --confirm=false'
 
+# Defaults to the gitignored .private/; a relative path is taken from where
+# mise was run.
+[tasks.etcd-snapshot]
+description = "Save an etcd snapshot from a control-plane node"
+usage = '''
+arg "[path]" help="Snapshot file (default: .private/etcd/<timestamp>.snapshot)" default=""
+'''
+run = '''
+node="$(yq '[.nodes[] | select(.role == "control-plane")][0].ip' topf.yaml)"
+path="${usage_path:-{{config_root}}/../.private/etcd/$(date +%Y%m%d-%H%M%S).snapshot}"
+cd "$MISE_ORIGINAL_CWD"
+mkdir -p "$(dirname "$path")"
+talosctl --nodes "$node" etcd snapshot "$path"
+'''
+
 # topf intentionally does not manage Kubernetes upgrades
 [tasks.upgrade-k8s]
 description = "Upgrade Kubernetes"
