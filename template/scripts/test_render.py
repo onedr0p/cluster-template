@@ -115,3 +115,16 @@ def test_external_dns_follows_the_dns_provider():
         releases = [release["name"] for release in yaml.safe_load(stream)["releases"]]
     assert ("./cloudflare-dns/ks.yaml" in network["resources"]) == expected
     assert ("cloudflare-dns" in releases) == expected
+
+
+# Strings from cluster.toml are rendered with tojson, so the parsed YAML holds
+# exactly the configured values; a kernel module named like a number must
+# stay a string.
+def test_cluster_toml_strings_rendered_verbatim():
+    repository = config()["repository"]
+    (release,) = documents("kubernetes/apps/flux-system/flux-instance/app/helmrelease.yaml", "HelmRelease")
+    sync = release["spec"]["values"]["instance"]["sync"]
+    assert (sync["url"], sync["ref"]) == (repository["url"], f"refs/heads/{repository['branch']}")
+    for node in config()["nodes"]:
+        modules = [doc["name"] for doc in machine_config(node, "KernelModuleConfig")]
+        assert modules == node["kernel_modules"], node["name"]

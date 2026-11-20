@@ -8,6 +8,10 @@ Exits non-zero with one human-readable error per line on stderr when the
 config is invalid.
 """
 
+import base64
+import binascii
+import hashlib
+import hmac
 import json
 import re
 import sys
@@ -131,6 +135,27 @@ def _san(value: str) -> str:
         # An all-numeric last label is a mistyped IPv4 address, not a name.
         if len(value) > 253 or not re.fullmatch(HOSTNAME_PATTERN, value) or value.rpartition(".")[2].isdigit():
             raise ValueError(f"{value!r} is not a hostname or IPv4 address") from None
+    return value
+
+
+# Interpolated into YAML double-quoted strings, which a '"' ends and a '\'
+# escape changes, and where Flux's postBuild substitution expands '${...}'.
+def _yaml_safe(value: str) -> str:
+    if re.search(r'[\s\x00-\x1f\x7f"\\$]', value):
+        raise ValueError(
+            f"{value!r} must not contain whitespace, control characters, double quotes, "
+            "backslashes or '$'"
+        )
+    return value
+
+
+# Rendered as refs/heads/<branch>; a subset of git check-ref-format's rules
+# plus the characters _yaml_safe rejects.
+def _branch(value: str) -> str:
+    if value.startswith("refs/"):
+        raise ValueError(f"{value!r} must be a branch name without the 'refs/heads/' prefix")
+    if re.search(r'[\s\x00-\x1f\x7f"\\$~^:?*\[]|\.\.|//|@\{|^/|/$|\.$|\.lock(/|$)|(^|/)\.', value):
+        raise ValueError(f"{value!r} is not a valid git branch name")
     return value
 
 
@@ -312,9 +337,34 @@ class Gateways(Model):
     external: OptionalGatewaySpec = None
 
 
+def _known_hosts_match(hosts: str, host: str, port: str) -> bool:
+    """Whether a known_hosts host field matches host:port as Flux matches it."""
+    if hosts.startswith("|1|"):
+        try:
+            _, _, salt, digest = hosts.split("|")
+            salt, digest = base64.b64decode(salt), base64.b64decode(digest)
+        except (ValueError, binascii.Error):
+            return False
+        name = host if port == "22" else f"[{host}]:{port}"
+        return hmac.compare_digest(hmac.new(salt, name.encode(), hashlib.sha1).digest(), digest)
+    matched = False
+    for pattern in filter(None, hosts.split(",")):
+        negate = pattern.startswith("!")
+        pattern = pattern.removeprefix("!")
+        # [host]:port or host:port; a bare host means port 22.
+        m = re.fullmatch(r"\[([^\]]*)\]:([^:]*)|([^:\[\]]*):([^:]*)", pattern)
+        pattern_host, pattern_port = (m[1] or m[3] or "", m[2] or m[4] or "") if m else (pattern, "22")
+        wildcard = "".join(".*" if c == "*" else "." if c == "?" else re.escape(c) for c in pattern_host)
+        if pattern_port == port and re.fullmatch(wildcard, host, re.DOTALL):
+            if negate:
+                return False
+            matched = True
+    return matched
+
+
 class Repository(Model):
-    url: str = Field(pattern=REPO_URL_PATTERN)
-    branch: Stripped = Field(default="main", min_length=1)
+    url: Annotated[str, Field(pattern=REPO_URL_PATTERN), AfterValidator(_yaml_safe)]
+    branch: Annotated[Stripped, AfterValidator(_branch)] = Field(default="main", min_length=1)
     webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = Field(
         default=None,
         description=(
@@ -347,11 +397,32 @@ class Repository(Model):
                 "write scp-style git@host:owner/repo as ssh://git@host/owner/repo"
             )
         if self.uses_deploy_key:
-            host = host_port.split(":")[0]
-            if host not in KNOWN_HOSTS and not self.known_hosts:
+            host, _, port = host_port.partition(":")
+            port = port or "22"
+            # Flux looks the host up as host on port 22, otherwise as
+            # [host]:port; the bundled keys are only for port 22.
+            name = host if port == "22" else f"[{host}]:{port}"
+            bundled = name in KNOWN_HOSTS
+            if not bundled and not self.known_hosts:
                 raise ValueError(
-                    f"known_hosts is required for ssh:// URLs to {host!r} "
-                    f"(host keys are only bundled for {', '.join(KNOWN_HOSTS)})"
+                    f"known_hosts is required for ssh:// URLs to {name!r} "
+                    f"(host keys are only bundled for {', '.join(KNOWN_HOSTS)} on port 22)"
+                )
+            lines = [
+                line.split() for line in self.known_hosts.splitlines()
+                if line.strip() and not line.lstrip().startswith("#")
+            ]
+            for fields in lines:
+                if fields[0] in ("@cert-authority", "@revoked"):
+                    fields.pop(0)
+                if len(fields) < 3:
+                    raise ValueError(
+                        f"known_hosts line {' '.join(fields)!r} is not '<hosts> <key type> <key>'"
+                    )
+            if not bundled and not any(_known_hosts_match(f[0], host, port) for f in lines):
+                keyscan = "ssh-keyscan" if port == "22" else f"ssh-keyscan -p {port}"
+                raise ValueError(
+                    f"known_hosts has no entry for {name!r}; generate it with `{keyscan} {host}`"
                 )
         return self
 
@@ -362,7 +433,7 @@ class Domain(Model):
 
 class Dns(Model):
     provider: Literal["cloudflare", "none"] = "cloudflare"
-    token: Stripped = ""
+    token: Annotated[Stripped, AfterValidator(_yaml_safe)] = ""
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -486,6 +557,10 @@ class Node(Model):
             raise ValueError(f"node name {self.name!r} is reserved")
         if len(set(self.kernel_modules)) != len(self.kernel_modules):
             raise ValueError("kernel_modules must not contain duplicates")
+        # Talos seals the TPM key against the PCR signing key that only
+        # SecureBoot (signed UKI) images carry.
+        if self.encrypt_disk and not self.secureboot:
+            raise ValueError("encrypt_disk requires secureboot: TPM disk encryption needs a SecureBoot image")
         return self
 
 
