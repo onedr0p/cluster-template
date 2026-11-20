@@ -116,7 +116,9 @@ hide = true
 run = "bash template/resources/kubeconform.sh kubernetes"
 
 # Rendering needs the secrets bundle; topf generates and sops-encrypts one
-# on first run (--confirm=false so it never prompts mid-pipeline).
+# on first run (--confirm=false so it never prompts mid-pipeline). topf only
+# merges patches, so talosctl checks the result offline; it reads no
+# talosconfig and contacts no node.
 [tasks.validate-talos]
 hide = true
 dir = "{{ config_root }}/../talos"
@@ -128,4 +130,9 @@ topf render --confirm=false --output "$out" >/dev/null
 if ! sops filestatus secrets.sops.yaml | jq --exit-status '.encrypted == true' >/dev/null; then
     mise run //:log fatal "Talos secrets bundle is not encrypted"
 fi
+for config in "$out"/*.yaml; do
+    if ! talosctl validate --mode metal --strict --config "$config" >/dev/null; then
+        mise run //:log fatal "Invalid Talos machine config" node "$(basename "$config" .yaml)"
+    fi
+done
 '''

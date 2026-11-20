@@ -2,6 +2,7 @@
 description = "Bootstrap the Talos cluster"
 run = [
   { task = ":talos-secret" },
+  { task = ":talos-preflight" },
   { task = ":talos-apply" },
   { task = ":talos-talosconfig" },
   { task = ":talos-kubeconfig" },
@@ -27,6 +28,27 @@ dir = "{{ config_root }}/../talos"
 run = '''
 mise run //:log info "Generating secrets" stage "$MISE_TASK_NAME"
 topf secrets --confirm=false > /dev/null
+'''
+
+# A re-run after a partial failure is fine, but if the first controller (the
+# one topf bootstraps) was reset while another one still runs etcd, topf's
+# auto-bootstrap would start a second etcd cluster on it. Unreachable nodes
+# report stage "unknown" and are left to topf apply, which aborts on them.
+[tasks.talos-preflight]
+hide = true
+dir = "{{ config_root }}/../talos"
+run = '''
+mise run //:log info "Checking controller state" stage "$MISE_TASK_NAME"
+if ! nodes="$(topf nodes --output yaml)"; then
+    mise run //:log fatal "Failed to query the nodes"
+fi
+controllers="$(yq '[.[] | select(.node.role == "control-plane")]' <<<"$nodes")"
+first="$(yq '.[0].node.host' <<<"$controllers")"
+stage="$(yq '.[0].machinestatus.stage' <<<"$controllers")"
+live="$(yq '.[1:] | map(select(.machinestatus.stage != "maintenance" and .machinestatus.stage != "unknown") | .node.host) | join(",")' <<<"$controllers")"
+if [[ "$stage" == "maintenance" && -n "$live" ]]; then
+    mise run //:log fatal "Cluster is already bootstrapped; bootstrapping would split etcd, re-join the node with mise run //talos:apply-node $first" node "$first" configured "$live"
+fi
 '''
 
 # Nodes stay NotReady until the apps step installs the CNI, so topf's
