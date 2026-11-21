@@ -571,6 +571,16 @@ class Config(Model):
             for gateway in self.deployed_gateways.values()
         )
 
+    # Node IPAM and node-port load balancers (MetalLB, cloud controllers)
+    # skip nodes labelled node.kubernetes.io/exclude-from-external-load-balancers,
+    # which Talos sets on controllers.
+    @computed_field
+    @property
+    def lb_uses_nodes(self) -> bool:
+        return self.cilium_node_ipam_enabled or any(
+            gateway.node_ports for gateway in self.deployed_gateways.values()
+        )
+
     # networks.yaml holds the LB IPAM pool and the L2 or BGP announcements.
     @computed_field
     @property

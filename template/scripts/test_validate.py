@@ -579,6 +579,24 @@ def test_gateway_node_ports_only_for_classes_that_need_them(lb_class: str, node_
     assert _load_raw(raw).gateways.internal.node_ports is node_ports
 
 
+@pytest.mark.parametrize(
+    ("gateways", "lb_uses_nodes"),
+    [
+        ({}, False),
+        ({"gateways.internal": {"load_balancer_class": "tailscale"}}, False),
+        ({"gateways.external": {"load_balancer_class": "io.cilium/node"}}, True),
+        ({"gateways.internal": {"load_balancer_class": "metallb.io/metallb"}}, True),
+    ],
+)
+def test_lb_uses_nodes(gateways: dict, lb_uses_nodes: bool):
+    assert _load_raw(config_from("private.toml", **gateways)).lb_uses_nodes is lb_uses_nodes
+
+
+def test_lb_uses_nodes_ignores_undeployed_gateways():
+    raw = config_from("internal.toml", **{"gateways.external": {"load_balancer_class": "metallb.io/metallb"}})
+    assert _load_raw(raw).lb_uses_nodes is False
+
+
 @pytest.mark.parametrize("gateway", [{}, {"address": "10.10.10.252", "load_balancer_class": "tailscale"}])
 def test_gateway_needs_exactly_one_of_address_or_class(gateway):
     raw = config_from("private.toml", **{"gateways.internal": gateway})
