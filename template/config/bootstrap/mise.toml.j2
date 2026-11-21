@@ -38,7 +38,12 @@ hide = true
 dir = "{{ config_root }}/../talos"
 run = '''
 mise run //:log info "Checking controller state" stage "$MISE_TASK_NAME"
-if ! first="$(topf nodes --output yaml | yq '[.[] | select(.node.role == "control-plane")] | select(.[0].machinestatus.stage == "maintenance" and (.[1:] | any_c(.machinestatus.stage != "maintenance" and .machinestatus.stage != "unknown"))) | .[0].node.host')"; then
+if ! first="$(topf nodes --output yaml | yq '
+    map(select(.node.role == "control-plane"))
+    | select(.[0].machinestatus.stage == "maintenance")
+    | select(.[1:] | any_c(.machinestatus.stage != "maintenance" and .machinestatus.stage != "unknown"))
+    | .[0].node.host
+')"; then
     mise run //:log fatal "Failed to query the nodes"
 fi
 if [[ -n "$first" ]]; then

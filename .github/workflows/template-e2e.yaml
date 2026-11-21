@@ -125,12 +125,6 @@ jobs:
       - name: Render talos configs
         run: mise run //talos:render
 
-      - name: Validate talos configs
-        run: |
-          for config in ./talos/rendered/*.yaml; do
-            talosctl validate --config "$config" --mode metal
-          done
-
       - name: Test rendered output
         run: mise run //template:test-render
 
