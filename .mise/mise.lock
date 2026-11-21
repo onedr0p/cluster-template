@@ -119,36 +119,36 @@ url = "https://github.com/fluxcd/flux2/releases/download/v2.10.0/flux_2.10.0_dar
 url_api = "https://api.github.com/repos/fluxcd/flux2/releases/assets/678609570"
 
 [[tools."github:oxc-project/oxc"]]
-version = "0.75.0"
+version = "0.79.0"
 backend = "github:oxc-project/oxc"
-specifiers = ["0.75.0"]
+specifiers = ["0.79.0"]
 
 [tools."github:oxc-project/oxc".options]
 matching_regex = "^oxfmt-"
 version_prefix = "oxfmt_v"
 
 [tools."github:oxc-project/oxc"."platforms.linux-arm64"]
-checksum = "sha256:d572f06bfa6367d6cb766a077c2e0c4fd70a13b323879829dda00274b3b2cee6"
-url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610856"
+checksum = "sha256:2d550f171f2464df1fc7dd63154c6c77d795a9c6d54f99a3366cb45d2ff9e46d"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.79.0/oxfmt-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/754764756"
 provenance = "github-attestations"
 
 [tools."github:oxc-project/oxc"."platforms.linux-x64"]
-checksum = "sha256:6a111e38ab6edfe61b87deffbc95e461e3b7326d5d034bdee71ba92cdfd87641"
-url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610917"
+checksum = "sha256:458ba526dd692baad90c5cf164341257e339da2a6e0f585dea6eae6644df5608"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.79.0/oxfmt-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/754764891"
 provenance = "github-attestations"
 
 [tools."github:oxc-project/oxc"."platforms.macos-arm64"]
-checksum = "sha256:e7973efba410ee690afdf306c3a561ebd9e6072005d28fe50ef4a4d7d4649bb3"
-url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610854"
+checksum = "sha256:c75859a53ec3a57a78d3e9752d2e9604badfca97dda65366c310ed2f5bf28534"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.79.0/oxfmt-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/754764750"
 provenance = "github-attestations"
 
 [tools."github:oxc-project/oxc"."platforms.macos-x64"]
-checksum = "sha256:e0242cd799da9e94d0676a003fe2912893a26f419b766614af1ca8b944aacfd9"
-url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.75.0/oxfmt-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/680610913"
+checksum = "sha256:99a82f2d30345af8b9fdb3858ef7a05e57822037ab035ff435827505e43f3e51"
+url = "https://github.com/oxc-project/oxc/releases/download/oxfmt_v0.79.0/oxfmt-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/oxc-project/oxc/releases/assets/754764855"
 provenance = "github-attestations"
 
 [[tools."github:postfinance/topf"]]
