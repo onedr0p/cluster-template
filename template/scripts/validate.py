@@ -134,6 +134,27 @@ def _san(value: str) -> str:
     return value
 
 
+# Interpolated into YAML double-quoted strings, which a '"' ends and a '\'
+# escape changes, and where Flux's postBuild substitution expands '${...}'.
+def _yaml_safe(value: str) -> str:
+    if re.search(r'[\s\x00-\x1f\x7f-\x9f"\\$]', value):
+        raise ValueError(
+            f"{value!r} must not contain whitespace, control characters, double quotes, "
+            "backslashes or '$'"
+        )
+    return value
+
+
+# Rendered as refs/heads/<branch>; a subset of git check-ref-format's rules
+# plus the characters _yaml_safe rejects.
+def _branch(value: str) -> str:
+    if value.startswith("refs/"):
+        raise ValueError(f"{value!r} must be a branch name without the 'refs/heads/' prefix")
+    if re.search(r'[\s\x00-\x1f\x7f-\x9f"\\$~^:?*\[]|\.\.|//|@\{|^/|/$|\.$|\.lock(/|$)|(^|/)\.', value):
+        raise ValueError(f"{value!r} is not a valid git branch name")
+    return value
+
+
 def _empty_to_none(value: Any) -> Any:
     return None if value == "" else value
 
@@ -313,8 +334,8 @@ class Gateways(Model):
 
 
 class Repository(Model):
-    url: str = Field(pattern=REPO_URL_PATTERN)
-    branch: Stripped = Field(default="main", min_length=1)
+    url: Annotated[str, Field(pattern=REPO_URL_PATTERN), AfterValidator(_yaml_safe)]
+    branch: Annotated[Stripped, AfterValidator(_branch)] = Field(default="main", min_length=1)
     webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = Field(
         default=None,
         description=(
@@ -347,11 +368,32 @@ class Repository(Model):
                 "write scp-style git@host:owner/repo as ssh://git@host/owner/repo"
             )
         if self.uses_deploy_key:
-            host = host_port.split(":")[0]
-            if host not in KNOWN_HOSTS and not self.known_hosts:
+            host, _, port = host_port.partition(":")
+            port = port or "22"
+            # Flux looks the host up as host on port 22, otherwise as
+            # [host]:port; the bundled keys are only for port 22.
+            name = host if port == "22" else f"[{host}]:{port}"
+            bundled = name in KNOWN_HOSTS
+            if not bundled and not self.known_hosts:
                 raise ValueError(
-                    f"known_hosts is required for ssh:// URLs to {host!r} "
-                    f"(host keys are only bundled for {', '.join(KNOWN_HOSTS)})"
+                    f"known_hosts is required for ssh:// URLs to {name!r} "
+                    f"(host keys are only bundled for {', '.join(KNOWN_HOSTS)} on port 22)"
+                )
+            lines = [
+                line.split() for line in self.known_hosts.splitlines()
+                if line.strip() and not line.lstrip().startswith("#")
+            ]
+            for fields in lines:
+                if len(fields) < 3:
+                    raise ValueError(
+                        f"known_hosts line {' '.join(fields)!r} is not '<hosts> <key type> <key>'"
+                    )
+            hosts = {h for fields in lines for h in fields[0].split(",")}
+            # Hashed (|1|) hosts, markers and patterns are not checked.
+            if not bundled and name not in hosts and not any(re.search(r"^[|@!]|[*?]", h) for h in hosts):
+                keyscan = "ssh-keyscan" if port == "22" else f"ssh-keyscan -p {port}"
+                raise ValueError(
+                    f"known_hosts has no entry for {name!r}; generate it with `{keyscan} {host}`"
                 )
         return self
 
@@ -362,7 +404,7 @@ class Domain(Model):
 
 class Dns(Model):
     provider: Literal["cloudflare", "none"] = "cloudflare"
-    token: Stripped = ""
+    token: Annotated[Stripped, AfterValidator(_yaml_safe)] = ""
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -486,6 +528,10 @@ class Node(Model):
             raise ValueError(f"node name {self.name!r} is reserved")
         if len(set(self.kernel_modules)) != len(self.kernel_modules):
             raise ValueError("kernel_modules must not contain duplicates")
+        # Talos seals the TPM key against the PCR signing key that only
+        # SecureBoot (signed UKI) images carry.
+        if self.encrypt_disk and not self.secureboot:
+            raise ValueError("encrypt_disk requires secureboot: TPM disk encryption needs a SecureBoot image")
         return self
 
 

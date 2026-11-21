@@ -2,5 +2,5 @@
 ---
 apiVersion: v1alpha1
 kind: KernelModuleConfig
-name: {{ . }}
+name: {{ printf "%q" . }}
 {{- end }}
