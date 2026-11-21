@@ -121,7 +121,9 @@ spec:
     numRetries: 2
     retryOn:
       triggers:
-        - reset
+        - connect-failure
+        - refused-stream
+        - reset-before-request
   targetSelectors:
     - group: gateway.networking.k8s.io
       kind: Gateway

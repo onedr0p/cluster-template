@@ -11,7 +11,7 @@ spec:
   values:
     replicaCount: #{ 2 if nodes | length > 1 else 1 }#
     config:
-      kubernetes: true
+      commandsEnabled: false
       trustedProxies:
         - "#{ kubernetes.pod_cidr }#"
     httpRoute:
