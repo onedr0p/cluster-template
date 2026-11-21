@@ -1,4 +1,4 @@
-# Negative fixture: malformed MAC address (uppercase + missing colons).
+# Negative fixture: malformed MAC address (missing separators).
 # Expected to be rejected by the Node.mac_addr pattern.
 [network]
 node_cidr = "10.10.10.0/24"

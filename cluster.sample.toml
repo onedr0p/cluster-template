@@ -15,7 +15,8 @@ node_cidr = ""
 
 # Upstream DNS servers Talos nodes use for name resolution. Defaults to
 # Cloudflare (1.1.1.1 / 1.0.0.1). Override if you run an internal resolver
-# (Pi-hole, Unbound, AdGuard) or want a different public provider.
+# (Pi-hole, Unbound, AdGuard) or want a different public provider. Must be
+# reachable before the cluster runs: not a gateway address or the API VIP.
 # OPTIONAL. Default: ["1.1.1.1", "1.0.0.1"]. If set, list at least one.
 
 # dns_servers = ["1.1.1.1", "1.0.0.1"]
@@ -365,12 +366,13 @@ schematic_id = ""
 # =============================================================================
 
 # [[nodes]]
-# name         = "k8s-0"        # Hostname; must match [a-z0-9-]+ (not "global"/"controller"/"worker").
+# name         = "k8s-0"        # Hostname; must match [a-z0-9-]+.
 # address      = "192.168.1.10" # Static IP; must be inside network.node_cidr.
 # controller   = true           # true = control-plane (etcd + API server), false = worker.
 # disk         = "/dev/nvme0n1" # Install disk: a /dev/... block device, a /dev/disk/by-id/... symlink,
 #                               # or a disk serial (no leading "/", e.g. "S64DNX0R123456"; see the
-#                               # SERIAL column of `talosctl get disks`). Bare names like "nvme0n1" are rejected.
+#                               # SERIAL column of `talosctl get disks`). Bare names like "nvme0n1" and
+#                               # partitions like "/dev/nvme0n1p1" are rejected.
 # mac_addr     = "aa:bb:cc:dd:ee:ff"  # Primary NIC MAC: the HW ADDR column of `talosctl get links`, or the
 #                                     # permanent (burned-in) address shown as permanentAddr with `-o yaml`.
 #

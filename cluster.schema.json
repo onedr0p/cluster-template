@@ -405,7 +405,7 @@
           "type": "string"
         },
         "mac_addr": {
-          "pattern": "^([0-9a-f]{2}:){5}[0-9a-f]{2}$",
+          "pattern": "^\\s*([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\\s*$",
           "title": "Mac Addr",
           "type": "string"
         },
