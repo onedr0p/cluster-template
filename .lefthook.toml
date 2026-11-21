@@ -37,6 +37,13 @@ stage_fixed = true
 glob = ["template/scripts/*.py"]
 run = "uv run --quiet --locked ruff check {staged_files}"
 
+# Blocks plain text secrets, e.g. after an interrupted configure. The
+# template/ sources are unencrypted Jinja templates.
+[pre-commit.commands.check-sops]
+glob = ["*.sops.*"]
+exclude = [".sops.yaml", "template/**"]
+run = "mise run //:check-sops {staged_files}"
+
 [pre-commit.commands.shellcheck]
 glob = ["*.sh"]
 run = "shellcheck {staged_files}"
