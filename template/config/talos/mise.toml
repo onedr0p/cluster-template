@@ -63,7 +63,7 @@ arg "[path]" help="Snapshot file (default: .private/etcd/<timestamp>.snapshot)" 
 '''
 run = '''
 node="$(yq '[.nodes[] | select(.role == "control-plane")][0].ip' topf.yaml)"
-path="${usage_path:-{{config_root}}/../.private/etcd/$(date +%Y%m%d-%H%M%S).snapshot}"
+path="${usage_path:-$MISE_MONOREPO_ROOT/.private/etcd/$(date +%Y%m%d-%H%M%S).snapshot}"
 cd "$MISE_ORIGINAL_CWD"
 mkdir -p "$(dirname "$path")"
 talosctl --nodes "$node" etcd snapshot "$path"
@@ -82,7 +82,7 @@ depends = [":require-secrets"]
 run = [{ task = "//bootstrap:talos-kubeconfig" }]
 
 # Without the bundle, topf offers to generate a new one, whose certs the
-# cluster rejects, and the old config is truncated before topf fails.
+# cluster rejects.
 [tasks.require-secrets]
 hide = true
 run = '''
