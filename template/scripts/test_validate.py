@@ -105,7 +105,22 @@ REJECTIONS = {
     "whitespace-branch": ("private.toml", "repository.branch", "  ", r"repository\.branch: String should have at least 1 character"),
     "bad-cluster-issuer": ("direct-custom-issuer.toml", "certs.cluster_issuer", "Acme_Production", r"certs\.cluster_issuer: String should match pattern"),
     "reserved-cluster-issuer": ("direct-custom-issuer.toml", "certs.cluster_issuer", "internal-ca", r"certs: cluster_issuer 'internal-ca' is reserved"),
-    "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to 'git\.example\.com'"),
+    "ssh-port-unknown-host": ("private.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts is required for ssh:// URLs to '\[git\.example\.com\]:2222'"),
+    "ssh-custom-port-bundled-host": ("private.toml", "repository.url", "ssh://git@github.com:2222/onedr0p/cluster-template.git", r"known_hosts is required for ssh:// URLs to '\[github\.com\]:2222' \(host keys are only bundled for .* on port 22\)"),
+    "known-hosts-wrong-port": ("selfhosted.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts has no entry for '\[git\.example\.com\]:2222'; generate it with `ssh-keyscan -p 2222 git\.example\.com`"),
+    "known-hosts-wrong-host": ("selfhosted.toml", "repository.url", "ssh://git@git2.example.com/k8s/home-ops.git", r"known_hosts has no entry for 'git2\.example\.com'; generate it with `ssh-keyscan git2\.example\.com`"),
+    "known-hosts-junk": ("selfhosted.toml", "repository.known_hosts", "git.example.com", r"known_hosts line 'git\.example\.com' is not '<hosts> <key type> <key>'"),
+    "known-hosts-junk-with-bundled-host": ("private.toml", "repository.known_hosts", "github.com ssh-ed25519", r"known_hosts line 'github\.com ssh-ed25519' is not"),
+    "branch-with-quote": ("private.toml", "repository.branch", 'ma"in', r"repository\.branch: 'ma\"in' is not a valid git branch name"),
+    "branch-with-substitution": ("private.toml", "repository.branch", "${BRANCH}", r"is not a valid git branch name"),
+    "branch-with-dotdot": ("private.toml", "repository.branch", "main..dev", r"is not a valid git branch name"),
+    "branch-lock-suffix": ("private.toml", "repository.branch", "main.lock", r"is not a valid git branch name"),
+    "branch-full-ref": ("private.toml", "repository.branch", "refs/heads/main", r"repository\.branch: 'refs/heads/main' must be a branch name without the 'refs/heads/' prefix"),
+    "repo-url-with-quote": ("public.toml", "repository.url", 'https://github.com/onedr0p/home-ops".git', r"repository\.url: .* must not contain whitespace, control characters, double quotes, backslashes or '\$'"),
+    "repo-url-with-substitution": ("public.toml", "repository.url", "https://github.com/${OWNER}/home-ops.git", r"repository\.url: .* must not contain whitespace"),
+    "dns-token-with-quote": ("public.toml", "dns.token", 'fa"ke', r"dns\.token: 'fa\"ke' must not contain whitespace, control characters, double quotes, backslashes or '\$'"),
+    "dns-token-with-substitution": ("public.toml", "dns.token", "${TOKEN}", r"dns\.token: .* must not contain whitespace"),
+    "encrypt-disk-without-secureboot": ("private.toml", "nodes.1.secureboot", False, r"nodes\.1: encrypt_disk requires secureboot: TPM disk encryption needs a SecureBoot image"),
     "repo-url-with-credentials": ("public.toml", "repository.url", "https://user:token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
     "repo-url-with-token": ("public.toml", "repository.url", "https://token@github.com/onedr0p/home-ops.git", r"url must not embed credentials"),
     "repo-url-scp-style": ("public.toml", "repository.url", "ssh://git@github.com:onedr0p/home-ops.git", r"url host 'github\.com:onedr0p' must be a hostname with an optional numeric port"),
@@ -165,6 +180,48 @@ def test_override_rejected(fixture: str, key: str, value, reason: str):
 def test_ssh_port_on_bundled_host_needs_no_known_hosts():
     raw = config_from("private.toml", **{"repository.url": "ssh://git@github.com:22/onedr0p/cluster-template.git"})
     assert _load_raw(raw).repository.known_hosts == ""
+
+
+KNOWN_HOST_KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
+
+
+# Hashed hosts and patterns are accepted unchecked.
+@pytest.mark.parametrize(
+    "hosts",
+    ["[git.example.com]:2222", "other.example.com,[git.example.com]:2222", "[*.example.com]:2222", "|1|c2FsdA==|aGFzaA=="],
+)
+def test_known_hosts_entry_for_custom_port_accepted(hosts: str):
+    raw = config_from(
+        "selfhosted.toml",
+        **{
+            "repository.url": "ssh://git@git.example.com:2222/k8s/home-ops.git",
+            "repository.known_hosts": f"# comment\n\n{hosts} {KNOWN_HOST_KEY}\n",
+        },
+    )
+    _load_raw(raw)
+
+
+def test_known_hosts_for_bundled_host_on_custom_port():
+    raw = config_from(
+        "private.toml",
+        **{
+            "repository.url": "ssh://git@github.com:2222/onedr0p/cluster-template.git",
+            "repository.known_hosts": f"[github.com]:2222 {KNOWN_HOST_KEY}",
+        },
+    )
+    _load_raw(raw)
+
+
+@pytest.mark.parametrize("branch", ["main", "feature/new-thing", "release-1.0", "renovate/flux-2.x", "user@dev"])
+def test_branch_names_accepted(branch: str):
+    assert _load_raw(config_from("private.toml", **{"repository.branch": branch})).repository.branch == branch
+
+
+def test_encrypt_disk_with_secureboot_accepted():
+    node = _load_raw(config_from("private.toml")).nodes[1]
+    assert (node.secureboot, node.encrypt_disk) == (True, True)
+    node = _load_raw(config_from("private.toml", **{"nodes.1.encrypt_disk": False, "nodes.1.secureboot": False})).nodes[1]
+    assert (node.secureboot, node.encrypt_disk) == (False, False)
 
 
 def test_ibgp_router_may_leave_node_cidr():

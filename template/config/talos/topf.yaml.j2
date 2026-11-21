@@ -29,5 +29,5 @@ nodes:
       macAddr: "#{ item.mac_addr }#"
       mtu: #{ item.mtu }#
       encryptDisk: #{ item.encrypt_disk | string | lower }#
-      kernelModules: [#{ item.kernel_modules | join(', ') }#]
+      kernelModules: #{ item.kernel_modules | tojson }#
   #% endfor %#

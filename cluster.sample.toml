@@ -191,11 +191,13 @@ url = ""
 # webhook_provider = "github"
 
 # SSH host keys for your Git host (`ssh-keyscan -t ed25519,ecdsa,rsa <host>`
-# output). Only used with `ssh://` URLs. Keys for github.com, gitlab.com and
-# codeberg.org are bundled; REQUIRED for any other host.
-# OPTIONAL. Example:
+# output, or `ssh-keyscan -p <port> -t ed25519,ecdsa,rsa <host>` for a port
+# other than 22, which lists the host as `[<host>]:<port>`). Only used with
+# `ssh://` URLs. Keys for github.com, gitlab.com and codeberg.org on port 22
+# are bundled; REQUIRED for any other host or port.
+# OPTIONAL. Example (for ssh://git@git.example.com:2222/...):
 #   known_hosts = """
-#   git.example.com ssh-ed25519 AAAA...
+#   [git.example.com]:2222 ssh-ed25519 AAAA...
 #   """
 
 # known_hosts = ""
@@ -382,5 +384,5 @@ schematic_id = ""
 # # Optional advanced fields (each independently uncommentable):
 # mtu            = 1500                       # Set only for jumbo frames / non-1500 MTUs (1450-9000).
 # secureboot     = false                      # UEFI SecureBoot — requires a SecureBoot-enabled schematic.
-# encrypt_disk   = false                      # TPM-bound full-disk encryption.
+# encrypt_disk   = false                      # TPM-bound full-disk encryption — requires secureboot = true.
 # kernel_modules = ["nvidia", "nvidia_uvm"]   # Only for schematics shipping matching extensions.
