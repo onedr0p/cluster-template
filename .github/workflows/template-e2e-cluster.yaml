@@ -34,7 +34,7 @@ jobs:
           sudo apt-get install --yes --no-install-recommends gettext-base qemu-system-x86 qemu-utils ovmf
 
       - name: Setup mise
-        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+        uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
 
       - name: Boot maintenance-mode nodes
         id: cluster
