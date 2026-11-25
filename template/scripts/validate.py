@@ -82,8 +82,7 @@ K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9
 def _network(value: Any) -> Any:
     """Parse a CIDR, requiring a prefix length and network-address form (no host bits set)."""
     # pydantic would read a TOML integer as a /32 address.
-    if isinstance(value, int):
-        value = str(value)
+    value = _address(value)
     if not isinstance(value, str):
         return value
     try:
@@ -102,16 +101,43 @@ def _network(value: Any) -> Any:
     return network
 
 
+def _unroutable(value: IPv4Network | IPv4Address) -> tuple[IPv4Network, str] | None:
+    """The special-purpose range a CIDR overlaps or an address is in, with its kind."""
+    network = IPv4Network(value)
+    return next(((special, kind) for special, kind in UNROUTABLE_NETWORKS.items() if network.overlaps(special)), None)
+
+
 def _routable_network(value: IPv4Network) -> IPv4Network:
-    for special, kind in UNROUTABLE_NETWORKS.items():
-        if value.overlaps(special):
-            raise ValueError(f"{value} overlaps the {kind} range {special}, which is not routable")
+    if hit := _unroutable(value):
+        special, kind = hit
+        raise ValueError(f"{value} overlaps the {kind} range {special}, which is not routable")
     return value
 
 
 def _address(value: Any) -> Any:
     """Like _network, reject TOML integers, which pydantic reads as an address (168430334 is 10.10.10.254)."""
     return str(value) if isinstance(value, int) else value
+
+
+def _parse_bounded(value: Any, lo: int, hi: int) -> int:
+    """value as an int in lo-hi, from a TOML integer or a decimal string."""
+    # bool is a subclass of int, and a float such as 100.0 is not a tag
+    # or ASN even though pydantic's lax mode would truncate it. pydantic
+    # only turns ValueError into a validation error, not TypeError.
+    if isinstance(value, bool) or not isinstance(value, int | str):
+        shown = str(value).lower() if isinstance(value, bool) else repr(value)
+        raise ValueError(f"expected a whole number, got {shown}")  # noqa: TRY004
+    number = value
+    if isinstance(value, str):
+        if not (value.isascii() and value.isdigit()):
+            raise ValueError(f"{value!r} is not a decimal number")
+        # Convert only the significant digits, and only when short enough
+        # to be in range, so huge strings can't hit Python's int() limit.
+        digits = value.lstrip("0") or "0"
+        number = int(digits) if len(digits) <= len(str(hi)) else None
+    if number is not None and lo <= number <= hi:
+        return number
+    raise ValueError(f"{value!r} must be in the range {lo}-{hi}")
 
 
 def _bounded_int(lo: int, hi: int) -> Any:
@@ -122,26 +148,8 @@ def _bounded_int(lo: int, hi: int) -> Any:
     written rather than its normalised form.
     """
 
-    max_digits = len(str(hi))
-
     def parse(value: Any) -> int:
-        # bool is a subclass of int, and a float such as 100.0 is not a tag
-        # or ASN even though pydantic's lax mode would truncate it. pydantic
-        # only turns ValueError into a validation error, not TypeError.
-        if isinstance(value, bool) or not isinstance(value, int | str):
-            shown = str(value).lower() if isinstance(value, bool) else repr(value)
-            raise ValueError(f"expected a whole number, got {shown}")  # noqa: TRY004
-        number = value
-        if isinstance(value, str):
-            if not (value.isascii() and value.isdigit()):
-                raise ValueError(f"{value!r} is not a decimal number")
-            # Convert only the significant digits, and only when short enough
-            # to be in range, so huge strings can't hit Python's int() limit.
-            digits = value.lstrip("0") or "0"
-            number = int(digits) if len(digits) <= max_digits else None
-        if number is not None and lo <= number <= hi:
-            return number
-        raise ValueError(f"{value!r} must be in the range {lo}-{hi}")
+        return _parse_bounded(value, lo, hi)
 
     # parse() does all the checking, so its messages quote the raw value;
     # these constraints document the accepted input in the JSON schema.
@@ -419,14 +427,11 @@ class Repository(Model):
                 "write scp-style git@host:owner/repo as ssh://git@host/owner/repo"
             )
         host, _, port_text = host_port.partition(":")
-        # Flux reads the port as a number, so :022 is port 22. Only short
-        # digit strings are converted, as in _bounded_int.
-        port = 22
-        if port_text:
-            digits = port_text.lstrip("0")
-            if not digits or len(digits) > 5 or int(digits) > 65535:
-                raise ValueError(f"url port {port_text!r} must be in the range 1-65535")
-            port = int(digits)
+        # Flux reads the port as a number, so :022 is port 22.
+        try:
+            port = _parse_bounded(port_text, 1, 65535) if port_text else 22
+        except ValueError as e:
+            raise ValueError(f"url port {e}") from None
         if self.uses_deploy_key:
             # Flux looks the host up as host on port 22, otherwise as
             # [host]:port; the bundled keys are only for port 22.
@@ -862,17 +867,9 @@ class Config(Model):
         # would shadow pod or Service IPs, nor into addresses no network
         # routes.
         for owner, addr in routed.items():
-            if (
-                addr.is_unspecified
-                or addr.is_loopback
-                or addr.is_link_local
-                or addr.is_multicast
-                or addr.is_reserved
-            ):
-                raise ValueError(
-                    f"{owner} {addr} is not routable "
-                    "(unspecified, loopback, link-local, multicast or reserved)"
-                )
+            if hit := _unroutable(addr):
+                special, kind = hit
+                raise ValueError(f"{owner} {addr} is not routable (in the {kind} range {special})")
             for cidr_name in ("pod_cidr", "svc_cidr"):
                 cidr = getattr(self.kubernetes, cidr_name)
                 if addr in cidr:

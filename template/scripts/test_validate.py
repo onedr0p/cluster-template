@@ -148,7 +148,7 @@ REJECTIONS = {
     "integer-bgp-router-addr": ("public.toml", "cilium.bgp.router_addr", 168430081, r"cilium\.bgp\.router_addr: Input is not a valid IPv4 address"),
     "integer-gateway-address": ("private.toml", "gateways.internal", {"address": 168430332}, r"gateways\.internal\.address: Input is not a valid IPv4 address"),
     "bgp-with-announce-none": ("public.toml", "cilium.announce", "none", r"cilium\.bgp is configured but cilium\.announce is 'none'"),
-    "bad-kernel-module":("private.toml", "nodes.0.kernel_modules", ["nvidia]"], r"nodes\.0\.kernel_modules\.0: String should match pattern"),
+    "bad-kernel-module": ("private.toml", "nodes.0.kernel_modules", ["nvidia]"], r"nodes\.0\.kernel_modules\.0: String should match pattern"),
     "duplicate-kernel-module": ("private.toml", "nodes.0.kernel_modules", ["nvidia", "nvidia"], r"kernel_modules must not contain duplicates"),
 }
 
