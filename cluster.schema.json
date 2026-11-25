@@ -564,6 +564,11 @@
             }
           ],
           "default": null
+        },
+        "workload_isolation": {
+          "default": true,
+          "title": "Workload Isolation",
+          "type": "boolean"
         }
       },
       "title": "Talos",
@@ -630,7 +635,8 @@
     "talos": {
       "$ref": "#/$defs/Talos",
       "default": {
-        "schematic_id": null
+        "schematic_id": null,
+        "workload_isolation": true
       }
     },
     "spegel": {

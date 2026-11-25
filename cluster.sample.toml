@@ -341,7 +341,7 @@ token = ""
 
 
 # =============================================================================
-#    Talos Image Factory settings shared by all nodes.
+#    Talos settings shared by all nodes.
 # =============================================================================
 [talos]
 
@@ -349,6 +349,18 @@ token = ""
 # The 64-character hex string from your build at https://factory.talos.dev/
 # OPTIONAL if every node sets schematic_id itself.
 schematic_id = ""
+
+# Run containerd, the kubelet and all pods in their own PID and mount
+# namespace, isolated from Talos' machined. This is the Talos 1.14 default
+# for new clusters. Set to false if you use the deprecated in-tree
+# Kubernetes iSCSI volume plugin: the kubelet can't reach the host iscsid
+# from the sandbox (Talos recommends an iSCSI CSI driver instead). Earlier
+# versions of this template always set false, so existing clusters switch
+# to isolation on their next Talos apply unless they set false here.
+# REF: https://docs.siderolabs.com/talos/v1.14/reference/configuration/runtime/securityprofileconfig
+# OPTIONAL. Default: true
+
+# workload_isolation = true
 
 
 # =============================================================================

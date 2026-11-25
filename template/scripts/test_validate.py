@@ -579,6 +579,12 @@ def test_schematic_id_inherits_from_talos_section():
     assert cfg.nodes[1].schematic_id is not None
 
 
+def test_workload_isolation_defaults_to_talos_default():
+    assert _load_raw(config_from("private.toml")).talos.workload_isolation is True
+    raw = config_from("private.toml", **{"talos.workload_isolation": False})
+    assert _load_raw(raw).talos.workload_isolation is False
+
+
 def test_node_defaults_exported():
     data = _load_raw(config_from("private.toml")).model_dump(mode="json")
     node = data["nodes"][0]

@@ -1,7 +1,6 @@
-# Talos 1.14 defaults to running kubelet and pods in a sandboxed PID/mount
-# namespace, which breaks workloads that rely on hostPID or host mounts
-# (node-exporter, GPU plugins, in-tree iSCSI). Set to true to opt in; on
-# encrypted disks expect a second reboot the first time it is enabled.
+# Run containerd, the kubelet and pods in a sandboxed PID/mount namespace
+# (talos.workload_isolation in cluster.toml). The in-tree iSCSI volume plugin
+# does not work with it enabled; use a CSI driver instead.
 apiVersion: v1alpha1
 kind: SecurityProfileConfig
-workloadIsolation: false
+workloadIsolation: #{ talos.workload_isolation | string | lower }#

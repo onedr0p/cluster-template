@@ -470,6 +470,9 @@ class Bgp(Model):
 class Talos(Model):
     # Default Image Factory schematic for nodes that don't set their own.
     schematic_id: _unsettable(SchematicId | None) = None
+    # Run kubelet, containerd and pods in Talos' sandbox namespace
+    # (SecurityProfileConfig). Matches `talosctl gen config` for Talos 1.14+.
+    workload_isolation: bool = True
 
 
 class Spegel(Model):
