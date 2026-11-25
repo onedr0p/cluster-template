@@ -12,5 +12,8 @@ spec:
     fullnameOverride: reloader
     reloader:
       readOnlyRootFileSystem: true
+      # Restart workloads through a pod template annotation instead of a dummy
+      # env var in their containers, as upstream recommends for GitOps.
+      reloadStrategy: annotations
       podMonitor:
         enabled: true
