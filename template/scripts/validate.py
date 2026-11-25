@@ -346,11 +346,15 @@ class Repository(Model):
     webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = Field(
         default=None,
         description=(
-            'Defaults to "github", or "none" when ingress.mode is "none" or the '
-            "wildcard certificate comes from the in-cluster CA."
+            'Defaults to "gitlab" for gitlab.com URLs and "github" otherwise, or "none" '
+            'when ingress.mode is "none" or the wildcard certificate comes from the in-cluster CA.'
         ),
     )
     known_hosts: Stripped = ""
+
+    @property
+    def host(self) -> str:
+        return self.url.split("/", 3)[2].removeprefix("git@").partition(":")[0].lower()
 
     # Single source for the deploy key Secret, its apply in bootstrap and the
     # flux-instance pullSecret: https:// repositories are cloned anonymously.
@@ -693,9 +697,8 @@ class Config(Model):
         if self.repository.webhook_provider is None:
             # Git hosts reject the internal CA's certificate.
             trusted = self.builtin_acme_issuer or self.certs.cluster_issuer
-            self.repository.webhook_provider = (
-                "github" if self.ingress.mode != "none" and trusted else "none"
-            )
+            hosted = "gitlab" if self.repository.host == "gitlab.com" else "github"
+            self.repository.webhook_provider = hosted if self.ingress.mode != "none" and trusted else "none"
         for i, node in enumerate(self.nodes):
             if node.schematic_id is None:
                 node.schematic_id = self.talos.schematic_id

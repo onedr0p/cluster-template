@@ -261,7 +261,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 3. Navigate to your repository settings and add a webhook with that URL and the secret token from `flux-webhook-token.txt`:
 
     - **GitHub**: under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL, paste the token as the secret, Content type: `application/json`, Events: Choose Just the push event, and save.
-    - **GitLab**: under "Settings/Webhooks" fill in the webhook URL, paste the token as the secret token, check the push events trigger, and save. Also set `webhook_provider = "gitlab"` in `cluster.toml`.
+    - **GitLab**: under "Settings/Webhooks" fill in the webhook URL, paste the token as the secret token, check the push events trigger, and save. `webhook_provider` defaults to `"gitlab"` for gitlab.com repositories; for a self-managed GitLab set `webhook_provider = "gitlab"` in `cluster.toml`.
     - **Gitea/Forgejo**: under "Settings/Webhooks" add a **Gitea/Forgejo** webhook with the webhook URL, method `POST`, content type `application/json`, paste the token as the secret, trigger on push events, and save. Use `webhook_provider = "github"` since these providers emulate GitHub webhooks; set it explicitly on internal-only clusters, where the default is `"none"`.
 
 ### 🤖 Renovate

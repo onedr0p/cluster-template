@@ -509,6 +509,9 @@ def test_webhook_provider_follows_ingress_mode():
     lan_git = config_from("internal.toml", **{"repository.webhook_provider": "generic-hmac"})
     assert _load_raw(lan_git).repository.webhook_provider == "generic-hmac"
     assert _load_raw(config_from("internal-webhook.toml")).repository.webhook_provider == "github"
+    # gitlab.com signs with X-Gitlab-Token, which a github Receiver rejects.
+    gitlab = config_from("public.toml", **{"repository.url": "https://GitLab.com/me/home-ops.git"})
+    assert _load_raw(gitlab).repository.webhook_provider == "gitlab"
     # Follows ingress.mode, not dns.provider.
     no_ingress = _load_raw(config_from("public.toml", **{"ingress.mode": "none"}))
     assert no_ingress.dns.provider == "cloudflare"
