@@ -53,12 +53,26 @@ fi
 
 # Nodes stay NotReady until the apps step installs the CNI, so topf's
 # readiness pre-flight and post-apply checks would fail a re-run.
+# Only a new cluster, with every node in maintenance mode, is applied without
+# asking. On a re-run topf skips unchanged nodes and shows a diff and asks
+# before changing a configured one, e.g. after a version bump that needs
+# //talos:upgrade-k8s first. It always bootstraps the first controller, so
+# the apply is never narrowed to the nodes in maintenance mode.
 [tasks.talos-apply]
 hide = true
+interactive = true
 dir = "{{ config_root }}/../talos"
 run = '''
 mise run //:log info "Applying talos config and bootstrapping" stage "$MISE_TASK_NAME"
-topf apply --auto-bootstrap --allow-not-ready --skip-post-apply-checks --confirm=false
+if ! configured="$(topf nodes --output yaml | yq 'map(select(.machinestatus.stage != "maintenance")) | length')"; then
+    mise run //:log fatal "Failed to query the nodes"
+fi
+confirm=false
+if (( configured > 0 )); then
+    mise run //:log warn "Nodes are already configured; topf asks before changing them" nodes "$configured"
+    confirm=true
+fi
+topf apply --auto-bootstrap --allow-not-ready --skip-post-apply-checks --confirm="$confirm"
 '''
 
 # Both configs are admin credentials: mktemp creates them owner-only, and the
