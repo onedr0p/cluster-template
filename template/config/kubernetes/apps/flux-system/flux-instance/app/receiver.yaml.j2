@@ -6,7 +6,14 @@ metadata:
   name: flux-webhook
 spec:
   type: #{ repository.webhook_provider }#
+#| Flux matches events against the provider's event header: GitHub (and the
+   Gitea/Forgejo emulation) sends "push", GitLab sends "Push Hook". The
+   generic-hmac receiver ignores events. #|
+#% if repository.webhook_provider == 'github' %#
   events: ["ping", "push"]
+#% elif repository.webhook_provider == 'gitlab' %#
+  events: ["Push Hook"]
+#% endif %#
   secretRef:
     name: flux-webhook-token
   resources:

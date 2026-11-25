@@ -75,6 +75,20 @@ def test_flux_webhook_route_attaches_to_the_reachable_gateway():
     assert expected in [gateway["metadata"]["name"] for gateway in gateways]
 
 
+# Flux compares spec.events with the provider's event header, case-insensitively:
+# GitHub and its Gitea/Forgejo emulation send "push", GitLab "Push Hook". The
+# generic-hmac receiver ignores events.
+def test_flux_webhook_receiver_accepts_push_events():
+    provider = config()["repository"]["webhook_provider"]
+    if provider == "none":
+        pytest.skip("no receiver without a webhook provider")
+    (receiver,) = documents("kubernetes/apps/flux-system/flux-instance/app/receiver.yaml", "Receiver")
+    push = {"github": "push", "gitlab": "push hook"}.get(provider)
+    events = [event.lower() for event in receiver["spec"].get("events", [])]
+    assert receiver["spec"]["type"] == provider
+    assert push in events if push else events == []
+
+
 # Only ssh:// repositories authenticate with the deploy key: the Secret is
 # rendered, apps-secrets applies it and flux-instance pulls with it. The
 # scheme is read from the URL here independently of validate.py on purpose.
