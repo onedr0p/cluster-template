@@ -75,9 +75,7 @@ def test_flux_webhook_route_attaches_to_the_reachable_gateway():
     assert expected in [gateway["metadata"]["name"] for gateway in gateways]
 
 
-# Flux compares spec.events with the provider's event header, case-insensitively:
-# GitHub and its Gitea/Forgejo emulation send "push", GitLab "Push Hook". The
-# generic-hmac receiver ignores events.
+# Flux matches spec.events against the provider's push event case-insensitively.
 def test_flux_webhook_receiver_accepts_push_events():
     provider = config()["repository"]["webhook_provider"]
     if provider == "none":

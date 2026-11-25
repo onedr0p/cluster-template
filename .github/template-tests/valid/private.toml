@@ -10,7 +10,8 @@ dns = "10.10.10.253"
 external = "10.10.10.251"
 
 [repository]
-url = "ssh://git@github.com/onedr0p/cluster-template.git"
+url = "ssh://git@gitlab.com/onedr0p/cluster-template.git"
+webhook_provider = "gitlab"
 
 [domain]
 name = "example.com"
