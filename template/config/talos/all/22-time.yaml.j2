@@ -5,3 +5,5 @@ ntp:
     #% for item in network.ntp_servers %#
     - #{ item }#
     #% endfor %#
+  #| NTS authenticates time over TLS and needs hostnames; IPs use plain NTP. #|
+  useNTS: #{ network.ntp_nts | string | lower }#

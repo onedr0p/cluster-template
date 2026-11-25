@@ -340,10 +340,9 @@
           "type": "array"
         },
         "ntp_servers": {
-          "default": ["162.159.200.1", "162.159.200.123"],
+          "default": ["time.cloudflare.com"],
           "items": {
-            "format": "ipv4",
-            "type": "string"
+            "$ref": "#/$defs/San"
           },
           "minItems": 1,
           "title": "Ntp Servers",
