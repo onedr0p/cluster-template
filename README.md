@@ -264,6 +264,8 @@ By default Flux will periodically check your git repository for changes. In-orde
     - **GitLab**: under "Settings/Webhooks" fill in the webhook URL, paste the token as the secret token, check the push events trigger, and save. Also set `webhook_provider = "gitlab"` in `cluster.toml`.
     - **Gitea/Forgejo**: under "Settings/Webhooks" add a **Gitea/Forgejo** webhook with the webhook URL, method `POST`, content type `application/json`, paste the token as the secret, trigger on push events, and save. Use `webhook_provider = "github"` since these providers emulate GitHub webhooks; set it explicitly on internal-only clusters, where the default is `"none"`.
 
+4. Test the webhook: use your Git provider's "redeliver" or "test" button and check that the delivery returns `200`. With `webhook_provider = "generic-hmac"`, run `mise run //kubernetes:webhook-test` instead; it sends a request signed with the Receiver's token to `flux-webhook.${domain_name}` and should be followed by a Flux sync.
+
 ### 🤖 Renovate
 
 [Renovate](https://www.mend.io/renovate) is a tool that automates dependency management. It is designed to scan your repository around the clock and open PRs for out-of-date dependencies it finds. Common dependencies it can discover are Helm charts, container images, GitHub Actions and more! In most cases merging a PR will cause Flux to apply the update to your cluster.

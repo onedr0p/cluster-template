@@ -1,0 +1,15 @@
+[tasks.reconcile]
+description = "Force Flux to pull in changes from your Git repository"
+run = "flux --namespace flux-system reconcile kustomization flux-system --with-source"
+#% if repository.webhook_provider == 'generic-hmac' %#
+
+# Sends a signed request through DNS, the gateway and the Receiver, with the
+# token the Receiver verifies. flux trigger receiver only signs generic and
+# generic-hmac payloads, so it cannot stand in for GitHub or GitLab.
+[tasks.webhook-test]
+description = "Send a signed test request to the Flux webhook Receiver"
+run = '''
+token="$(kubectl --namespace flux-system get secret flux-webhook-token --output=jsonpath='{.data.token}' | base64 -d)"
+flux trigger receiver flux-webhook --type=generic-hmac --token="$token" --url="https://flux-webhook.#{ domain.name }#"
+'''
+#% endif %#
