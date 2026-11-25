@@ -5,6 +5,22 @@
   mise: {
     managerFilePatterns: ["/^\\.mise/conf\\.d/[^/]+\\.toml$/"],
   },
+  customManagers: [
+    {
+      // Renovate's flux manager only reads `chartRef` or HelmChart templates,
+      // not an inline `chart.kind: OCIRepository` template (Flux 2.10+)
+      customType: "regex",
+      description: "Process Flux HelmRelease inline OCIRepository charts",
+      managerFilePatterns: ["/(^|/)helmrelease\\.ya?ml(?:\\.j2)?$/"],
+      matchStrings: [
+        "\\n\\s+url: oci://(?<depName>\\S+)\\n\\s+ref:\\n\\s+tag: (?<currentValue>\\S+)",
+      ],
+      datasourceTemplate: "docker",
+      depTypeTemplate: "HelmChart",
+      // The flux manager resolved mirror.gcr.io via registryAliases, which custom managers ignore
+      packageNameTemplate: "{{{replace '^mirror\\.gcr\\.io/' 'docker.io/' depName}}}",
+    },
+  ],
   packageRules: [
     {
       description: "GitHub Actions Group",
