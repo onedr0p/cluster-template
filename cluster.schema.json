@@ -376,6 +376,35 @@
             }
           ],
           "default": null
+        },
+        "dns_encryption": {
+          "anyOf": [
+            {
+              "enum": ["none", "tls", "https"],
+              "type": "string"
+            },
+            {
+              "const": "",
+              "type": "string"
+            }
+          ],
+          "default": "none",
+          "title": "Dns Encryption"
+        },
+        "dns_tls_server_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DomainName"
+            },
+            {
+              "const": "",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": ["node_cidr"],

@@ -21,6 +21,28 @@ node_cidr = ""
 
 # dns_servers = ["1.1.1.1", "1.0.0.1"]
 
+# Encrypt the nodes' DNS queries to dns_servers with DNS over TLS ("tls",
+# TCP 853) or DNS over HTTPS ("https", TCP 443). Plain DNS to the same
+# servers stays configured as a fallback for when the encrypted connection
+# fails (e.g. port 853 blocked, or no correct clock yet to check the
+# certificate), so nodes keep resolving names; this protects against passive
+# snooping, not against a network that blocks encrypted DNS on purpose.
+# Works out of the box with Cloudflare (1.1.1.1/1.0.0.1, also .2 and .3),
+# Google (8.8.8.8/8.8.4.4) and Quad9 (9.9.9.9/149.112.112.112); for any
+# other resolver set dns_tls_server_name below.
+# REF: https://docs.siderolabs.com/talos/v1.14/reference/configuration/network/resolverconfig
+# OPTIONAL. Default: "none". Allowed: "none", "tls", "https"
+
+# dns_encryption = "none"
+
+# Name on the certificate of every dns_server (TLS SNI and, for "https", the
+# host in https://<name>/dns-query). Only used with dns_encryption and
+# derived for the resolvers listed above, so it is only needed for other
+# ones, e.g. a NextDNS profile ("<id>.dns.nextdns.io") or your own resolver.
+# OPTIONAL. Default: derived from dns_servers
+
+# dns_tls_server_name = ""
+
 # Upstream NTP servers. Defaults to Cloudflare's anycast NTP. Most homelabs
 # don't need to change this.
 # OPTIONAL. Default: ["162.159.200.1", "162.159.200.123"]. If set, list at least one.

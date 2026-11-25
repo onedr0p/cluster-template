@@ -66,6 +66,17 @@ HOSTNAME_PATTERN = rf"^({DNS_LABEL}\.)*{DNS_LABEL}$"
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
 KERNEL_MODULE_PATTERN = r"^[A-Za-z0-9_-]+$"
+# Certificate names of well-known public resolvers that serve DNS over TLS
+# (port 853) and DNS over HTTPS (/dns-query on port 443) on these addresses.
+DNS_TLS_SERVER_NAMES = {
+    **dict.fromkeys(("1.1.1.1", "1.0.0.1"), "cloudflare-dns.com"),
+    **dict.fromkeys(("1.1.1.2", "1.0.0.2"), "security.cloudflare-dns.com"),
+    **dict.fromkeys(("1.1.1.3", "1.0.0.3"), "family.cloudflare-dns.com"),
+    **dict.fromkeys(("8.8.8.8", "8.8.4.4"), "dns.google"),
+    **dict.fromkeys(("9.9.9.9", "149.112.112.112"), "dns.quad9.net"),
+}
+# Talos's protocol names for network.dns_encryption.
+DNS_PROTOCOLS = {"tls": "DoT", "https": "DoH"}
 # A Kubernetes object name (RFC 1123 subdomain).
 K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
 
@@ -227,6 +238,31 @@ class Network(Model):
         default_factory=lambda data: data["node_cidr"].network_address + 1
     )
     vlan_tag: _unsettable(VlanTag | None) = None
+    dns_encryption: _unsettable(Literal["none", "tls", "https"]) = "none"
+    # The certificate name of every dns_server; derived for well-known
+    # public resolvers unless set.
+    dns_tls_server_name: _unsettable(DomainName | None) = None
+
+    # The ResolverConfig nameservers in talos/all/21-network.yaml. With
+    # encryption: every server over TLS/HTTPS, then the same servers over
+    # plain DNS, which hostDNS only tries once the encrypted ones fail. Talos
+    # recommends (and warns without) this fallback, so nodes still resolve
+    # when port 853/443 is filtered or the clock is too far off for TLS.
+    @computed_field
+    @property
+    def nameservers(self) -> list[dict[str, str]]:
+        plain = [{"address": str(addr)} for addr in self.dns_servers]
+        if self.dns_encryption == "none":
+            return plain
+        encrypted = [
+            {
+                "address": str(addr),
+                "protocol": DNS_PROTOCOLS[self.dns_encryption],
+                "tls_server_name": self.dns_tls_server_name or DNS_TLS_SERVER_NAMES[str(addr)],
+            }
+            for addr in self.dns_servers
+        ]
+        return encrypted + plain
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -234,6 +270,16 @@ class Network(Model):
             raise ValueError(
                 f"default_gateway {self.default_gateway} is not inside node_cidr {self.node_cidr}"
             )
+        if self.dns_encryption == "none":
+            if self.dns_tls_server_name is not None:
+                raise ValueError("dns_tls_server_name requires dns_encryption 'tls' or 'https'")
+        elif self.dns_tls_server_name is None:
+            for i, addr in enumerate(self.dns_servers):
+                if str(addr) not in DNS_TLS_SERVER_NAMES:
+                    raise ValueError(
+                        f"dns_servers[{i}] {addr} is not a well-known encrypted DNS resolver: "
+                        "set dns_tls_server_name to the name on its certificate"
+                    )
         return self
 
 
