@@ -352,6 +352,19 @@ schematic_id = ""
 
 
 # =============================================================================
+#    Spegel: a peer-to-peer registry mirror that lets nodes pull container
+#    images from each other instead of the upstream registry.
+#    REF: https://spegel.dev/
+# =============================================================================
+[spegel]
+
+# Deploy Spegel. It only helps when there is another node to pull from.
+# OPTIONAL. Default: true when the cluster has more than one node, otherwise false.
+
+# enabled = true
+
+
+# =============================================================================
 #    One [[nodes]] table per physical machine or VM in the cluster. At least
 #    one controller (controller=true) is required; worker nodes are optional.
 #    For HA, use 3 controllers.

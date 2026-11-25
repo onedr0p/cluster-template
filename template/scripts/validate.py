@@ -66,6 +66,15 @@ HOSTNAME_PATTERN = rf"^({DNS_LABEL}\.)*{DNS_LABEL}$"
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
 KERNEL_MODULE_PATTERN = r"^[A-Za-z0-9_-]+$"
+# Special-purpose ranges no network routes (RFC 6890). A CIDR overlapping one
+# would capture those addresses, e.g. Talos's host DNS on 169.254.116.108.
+UNROUTABLE_NETWORKS = {
+    IPv4Network("0.0.0.0/8"): "unspecified",
+    IPv4Network("127.0.0.0/8"): "loopback",
+    IPv4Network("169.254.0.0/16"): "link-local",
+    IPv4Network("224.0.0.0/4"): "multicast",
+    IPv4Network("240.0.0.0/4"): "reserved",
+}
 # A Kubernetes object name (RFC 1123 subdomain).
 K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
 
@@ -91,6 +100,18 @@ def _network(value: Any) -> Any:
     if "/" not in value:
         raise ValueError(f"{value!r} has no prefix length, e.g. {value}/24")
     return network
+
+
+def _routable_network(value: IPv4Network) -> IPv4Network:
+    for special, kind in UNROUTABLE_NETWORKS.items():
+        if value.overlaps(special):
+            raise ValueError(f"{value} overlaps the {kind} range {special}, which is not routable")
+    return value
+
+
+def _address(value: Any) -> Any:
+    """Like _network, reject TOML integers, which pydantic reads as an address (168430334 is 10.10.10.254)."""
+    return str(value) if isinstance(value, int) else value
 
 
 def _bounded_int(lo: int, hi: int) -> Any:
@@ -162,6 +183,15 @@ def _branch(value: str) -> str:
     return value
 
 
+# Rendered into a YAML block scalar line by line: YAML rejects most control
+# characters and reads C1 NEL and U+2028/U+2029 as line breaks. Tabs and
+# CRLF line endings are harmless.
+def _known_hosts(value: str) -> str:
+    if re.search(r"[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f-\x9f\u2028\u2029]|\r(?!\n)", value):
+        raise ValueError("must not contain control characters other than tabs and line breaks")
+    return value
+
+
 def _empty_to_none(value: Any) -> Any:
     return None if value == "" else value
 
@@ -195,14 +225,21 @@ def _unsettable(tp: Any) -> Any:
 # not a value. A plain alias rather than `type` so the schema inlines it
 # instead of emitting one mangled $defs entry per use.
 Stripped = Annotated[str, StringConstraints(strip_whitespace=True)]
-type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
+type Cidr = Annotated[IPv4Network, BeforeValidator(_network), AfterValidator(_routable_network)]
+Ipv4 = Annotated[IPv4Address, BeforeValidator(_address)]
 type VlanTag = _bounded_int(1, 4094)
 type Asn = _bounded_int(1, 4294967295)
 type San = Annotated[
     str,
     AfterValidator(_san),
     WithJsonSchema(
-        {"anyOf": [{"type": "string", "format": "ipv4"}, {"type": "string", "pattern": HOSTNAME_PATTERN, "maxLength": 253}]}
+        {
+            "anyOf": [
+                {"type": "string", "format": "ipv4"},
+                # An all-numeric last label is a mistyped IPv4 address (see _san).
+                {"type": "string", "pattern": HOSTNAME_PATTERN, "maxLength": 253, "not": {"pattern": r"(^|\.)[0-9]+$"}},
+            ]
+        }
     ),
 ]
 type SchematicId = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
@@ -216,20 +253,27 @@ class Model(BaseModel):
 
 class Network(Model):
     node_cidr: Cidr
-    dns_servers: list[IPv4Address] = Field(
+    dns_servers: list[Ipv4] = Field(
         default=[IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")], min_length=1
     )
-    ntp_servers: list[IPv4Address] = Field(
+    ntp_servers: list[Ipv4] = Field(
         default=[IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")], min_length=1
     )
     # The first IP in node_cidr unless set explicitly.
-    default_gateway: _unsettable(IPv4Address) = Field(
+    default_gateway: _unsettable(Ipv4) = Field(
         default_factory=lambda data: data["node_cidr"].network_address + 1
     )
     vlan_tag: _unsettable(VlanTag | None) = None
 
     @model_validator(mode="after")
     def check(self) -> Self:
+        # A /31 (RFC 3021) still holds a node and its gateway; a /32 holds
+        # only one address, which the derived default_gateway already leaves.
+        if self.node_cidr.prefixlen > 31:
+            raise ValueError(
+                f"node_cidr {self.node_cidr} is a single address: it must hold the nodes "
+                "and the default gateway, so use the LAN's prefix, e.g. /24"
+            )
         if self.default_gateway not in self.node_cidr:
             raise ValueError(
                 f"default_gateway {self.default_gateway} is not inside node_cidr {self.node_cidr}"
@@ -238,7 +282,7 @@ class Network(Model):
 
 
 class Api(Model):
-    addr: IPv4Address
+    addr: Ipv4
     # False serves the API on the sole controller's own address (addr)
     # instead of announcing a Layer 2 VIP.
     vip: bool = True
@@ -254,7 +298,7 @@ class Kubernetes(Model):
     pod_cidr: Cidr = IPv4Network("10.42.0.0/16")
     svc_cidr: Cidr = IPv4Network("10.43.0.0/16")
     # Talos's default unless set explicitly.
-    coredns_addr: _unsettable(IPv4Address) = Field(
+    coredns_addr: _unsettable(Ipv4) = Field(
         default_factory=lambda data: _talos_cluster_dns(data["svc_cidr"])
     )
     api: Api
@@ -295,7 +339,7 @@ class Gateway(Model):
     # per cilium.announce), or the loadBalancerClass of another
     # implementation, e.g. "io.cilium/node" to serve on the nodes' own IPs
     # or "tailscale" for the Tailscale Kubernetes operator.
-    address: IPv4Address | None = None
+    address: Ipv4 | None = None
     load_balancer_class: Annotated[str, Field(pattern=LB_CLASS_PATTERN), AfterValidator(_lb_class)] | None = None
 
     # Whether the gateway's Service keeps its NodePorts. Cilium (an address
@@ -350,7 +394,7 @@ class Repository(Model):
             "wildcard certificate comes from the in-cluster CA."
         ),
     )
-    known_hosts: Stripped = ""
+    known_hosts: Annotated[Stripped, AfterValidator(_known_hosts)] = ""
 
     # Single source for the deploy key Secret, its apply in bootstrap and the
     # flux-instance pullSecret: https:// repositories are cloned anonymously.
@@ -374,12 +418,19 @@ class Repository(Model):
                 f"url host {host_port!r} must be a hostname with an optional numeric port; "
                 "write scp-style git@host:owner/repo as ssh://git@host/owner/repo"
             )
+        host, _, port_text = host_port.partition(":")
+        # Flux reads the port as a number, so :022 is port 22. Only short
+        # digit strings are converted, as in _bounded_int.
+        port = 22
+        if port_text:
+            digits = port_text.lstrip("0")
+            if not digits or len(digits) > 5 or int(digits) > 65535:
+                raise ValueError(f"url port {port_text!r} must be in the range 1-65535")
+            port = int(digits)
         if self.uses_deploy_key:
-            host, _, port = host_port.partition(":")
-            port = port or "22"
             # Flux looks the host up as host on port 22, otherwise as
             # [host]:port; the bundled keys are only for port 22.
-            name = host if port == "22" else f"[{host}]:{port}"
+            name = host if port == 22 else f"[{host}]:{port}"
             bundled = name in KNOWN_HOSTS
             if not bundled and not self.known_hosts:
                 raise ValueError(
@@ -398,7 +449,7 @@ class Repository(Model):
             hosts = {h for fields in lines for h in fields[0].split(",")}
             # Hashed (|1|) hosts, markers and patterns are not checked.
             if not bundled and name not in hosts and not any(re.search(r"^[|@!]|[*?]", h) for h in hosts):
-                keyscan = "ssh-keyscan" if port == "22" else f"ssh-keyscan -p {port}"
+                keyscan = "ssh-keyscan" if port == 22 else f"ssh-keyscan -p {port}"
                 raise ValueError(
                     f"known_hosts has no entry for {name!r}; generate it with `{keyscan} {host}`"
                 )
@@ -444,7 +495,7 @@ class Certs(Model):
 
 
 class Bgp(Model):
-    router_addr: _unsettable(IPv4Address | None) = None
+    router_addr: _unsettable(Ipv4 | None) = None
     router_asn: _unsettable(Asn | None) = None
     node_asn: _unsettable(Asn | None) = None
 
@@ -496,13 +547,21 @@ KERNEL_DISK_NAME = re.compile(
 )
 
 
-# Partitions of the block devices above, and their by-id/by-path symlinks.
+# Partitions of the block devices above, and their by-id/by-path/by-diskseq
+# symlinks.
 # Talos Disk resources (which the install disk selector matches) only cover
 # whole disks, so these would also select no disk.
 PARTITION_PATH = re.compile(
     r"(?P<disk>/dev/(?:s|v|h|xv)d[a-z]+|/dev/(?:nvme\d+(?:c\d+)?n\d+|mmcblk\d+|md\d+|loop\d+|nbd\d+)(?=p)"
-    r"|/dev/disk/by-(?:id|path)/.+(?=-part))(?:p|-part)?\d+"
+    r"|/dev/disk/by-(?:id|path|diskseq)/.+(?=-part))(?:p|-part)?\d+"
 )
+# udev symlinks that name a partition or a filesystem rather than a disk.
+NON_DISK_SYMLINKS = {
+    "/dev/disk/by-partuuid/": "a partition",
+    "/dev/disk/by-partlabel/": "a partition",
+    "/dev/disk/by-uuid/": "a filesystem",
+    "/dev/disk/by-label/": "a filesystem",
+}
 
 
 def _disk(value: str) -> str:
@@ -524,8 +583,9 @@ def _disk(value: str) -> str:
         )
     if match := PARTITION_PATH.fullmatch(value):
         raise ValueError(f"{value!r} is a partition; Talos installs to a whole disk, e.g. {match['disk']!r}")
-    if value.startswith(("/dev/disk/by-partuuid/", "/dev/disk/by-partlabel/")):
-        raise ValueError(f"{value!r} is a partition; Talos installs to a whole disk")
+    for prefix, kind in NON_DISK_SYMLINKS.items():
+        if value.startswith(prefix):
+            raise ValueError(f"{value!r} is {kind}; Talos installs to a whole disk")
     return value
 
 
@@ -536,7 +596,7 @@ def _mac(value: Any) -> Any:
 
 class Node(Model):
     name: str = Field(pattern=r"^[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]$|^[a-z0-9]$")
-    address: IPv4Address
+    address: Ipv4
     controller: bool
     disk: Annotated[str, Field(min_length=1), AfterValidator(_disk)]
     mac_addr: Annotated[
@@ -897,9 +957,13 @@ class ConfigError(Exception):
 def load(config_file: str = "cluster.toml") -> dict[str, Any]:
     path = Path(config_file)
     try:
-        raw = tomllib.loads(path.read_text())
+        raw = tomllib.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         raise ConfigError(f"{path}: file not found") from None
+    except OSError as e:
+        raise ConfigError(f"{path}: cannot read: {e.strerror or e}") from None
+    except UnicodeDecodeError as e:
+        raise ConfigError(f"{path}: not valid UTF-8 (byte offset {e.start})") from None
     except tomllib.TOMLDecodeError as e:
         raise ConfigError(f"{path}: invalid TOML: {e}") from None
 
