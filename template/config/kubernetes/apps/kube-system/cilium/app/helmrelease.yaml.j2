@@ -11,6 +11,11 @@ spec:
   values:
     autoDirectNodeRoutes: true
     bpf:
+      # netkit pod devices (Layer 3) instead of veth, when the kernel has
+      # them; needs eBPF host routing, BPF masquerade and kube-proxy
+      # replacement, else Cilium falls back to veth. A node whose pods run on
+      # veth must be drained before switching.
+      datapathMode: auto
       masquerade: true
     #% if cilium_bgp_enabled %#
     bgpControlPlane:
