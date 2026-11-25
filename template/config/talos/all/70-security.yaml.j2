@@ -5,3 +5,26 @@
 apiVersion: v1alpha1
 kind: SecurityProfileConfig
 workloadIsolation: false
+#% if talos.image_verification %#
+---
+# Verify cosign keyless signatures of the images Talos itself pulls (kubelet,
+# control plane, etcd, installer) and of any other image from these
+# registries, using Talos's recommended base policy. Images from other
+# registries are pulled unverified. Applies on pull, not to cached images.
+# https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
+apiVersion: v1alpha1
+kind: ImageVerificationConfig
+rules:
+  - image: registry.k8s.io/*
+    keyless:
+      issuer: https://accounts.google.com
+      subject: krel-trust@k8s-releng-prod.iam.gserviceaccount.com
+  - image: ghcr.io/siderolabs/*
+    keyless:
+      issuer: https://accounts.google.com
+      subjectRegex: '(@siderolabs\.com$|^releasemgr-svc@talos-production\.iam\.gserviceaccount\.com$)'
+  - image: factory.talos.dev/*
+    keyless:
+      issuer: https://accounts.google.com
+      subject: image-factory-signing@talos-production.iam.gserviceaccount.com
+#% endif %#

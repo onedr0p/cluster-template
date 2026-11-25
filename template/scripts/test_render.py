@@ -7,6 +7,7 @@ Render the tree first:
 """
 
 import tomllib
+from fnmatch import fnmatch
 from functools import cache
 from ipaddress import ip_network
 from pathlib import Path
@@ -61,6 +62,20 @@ def test_kubelet_cluster_dns_matches_coredns_service():
         (kubelet,) = machine_config(node, "KubeletConfig")
         default = str(ip_network(network["serviceSubnets"][0])[10])
         assert kubelet.get("clusterDNS", []) == ([] if coredns == default else [coredns]), node["name"]
+
+
+# Image verification is opt-in, and when on it must cover the installer image
+# every node pulls on install and upgrade.
+def test_image_verification_covers_the_installer():
+    for node in config()["nodes"]:
+        policies = machine_config(node, "ImageVerificationConfig")
+        if not config()["talos"]["image_verification"]:
+            assert policies == [], node["name"]
+            continue
+        (policy,) = policies
+        (install,) = machine_config(node, "UnattendedInstallConfig")
+        repository = install["installer"]["image"].rsplit(":", 1)[0]
+        assert any(fnmatch(repository, rule["image"]) for rule in policy["rules"]), node["name"]
 
 
 # A Git host reaches the webhook through envoy-external, which only exists

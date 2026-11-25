@@ -470,6 +470,8 @@ class Bgp(Model):
 class Talos(Model):
     # Default Image Factory schematic for nodes that don't set their own.
     schematic_id: _unsettable(SchematicId | None) = None
+    # Renders the ImageVerificationConfig in talos/all/70-security.yaml.
+    image_verification: bool = False
 
 
 class Spegel(Model):
