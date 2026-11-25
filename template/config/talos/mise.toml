@@ -13,11 +13,28 @@ interactive = true
 usage = '''
 arg "<node>" help="Node name from topf.yaml"
 arg "[mode]" help="How topf applies the config" default="auto" {
-  choices "auto" "reboot" "no-reboot" "staged" "try"
+  choices "auto" "no-reboot" "staged" "try"
 }
 complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos/topf.yaml\""
 '''
 run = 'topf apply --nodes-filter "^${usage_node}$" --mode "${usage_mode}"'
+
+# Talos 1.14 removed the reboot apply mode: a change that needs a reboot is
+# applied with "staged" and takes effect with reboot-node.
+[tasks.reboot-node]
+description = "Drain and reboot a single node"
+usage = '''
+arg "<node>" help="Node name from topf.yaml"
+complete "node" run="yq '.nodes[].host' \"$(git rev-parse --show-toplevel)/talos/topf.yaml\""
+'''
+confirm = { message = "This will drain and reboot node {{ usage.node }}, continue?", default = "no" }
+run = '''
+ip="$(NODE="$usage_node" yq '.nodes[] | select(.host == strenv(NODE)) | .ip' topf.yaml)"
+if [[ -z "$ip" ]]; then
+    mise run //:log fatal "Node not found in topf.yaml" node "$usage_node"
+fi
+talosctl --nodes "$ip" reboot --drain
+'''
 
 [tasks.diff]
 description = "Show pending config changes without applying them"
