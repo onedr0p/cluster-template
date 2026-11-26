@@ -4,9 +4,13 @@ kind: HelmRelease
 metadata:
   name: k8s-gateway
 spec:
-  chartRef:
+  chart:
     kind: OCIRepository
-    name: k8s-gateway
+    spec:
+      interval: 15m
+      url: oci://codeberg.org/k8s-gateway/charts/k8s-gateway
+      ref:
+        tag: 4.0.1
   interval: 1h
   # Cilium serves the LoadBalancer IP itself; NodePorts would only open DNS on
   # every node address, so they are dropped unless the class forwards to

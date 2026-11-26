@@ -4,9 +4,13 @@ kind: HelmRelease
 metadata:
   name: reloader
 spec:
-  chartRef:
+  chart:
     kind: OCIRepository
-    name: reloader
+    spec:
+      interval: 15m
+      url: oci://ghcr.io/stakater/charts/reloader
+      ref:
+        tag: 2.2.20
   interval: 1h
   values:
     fullnameOverride: reloader
