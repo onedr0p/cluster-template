@@ -81,22 +81,8 @@ spec:
               group: kustomize.toolkit.fluxcd.io
               kind: Kustomization
               name: flux-system
-          - # Increase the number of workers above the medium preset and requeue dependencies faster
+          - # Enable in-memory kustomize builds
             patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --concurrent=10
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --requeue-dependency=5s
-            target:
-              kind: Deployment
-              name: source-controller
-          - # Increase the number of workers above the medium preset and enable in-memory kustomize builds
-            patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --concurrent=20
               - op: replace
                 path: /spec/template/spec/volumes/0
                 value:
