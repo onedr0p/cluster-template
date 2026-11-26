@@ -75,6 +75,16 @@ def test_flux_webhook_route_attaches_to_the_reachable_gateway():
     assert expected in [gateway["metadata"]["name"] for gateway in gateways]
 
 
+def test_flux_webhook_receiver_accepts_push_events():
+    provider = config()["repository"]["webhook_provider"]
+    if provider == "none":
+        pytest.skip("no receiver without a webhook provider")
+    (receiver,) = documents("kubernetes/apps/flux-system/flux-instance/app/receiver.yaml", "Receiver")
+    expected = {"github": ["ping", "push"], "gitlab": ["Push Hook", "Tag Push Hook"]}.get(provider, [])
+    assert receiver["spec"]["type"] == provider
+    assert receiver["spec"].get("events", []) == expected
+
+
 # Only ssh:// repositories authenticate with the deploy key: the Secret is
 # rendered, apps-secrets applies it and flux-instance pulls with it. The
 # scheme is read from the URL here independently of validate.py on purpose.

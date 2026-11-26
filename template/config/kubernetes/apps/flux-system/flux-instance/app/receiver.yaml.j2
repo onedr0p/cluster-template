@@ -6,7 +6,12 @@ metadata:
   name: flux-webhook
 spec:
   type: #{ repository.webhook_provider }#
+#| Event names differ per provider; generic-hmac does not filter on events. #|
+#% if repository.webhook_provider == 'github' %#
   events: ["ping", "push"]
+#% elif repository.webhook_provider == 'gitlab' %#
+  events: ["Push Hook", "Tag Push Hook"]
+#% endif %#
   secretRef:
     name: flux-webhook-token
   resources:
