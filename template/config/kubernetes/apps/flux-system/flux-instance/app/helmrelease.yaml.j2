@@ -62,13 +62,11 @@ spec:
                                 crds: CreateReplace
                                 strategy:
                                   name: RetryOnFailure
-                              rollback:
-                                cleanupOnFail: true
                               upgrade:
                                 cleanupOnFail: true
                                 crds: CreateReplace
-                                remediation:
-                                  retries: 2
+                                strategy:
+                                  name: RetryOnFailure
                           target:
                             group: helm.toolkit.fluxcd.io
                             kind: HelmRelease
@@ -176,11 +174,11 @@ spec:
             target:
               kind: Deployment
               name: (helm-controller|kustomize-controller)
-          - # Cancel health checks on new Kustomizations revisions
+          - # Cancel health checks on new Kustomization and HelmRelease revisions
             patch: |-
               - op: add
                 path: /spec/template/spec/containers/0/args/-
                 value: --feature-gates=CancelHealthCheckOnNewRevision=true
             target:
               kind: Deployment
-              name: kustomize-controller
+              name: (helm-controller|kustomize-controller)
