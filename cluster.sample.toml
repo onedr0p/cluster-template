@@ -55,8 +55,8 @@ node_cidr = ""
 # CIDR Cilium hands out to pods. /16 gives ~64K pod IPs, which is well beyond
 # what a homelab needs but matches the upstream default. Each node gets a /24
 # from it, so it must hold at least one /24 per node. Must NOT overlap
-# with node_cidr or svc_cidr, nor with the special-purpose ranges
-# 0.0.0.0/8, 127.0.0.0/8, 169.254.0.0/16 and 224.0.0.0/3.
+# with node_cidr, svc_cidr or the special-purpose ranges 0.0.0.0/8,
+# 127.0.0.0/8, 169.254.0.0/16, 224.0.0.0/4 and 240.0.0.0/4.
 # OPTIONAL. Default: "10.42.0.0/16"
 
 # pod_cidr = "10.42.0.0/16"
@@ -350,19 +350,6 @@ token = ""
 # The 64-character hex string from your build at https://factory.talos.dev/
 # OPTIONAL if every node sets schematic_id itself.
 schematic_id = ""
-
-
-# =============================================================================
-#    Spegel: a peer-to-peer registry mirror that lets nodes pull container
-#    images from each other instead of the upstream registry.
-#    REF: https://spegel.dev/
-# =============================================================================
-[spegel]
-
-# Deploy Spegel. It only helps when there is another node to pull from.
-# OPTIONAL. Default: true when the cluster has more than one node, otherwise false.
-
-# enabled = true
 
 
 # =============================================================================
