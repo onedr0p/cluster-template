@@ -14,6 +14,8 @@ spec:
     instance:
       cluster:
         networkPolicy: false
+        # Preset for helm/kustomize/source-controller workers, resources and Helm index caching
+        size: medium
       sync:
         kind: GitRepository
         url: "#{ repository.url }#"
@@ -79,42 +81,8 @@ spec:
               group: kustomize.toolkit.fluxcd.io
               kind: Kustomization
               name: flux-system
-          - # Increase the number of workers
+          - # Enable in-memory kustomize builds
             patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --concurrent=10
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --requeue-dependency=5s
-            target:
-              kind: Deployment
-              name: (helm-controller|source-controller)
-          - # Increase the memory limits
-            patch: |
-              apiVersion: apps/v1
-              kind: Deployment
-              metadata:
-                name: all
-              spec:
-                template:
-                  spec:
-                    containers:
-                      - name: manager
-                        resources:
-                          limits:
-                            memory: 1Gi
-            target:
-              kind: Deployment
-              name: (kustomize-controller|helm-controller|source-controller)
-          - # Increase the number of workers and enable in-memory kustomize builds
-            patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --concurrent=20
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --requeue-dependency=5s
               - op: replace
                 path: /spec/template/spec/volumes/0
                 value:
@@ -124,20 +92,6 @@ spec:
             target:
               kind: Deployment
               name: kustomize-controller
-          - # Enable Helm repositories caching
-            patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --helm-cache-max-size=10
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --helm-cache-ttl=60m
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --helm-cache-purge-interval=5m
-            target:
-              kind: Deployment
-              name: source-controller
           - # Flux near OOM detection for Helm
             patch: |
               - op: add
