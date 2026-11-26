@@ -76,7 +76,9 @@ REJECTIONS = {
     "whitespace-dns-token": ("public.toml", "dns.token", " ", r"token is required when dns\.provider is 'cloudflare'"),
     "whitespace-token-without-dns-provider": ("internal.toml", "dns.token", " x ", r"token must be empty when dns\.provider is 'none'"),
     "empty-dns-servers": ("private.toml", "network.dns_servers", [], r"network\.dns_servers: List should have at least 1 item"),
-    "empty-ntp-servers": ("private.toml", "network.ntp_servers", [], r"network\.ntp_servers: List should have at least 1 item"),
+    "bad-dns-encryption": ("private.toml", "network.dns_encryption", "dot", r"network\.dns_encryption: Input should be 'none', 'tls' or 'https'"),
+    "bad-dns-tls-server-name": ("private.toml", "network.dns_tls_server_name", "https://dns.example.com", r"network\.dns_tls_server_name: String should match pattern"),
+    "empty-ntp-servers":("private.toml", "network.ntp_servers", [], r"network\.ntp_servers: List should have at least 1 item"),
     "loopback-dns-server": ("private.toml", "network.dns_servers", ["1.1.1.1", "127.0.0.1"], r"network\.dns_servers\[1\] 127\.0\.0\.1 is not usable \(unspecified, loopback or multicast\)"),
     "multicast-ntp-server": ("private.toml", "network.ntp_servers", ["224.0.1.1"], r"network\.ntp_servers\[0\] 224\.0\.1\.1 is not usable"),
     "dns-server-is-k8s-gateway": ("private.toml", "network.dns_servers", ["10.10.10.253"], r"network\.dns_servers\[0\] 10\.10\.10\.253 is gateways\.dns, which only answers once the cluster runs"),
@@ -314,6 +316,48 @@ def test_dns_and_ntp_servers_may_be_lan_hosts():
     # The router, a node or a link-local resolver are all reachable at boot.
     raw = config_from("private.toml", **{"network.dns_servers": ["10.10.10.1", "10.10.10.101", "169.254.169.253"], "network.ntp_servers": ["10.10.10.1"]})
     _load_raw(raw)
+
+
+def test_dns_servers_are_plain_by_default():
+    config = _load_raw(config_from("public.toml"))
+    assert config.network.nameservers == [{"address": "1.1.1.1"}]
+
+
+@pytest.mark.parametrize("encryption,protocol", [("tls", "DoT"), ("https", "DoH")])
+def test_dns_encryption_derives_server_names_and_keeps_plain_fallback(encryption: str, protocol: str):
+    raw = config_from("private.toml", **{"network.dns_servers": ["1.1.1.1", "9.9.9.9"], "network.dns_encryption": encryption})
+    assert _load_raw(raw).network.nameservers == [
+        {"address": "1.1.1.1", "protocol": protocol, "tls_server_name": "cloudflare-dns.com"},
+        {"address": "9.9.9.9", "protocol": protocol, "tls_server_name": "dns.quad9.net"},
+        {"address": "1.1.1.1"},
+        {"address": "9.9.9.9"},
+    ]
+
+
+def test_dns_tls_server_name_overrides_derived_names():
+    raw = config_from(
+        "private.toml",
+        **{"network.dns_servers": ["10.10.10.1", "1.1.1.1"], "network.dns_encryption": "tls", "network.dns_tls_server_name": "dns.example.com"},
+    )
+    assert [ns.get("tls_server_name") for ns in _load_raw(raw).network.nameservers] == ["dns.example.com", "dns.example.com", None, None]
+
+
+def test_dns_encryption_rejects_unknown_resolver_without_server_name():
+    raw = config_from("private.toml", **{"network.dns_servers": ["1.1.1.1", "10.10.10.1"], "network.dns_encryption": "tls"})
+    with pytest.raises(ConfigError, match=r"dns_servers\[1\] 10\.10\.10\.1 is not a well-known encrypted DNS resolver: set dns_tls_server_name"):
+        _load_raw(raw)
+
+
+def test_dns_tls_server_name_requires_encryption():
+    raw = config_from("private.toml", **{"network.dns_tls_server_name": "dns.example.com"})
+    with pytest.raises(ConfigError, match=r"dns_tls_server_name requires dns_encryption 'tls' or 'https'"):
+        _load_raw(raw)
+
+
+def test_dns_encryption_placeholders_validate_as_unset():
+    config = _load_raw(config_from("private.toml", **{"network.dns_encryption": "", "network.dns_tls_server_name": ""}))
+    assert config.network.dns_encryption == "none"
+    assert config.network.dns_tls_server_name is None
 
 
 def test_dns_server_may_reuse_unused_external_gateway_address():

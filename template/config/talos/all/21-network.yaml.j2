@@ -1,8 +1,12 @@
 apiVersion: v1alpha1
 kind: ResolverConfig
 nameservers:
-  #% for item in network.dns_servers %#
-  - address: #{ item }#
+  #% for item in network.nameservers %#
+  - address: #{ item.address }#
+    #% if "protocol" in item %#
+    protocol: #{ item.protocol }#
+    tlsServerName: #{ item.tls_server_name }#
+    #% endif %#
   #% endfor %#
 searchDomains:
   disableDefault: true
