@@ -1,8 +1,5 @@
 {{- if .Node.Data.encryptDisk }}
-# Encrypt system disk with TPM. allowDiscards lets the weekly trim reach the
-# SSD (Talos skips trim on encrypted volumes without it), at the cost of
-# revealing which blocks are unused to someone with the raw disk. Applied
-# when the volume is next opened, i.e. after a reboot.
+# Encrypt system disk with TPM.
 apiVersion: v1alpha1
 kind: VolumeConfig
 name: STATE
