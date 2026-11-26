@@ -226,8 +226,6 @@ class Network(Model):
     dns_servers: list[IPv4Address] = Field(
         default=[IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")], min_length=1
     )
-    # Hostnames are queried over NTS, which needs a name for TLS; Talos
-    # rejects IP addresses when NTS is on, so IPs mean plain NTP.
     ntp_servers: list[San] = Field(default=["time.cloudflare.com"], min_length=1)
     # The first IP in node_cidr unless set explicitly.
     default_gateway: _unsettable(IPv4Address) = Field(
@@ -246,13 +244,6 @@ class Network(Model):
         if self.default_gateway not in self.node_cidr:
             raise ValueError(
                 f"default_gateway {self.default_gateway} is not inside node_cidr {self.node_cidr}"
-            )
-        ips = [server for server in self.ntp_servers if _is_ipv4(server)]
-        if ips and len(ips) < len(self.ntp_servers):
-            raise ValueError(
-                f"ntp_servers mixes hostnames and IP addresses ({', '.join(ips)}): Talos queries "
-                "either all servers over NTS, which needs hostnames, or all over plain NTP; "
-                "list only hostnames of NTS servers or only IPv4 addresses"
             )
         return self
 
@@ -846,10 +837,9 @@ class Config(Model):
         for field in ("dns_servers", "ntp_servers"):
             for i, addr in enumerate(getattr(self.network, field)):
                 # NTP servers may be hostnames, which resolve at boot.
-                if isinstance(addr, str):
-                    if not _is_ipv4(addr):
-                        continue
-                    addr = IPv4Address(addr)
+                if not _is_ipv4(str(addr)):
+                    continue
+                addr = IPv4Address(addr)
                 owner = f"network.{field}[{i}]"
                 if addr.is_unspecified or addr.is_loopback or addr.is_multicast:
                     raise ValueError(f"{owner} {addr} is not usable (unspecified, loopback or multicast)")

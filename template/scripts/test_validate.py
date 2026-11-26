@@ -79,7 +79,6 @@ REJECTIONS = {
     "empty-ntp-servers": ("private.toml", "network.ntp_servers", [], r"network\.ntp_servers: List should have at least 1 item"),
     "loopback-dns-server": ("private.toml", "network.dns_servers", ["1.1.1.1", "127.0.0.1"], r"network\.dns_servers\[1\] 127\.0\.0\.1 is not usable \(unspecified, loopback or multicast\)"),
     "bad-ntp-server": ("private.toml", "network.ntp_servers", ["time cloudflare com"], r"network\.ntp_servers\.0: 'time cloudflare com' is not a hostname or IPv4 address"),
-    "mixed-ntp-servers": ("private.toml", "network.ntp_servers", ["time.cloudflare.com", "10.10.10.1"], r"ntp_servers mixes hostnames and IP addresses \(10\.10\.10\.1\)"),
     "multicast-ntp-server": ("private.toml", "network.ntp_servers", ["224.0.1.1"], r"network\.ntp_servers\[0\] 224\.0\.1\.1 is not usable"),
     "dns-server-is-k8s-gateway": ("private.toml", "network.dns_servers", ["10.10.10.253"], r"network\.dns_servers\[0\] 10\.10\.10\.253 is gateways\.dns, which only answers once the cluster runs"),
     "ntp-server-is-external-gateway": ("private.toml", "network.ntp_servers", ["10.10.10.251"], r"network\.ntp_servers\[0\] 10\.10\.10\.251 is gateways\.external"),
@@ -326,7 +325,7 @@ def test_ntp_defaults_to_nts():
 
 @pytest.mark.parametrize(
     ("servers", "nts"),
-    [(["time.cloudflare.com", "nts.netnod.se"], True), (["ntp"], True), (["162.159.200.1", "10.10.10.1"], False)],
+    [(["time.cloudflare.com", "nts.netnod.se"], True), (["ntp"], True), (["162.159.200.1", "10.10.10.1"], False), (["time.cloudflare.com", "10.10.10.1"], False)],
 )
 def test_ntp_servers_select_nts(servers: list[str], nts: bool):
     assert _load_raw(config_from("private.toml", **{"network.ntp_servers": servers})).network.ntp_nts is nts

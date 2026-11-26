@@ -21,14 +21,9 @@ node_cidr = ""
 
 # dns_servers = ["1.1.1.1", "1.0.0.1"]
 
-# Upstream time servers. Defaults to Cloudflare's time service, queried over
-# NTS (Network Time Security), which authenticates the time over TLS. Most
-# homelabs don't need to change this. Hostnames are always queried over NTS,
-# so they must be NTS servers (e.g. time.cloudflare.com, nts.netnod.se; not
-# pool.ntp.org); give plain NTP servers, such as your router, as IPv4
-# addresses instead. Talos uses one mode for all servers, so list either only
-# hostnames or only IPv4 addresses. Hostnames are resolved via dns_servers,
-# and NTS needs outbound TCP 4460 (key exchange) as well as UDP 123.
+# Upstream time servers. Hostnames are queried over NTS (authenticated time,
+# needs outbound TCP 4460), so they must be NTS servers such as
+# time.cloudflare.com; if any entry is an IPv4 address, all use plain NTP.
 # OPTIONAL. Default: ["time.cloudflare.com"]. If set, list at least one.
 
 # ntp_servers = ["time.cloudflare.com"]
