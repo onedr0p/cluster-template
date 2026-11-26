@@ -37,8 +37,10 @@ spec:
               fallthrough in-addr.arpa ip6.arpa
           - name: autopath
             parameters: "@kubernetes"
+          # Talos' host DNS address is unreachable with Cilium eBPF host routing.
+          # Ref: https://github.com/siderolabs/talos/issues/10002
           - name: forward
-            parameters: . /etc/resolv.conf
+            parameters: . #{ network.dns_servers | join(' ') }#
           - name: cache
             configBlock: |-
               prefetch 20
