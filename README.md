@@ -307,6 +307,13 @@ mise run //talos:apply-node <node>
 # e.g. mise run //talos:apply-node k8s-0
 ```
 
+Most changes apply without a reboot. For one that needs a reboot (the [Talos docs](https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/system-configuration/editing-machine-configuration) list them), apply it with the `staged` mode and then drain and reboot the node; Talos 1.14 removed the `reboot` apply mode.
+
+```sh
+mise run //talos:apply-node k8s-0 staged
+mise run //talos:reboot-node k8s-0
+```
+
 ### 🧩 Adding your own Talos patches
 
 [topf](https://postfinance.github.io/topf/main/configuration-model/) merges every patch it finds in these directories under `talos/`, in this order and alphabetically within each, later patches taking precedence:
