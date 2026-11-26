@@ -109,8 +109,6 @@ REJECTIONS = {
     "ssh-custom-port-bundled-host": ("private.toml", "repository.url", "ssh://git@github.com:2222/onedr0p/cluster-template.git", r"known_hosts is required for ssh:// URLs to '\[github\.com\]:2222' \(host keys are only bundled for .* on port 22\)"),
     "known-hosts-wrong-port": ("selfhosted.toml", "repository.url", "ssh://git@git.example.com:2222/k8s/home-ops.git", r"known_hosts has no entry for '\[git\.example\.com\]:2222'; generate it with `ssh-keyscan -p 2222 git\.example\.com`"),
     "known-hosts-wrong-host": ("selfhosted.toml", "repository.url", "ssh://git@git2.example.com/k8s/home-ops.git", r"known_hosts has no entry for 'git2\.example\.com'; generate it with `ssh-keyscan git2\.example\.com`"),
-    "ssh-uppercase-bundled-host": ("private.toml", "repository.url", "ssh://git@GitLab.com/onedr0p/cluster-template.git", r"url host 'GitLab\.com' must be lowercase for ssh:// URLs \(Flux matches known_hosts case-sensitively\); use 'gitlab\.com'"),
-    "ssh-uppercase-known-host": ("selfhosted.toml", "repository.url", "ssh://git@Git.Example.com/k8s/home-ops.git", r"url host 'Git\.Example\.com' must be lowercase"),
     "known-hosts-junk": ("selfhosted.toml", "repository.known_hosts", "git.example.com", r"known_hosts line 'git\.example\.com' is not '<hosts> <key type> <key>'"),
     "known-hosts-junk-with-bundled-host": ("private.toml", "repository.known_hosts", "github.com ssh-ed25519", r"known_hosts line 'github\.com ssh-ed25519' is not"),
     "branch-with-quote": ("private.toml", "repository.branch", 'ma"in', r"repository\.branch: 'ma\"in' is not a valid git branch name"),
@@ -511,18 +509,6 @@ def test_webhook_provider_follows_ingress_mode():
     lan_git = config_from("internal.toml", **{"repository.webhook_provider": "generic-hmac"})
     assert _load_raw(lan_git).repository.webhook_provider == "generic-hmac"
     assert _load_raw(config_from("internal-webhook.toml")).repository.webhook_provider == "github"
-    # gitlab.com signs with X-Gitlab-Token, which a github Receiver rejects.
-    for url in [
-        "https://GitLab.com/me/home-ops.git",
-        "https://gitlab.com./me/home-ops.git",
-        "ssh://git@gitlab.com/me/home-ops.git",
-        "ssh://git@altssh.gitlab.com:443/me/home-ops.git",
-    ]:
-        raw = config_from("public.toml", **{"repository.url": url, "repository.known_hosts": f"[altssh.gitlab.com]:443 {KNOWN_HOST_KEY}"})
-        assert _load_raw(raw).repository.webhook_provider == "gitlab", url
-    for url in ["https://notgitlab.com/me/home-ops.git", "https://gitlab.com.example.org/me/home-ops.git"]:
-        raw = config_from("public.toml", **{"repository.url": url})
-        assert _load_raw(raw).repository.webhook_provider == "github", url
     # Follows ingress.mode, not dns.provider.
     no_ingress = _load_raw(config_from("public.toml", **{"ingress.mode": "none"}))
     assert no_ingress.dns.provider == "cloudflare"

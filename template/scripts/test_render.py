@@ -75,17 +75,14 @@ def test_flux_webhook_route_attaches_to_the_reachable_gateway():
     assert expected in [gateway["metadata"]["name"] for gateway in gateways]
 
 
-# Flux matches spec.events against the provider's event header
-# case-insensitively; generic-hmac has no event header to filter on.
 def test_flux_webhook_receiver_accepts_push_events():
     provider = config()["repository"]["webhook_provider"]
     if provider == "none":
         pytest.skip("no receiver without a webhook provider")
     (receiver,) = documents("kubernetes/apps/flux-system/flux-instance/app/receiver.yaml", "Receiver")
-    expected = {"github": ["ping", "push"], "gitlab": ["push hook", "tag push hook"]}.get(provider, [])
-    events = sorted(event.lower() for event in receiver["spec"].get("events", []))
+    expected = {"github": ["ping", "push"], "gitlab": ["Push Hook", "Tag Push Hook"]}.get(provider, [])
     assert receiver["spec"]["type"] == provider
-    assert events == expected
+    assert receiver["spec"].get("events", []) == expected
 
 
 # Only ssh:// repositories authenticate with the deploy key: the Secret is

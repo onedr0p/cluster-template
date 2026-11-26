@@ -346,26 +346,11 @@ class Repository(Model):
     webhook_provider: Literal["github", "gitlab", "generic-hmac", "none"] | None = Field(
         default=None,
         description=(
-            'Defaults to "gitlab" for gitlab.com URLs and "github" otherwise, or "none" '
-            'when ingress.mode is "none" or the wildcard certificate comes from the in-cluster CA.'
+            'Defaults to "github", or "none" when ingress.mode is "none" or the '
+            "wildcard certificate comes from the in-cluster CA."
         ),
     )
     known_hosts: Stripped = ""
-
-    @property
-    def host_port(self) -> str:
-        return self.url.split("/", 3)[2].removeprefix("git@")
-
-    # Hostnames are case-insensitive and may be written fully qualified.
-    @property
-    def host(self) -> str:
-        return self.host_port.partition(":")[0].rstrip(".").lower()
-
-    # gitlab.com itself or one of its subdomains (altssh.gitlab.com is
-    # GitLab's SSH over port 443).
-    @property
-    def is_gitlab_com(self) -> bool:
-        return self.host == "gitlab.com" or self.host.endswith(".gitlab.com")
 
     # Single source for the deploy key Secret, its apply in bootstrap and the
     # flux-instance pullSecret: https:// repositories are cloned anonymously.
@@ -376,13 +361,14 @@ class Repository(Model):
 
     @model_validator(mode="after")
     def check(self) -> Self:
-        if self.url.startswith("http") and "@" in self.url.split("/", 3)[2]:
+        authority = self.url.split("/", 3)[2]
+        if self.url.startswith("http") and "@" in authority:
             raise ValueError(
                 "url must not embed credentials (they would be committed in plain text); "
                 "use an ssh://git@ URL with the generated deploy key for private repositories"
             )
         # Flux (Go's url.Parse) only accepts a numeric port after the host.
-        host_port = self.host_port
+        host_port = authority.removeprefix("git@")
         if not re.fullmatch(r"[^:@]+(:[0-9]+)?", host_port):
             raise ValueError(
                 f"url host {host_port!r} must be a hostname with an optional numeric port; "
@@ -390,13 +376,6 @@ class Repository(Model):
             )
         if self.uses_deploy_key:
             host, _, port = host_port.partition(":")
-            # Flux matches known_hosts entries byte for byte against the URL
-            # host, so GitLab.com would miss the bundled gitlab.com keys.
-            if host != host.lower():
-                raise ValueError(
-                    f"url host {host!r} must be lowercase for ssh:// URLs "
-                    f"(Flux matches known_hosts case-sensitively); use {host.lower()!r}"
-                )
             port = port or "22"
             # Flux looks the host up as host on port 22, otherwise as
             # [host]:port; the bundled keys are only for port 22.
@@ -714,8 +693,9 @@ class Config(Model):
         if self.repository.webhook_provider is None:
             # Git hosts reject the internal CA's certificate.
             trusted = self.builtin_acme_issuer or self.certs.cluster_issuer
-            hosted = "gitlab" if self.repository.is_gitlab_com else "github"
-            self.repository.webhook_provider = hosted if self.ingress.mode != "none" and trusted else "none"
+            self.repository.webhook_provider = (
+                "github" if self.ingress.mode != "none" and trusted else "none"
+            )
         for i, node in enumerate(self.nodes):
             if node.schematic_id is None:
                 node.schematic_id = self.talos.schematic_id

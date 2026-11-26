@@ -242,7 +242,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 
 📍 _Don't want a webhook, or your Git provider can't reach the cluster? Set `webhook_provider = "none"` in `cluster.toml` and skip this section; Flux will keep polling on an interval. It already defaults to `"none"` when `ingress.mode` is `"none"` or the wildcard certificate comes from the in-cluster CA._
 
-📍 _For a Git host on your LAN with an internal-only cluster, set `webhook_provider` explicitly. `flux-webhook` is then served on `envoy-internal`: the Git host must resolve it through [Home DNS](#-home-dns), and with `dns.provider = "none"` it must trust the cluster's internal CA. Self-hosted Gitea/Forgejo also need `flux-webhook.<domain>` added to `[webhook] ALLOWED_HOST_LIST`, since private addresses are blocked by default. Self-managed GitLab also blocks webhooks to the local network by default: under **Admin > Settings > Network > Outbound requests** either check "Allow requests to the local network from webhooks and integrations" or add `flux-webhook.<domain>` to "Local IP addresses and domain names that hooks and integrations can access"._
+📍 _For a Git host on your LAN with an internal-only cluster, set `webhook_provider` explicitly. `flux-webhook` is then served on `envoy-internal`: the Git host must resolve it through [Home DNS](#-home-dns), and with `dns.provider = "none"` it must trust the cluster's internal CA. Self-hosted Gitea/Forgejo also need `flux-webhook.<domain>` added to `[webhook] ALLOWED_HOST_LIST`, since private addresses are blocked by default. Self-managed GitLab likewise needs `flux-webhook.<domain>` allowed under **Admin > Settings > Network > Outbound requests**._
 
 1. Obtain the webhook path:
 
@@ -261,7 +261,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 3. Navigate to your repository settings and add a webhook with that URL and the secret token from `flux-webhook-token.txt`:
 
     - **GitHub**: under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL, paste the token as the secret, Content type: `application/json`, Events: Choose Just the push event, and save.
-    - **GitLab**: under "Settings/Webhooks" fill in the webhook URL, paste the token as the secret token, check the push events trigger, and save. `webhook_provider` defaults to `"gitlab"` for gitlab.com repositories; for a self-managed GitLab set `webhook_provider = "gitlab"` in `cluster.toml`.
+    - **GitLab**: under "Settings/Webhooks" fill in the webhook URL, paste the token as the secret token, check the push events trigger, and save. Also set `webhook_provider = "gitlab"` in `cluster.toml`.
     - **Gitea/Forgejo**: under "Settings/Webhooks" add a **Gitea/Forgejo** webhook with the webhook URL, method `POST`, content type `application/json`, paste the token as the secret, trigger on push events, and save. Use `webhook_provider = "github"` since these providers emulate GitHub webhooks; set it explicitly on internal-only clusters, where the default is `"none"`.
 
 ### 🤖 Renovate

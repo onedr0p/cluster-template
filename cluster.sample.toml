@@ -185,8 +185,7 @@ url = ""
 # which hosted Git providers reject. Set it explicitly for a Git host on
 # your LAN, which must resolve flux-webhook.<domain> through split DNS (see
 # gateways.dns) and, with dns.provider = "none", trust the internal CA.
-# OPTIONAL. Default: "gitlab" for gitlab.com URLs, otherwise "github", or
-# "none" as above.
+# OPTIONAL. Default: "github", or "none" as above.
 # Allowed: "github" | "gitlab" | "generic-hmac" | "none"
 
 # webhook_provider = "github"

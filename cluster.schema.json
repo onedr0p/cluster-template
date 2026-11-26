@@ -498,7 +498,7 @@
             }
           ],
           "default": null,
-          "description": "Defaults to \"gitlab\" for gitlab.com URLs and \"github\" otherwise, or \"none\" when ingress.mode is \"none\" or the wildcard certificate comes from the in-cluster CA.",
+          "description": "Defaults to \"github\", or \"none\" when ingress.mode is \"none\" or the wildcard certificate comes from the in-cluster CA.",
           "title": "Webhook Provider"
         },
         "known_hosts": {
