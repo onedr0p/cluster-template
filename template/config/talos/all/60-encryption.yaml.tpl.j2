@@ -1,10 +1,11 @@
 {{- if .Node.Data.encryptDisk }}
-# Encrypt system disk with TPM
+# Encrypt system disk with TPM.
 apiVersion: v1alpha1
 kind: VolumeConfig
 name: STATE
 encryption:
   provider: luks2
+  allowDiscards: true
   keys:
     - slot: 0
       tpm: {}
@@ -14,6 +15,7 @@ kind: VolumeConfig
 name: EPHEMERAL
 encryption:
   provider: luks2
+  allowDiscards: true
   keys:
     - slot: 0
       tpm: {}
