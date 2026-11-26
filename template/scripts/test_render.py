@@ -63,6 +63,12 @@ def test_kubelet_cluster_dns_matches_coredns_service():
         assert kubelet.get("clusterDNS", []) == ([] if coredns == default else [coredns]), node["name"]
 
 
+def test_image_verification_present_iff_enabled():
+    enabled = config()["talos"]["image_verification"]
+    for node in config()["nodes"]:
+        assert len(machine_config(node, "ImageVerificationConfig")) == enabled, node["name"]
+
+
 # A Git host reaches the webhook through envoy-external, which only exists
 # with an ingress mode; an internal-only cluster serves it on envoy-internal.
 def test_flux_webhook_route_attaches_to_the_reachable_gateway():

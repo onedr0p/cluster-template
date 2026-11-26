@@ -350,6 +350,14 @@ token = ""
 # OPTIONAL if every node sets schematic_id itself.
 schematic_id = ""
 
+# Verify cosign signatures of images from registry.k8s.io, ghcr.io/siderolabs
+# and factory.talos.dev; other registries stay unverified. Nodes need Internet
+# access to Sigstore, and unsigned images from these registries fail to pull.
+# REF: https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
+# OPTIONAL. Default: false
+
+# image_verification = false
+
 
 # =============================================================================
 #    One [[nodes]] table per physical machine or VM in the cluster. At least
