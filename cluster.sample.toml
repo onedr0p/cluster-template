@@ -21,11 +21,12 @@ node_cidr = ""
 
 # dns_servers = ["1.1.1.1", "1.0.0.1"]
 
-# Upstream NTP servers. Defaults to Cloudflare's anycast NTP. Most homelabs
-# don't need to change this.
-# OPTIONAL. Default: ["162.159.200.1", "162.159.200.123"]. If set, list at least one.
+# Upstream time servers. Hostnames are queried over NTS (authenticated time,
+# needs outbound TCP 4460), so they must be NTS servers such as
+# time.cloudflare.com; if any entry is an IPv4 address, all use plain NTP.
+# OPTIONAL. Default: ["time.cloudflare.com"]. If set, list at least one.
 
-# ntp_servers = ["162.159.200.1", "162.159.200.123"]
+# ntp_servers = ["time.cloudflare.com"]
 
 # Default gateway IP that nodes use to reach the rest of your LAN/WAN.
 # Defaults to the first usable host in node_cidr (e.g. 192.168.1.1 for

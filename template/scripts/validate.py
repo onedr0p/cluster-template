@@ -129,15 +129,22 @@ def _bounded_int(lo: int, hi: int) -> Any:
     return Annotated[bounded, BeforeValidator(parse, json_schema_input_type=bounded | digits)]
 
 
-# IPv4Address | Fqdn would report two errors with an unreadable union path;
-# one message naming both accepted forms is clearer.
-def _san(value: str) -> str:
+def _is_ipv4(value: str) -> bool:
     try:
         IPv4Address(value)
     except ValueError:
-        # An all-numeric last label is a mistyped IPv4 address, not a name.
-        if len(value) > 253 or not re.fullmatch(HOSTNAME_PATTERN, value) or value.rpartition(".")[2].isdigit():
-            raise ValueError(f"{value!r} is not a hostname or IPv4 address") from None
+        return False
+    return True
+
+
+# IPv4Address | Fqdn would report two errors with an unreadable union path;
+# one message naming both accepted forms is clearer.
+def _san(value: str) -> str:
+    # An all-numeric last label is a mistyped IPv4 address, not a name.
+    if not _is_ipv4(value) and (
+        len(value) > 253 or not re.fullmatch(HOSTNAME_PATTERN, value) or value.rpartition(".")[2].isdigit()
+    ):
+        raise ValueError(f"{value!r} is not a hostname or IPv4 address")
     return value
 
 
@@ -219,14 +226,18 @@ class Network(Model):
     dns_servers: list[IPv4Address] = Field(
         default=[IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")], min_length=1
     )
-    ntp_servers: list[IPv4Address] = Field(
-        default=[IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")], min_length=1
-    )
+    ntp_servers: list[San] = Field(default=["time.cloudflare.com"], min_length=1)
     # The first IP in node_cidr unless set explicitly.
     default_gateway: _unsettable(IPv4Address) = Field(
         default_factory=lambda data: data["node_cidr"].network_address + 1
     )
     vlan_tag: _unsettable(VlanTag | None) = None
+
+    # Gates useNTS in talos/all/22-time.yaml.
+    @computed_field
+    @property
+    def ntp_nts(self) -> bool:
+        return not any(_is_ipv4(server) for server in self.ntp_servers)
 
     @model_validator(mode="after")
     def check(self) -> Self:
@@ -825,6 +836,10 @@ class Config(Model):
             in_cluster[api.addr] = "kubernetes.api.addr"
         for field in ("dns_servers", "ntp_servers"):
             for i, addr in enumerate(getattr(self.network, field)):
+                # NTP servers may be hostnames, which resolve at boot.
+                if not _is_ipv4(str(addr)):
+                    continue
+                addr = IPv4Address(addr)
                 owner = f"network.{field}[{i}]"
                 if addr.is_unspecified or addr.is_loopback or addr.is_multicast:
                     raise ValueError(f"{owner} {addr} is not usable (unspecified, loopback or multicast)")
