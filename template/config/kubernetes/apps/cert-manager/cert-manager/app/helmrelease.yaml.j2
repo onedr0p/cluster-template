@@ -14,6 +14,11 @@ spec:
     replicaCount: #{ 2 if nodes | length > 1 else 1 }#
     dns01RecursiveNameservers: https://1.1.1.1:443/dns-query,https://1.0.0.1:443/dns-query
     dns01RecursiveNameserversOnly: true
+    # Renew when the ACME CA suggests it (ACME Renewal Information, RFC 9773),
+    # e.g. ahead of a mass revocation; falls back to the usual 2/3 of the
+    # lifetime when the CA has no ARI. Alpha; needs v1.21.3+, which fixed a
+    # renewal loop.
+    featureGates: ACMEUseARI=true
     prometheus:
       servicemonitor:
         enabled: true
