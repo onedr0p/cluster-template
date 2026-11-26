@@ -242,7 +242,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 
 📍 _Don't want a webhook, or your Git provider can't reach the cluster? Set `webhook_provider = "none"` in `cluster.toml` and skip this section; Flux will keep polling on an interval. It already defaults to `"none"` when `ingress.mode` is `"none"` or the wildcard certificate comes from the in-cluster CA._
 
-📍 _For a Git host on your LAN with an internal-only cluster, set `webhook_provider` explicitly. `flux-webhook` is then served on `envoy-internal`: the Git host must resolve it through [Home DNS](#-home-dns), and with `dns.provider = "none"` it must trust the cluster's internal CA. Self-hosted Gitea/Forgejo also need `flux-webhook.<domain>` added to `[webhook] ALLOWED_HOST_LIST`, since private addresses are blocked by default._
+📍 _For a Git host on your LAN with an internal-only cluster, set `webhook_provider` explicitly. `flux-webhook` is then served on `envoy-internal`: the Git host must resolve it through [Home DNS](#-home-dns), and with `dns.provider = "none"` it must trust the cluster's internal CA. Self-hosted Gitea/Forgejo also need `flux-webhook.<domain>` added to `[webhook] ALLOWED_HOST_LIST`, since private addresses are blocked by default. Self-managed GitLab also blocks webhooks to the local network by default: under **Admin > Settings > Network > Outbound requests** either check "Allow requests to the local network from webhooks and integrations" or add `flux-webhook.<domain>` to "Local IP addresses and domain names that hooks and integrations can access"._
 
 1. Obtain the webhook path:
 
