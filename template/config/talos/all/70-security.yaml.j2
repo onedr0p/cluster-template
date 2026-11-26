@@ -7,11 +7,8 @@ kind: SecurityProfileConfig
 workloadIsolation: false
 #% if talos.image_verification %#
 ---
-# Verify cosign keyless signatures of the images Talos itself pulls (kubelet,
-# control plane, etcd, installer) and of any other image from these
-# registries, using Talos's recommended base policy. Images from other
-# registries are pulled unverified. Applies on pull, not to cached images.
-# https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
+# Talos' recommended base policy; other registries are pulled unverified.
+# Ref: https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
 apiVersion: v1alpha1
 kind: ImageVerificationConfig
 rules:

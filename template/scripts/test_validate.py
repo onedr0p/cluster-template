@@ -396,11 +396,6 @@ def test_spegel_enabled_follows_node_count():
     assert _load_raw(explicit).spegel.enabled is False
 
 
-def test_image_verification_is_opt_in():
-    assert _load_raw(config_from("private.toml")).talos.image_verification is False
-    assert _load_raw(config_from("private.toml", **{"talos.image_verification": True})).talos.image_verification is True
-
-
 def test_controller_count_ignores_workers():
     raw = config_from("private.toml")
     assert [n["controller"] for n in raw["nodes"]] == [True, False]

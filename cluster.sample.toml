@@ -350,14 +350,9 @@ token = ""
 # OPTIONAL if every node sets schematic_id itself.
 schematic_id = ""
 
-# Verify cosign signatures of every image pulled from registry.k8s.io,
-# ghcr.io/siderolabs and factory.talos.dev (Kubernetes, kubelet, etcd, the
-# Talos installer, and workloads such as metrics-server or external-dns) and
-# refuse unsigned or tampered ones. Images from other registries are pulled
-# unverified. Nodes need Internet access to Sigstore's TUF repository
-# (tuf-repo-cdn.sigstore.dev), so this does not work air-gapped. Pulling
-# an unsigned image from these registries (e.g. registry.k8s.io/e2e-test-images
-# or very old tags) fails while this is on.
+# Verify cosign signatures of images from registry.k8s.io, ghcr.io/siderolabs
+# and factory.talos.dev; other registries stay unverified. Nodes need Internet
+# access to Sigstore, and unsigned images from these registries fail to pull.
 # REF: https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
 # OPTIONAL. Default: false
 
