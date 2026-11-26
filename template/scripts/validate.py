@@ -62,6 +62,9 @@ CILIUM_LB_IPAM_CLASSES = ["io.cilium/l2-announcer", "io.cilium/bgp-control-plane
 FQDN_PATTERN = rf"^({DNS_LABEL}\.)+([a-z]{{2,63}}|xn--[a-z0-9]([-a-z0-9]{{0,57}}[a-z0-9])?)$"
 # A certificate SAN may also be a single label (a short hostname).
 HOSTNAME_PATTERN = rf"^({DNS_LABEL}\.)*{DNS_LABEL}$"
+# A dotted-quad IPv4 address without leading zeros, as IPv4Address accepts.
+IPV4_OCTET = r"(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])"
+IPV4_PATTERN = rf"^({IPV4_OCTET}\.){{3}}{IPV4_OCTET}$"
 # Leaves room within the 253-character DNS limit for the longest name derived
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
@@ -73,7 +76,7 @@ UNROUTABLE_NETWORKS = {
     IPv4Network("127.0.0.0/8"): "loopback",
     IPv4Network("169.254.0.0/16"): "link-local",
     IPv4Network("224.0.0.0/4"): "multicast",
-    IPv4Network("240.0.0.0/4"): "reserved",
+    IPv4Network("240.0.0.0/4"): "future-use",
 }
 # A Kubernetes object name (RFC 1123 subdomain).
 K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
@@ -101,16 +104,23 @@ def _network(value: Any) -> Any:
     return network
 
 
-def _unroutable(value: IPv4Network | IPv4Address) -> tuple[IPv4Network, str] | None:
+def _unroutable(value: IPv4Network | IPv4Address, exclude: tuple[str, ...] = ()) -> tuple[IPv4Network, str] | None:
     """The special-purpose range a CIDR overlaps or an address is in, with its kind."""
     network = IPv4Network(value)
-    return next(((special, kind) for special, kind in UNROUTABLE_NETWORKS.items() if network.overlaps(special)), None)
+    return next(
+        (
+            (special, kind)
+            for special, kind in UNROUTABLE_NETWORKS.items()
+            if kind not in exclude and network.overlaps(special)
+        ),
+        None,
+    )
 
 
 def _routable_network(value: IPv4Network) -> IPv4Network:
     if hit := _unroutable(value):
         special, kind = hit
-        raise ValueError(f"{value} overlaps the {kind} range {special}, which is not routable")
+        raise ValueError(f"{value} overlaps the {kind} range {special}, which is reserved for special use")
     return value
 
 
@@ -192,10 +202,11 @@ def _branch(value: str) -> str:
 
 
 # Rendered into a YAML block scalar line by line: YAML rejects most control
-# characters and reads C1 NEL and U+2028/U+2029 as line breaks. Tabs and
+# characters and the noncharacters U+FFFE/U+FFFF, and reads C1 NEL and
+# U+2028/U+2029 as line breaks. Tabs and
 # CRLF line endings are harmless.
 def _known_hosts(value: str) -> str:
-    if re.search(r"[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f-\x9f\u2028\u2029]|\r(?!\n)", value):
+    if re.search(r"[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f-\x9f\u2028\u2029\ufffe\uffff]|\r(?!\n)", value):
         raise ValueError("must not contain control characters other than tabs and line breaks")
     return value
 
@@ -243,7 +254,8 @@ type San = Annotated[
     WithJsonSchema(
         {
             "anyOf": [
-                {"type": "string", "format": "ipv4"},
+                # The pattern too: many validators treat format as an annotation.
+                {"type": "string", "format": "ipv4", "pattern": IPV4_PATTERN},
                 # An all-numeric last label is a mistyped IPv4 address (see _san).
                 {"type": "string", "pattern": HOSTNAME_PATTERN, "maxLength": 253, "not": {"pattern": r"(^|\.)[0-9]+$"}},
             ]
@@ -572,8 +584,8 @@ NON_DISK_SYMLINKS = {
 def _disk(value: str) -> str:
     """Accept a /dev path or symlink, or a disk serial (any value without a leading "/")."""
     # Rendered into a double-quoted YAML string and a CEL string in a plain YAML
-    # scalar; YAML folds or rejects C1 controls and U+2028/U+2029.
-    if value != value.strip() or re.search(r'[\x00-\x1f\x7f-\x9f\u2028\u2029"\\]|: | #', value):
+    # scalar; YAML folds or rejects C1 controls, U+2028/U+2029 and U+FFFE/U+FFFF.
+    if value != value.strip() or re.search(r'[\x00-\x1f\x7f-\x9f\u2028\u2029\ufffe\uffff"\\]|: | #', value):
         raise ValueError(
             f"{value!r} must not contain control characters, double quotes, backslashes, "
             "': ' or ' #', or start or end with whitespace"
@@ -587,6 +599,12 @@ def _disk(value: str) -> str:
             "or a /dev/disk/by-id/ path if it is a disk serial"
         )
     if match := PARTITION_PATH.fullmatch(value):
+        # diskseq numbers are assigned per boot, so point at a stable name.
+        if match["disk"].startswith("/dev/disk/by-diskseq/"):
+            raise ValueError(
+                f"{value!r} is a partition; Talos installs to a whole disk, e.g. its "
+                "/dev/disk/by-id/ or /dev/disk/by-path/ path (diskseq numbers change across boots)"
+            )
         raise ValueError(f"{value!r} is a partition; Talos installs to a whole disk, e.g. {match['disk']!r}")
     for prefix, kind in NON_DISK_SYMLINKS.items():
         if value.startswith(prefix):
@@ -883,8 +901,10 @@ class Config(Model):
         for field in ("dns_servers", "ntp_servers"):
             for i, addr in enumerate(getattr(self.network, field)):
                 owner = f"network.{field}[{i}]"
-                if addr.is_unspecified or addr.is_loopback or addr.is_multicast:
-                    raise ValueError(f"{owner} {addr} is not usable (unspecified, loopback or multicast)")
+                # Link-local resolvers are legitimate, e.g. AWS's 169.254.169.253.
+                if hit := _unroutable(addr, exclude=("link-local",)):
+                    special, kind = hit
+                    raise ValueError(f"{owner} {addr} is not usable (in the {kind} range {special})")
                 if addr in in_cluster:
                     raise ValueError(f"{owner} {addr} is {in_cluster[addr]}, which only answers once the cluster runs")
                 for cidr_name in ("pod_cidr", "svc_cidr"):
@@ -954,7 +974,7 @@ class ConfigError(Exception):
 def load(config_file: str = "cluster.toml") -> dict[str, Any]:
     path = Path(config_file)
     try:
-        raw = tomllib.loads(path.read_text(encoding="utf-8"))
+        raw = tomllib.loads(path.read_text(encoding="utf-8-sig"))
     except FileNotFoundError:
         raise ConfigError(f"{path}: file not found") from None
     except OSError as e:

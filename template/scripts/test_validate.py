@@ -77,7 +77,10 @@ REJECTIONS = {
     "whitespace-token-without-dns-provider": ("internal.toml", "dns.token", " x ", r"token must be empty when dns\.provider is 'none'"),
     "empty-dns-servers": ("private.toml", "network.dns_servers", [], r"network\.dns_servers: List should have at least 1 item"),
     "empty-ntp-servers": ("private.toml", "network.ntp_servers", [], r"network\.ntp_servers: List should have at least 1 item"),
-    "loopback-dns-server": ("private.toml", "network.dns_servers", ["1.1.1.1", "127.0.0.1"], r"network\.dns_servers\[1\] 127\.0\.0\.1 is not usable \(unspecified, loopback or multicast\)"),
+    "loopback-dns-server": ("private.toml", "network.dns_servers", ["1.1.1.1", "127.0.0.1"], r"network\.dns_servers\[1\] 127\.0\.0\.1 is not usable \(in the loopback range 127\.0\.0\.0/8\)"),
+    "future-use-dns-server": ("private.toml", "network.dns_servers", ["240.0.0.1"], r"network\.dns_servers\[0\] 240\.0\.0\.1 is not usable \(in the future-use range 240\.0\.0\.0/4\)"),
+    "broadcast-ntp-server": ("private.toml", "network.ntp_servers", ["255.255.255.255"], r"network\.ntp_servers\[0\] 255\.255\.255\.255 is not usable \(in the future-use range"),
+    "unspecified-net-dns-server": ("private.toml", "network.dns_servers", ["0.1.2.3"], r"network\.dns_servers\[0\] 0\.1\.2\.3 is not usable \(in the unspecified range 0\.0\.0\.0/8\)"),
     "multicast-ntp-server": ("private.toml", "network.ntp_servers", ["224.0.1.1"], r"network\.ntp_servers\[0\] 224\.0\.1\.1 is not usable"),
     "dns-server-is-k8s-gateway": ("private.toml", "network.dns_servers", ["10.10.10.253"], r"network\.dns_servers\[0\] 10\.10\.10\.253 is gateways\.dns, which only answers once the cluster runs"),
     "ntp-server-is-external-gateway": ("private.toml", "network.ntp_servers", ["10.10.10.251"], r"network\.ntp_servers\[0\] 10\.10\.10\.251 is gateways\.external"),
@@ -129,11 +132,11 @@ REJECTIONS = {
     "ebgp-router-outside-node-cidr": ("public.toml", "cilium.bgp.router_addr", "10.10.1.1", r"cilium\.bgp\.router_addr 10\.10\.1\.1 is not inside node_cidr 10\.10\.10\.0/24: an eBGP peer"),
     "pod-cidr-smaller-than-node-block": ("private.toml", "kubernetes.pod_cidr", "10.42.0.0/25", r"kubernetes\.pod_cidr 10\.42\.0\.0/25 is too small: each node gets a /24 from it, so 2 node\(s\) need at least a /23"),
     "pod-cidr-fewer-blocks-than-nodes": ("private.toml", "kubernetes.pod_cidr", "10.42.0.0/24", r"kubernetes\.pod_cidr 10\.42\.0\.0/24 is too small"),
-    "loopback-pod-cidr": ("private.toml", "kubernetes.pod_cidr", "127.0.0.0/16", r"kubernetes\.pod_cidr: 127\.0\.0\.0/16 overlaps the loopback range 127\.0\.0\.0/8, which is not routable"),
+    "loopback-pod-cidr": ("private.toml", "kubernetes.pod_cidr", "127.0.0.0/16", r"kubernetes\.pod_cidr: 127\.0\.0\.0/16 overlaps the loopback range 127\.0\.0\.0/8, which is reserved for special use"),
     "link-local-svc-cidr": ("private.toml", "kubernetes.svc_cidr", "169.254.0.0/16", r"kubernetes\.svc_cidr: 169\.254\.0\.0/16 overlaps the link-local range 169\.254\.0\.0/16"),
     "pod-cidr-spanning-loopback": ("private.toml", "kubernetes.pod_cidr", "96.0.0.0/3", r"kubernetes\.pod_cidr: 96\.0\.0\.0/3 overlaps the loopback range"),
     "multicast-svc-cidr": ("private.toml", "kubernetes.svc_cidr", "224.1.0.0/16", r"overlaps the multicast range 224\.0\.0\.0/4"),
-    "reserved-node-cidr": ("private.toml", "network.node_cidr", "240.0.0.0/24", r"network\.node_cidr: 240\.0\.0\.0/24 overlaps the reserved range 240\.0\.0\.0/4"),
+    "reserved-node-cidr": ("private.toml", "network.node_cidr", "240.0.0.0/24", r"network\.node_cidr: 240\.0\.0\.0/24 overlaps the future-use range 240\.0\.0\.0/4, which is reserved for special use"),
     "unspecified-node-cidr": ("private.toml", "network.node_cidr", "0.0.0.0/24", r"network\.node_cidr: 0\.0\.0\.0/24 overlaps the unspecified range 0\.0\.0\.0/8"),
     "single-address-node-cidr": ("single-node-no-vip.toml", "network.node_cidr", "10.10.10.100/32", r"network: node_cidr 10\.10\.10\.100/32 is a single address"),
     "repo-url-port-too-large": ("public.toml", "repository.url", "https://github.com:99999/onedr0p/home-ops.git", r"url port '99999' must be in the range 1-65535"),
@@ -226,7 +229,7 @@ def test_zero_padded_ssh_port_is_port_22(port: str):
     assert _load_raw(raw).repository.known_hosts == ""
 
 
-@pytest.mark.parametrize("bad", ["\x00", "\x1b", "\x7f", "\x85", "\u2028", "\u2029", "\r"])
+@pytest.mark.parametrize("bad", ["\x00", "\x1b", "\x7f", "\x85", "\u2028", "\u2029", "\ufffe", "\uffff", "\r"])
 def test_known_hosts_control_characters_rejected(bad: str):
     raw = config_from("selfhosted.toml", **{"repository.known_hosts": f"git.example.com {KNOWN_HOST_KEY}{bad}x\n"})
     with pytest.raises(ConfigError, match="repository.known_hosts: must not contain control characters other than tabs and line breaks"):
@@ -300,12 +303,17 @@ def test_bare_kernel_disk_name_rejected(name: str):
         ("/dev/nvme0n1p1", "/dev/nvme0n1"),
         ("/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456-part1", "/dev/disk/by-id/nvme-Samsung_SSD_980_S64DNX0R123456"),
         ("/dev/disk/by-path/pci-0000:00:1f.2-ata-1-part2", "/dev/disk/by-path/pci-0000:00:1f.2-ata-1"),
-        ("/dev/disk/by-diskseq/9-part1", "/dev/disk/by-diskseq/9"),
     ],
 )
 def test_partition_disk_rejected(disk: str, whole: str):
     with pytest.raises(ConfigError, match=rf"'{re.escape(disk)}' is a partition; Talos installs to a whole disk, e\.g\. '{re.escape(whole)}'"):
         _load_raw(config_from("private.toml", **{"nodes.0.disk": disk}))
+
+
+# diskseq numbers change across boots, so the whole-disk suggestion is a stable name.
+def test_diskseq_partition_suggests_stable_name():
+    with pytest.raises(ConfigError, match=r"'/dev/disk/by-diskseq/9-part1' is a partition; Talos installs to a whole disk, e\.g\. its /dev/disk/by-id/ or /dev/disk/by-path/ path \(diskseq numbers change across boots\)"):
+        _load_raw(config_from("private.toml", **{"nodes.0.disk": "/dev/disk/by-diskseq/9-part1"}))
 
 
 @pytest.mark.parametrize(
@@ -322,7 +330,7 @@ def test_partition_or_filesystem_symlink_disk_rejected(disk: str, kind: str):
         _load_raw(config_from("private.toml", **{"nodes.0.disk": disk}))
 
 
-@pytest.mark.parametrize("disk", [" /dev/sda", "S64DNX0R123456 ", "ab\nc", "a\x85b", "a\u2028b", 'ab"c', "ab\\c", "ab: c", "ab #c"])
+@pytest.mark.parametrize("disk", [" /dev/sda", "S64DNX0R123456 ", "ab\nc", "a\x85b", "a\u2028b", "a\ufffeb", "a\uffffb", 'ab"c', "ab\\c", "ab: c", "ab #c"])
 def test_disk_with_unsafe_characters_rejected(disk: str):
     with pytest.raises(ConfigError, match="must not contain control characters, double quotes, backslashes"):
         _load_raw(config_from("private.toml", **{"nodes.0.disk": disk}))
@@ -778,6 +786,22 @@ def test_load_reports_unreadable_files(tmp_path: Path):
     latin1.write_bytes('[domain]\nname = "caf\xe9.example"\n'.encode("latin-1"))
     with pytest.raises(ConfigError, match=r"cluster\.toml: not valid UTF-8 \(byte offset 20\)$"):
         load(str(latin1))
+
+
+# Windows editors may save cluster.toml with a UTF-8 byte order mark.
+def test_load_accepts_utf8_bom(tmp_path: Path):
+    bom = tmp_path / "cluster.toml"
+    bom.write_bytes(b"\xef\xbb\xbf" + (REPO_ROOT / ".github/template-tests/valid/private.toml").read_bytes())
+    assert load(str(bom))["network"]["node_cidr"] == "10.10.10.0/24"
+
+
+# format is only an annotation in many validators, so the pattern must hold.
+def test_schema_san_ipv4_pattern():
+    ipv4 = schema()["$defs"]["San"]["anyOf"][0]
+    for good in ["10.0.0.1", "0.0.0.0", "255.255.255.255", "192.168.1.99"]:
+        assert re.search(ipv4["pattern"], good), good
+    for bad in ["10.0.0.256", "10.0.0", "01.2.3.4", "1.2.3.4.5", "k8s"]:
+        assert not re.search(ipv4["pattern"], bad), bad
 
 
 def test_schema_san_rejects_numeric_last_label():
