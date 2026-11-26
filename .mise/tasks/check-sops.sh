@@ -3,27 +3,47 @@
 #USAGE arg "<file>" var=#true help="SOPS files to check"
 set -euo pipefail
 
-# Lists the values sops should have encrypted but are plain text, e.g. a key
-# added to an encrypted file without sops. Each document's sops metadata says
-# which values are in scope: those under a key matching encrypted_regex, or
-# every value outside a key ending in unencrypted_suffix. sops leaves empty
-# strings and nulls as they are. A document without metadata is listed by its
-# index.
+# Lists the values and comments sops should have encrypted but are plain
+# text, e.g. a key added to an encrypted file without sops. Like sops, a value
+# is in scope when any key on its path matches the document's
+# encrypted_regex or encrypted_suffix, or when none matches unencrypted_regex
+# or unencrypted_suffix (default "_unencrypted"). Suffixes are literal strings,
+# quoted as \Q...\E with QE re-adding any "\E" they contain. Comments belong
+# to the enclosing map or list, and sops writes them as #ENC[...]. With
+# encrypted_comment_regex or unencrypted_comment_regex the comments decide, so
+# those documents are skipped. sops leaves empty strings and nulls as they
+# are. A document without metadata is listed by its number. Each step after a
+# select starts from "." because yq emits a literal or [...] even when the
+# select matched nothing.
 read -r -d '' plaintext <<'EOF' || true
-select(tag == "!!map" and (has("sops") | not)) | "document " + (document_index | tostring)
+select(tag == "!!map" and (has("sops") | not)) | "document " + (document_index + 1 | tostring)
 ,
-select(tag == "!!map" and has("sops")) | .sops as $sops | del(.sops)
+select(tag == "!!map" and has("sops"))
+| .sops as $sops | del(.sops)
+| ($sops.encrypted_regex // "") as $er
+| ($sops.unencrypted_regex // "") as $ur
+| ($sops.encrypted_suffix // "") as $es
+| ($sops.unencrypted_suffix // "") as $us
+| select(($sops.encrypted_comment_regex // "") + ($sops.unencrypted_comment_regex // "") == "")
+| (if $er != "" then $er
+   elif $ur != "" then $ur
+   else "\\Q" + ((if $es != "" then $es elif $us != "" then $us else "_unencrypted" end) | split("\\E") | join(strenv(QE))) + "\\E$"
+   end) as $re
+| ($er + $es != "") as $match
+| (if document_index == 0 then "" else "document " + (document_index + 1 | tostring) + ": " end) as $doc
 | (
-    if $sops.encrypted_regex then
-      .. | select(key | tag == "!!str") | select(key | test($sops.encrypted_regex))
-    else
-      del(.. | select(key | tag == "!!str") | select(key | test(($sops.unencrypted_suffix // "_unencrypted") + "$")))
-    end
+    (.. | select(tag != "!!map" and tag != "!!seq" and tag != "!!null" and . != "")
+      | select(if tag == "!!str" then (test("^ENC\[") | not) else true end)
+      | path
+      | select((map(select(tag == "!!str")) | any_c(test($re))) == $match)
+      | map(if tag == "!!int" then "[" + tostring + "]" elif test("^[A-Za-z0-9_-]+$") then "." + . else "[\"" + . + "\"]" end) | join("")),
+    (... | select((head_comment + "\n" + line_comment + "\n" + foot_comment) | split("\n") | map(select(test("^#? ?(ENC\[.*)?$") | not)) | length > 0)
+      | (if tag == "!!map" then path elif tag == "!!seq" then path else path | .[:-1] end)
+      | select((map(select(tag == "!!str")) | any_c(test($re))) == $match)
+      | map(if tag == "!!int" then "[" + tostring + "]" elif test("^[A-Za-z0-9_-]+$") then "." + . else "[\"" + . + "\"]" end) | join("")
+      | sub("^[.]"; "") | sub("^$"; "document root") | sub("^"; "comment in "))
   )
-| ..
-| select(tag != "!!map" and tag != "!!seq" and tag != "!!null" and . != "")
-| select(if tag == "!!str" then (test("^ENC\[") | not) else true end)
-| path | join(".")
+| sub("^[.]"; "") | sub("^"; $doc)
 EOF
 
 # sops metadata alone does not mean the values are encrypted: a file without
@@ -37,11 +57,11 @@ for f in "$@"; do
         mise run //:log error "File has no encrypted values, only data and stringData are encrypted" file "$f"
         rc=1
     elif [[ "$f" =~ \.(ya?ml|json)$ ]]; then
-        if ! leaks="$(yq --no-doc --unwrapScalar "$plaintext" "$f")"; then
+        if ! leaks="$(QE='\E\\E\Q' yq --no-doc --unwrapScalar "$plaintext" "$f" | awk '!seen[$0]++')"; then
             mise run //:log error "Failed to parse file" file "$f"
             rc=1
         elif [[ -n "$leaks" ]]; then
-            mise run //:log error "File has plain text values, re-encrypt it with sops" file "$f" values "${leaks//$'\n'/, }"
+            mise run //:log error "File has plain text values, remove them from the file and add them again with sops edit" file "$f" values "${leaks//$'\n'/, }"
             rc=1
         fi
     fi
