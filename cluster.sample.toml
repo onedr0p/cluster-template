@@ -55,14 +55,15 @@ node_cidr = ""
 # CIDR Cilium hands out to pods. /16 gives ~64K pod IPs, which is well beyond
 # what a homelab needs but matches the upstream default. Each node gets a /24
 # from it, so it must hold at least one /24 per node. Must NOT overlap
-# with node_cidr or svc_cidr.
+# with node_cidr, svc_cidr or the special-purpose ranges 0.0.0.0/8,
+# 127.0.0.0/8, 169.254.0.0/16, 224.0.0.0/4 and 240.0.0.0/4.
 # OPTIONAL. Default: "10.42.0.0/16"
 
 # pod_cidr = "10.42.0.0/16"
 
 # CIDR for ClusterIP services (the virtual IPs `kubectl get svc` shows).
-# Same /16 reasoning as pod_cidr. Must NOT overlap with node_cidr or
-# pod_cidr.
+# Same /16 reasoning as pod_cidr. Must NOT overlap with node_cidr,
+# pod_cidr or the special-purpose ranges listed there.
 # OPTIONAL. Default: "10.43.0.0/16"
 
 # svc_cidr = "10.43.0.0/16"

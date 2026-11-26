@@ -66,6 +66,15 @@ HOSTNAME_PATTERN = rf"^({DNS_LABEL}\.)*{DNS_LABEL}$"
 # from it: ExternalDNS's ownership TXT record 'k8s.cname-flux-webhook.<domain>'.
 DOMAIN_MAX_LENGTH = 230
 KERNEL_MODULE_PATTERN = r"^[A-Za-z0-9_-]+$"
+# Special-purpose ranges (RFC 6890) a CIDR must not overlap, e.g. Talos's
+# host DNS on 169.254.116.108.
+UNROUTABLE_NETWORKS = [
+    IPv4Network("0.0.0.0/8"),
+    IPv4Network("127.0.0.0/8"),
+    IPv4Network("169.254.0.0/16"),
+    IPv4Network("224.0.0.0/4"),
+    IPv4Network("240.0.0.0/4"),
+]
 # A Kubernetes object name (RFC 1123 subdomain).
 K8S_NAME_PATTERN = r"^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
 
@@ -90,7 +99,15 @@ def _network(value: Any) -> Any:
     # IPv4Network reads a bare address as a /32.
     if "/" not in value:
         raise ValueError(f"{value!r} has no prefix length, e.g. {value}/24")
+    for special in UNROUTABLE_NETWORKS:
+        if network.overlaps(special):
+            raise ValueError(f"{value} overlaps the special-purpose range {special}")
     return network
+
+
+def _address(value: Any) -> Any:
+    # pydantic would read a TOML integer as an address (168430334 is 10.10.10.254).
+    return str(value) if isinstance(value, int) else value
 
 
 def _bounded_int(lo: int, hi: int) -> Any:
@@ -196,6 +213,7 @@ def _unsettable(tp: Any) -> Any:
 # instead of emitting one mangled $defs entry per use.
 Stripped = Annotated[str, StringConstraints(strip_whitespace=True)]
 type Cidr = Annotated[IPv4Network, BeforeValidator(_network)]
+Ipv4 = Annotated[IPv4Address, BeforeValidator(_address)]
 type VlanTag = _bounded_int(1, 4094)
 type Asn = _bounded_int(1, 4294967295)
 type San = Annotated[
@@ -216,20 +234,23 @@ class Model(BaseModel):
 
 class Network(Model):
     node_cidr: Cidr
-    dns_servers: list[IPv4Address] = Field(
+    dns_servers: list[Ipv4] = Field(
         default=[IPv4Address("1.1.1.1"), IPv4Address("1.0.0.1")], min_length=1
     )
-    ntp_servers: list[IPv4Address] = Field(
+    ntp_servers: list[Ipv4] = Field(
         default=[IPv4Address("162.159.200.1"), IPv4Address("162.159.200.123")], min_length=1
     )
     # The first IP in node_cidr unless set explicitly.
-    default_gateway: _unsettable(IPv4Address) = Field(
+    default_gateway: _unsettable(Ipv4) = Field(
         default_factory=lambda data: data["node_cidr"].network_address + 1
     )
     vlan_tag: _unsettable(VlanTag | None) = None
 
     @model_validator(mode="after")
     def check(self) -> Self:
+        # A /31 (RFC 3021) still holds a node and its gateway.
+        if self.node_cidr.prefixlen > 31:
+            raise ValueError(f"node_cidr {self.node_cidr} is a single address; use the LAN's prefix, e.g. /24")
         if self.default_gateway not in self.node_cidr:
             raise ValueError(
                 f"default_gateway {self.default_gateway} is not inside node_cidr {self.node_cidr}"
@@ -238,7 +259,7 @@ class Network(Model):
 
 
 class Api(Model):
-    addr: IPv4Address
+    addr: Ipv4
     # False serves the API on the sole controller's own address (addr)
     # instead of announcing a Layer 2 VIP.
     vip: bool = True
@@ -254,7 +275,7 @@ class Kubernetes(Model):
     pod_cidr: Cidr = IPv4Network("10.42.0.0/16")
     svc_cidr: Cidr = IPv4Network("10.43.0.0/16")
     # Talos's default unless set explicitly.
-    coredns_addr: _unsettable(IPv4Address) = Field(
+    coredns_addr: _unsettable(Ipv4) = Field(
         default_factory=lambda data: _talos_cluster_dns(data["svc_cidr"])
     )
     api: Api
@@ -295,7 +316,7 @@ class Gateway(Model):
     # per cilium.announce), or the loadBalancerClass of another
     # implementation, e.g. "io.cilium/node" to serve on the nodes' own IPs
     # or "tailscale" for the Tailscale Kubernetes operator.
-    address: IPv4Address | None = None
+    address: Ipv4 | None = None
     load_balancer_class: Annotated[str, Field(pattern=LB_CLASS_PATTERN), AfterValidator(_lb_class)] | None = None
 
     # Whether the gateway's Service keeps its NodePorts. Cilium (an address
@@ -374,6 +395,9 @@ class Repository(Model):
                 f"url host {host_port!r} must be a hostname with an optional numeric port; "
                 "write scp-style git@host:owner/repo as ssh://git@host/owner/repo"
             )
+        port = host_port.partition(":")[2]
+        if port and not 0 < int(port) < 65536:
+            raise ValueError(f"url port {port} must be in the range 1-65535")
         if self.uses_deploy_key:
             host, _, port = host_port.partition(":")
             port = port or "22"
@@ -444,7 +468,7 @@ class Certs(Model):
 
 
 class Bgp(Model):
-    router_addr: _unsettable(IPv4Address | None) = None
+    router_addr: _unsettable(Ipv4 | None) = None
     router_asn: _unsettable(Asn | None) = None
     node_asn: _unsettable(Asn | None) = None
 
@@ -536,7 +560,7 @@ def _mac(value: Any) -> Any:
 
 class Node(Model):
     name: str = Field(pattern=r"^[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]$|^[a-z0-9]$")
-    address: IPv4Address
+    address: Ipv4
     controller: bool
     disk: Annotated[str, Field(min_length=1), AfterValidator(_disk)]
     mac_addr: Annotated[
