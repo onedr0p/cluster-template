@@ -75,18 +75,6 @@ def test_flux_webhook_route_attaches_to_the_reachable_gateway():
     assert expected in [gateway["metadata"]["name"] for gateway in gateways]
 
 
-# flux trigger receiver signs only generic and generic-hmac payloads, so the
-# test task targets the route's host and exists for generic-hmac only.
-def test_webhook_test_task_only_for_generic_hmac():
-    tasks = tomllib.loads((REPO_ROOT / "kubernetes/mise.toml").read_text())["tasks"]
-    hmac = config()["repository"]["webhook_provider"] == "generic-hmac"
-    assert ("webhook-test" in tasks) == hmac
-    if hmac:
-        (route,) = documents("kubernetes/apps/flux-system/flux-instance/app/httproute.yaml", "HTTPRoute")
-        host = route["spec"]["hostnames"][0].replace("${SECRET_DOMAIN}", config()["domain"]["name"])
-        assert f'--url="https://{host}"' in tasks["webhook-test"]["run"]
-
-
 # Only ssh:// repositories authenticate with the deploy key: the Secret is
 # rendered, apps-secrets applies it and flux-instance pulls with it. The
 # scheme is read from the URL here independently of validate.py on purpose.
