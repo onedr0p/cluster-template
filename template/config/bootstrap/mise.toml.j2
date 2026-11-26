@@ -33,6 +33,8 @@ topf secrets --confirm=false > /dev/null
 # topf bootstraps the first controller. If it was reset while another one
 # still runs etcd, --auto-bootstrap would start a second etcd cluster on it.
 # Unreachable nodes report stage "unknown"; topf apply aborts on them anyway.
+# Bootstrap only brings up nodes in maintenance mode; changes to configured
+# nodes go through //talos:apply, which shows the diff and waits for each node.
 [tasks.talos-preflight]
 hide = true
 dir = "{{ config_root }}/../talos"
@@ -48,6 +50,21 @@ if ! first="$(topf nodes --output yaml | yq '
 fi
 if [[ -n "$first" ]]; then
     mise run //:log fatal "Cluster is already bootstrapped; re-join the node with mise run //talos:apply-node $first" node "$first"
+fi
+if ! configured="$(topf nodes --output yaml | yq '
+    map(select(.machinestatus.stage != "maintenance" and .machinestatus.stage != "unknown") | .node.host) | join("|")
+')"; then
+    mise run //:log fatal "Failed to query the nodes"
+fi
+if [[ -n "$configured" ]]; then
+    mise run //:log info "Checking configured nodes for changes" nodes "$configured"
+    rc=0
+    topf apply --dry-run --allow-not-ready --nodes-filter "^($configured)$" || rc=$?
+    if (( rc == 2 )); then
+        mise run //:log fatal "Configured nodes would change; apply with mise run //talos:apply"
+    elif (( rc != 0 )); then
+        mise run //:log fatal "Failed to check the configured nodes"
+    fi
 fi
 '''
 
