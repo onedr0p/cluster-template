@@ -1,6 +1,5 @@
-# Run containerd, the kubelet and pods in a sandboxed PID/mount namespace
-# (talos.workload_isolation in cluster.toml). The in-tree iSCSI volume plugin
-# does not work with it enabled; use a CSI driver instead.
+# Run the kubelet and pods in a sandboxed PID/mount namespace (Talos 1.14 default).
+# The in-tree iSCSI volume plugin needs false; enabling it on encrypted disks takes a second reboot.
 apiVersion: v1alpha1
 kind: SecurityProfileConfig
-workloadIsolation: #{ talos.workload_isolation | string | lower }#
+workloadIsolation: true
