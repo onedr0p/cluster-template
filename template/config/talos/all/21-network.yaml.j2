@@ -6,11 +6,3 @@ nameservers:
   #% endfor %#
 searchDomains:
   disableDefault: true
-# Keep the host DNS cache, but point CoreDNS at the upstream nameservers
-# directly: with Cilium's eBPF host routing, pods can't reach the host DNS
-# address Talos binds on lo. `enabled` must stay explicit: without it Talos
-# ignores this hostDNS block.
-# Ref: https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium
-hostDNS:
-  enabled: true
-  forwardKubeDNSToHost: false
